@@ -1,0 +1,108 @@
+'use client';
+
+import { useState } from 'react';
+import type { ControllerRenderProps } from 'react-hook-form';
+import { toast } from 'sonner';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useGetAllCourseCategories } from '@/hooks/course-categories';
+import { adminUpsertCourseCategories } from '@/server-actions/admin/courses-categories';
+import type { ZTInsertCourseCategories } from '@/utils/db/drizzle-zod-schema/course-categories';
+import type { ZodInsertCourseType } from '@/utils/db/drizzle-zod-schema/courses';
+import CourseCategoryFormModal from '../Admin/Courses/course-category-form-modal';
+import { Button } from '../ui/button';
+import { FormControl } from '../ui/form';
+import { Skeleton } from '../ui/skeleton';
+
+interface CourseCategorySelectProps {
+  field: ControllerRenderProps<ZodInsertCourseType, 'category_id'>;
+  disabled?: boolean;
+}
+
+export default function CourseCategorySelect({
+  field,
+  disabled,
+}: CourseCategorySelectProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const {
+    data: queryResult,
+    isLoading,
+    error: queryError,
+    refetch,
+  } = useGetAllCourseCategories();
+  if (queryError) {
+    toast.error('Something went wrong while fetching categories', {
+      description: queryError.message,
+    });
+  }
+  const categories = queryResult?.data ?? [];
+
+  const handleCreateCategory = async (data: ZTInsertCourseCategories) => {
+    try {
+      const result = await adminUpsertCourseCategories(data);
+      if (result.success) {
+        toast.success('Category created successfully');
+        refetch();
+        setIsModalOpen(false);
+      } else {
+        toast.error(result.errors || 'Failed to create category');
+      }
+    } catch {
+      toast.error('An unexpected error occurred.');
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center space-x-4">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (categories?.length === 0) {
+    return (
+      <div>
+        <p>No categories found.</p>
+        <Button onClick={() => setIsModalOpen(true)} type="button">
+          Create Category
+        </Button>
+        <CourseCategoryFormModal
+          creationOnly
+          isOpen={isModalOpen}
+          onSubmit={handleCreateCategory}
+          setIsOpen={setIsModalOpen}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <FormControl>
+      <Select
+        disabled={disabled}
+        onValueChange={field.onChange}
+        value={field?.value ?? undefined}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="Select a category" />
+        </SelectTrigger>
+        <SelectContent>
+          {categories.map((category) => (
+            <SelectItem key={category.id} value={category.id}>
+              {category.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </FormControl>
+  );
+}

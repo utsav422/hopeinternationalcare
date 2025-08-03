@@ -1,0 +1,34 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+  "linter": {
+    "rules": {
+      "recommended": false,
+      "performance": {
+        "noNamespaceImport": "off"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      },
+      "suspicious": {
+        "noDocumentCookie": "off"
+      },
+      "nursery": {
+        "noNestedComponentDefinitions": "off",
+        "noUnknownAtRule": "off",
+        "noShadow": "off"
+      },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": {
+          "level": "off",
+          "options": {
+            "maxAllowedComplexity": 100
+          }
+        }
+      },
+      "correctness": {
+        "useExhaustiveDependencies": "off"
+      }
+    }
+  },
+  "extends": ["ultracite"]
+}

@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1751355079487,
+      "tag": "0000_naive_rumiko_fujikawa",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1751443706288,
+      "tag": "0001_sturdy_madame_masque",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1751460466429,
+      "tag": "0002_curious_scarecrow",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1751981194193,
+      "tag": "0003_panoramic_micromax",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1752144331730,
+      "tag": "0004_acoustic_reptil",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1754035052178,
+      "tag": "0005_bent_purple_man",
+      "breakpoints": true
+    }
+  ]
+}
