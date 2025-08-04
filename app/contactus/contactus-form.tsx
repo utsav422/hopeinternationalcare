@@ -1,105 +1,178 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { sendEmail } from '@/utils/send-email';
 
-export type FormData = {
-  name: string;
-  phone: string;
-  email: string;
-  message: string;
-};
+const contactFormSchema = z.object({
+  name: z
+    .string()
+    .min(2, 'Name must be at least 2 characters.')
+    .max(50, 'Name must not exceed 50 characters.'),
+  phone: z
+    .string()
+    .min(10, 'Phone number must be at least 10 digits.')
+    .max(15, 'Phone number must not exceed 15 digits.')
+    .optional()
+    .or(z.literal('')), // Optional phone number
+  email: z.string().email('Invalid email address.'),
+  message: z
+    .string()
+    .min(10, 'Message must be at least 10 characters.')
+    .max(500, 'Message must not exceed 500 characters.'),
+});
+
+type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 export function ContactUsForm() {
-  const { register, handleSubmit } = useForm<FormData>();
+  const form = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: '',
+      phone: '',
+      email: '',
+      message: '',
+    },
+  });
 
-  function onSubmit(data: FormData) {
-    sendEmail(data);
+  async function onSubmit(data: ContactFormValues) {
+    try {
+      await sendEmail(data);
+      toast.success('Your message has been sent successfully!');
+      form.reset();
+    } catch (error: unknown) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Failed to send your message. Please try again later.'
+      );
+      //   console.error('Error sending email:', error);
+    }
   }
 
   return (
-    <section className="items-center bg-gray-100 p-10 py-18">
-      <div className="relative mx-20 mt-10 min-h-[50vh] w-full bg-cover bg-grey-500 bg-no-repeat">
-        <h1 className="mb-2 text-center font-bold text-3xl text-gray-800">
-          Have Queries with us?
-        </h1>
-        <p className="mx-auto mb-16 w-full text-center font-normal text-gray-600 lg:w-10/12">
-          Send us quick email so that we can get back to you as soon as
-          possible.
-        </p>
-        <form className="mx-auto max-w-2xl" onSubmit={handleSubmit(onSubmit)}>
-          <div className="mb-5">
-            <label
-              className="mb-3 block font-medium text-base text-black"
-              htmlFor="name"
-            >
-              Full Name
-            </label>
-            <input
-              className="w-full rounded-md border border-gray-300 bg-white px-6 py-3 font-medium text-base text-gray-700 outline-none focus:border-teal-500 focus:shadow-md"
-              id="name"
-              placeholder="Full Name"
-              type="text"
-              {...register('name', { required: true })}
-            />
-          </div>
-          <div className="mb-5">
-            <label
-              className="mb-3 block font-medium text-base text-black"
-              htmlFor="email"
-            >
-              Email Address
-            </label>
-            <input
-              className="w-full rounded-md border border-gray-300 bg-white px-6 py-3 font-medium text-base text-gray-700 outline-none focus:border-teal-500 focus:shadow-md"
-              id="email"
-              placeholder="example@domain.com"
-              type="email"
-              {...register('email', { required: true })}
-            />
-          </div>
-          <div className="mb-5">
-            <label
-              className="mb-3 block font-medium text-base text-black"
-              htmlFor="phone"
-            >
-              Mobile Number
-            </label>
-            <input
-              className="w-full rounded-md border border-gray-300 bg-white px-6 py-3 font-medium text-base text-gray-700 outline-none focus:border-teal-500 focus:shadow-md"
-              id="phone"
-              placeholder="+977 9812344566"
-              type="tel"
-              {...register('phone', { required: true })}
-            />
-          </div>
-          <div className="mb-5">
-            <label
-              className="mb-3 block font-medium text-base text-black"
-              htmlFor="message"
-            >
-              Message
-            </label>
-            <textarea
-              className="w-full resize-none rounded-md border border-gray-300 bg-white px-6 py-3 font-medium text-base text-gray-700 outline-none focus:border-teal-500 focus:shadow-md"
-              id="message"
-              placeholder="Type your message"
-              rows={4}
-              {...register('message', { required: true })}
-            />
-          </div>
-          <div>
-            <button
-              className="rounded-md bg-teal-500 px-8 py-3 font-semibold text-base text-white outline-none transition-shadow duration-300 hover:bg-teal-600 hover:shadow-lg"
-              type="submit"
-            >
-              Submit
-            </button>
-          </div>
-        </form>
+    <section className="bg-gray-100 py-16 md:py-24 lg:py-32 dark:bg-gray-800">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-12 text-center">
+          <h2 className="font-extrabold text-3xl text-gray-900 sm:text-4xl md:text-5xl dark:text-white">
+            Have Queries with us?
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-gray-600 text-xl dark:text-gray-400">
+            Send us a quick email so that we can get back to you as soon as
+            possible.
+          </p>
+        </div>
+
+        <div className="mx-auto max-w-2xl rounded-lg bg-white p-8 shadow-lg md:p-10 dark:bg-gray-900">
+          <Form {...form}>
+            <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-800 dark:text-gray-200">
+                      Full Name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-400"
+                        placeholder="Your Full Name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-800 dark:text-gray-200">
+                      Email Address
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-400"
+                        placeholder="your@example.com"
+                        type="email"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-800 dark:text-gray-200">
+                      Mobile Number (Optional)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-400"
+                        placeholder="+977 9812344566"
+                        type="tel"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-800 dark:text-gray-200">
+                      Message
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-400"
+                        placeholder="Type your message here..."
+                        rows={5}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button
+                className="w-full rounded-md bg-teal-500 px-8 py-3 font-semibold text-lg text-white shadow-md transition-colors duration-300 hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800"
+                disabled={form.formState.isSubmitting}
+                type="submit"
+              >
+                {form.formState.isSubmitting ? 'Sending...' : 'Send Message'}
+              </Button>
+            </form>
+          </Form>
+        </div>
       </div>
     </section>
   );
 }
-
-export default ContactUsForm;

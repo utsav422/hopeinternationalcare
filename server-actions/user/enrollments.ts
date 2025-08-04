@@ -4,63 +4,133 @@
 import { eq } from 'drizzle-orm';
 import nodemailer from 'nodemailer';
 import { db } from '@/utils/db/drizzle';
+import { EnrollmentRequestSchema } from '@/utils/db/drizzle-zod-schema/enrollment';
 import { enrollments } from '@/utils/db/schema/enrollments';
 import { EnrollmentStatus } from '@/utils/db/schema/enums';
+import { intakes } from '@/utils/db/schema/intakes';
 import { profiles } from '@/utils/db/schema/profiles';
+import { createClient } from '@/utils/supabase/server';
 
-type EnrollmentFormInput = typeof enrollments.$inferInsert;
+export async function createEnrollment(formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-export async function createEnrollment(input: EnrollmentFormInput) {
-  // Validate required fields
-  if (!(input.user_id && input.intake_id)) {
-    throw new Error('Missing required fields');
+  if (!user) {
+    return { error: 'User not authenticated.' };
   }
 
-  const [newEnrollment] = await db
-    .insert(enrollments)
-    .values({
-      ...input,
+  const data = {
+    courseId: formData.get('courseId'),
+    intakeId: formData.get('intakeId'),
+    userId: user.id,
+  };
+
+  const parsed = EnrollmentRequestSchema.safeParse(data);
+
+  if (!parsed.success) {
+    return { error: parsed.error.errors.map((e) => e.message).join(', ') };
+  }
+
+  const { intakeId, userId: parsedUserId } = parsed.data;
+
+  if (!parsedUserId) {
+    return { error: 'User ID is missing after parsing.' };
+  }
+
+  const userId: string = parsedUserId;
+
+  try {
+    // Check if the user is already enrolled in this intake
+    const existingEnrollment = await db.query.enrollments.findFirst({
+      where: (enrollments, { eq, and }) =>
+        and(
+          eq(enrollments.user_id, userId),
+          eq(enrollments.intake_id, intakeId)
+        ),
+    });
+
+    if (existingEnrollment) {
+      return { error: 'You are already enrolled in this intake.' };
+    }
+
+    // Check intake capacity
+    const intakeData = await db.query.intakes.findFirst({
+      where: (intakes, { eq }) => eq(intakes.id, intakeId),
+    });
+
+    if (!intakeData) {
+      return { error: 'Intake not found.' };
+    }
+
+    if (intakeData.total_registered >= intakeData.capacity) {
+      return { error: 'This intake is full.' };
+    }
+
+    // Create enrollment
+    await db.insert(enrollments).values({
+      user_id: userId,
+      intake_id: intakeId,
       status: EnrollmentStatus.requested,
-    })
-    .returning();
+    });
 
-  // Fetch user and admins
-  const [user] = await db
-    .select()
-    .from(profiles)
-    .where(eq(profiles.id, input.user_id));
+    // Update intake total_registered count
+    await db
+      .update(intakes)
+      .set({ total_registered: intakeData.total_registered + 1 })
+      .where(eq(intakes.id, intakeId));
 
-  const admins = await db
-    .select({ email: profiles.email })
-    .from(profiles)
-    .where(eq(profiles.role, 'admin'));
+    // Fetch user and admins for email notification
+    const [userProfile] = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.id, userId));
 
-  if (!(user && admins.length)) {
-    throw new Error('User/admin fetch failed');
+    const admins = await db
+      .select({ email: profiles.email })
+      .from(profiles)
+      .where(eq(profiles.role, 'service_role')); // Assuming 'service_role' is for admins
+
+    if (userProfile && admins.length) {
+      // Send emails...
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.SMTP_USER ?? 'example',
+          pass: process.env.SMTP_PASS ?? 'example',
+        },
+      });
+
+      // Email to user
+      await transporter.sendMail({
+        from: process.env.SMTP_USER ?? 'example',
+        to: userProfile.email,
+        subject: 'Enrollment Request Received',
+        text: `Hi ${userProfile.full_name}, your enrollment request has been received for intake ID: ${intakeId}.`,
+      });
+
+      // Email to admins
+      await transporter.sendMail({
+        from: process.env.SMTP_USER ?? 'example',
+        to: admins.map((a) => a.email).join(','),
+        subject: 'New Enrollment Request',
+        text: `${userProfile.full_name} (${userProfile.email}) requested enrollment for intake ID: ${intakeId}.`,
+      });
+    } else {
+      // Log this, but don't prevent enrollment if email sending fails
+      //   console.warn(
+      //     'Could not fetch user profile or admin emails for notification.'
+      //   );
+    }
+
+    return {
+      success: true,
+      message: 'Enrollment request submitted successfully!',
+    };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    return { error: `Failed to submit enrollment request: ${errorMessage}` };
   }
-
-  // Send emails...
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.SMTP_USER ?? 'example',
-      pass: process.env.SMTP_PASS ?? 'example',
-    },
-  });
-
-  await transporter.sendMail({
-    from: process.env.SMTP_USER ?? 'example',
-    to: user.email,
-    subject: 'Enrollment Request Received',
-    text: `Hi ${user.full_name}, your enrollment request has been received.`,
-  });
-
-  await transporter.sendMail({
-    from: process.env.SMTP_USER ?? 'example',
-    to: admins.map((a) => a.email).join(','),
-    subject: 'New Enrollment Request',
-    text: `${user.full_name} requested enrollment for intake ID: ${input.intake_id}`,
-  });
-
-  return newEnrollment;
 }

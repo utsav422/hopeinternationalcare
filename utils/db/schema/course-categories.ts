@@ -17,6 +17,9 @@ export const courseCategories = pgTable(
     created_at: timestamp('created_at', { mode: 'string' })
       .notNull()
       .default(sql`now()`),
+    updated_at: timestamp('updated_at', { mode: 'string' })
+      .notNull()
+      .default(sql`now()`),
   },
   (_table) => [
     pgPolicy('anyone can read courses categories', {

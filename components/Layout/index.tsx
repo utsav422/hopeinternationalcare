@@ -8,7 +8,7 @@ import React, { type ReactNode, Suspense, useEffect, useState } from 'react';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { signOutAction } from '@/server-actions/user/user-auth-actions';
-import { createClient } from '@/utils/supabase/client';
+import { supabase } from '@/utils/supabase/client';
 import { AdminAppSidebar } from '../Admin/Sidebar/app-sidebar';
 import { ThemeSwitcher } from '../theme-switcher';
 import { UserAppSidebar } from '../User/Sidebar/app-sidebar';
@@ -59,7 +59,6 @@ export function Layout({
 
   // const handleOpen = () => setOpen((cur) => !cur);
   const checkUser = React.useCallback(async () => {
-    const supabase = createClient();
     const {
       data: { user: authedUser },
     } = await supabase.auth.getUser();
@@ -103,17 +102,7 @@ export function Layout({
       </SidebarProvider>
     );
   }
-  //   if (user && user.role === 'authenticated' && pathname.includes('/user')) {
-  //     return (
-  //       <SidebarProvider>
-  //         <UserAppSidebar variant="inset" />
-  //         <SidebarInset>
-  //           <SiteHeader />
-  //           <main className="mx-3 my-3 flex flex-1 flex-col">{children}</main>
-  //         </SidebarInset>
-  //       </SidebarProvider>
-  //     );
-  //   }
+ 
   return (
     <>
       <header

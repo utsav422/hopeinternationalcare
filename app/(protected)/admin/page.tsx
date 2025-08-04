@@ -1,13 +1,22 @@
-'use server';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import Dashboard from '@/components/Admin/dashboard';
-import { createClient } from '@/utils/supabase/server';
+import { queryKeys } from '@/hooks/query-keys';
+import { getDashboardSummaryData } from '@/server-actions/admin/dashboard';
+import { getQueryClient } from '@/utils/get-query-client';
 
 export default async function AdminDashboard() {
-  const supabase = await createClient();
+  const queryClient = getQueryClient();
 
-  const {
-    data: { user: _ },
-  } = await supabase.auth.getUser();
+  await queryClient.prefetchQuery({
+    queryKey: queryKeys.dashboard.all,
+    queryFn: getDashboardSummaryData,
+  });
 
-  return <Dashboard />;
+  const dehydratedState = dehydrate(queryClient);
+
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <Dashboard />
+    </HydrationBoundary>
+  );
 }

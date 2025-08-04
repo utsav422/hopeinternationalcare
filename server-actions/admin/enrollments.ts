@@ -12,7 +12,7 @@ import { intakes as intakeSchema } from '@/utils/db/schema/intakes';
 import { payments as paymentSchema } from '@/utils/db/schema/payments';
 import { profiles as profileSchema } from '@/utils/db/schema/profiles';
 
-export async function getEnrollments(params: {
+export async function adminGetEnrollments(params: {
   page?: number;
   pageSize?: number;
   filters?: object;
@@ -47,7 +47,7 @@ export async function getEnrollments(params: {
   return { data, total: total[0].count };
 }
 
-export async function getEnrollmentById(id: string) {
+export async function adminGetEnrollmentById(id: string) {
   const data = await db
     .select({
       id: enrollmentSchema.id,
@@ -70,7 +70,7 @@ export async function getEnrollmentById(id: string) {
   return { data: data[0] };
 }
 
-export async function getEnrollmentWithDetails(id: string) {
+export async function adminGetEnrollmentWithDetails(id: string) {
   const result = await db
     .select()
     .from(enrollmentSchema)
@@ -81,7 +81,7 @@ export async function getEnrollmentWithDetails(id: string) {
   return result[0];
 }
 
-export async function getEnrollmentsByUserId(userId: string) {
+export async function adminGetEnrollmentsByUserId(userId: string) {
   const data = await db
     .select({
       id: enrollmentSchema.id,
@@ -109,7 +109,7 @@ export async function getEnrollmentsByUserId(userId: string) {
   return { data, total: total[0].count };
 }
 
-export async function getEnrollmentWithPayment(id: string) {
+export async function adminGetEnrollmentWithPayment(id: string) {
   const data = await db
     .select({
       enrollment: {
@@ -192,6 +192,28 @@ export async function adminUpsertEnrollment(
         error instanceof Error ? error.message : 'An unexpected error occurred',
     };
   }
+}
+
+export async function adminUpdateEnrollmentStatus(
+  id: string,
+  status: TypeEnrollmentStatus,
+  cancelled_reason?: string
+) {
+  await db
+    .update(enrollmentSchema)
+    .set({ status, notes: cancelled_reason })
+    .where(eq(enrollmentSchema.id, id));
+  revalidatePath('/admin/enrollments');
+}
+
+export async function adminGetAllEnrollments() {
+  const data = await db.select().from(enrollmentSchema);
+  return { data };
+}
+
+export async function adminGetAllEnrollmentsByStatus(status: TypeEnrollmentStatus) {
+  const data = await db.select().from(enrollmentSchema).where(eq(enrollmentSchema.status, status));
+  return { data };
 }
 
 export async function adminDeleteEnrollment(id: string) {

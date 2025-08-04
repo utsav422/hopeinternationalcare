@@ -59,15 +59,32 @@ export async function getPublicCourses({
     }
   }
 
+  // Subquery to find the next upcoming intake for each course
   const nextIntakeSubquery = db
     .select({
       course_id: intakes.course_id,
-      start_date: sql<string>`min(case when ${intakes.start_date} > now() then ${intakes.start_date} else null end)`.as('next_intake_date'),
+      min_start_date: sql<string>`min(case when ${intakes.start_date} > now() then ${intakes.start_date} else null end)`.as('min_start_date'),
+    })
+    .from(intakes)
+    .groupBy(intakes.course_id)
+    .as('min_intake_dates');
+
+  const nextIntakeDetails = db
+    .select({
+      id: intakes.id,
+      course_id: intakes.course_id,
+      start_date: intakes.start_date,
       capacity: intakes.capacity,
       total_registered: intakes.total_registered,
     })
     .from(intakes)
-    .groupBy(intakes.course_id, intakes.capacity, intakes.total_registered)
+    .innerJoin(
+      nextIntakeSubquery,
+      and(
+        eq(intakes.course_id, nextIntakeSubquery.course_id),
+        eq(intakes.start_date, nextIntakeSubquery.min_start_date)
+      )
+    )
     .as('next_intake');
 
   const sortableColumns = {
@@ -94,12 +111,13 @@ export async function getPublicCourses({
       _umageUrl: courses.image_url,
       slug: courses.slug,
       categoryName: courseCategories.name,
-      next_intake_date: nextIntakeSubquery.start_date,
-      available_seats: sql<number>`${nextIntakeSubquery.capacity} - ${nextIntakeSubquery.total_registered}`,
+      next_intake_date: nextIntakeDetails.start_date,
+      next_intake_id: nextIntakeDetails.id,
+      available_seats: sql<number>`coalesce(${nextIntakeDetails.capacity}, 0) - coalesce(${nextIntakeDetails.total_registered}, 0)`,
     })
     .from(courses)
     .leftJoin(courseCategories, eq(courses.category_id, courseCategories.id))
-    .leftJoin(nextIntakeSubquery, eq(courses.id, nextIntakeSubquery.course_id))
+    .leftJoin(nextIntakeDetails, eq(courses.id, nextIntakeDetails.course_id))
     .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
     .orderBy(sortOrder === 'asc' ? sql`${orderBy} asc` : sql`${orderBy} desc`)
     .groupBy(
@@ -114,9 +132,10 @@ export async function getPublicCourses({
       courses.image_url,
       courses.slug,
       courseCategories.name,
-      nextIntakeSubquery.start_date,
-      nextIntakeSubquery.capacity,
-      nextIntakeSubquery.total_registered
+      nextIntakeDetails.start_date,
+      nextIntakeDetails.id,
+      nextIntakeDetails.capacity,
+      nextIntakeDetails.total_registered
     )
     .limit(pageSize)
     .offset(offset);

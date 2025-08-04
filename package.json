@@ -4,6 +4,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "db:seed": "tsx utils/db/seed.ts",
     "generate-types": "npx supabase gen types typescript --project-id ekyvcdmqqcpguabhqxrw --schema public > utils/supabase/database.types.ts"
   },
   "dependencies": {

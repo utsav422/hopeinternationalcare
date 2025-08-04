@@ -1,7 +1,7 @@
 import { createBrowserClient } from '@supabase/ssr';
 import type { Database } from './database.types';
 
-export const createClient = () => {
+const createClient = () => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!url) {
     throw new Error('NEXT_PUBLIC_SUPABASE_URL is not defined');
@@ -21,3 +21,5 @@ export const createClient = () => {
     },
   });
 };
+
+export const supabase = createClient();

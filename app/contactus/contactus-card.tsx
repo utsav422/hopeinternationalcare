@@ -25,26 +25,30 @@ export function ContactUsCard() {
   ];
 
   return (
-    <div className="relative mt-20 mb-10 min-h-[50vh] w-full bg-cover bg-no-repeat">
-      <div className="absolute inset-0 h-full w-full" />
-      <section className="mx-auto flex w-full max-w-4xl flex-col items-center px-4 py-4">
-        <div className="container relative z-10 mx-auto my-auto grid animate-fade-down place-items-center text-center duration-500">
-          <div>
-            <div className="col-span-2 grid grid-cols-1 gap-10 px-2 sm:grid-cols-3">
-              {CONTACTTYPE.map(({ icon, title, description }, _: number) => (
-                <div
-                  className="animate-fade cursor-pointer rounded-lg bg-white p-2 shadow-md duration-500 hover:bg-teal-100"
-                  key={title}
-                >
-                  <FeatureCard icon={icon} key={title} title={title}>
-                    {description}
-                  </FeatureCard>
-                </div>
-              ))}
-            </div>
-          </div>
+    <section className='relative bg-gray-50 py-16 md:py-24 lg:py-32 dark:bg-gray-900'>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className='mb-12 text-center'>
+          <h2 className='font-extrabold text-3xl text-gray-900 sm:text-4xl md:text-5xl dark:text-white'>
+            Get in Touch
+          </h2>
+          <p className='mx-auto mt-4 max-w-2xl text-gray-600 text-xl dark:text-gray-400'>
+            We'd love to hear from you. Here's how you can reach us.
+          </p>
         </div>
-      </section>
-    </div>
+
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          {CONTACTTYPE.map(({ icon, title, description }) => (
+            <div
+              className="group transform cursor-pointer rounded-lg bg-white p-6 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl dark:bg-gray-800 dark:hover:bg-gray-700"
+              key={title}
+            >
+              <FeatureCard icon={icon} title={title}>
+                {description}
+              </FeatureCard>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }

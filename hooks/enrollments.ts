@@ -3,10 +3,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ColumnFiltersState } from '@tanstack/react-table';
 import {
   adminDeleteEnrollment,
-  adminGetAllEnrollments,
-  adminGetAllEnrollmentsByStatus,
   adminGetEnrollmentById,
   adminGetEnrollments,
+  adminGetEnrollmentsByUserId,
+  adminGetEnrollmentWithDetails,
   adminUpdateEnrollmentStatus,
   adminUpsertEnrollment,
 } from '@/server-actions/admin/enrollments';
@@ -22,25 +22,10 @@ type EnrollmentListParams = {
   filters?: ColumnFiltersState;
 };
 
-export const useGetAllEnrollments = () => {
-  return useQuery({
-    queryKey: queryKeys.enrollments.lists(),
-    queryFn: () => adminGetAllEnrollments(),
-  });
-};
-
 export const useGetEnrollments = (params: EnrollmentListParams) => {
   return useQuery({
     queryKey: queryKeys.enrollments.list(params),
     queryFn: () => adminGetEnrollments(params),
-  });
-};
-
-export const useGetAllEnrollmentsByStatus = (status: TypeEnrollmentStatus) => {
-  return useQuery({
-    queryKey: queryKeys.enrollments.list({ status }),
-    queryFn: () => adminGetAllEnrollmentsByStatus(status),
-    enabled: !!(status && status?.length > 0),
   });
 };
 

@@ -50,6 +50,20 @@ export const queryKeys = {
   refunds: {
     all: ['refunds'] as const,
   },
+  customerContactRequests: {
+    all: ['customer-contact-requests'] as const,
+    lists: () => [...queryKeys.customerContactRequests.all, 'list'] as const,
+    list: (params: object) => [...queryKeys.customerContactRequests.lists(), params] as const,
+    details: () => [...queryKeys.customerContactRequests.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.customerContactRequests.details(), id] as const,
+  },
+  relatedCourses: {
+    all: ['related-courses'] as const,
+    detail: (courseId: string, categoryId: string) => [...queryKeys.relatedCourses.all, courseId, categoryId] as const,
+  },
+  newCourses: {
+    all: ['new-courses'] as const,
+  },
   users: {
     all: ['users'] as const,
   },

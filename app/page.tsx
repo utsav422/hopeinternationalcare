@@ -1,14 +1,14 @@
 import CarouselFeatures from './carousel-features';
-import OurCoursesOverview from './feature-course-main';
 import Hero from './hero';
-import OnlineCourse from './online-course';
+import OurCoursesOverview from './our-courses-overview';
+import OurServices from './our-services';
 import WhyChooseUs from './why-choose-us';
 
 export default function Home() {
   return (
     <>
       <Hero />
-      <OnlineCourse />
+      <OurServices />
       <OurCoursesOverview />
       <WhyChooseUs />
       {/* <FeatureCourseCard/> */}

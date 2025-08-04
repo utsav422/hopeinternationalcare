@@ -315,12 +315,10 @@ const Page = () => {
       const formData = new FormData();
       formData.set('email', values.email);
       formData.set('password', values.password);
-      await signInAction(formData);
-      toast.success(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
+      const result = await signInAction(formData);
+      if (result?.error) {
+        toast.error(result.error);
+      }
     } catch (error: unknown) {
       toast.error(
         error instanceof Error

@@ -1,7 +1,7 @@
 'use client';
 
+import {  useQueryClient } from '@tanstack/react-query';
 import { BookOpen, CheckCircle, DollarSign, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -17,41 +17,39 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import {
-  type DashboardSummary,
-  getDashboardSummaryData,
-} from '@/server-actions/admin/dashboard';
+import { useDashboardSummary } from '@/hooks/dashboard';
+import { useRealtime } from '@/hooks/use-realtime';
 import type {
   TypeEnrollmentStatus,
   TypePaymentStatus,
 } from '@/utils/db/schema/enums';
 
 export default function Dashboard() {
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const {
+    data: summary,
+    isLoading: loading,
+    error,
+  } = useDashboardSummary();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getDashboardSummaryData();
-        setSummary(data);
-      } catch {
-        setError('Failed to fetch dashboard data.');
-        // console.error(err); // Commented out as per biome error
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  useRealtime('enrollments', () => {
+    queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
+  });
+
+  useRealtime('payments', () => {
+    queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
+  });
+
+  useRealtime('profiles', () => {
+    queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
+  });
 
   if (loading) {
     return <div className="p-4">Loading dashboard data...</div>;
   }
 
   if (error) {
-    return <div className="p-4 text-red-500">{error}</div>;
+    return <div className="p-4 text-red-500">{error?.message}</div>;
   }
 
   if (!summary) {

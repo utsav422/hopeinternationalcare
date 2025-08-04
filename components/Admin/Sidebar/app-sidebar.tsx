@@ -66,6 +66,11 @@ export function AdminAppSidebar({ ...props }: React.ComponentProps<typeof Sideba
             url: '/admin/enrollments',
             isActive: false,
           },
+          {
+            title: 'Real-time Dashboard',
+            url: '/admin/dashboard/realtime',
+            isActive: false,
+          },
         ],
       },
     ],

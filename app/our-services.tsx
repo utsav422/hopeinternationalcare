@@ -5,10 +5,9 @@ import {
   CheckBadgeIcon,
   InboxIcon,
 } from '@heroicons/react/24/solid';
-
 import FeatureCard from '@/components/Custom/feature-card';
 
-export function OnlineCourse() {
+export function OurServices() {
   const FEATURES = [
     {
       icon: InboxIcon,
@@ -31,37 +30,34 @@ export function OnlineCourse() {
   ];
 
   return (
-    <section className="bg-white px-8 py-28">
-      <div className="container mx-auto grid animate-fade grid-cols-1 place-items-center duration-500 lg:grid-cols-3">
-        {/* Content Section */}
-        <div className="col-span-3 lg:pr-10">
-          {/* Main Title */}
-          <h2 className="mb-4 animate-fade text-center font-bold text-4xl text-black duration-500">
+    <section className='relative bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28 dark:bg-gray-900'>
+      <div className='absolute inset-0 bg-gradient-to-b from-white to-gray-50 opacity-50 dark:from-gray-900 dark:to-gray-800' />
+      <div className='container relative z-10 mx-auto'>
+        <div className='mb-16 text-center'>
+          <h2 className='font-extrabold text-3xl text-gray-900 sm:text-4xl md:text-5xl dark:text-white'>
             Our Special Services
           </h2>
-
-          {/* Subtitle */}
-          <p className="mx-auto mb-16 w-full text-center font-normal text-gray-600 text-lg lg:w-10/12">
+          <p className='mx-auto mt-4 max-w-2xl text-gray-500 text-xl dark:text-gray-400'>
             Learn from experienced professionals who are passionate about
             sharing their knowledge and expertise in elderly care.
           </p>
+        </div>
 
-          <div className="mt-10 grid animate-fade grid-cols-1 gap-10 duration-500 sm:grid-cols-3">
-            {FEATURES.map(({ icon, title, description }, index) => (
-              <div
-                className="cursor-pointer rounded-lg bg-white p-6 shadow-lg transition-colors duration-300 hover:bg-teal-100"
-                key={index + title}
-              >
-                <FeatureCard icon={icon} key={title} title={title}>
-                  {description}
-                </FeatureCard>
-              </div>
-            ))}
-          </div>
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map(({ icon, title, description }) => (
+            <div
+              className='group hover:-translate-y-2 rounded-xl bg-white shadow-lg transition-all duration-300 hover:shadow-xl dark:bg-gray-800/50'
+              key={title}
+            >
+              <FeatureCard icon={icon} title={title}>
+                {description}
+              </FeatureCard>
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-export default OnlineCourse;
+export default OurServices;

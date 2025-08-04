@@ -84,11 +84,9 @@ export const signInAction = async (formData: FormData) => {
   });
 
   if (error || !user) {
-    return encodedRedirect(
-      'error',
-      '/sign-in',
-      error?.message ?? 'Something went wrong, user not found!'
-    );
+    return {
+      error: error?.message ?? 'Something went wrong, user not found!',
+    };
   }
 
   if (user?.role === 'service_role') {

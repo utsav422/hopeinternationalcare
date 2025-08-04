@@ -3,7 +3,7 @@
 import type { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import React from 'react';
-import { createClient } from '@/utils/supabase/client'; // Assuming this path for supabase client
+import { supabase } from '@/utils/supabase/client'; // Assuming this path for supabase client
 
 function ProfilePage() {
   const router = useRouter();
@@ -11,7 +11,6 @@ function ProfilePage() {
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const supabase = createClient();
     const checkUser = async () => {
       const {
         data: { user },

@@ -7,11 +7,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const res_params = await params;
     await requireAdmin();
     const supabase = await createClient();
     const { data, error } = await supabase.auth.admin.deleteUser(
-      res_params.id,
+      params.id,
       true
     );
     if (error) {

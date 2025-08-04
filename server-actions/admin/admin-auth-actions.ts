@@ -59,16 +59,25 @@ export const signInAction = async (formData: FormData) => {
   const password = formData.get('password') as string;
   const supabase = await createClient();
 
-  const { data: _, error } = await supabase.auth.signInWithPassword({
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
-  if (error) {
-    return encodedRedirect('error', '/admin/sign-in', error.message);
+  if (error || !user) {
+    return {
+      error: error?.message ?? 'Something went wrong, user not found!',
+    };
   }
 
-  return redirect('/admin?message=', RedirectType.replace);
+  if (user?.role === 'service_role') {
+    return redirect('/admin');
+  }
+
+  return redirect('/');
 };
 export const signOutAction = async () => {
   const supabase = await createClient();

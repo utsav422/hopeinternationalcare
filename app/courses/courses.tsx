@@ -8,6 +8,7 @@ import CourseCard from '@/components/Custom/course-card';
 import { CourseCardSkeleton } from '@/components/Custom/course-card-skeleton';
 import IntakeFilter from '@/components/Custom/intake-filter';
 import SortingSelect from '@/components/Custom/sorting-select';
+import { UpcomingIntakesBanner } from '@/components/Custom/upcoming-intakes-banner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useGetPublicCourses } from '@/hooks/public-courses';
@@ -54,9 +55,7 @@ export function AllCourses() {
   };
 
   const renderSkeletons = () => {
-    return Array.from({ length: 3 }).map((_, i) => (
-      <CourseCardSkeleton key={i} />
-    ));
+    return [1, 2, 3].map((num) => <CourseCardSkeleton key={num} />);
   };
 
   const getButtonText = () => {
@@ -90,10 +89,13 @@ export function AllCourses() {
           {courses.map((course) => (
             <CourseCard
               available_seats={course.available_seats}
+              categoryName={course.categoryName}
               desc={course.description || ''}
               heading={course._umageUrl || ''}
+              id={course.id}
               key={course.id}
               next_intake_date={course.next_intake_date}
+              next_intake_id={course.next_intake_id}
               price={course.price}
               slug={course.slug}
               title={course.title}
@@ -102,6 +104,7 @@ export function AllCourses() {
         </div>
         <div className="mt-8 text-center">
           <Button
+            className="bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-700"
             disabled={!hasNextPage || isFetchingNextPage}
             onClick={() => fetchNextPage()}
             ref={ref}
@@ -114,27 +117,27 @@ export function AllCourses() {
   };
 
   return (
-    <div className="bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-12 lg:py-16">
-        <header className="mb-12 text-center">
-          <h1 className="font-bold text-4xl text-gray-900 tracking-tight sm:text-5xl">
+        <UpcomingIntakesBanner />
+        <header className='mt-12 mb-12 text-center'>
+          <h1 className="font-bold text-4xl text-gray-900 tracking-tight sm:text-5xl dark:text-white">
             Explore Our Courses
           </h1>
-          <p className="mt-4 text-gray-600 text-lg">
+          <p className="mt-4 text-gray-600 text-lg dark:text-gray-400">
             Find the perfect course to kickstart your career in aged care.
           </p>
         </header>
-
         <div className="flex flex-col gap-10 lg:flex-row">
           {/* Left Sidebar */}
-          <aside className="w-full self-start lg:sticky lg:top-24 lg:w-1/4">
+          <aside className="w-full self-start rounded-lg bg-white p-6 shadow-lg lg:sticky lg:top-24 lg:w-1/4 dark:bg-gray-800">
             <div className="space-y-8">
               <div>
-                <h2 className="mb-4 font-semibold text-2xl text-gray-800">
+                <h2 className="mb-4 font-semibold text-2xl text-gray-800 dark:text-gray-200">
                   Search
                 </h2>
                 <Input
-                  className="rounded-lg border-gray-300 text-base"
+                  className="rounded-lg border-gray-300 bg-gray-50 text-base dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   name="title"
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search by title..."
@@ -142,7 +145,7 @@ export function AllCourses() {
                 />
               </div>
               <div>
-                <h2 className="mb-4 font-semibold text-2xl text-gray-800">
+                <h2 className="mb-4 font-semibold text-2xl text-gray-800 dark:text-gray-200">
                   Filters
                 </h2>
                 <div className="space-y-4">
@@ -159,7 +162,7 @@ export function AllCourses() {
                 </div>
               </div>
               <div>
-                <h2 className="mb-4 font-semibold text-2xl text-gray-800">
+                <h2 className="mb-4 font-semibold text-2xl text-gray-800 dark:text-gray-200">
                   Sort By
                 </h2>
                 <SortingSelect onChange={setSorting} value={sorting} />

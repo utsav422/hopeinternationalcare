@@ -4,7 +4,7 @@ import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FormMessage, type Message } from '@/components/form-message';
+
 import { Logo } from '@/components/Layout/logo';
 import { Label } from '@/components/ui/label';
 import { signUpAction } from '@/server-actions/admin/admin-auth-actions';
@@ -295,18 +295,7 @@ const SignUpCard = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [isHovered, setIsHovered] = useState(false);
-  const searchParams = useSearchParams();
-  const success = searchParams.get('success');
-  const error = searchParams.get('error');
-  const message = searchParams.get('message');
-  let formMessage: Message = null;
-  if (success) {
-    formMessage = { success };
-  } else if (error) {
-    formMessage = { error };
-  } else if (message) {
-    formMessage = { message };
-  }
+  
   return (
     <div className="flex h-full w-full items-center justify-center">
       <motion.div
@@ -502,7 +491,7 @@ const SignUpCard = () => {
                   )}
                 </Button>
               </motion.div>
-              <FormMessage message={formMessage} />
+              
             </form>
           </motion.div>
         </div>

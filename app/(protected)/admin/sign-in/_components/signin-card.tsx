@@ -326,7 +326,10 @@ const SignInCard = () => {
       const formData = new FormData();
       formData.set('email', values.email);
       formData.set('password', values.password);
-      await signInAction(formData);
+      const result = await signInAction(formData);
+      if (result?.error) {
+        toast.error(result.error);
+      }
     } catch (error: unknown) {
       toast.error(
         error instanceof Error

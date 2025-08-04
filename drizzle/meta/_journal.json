@@ -43,6 +43,13 @@
       "when": 1754035052178,
       "tag": "0005_bent_purple_man",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1754239483846,
+      "tag": "0006_regular_the_hunter",
+      "breakpoints": true
     }
   ]
 }
