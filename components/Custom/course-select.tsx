@@ -51,12 +51,12 @@ export default function CourseSelect({ field, disabled }: CourseSelectProps) {
       onValueChange={field.onChange}
       value={field.value ?? undefined}
     >
-      <SelectTrigger>
+      <SelectTrigger className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
         <SelectValue placeholder="Select a course" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
         {courses?.map((course: CourseForSelect) => (
-          <SelectItem key={course.id} value={course.id}>
+          <SelectItem key={course.id} value={course.id} className="dark:hover:bg-gray-700">
             {course.title}
           </SelectItem>
         ))}

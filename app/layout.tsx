@@ -5,7 +5,6 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import Layout from '@/components/Layout';
 import { Toaster } from '@/components/ui/sonner';
 import { QueryProvider } from '@/utils/provider/query-provider';
-import { createClient } from '@/utils/supabase/server';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -22,16 +21,11 @@ const roboto = Roboto({
   weight: ['300', '400', '500', '700', '900'],
   display: 'swap',
 });
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
   return (
     <html className={roboto.className} lang="en" suppressHydrationWarning>
       <head>
@@ -47,10 +41,10 @@ export default async function RootLayout({
           <NuqsAdapter>
             <ThemeProvider
               attribute="class"
-              defaultTheme="light"
-              disableTransitionOnChange
+              defaultTheme="dark"
+              //   disableTransitionOnChange
             >
-              <Layout user={user}>
+              <Layout>
                 {children}
                 <Toaster />
               </Layout>

@@ -1,5 +1,6 @@
 'use client';
 
+import type { ColumnFiltersState } from '@tanstack/react-table';
 import { useQueryState } from 'nuqs';
 
 export type ListParams = {
@@ -7,7 +8,7 @@ export type ListParams = {
   pageSize: number;
   sortBy: string;
   order: 'asc' | 'desc';
-  filters: Record<string, unknown>[];
+  filters: ColumnFiltersState;
 };
 
 export const useDataTableQueryState = () => {

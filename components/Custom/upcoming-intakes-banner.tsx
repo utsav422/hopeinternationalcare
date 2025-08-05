@@ -55,7 +55,7 @@ export function UpcomingIntakesBanner() {
         <div className="flex flex-wrap justify-center gap-4">
           {intakes.map((intake) => (
             <div
-              className="flex flex-grow flex-col justify-between rounded-lg bg-white/30 p-4 shadow-sm transition-all duration-200 hover:scale-[1.02] hover:shadow-md sm:flex-row sm:items-center dark:bg-white/10"
+              className="flex flex-grow flex-col justify-between rounded-lg bg-white/30 p-4 shadow-sm transition-all duration-200 hover:scale-[1.02] hover:shadow-md sm:flex-row sm:items-center dark:bg-white/10 dark:hover:bg-white/20"
               key={intake.intakeId}
             >
               <div className="mb-2 sm:mb-0">

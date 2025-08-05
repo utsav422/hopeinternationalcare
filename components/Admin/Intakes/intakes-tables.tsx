@@ -19,7 +19,12 @@ import { Skeleton } from '../../ui/skeleton';
 export default function IntakesTables() {
   const searchParams = useSearchParams();
   const tab = searchParams.get('tab');
-  const { data: queryResult, isLoading } = useGetAllIntakes();
+  const { data: queryResult, isLoading, error } = useGetAllIntakes();
+  if (error) {
+    toast.error('Error fetching intakes', {
+      description: error.message,
+    });
+  }
   const data = queryResult?.data;
   const { mutateAsync: deleteIntake } = useDeleteIntake();
 
@@ -44,39 +49,51 @@ export default function IntakesTables() {
   const columns = [
     {
       accessorKey: 'courseTitle',
-      header: 'Course Title',
+      header: () => <div className="dark:text-white">Course Title</div>,
+      cell: ({ row }: { row: { original: IntakeWithCourseTitleWithPrice } }) => (
+        <span className="dark:text-gray-300">{row.original.courseTitle}</span>
+      ),
     },
     {
       accessorKey: 'start_date',
-      header: 'Start Date',
+      header: () => <div className="dark:text-white">Start Date</div>,
       cell: ({
         row,
       }: {
         row: { original: IntakeWithCourseTitleWithPrice };
       }) => (
-        <span>{new Date(row.original.start_date).toLocaleDateString()}</span>
+        <span className="dark:text-gray-300">{new Date(row.original.start_date).toLocaleDateString()}</span>
       ),
     },
     {
       accessorKey: 'end_date',
-      header: 'End Date',
+      header: () => <div className="dark:text-white">End Date</div>,
       cell: ({
         row,
       }: {
         row: { original: IntakeWithCourseTitleWithPrice };
-      }) => <span>{new Date(row.original.end_date).toLocaleDateString()}</span>,
+      }) => <span className="dark:text-gray-300">{new Date(row.original.end_date).toLocaleDateString()}</span>,
     },
     {
       accessorKey: 'capacity',
-      header: 'Capacity',
+      header: () => <div className="dark:text-white">Capacity</div>,
+      cell: ({ row }: { row: { original: IntakeWithCourseTitleWithPrice } }) => (
+        <span className="dark:text-gray-300">{row.original.capacity}</span>
+      ),
     },
     {
       accessorKey: 'total_registered',
-      header: 'Total Registered',
+      header: () => <div className="dark:text-white">Total Registered</div>,
+      cell: ({ row }: { row: { original: IntakeWithCourseTitleWithPrice } }) => (
+        <span className="dark:text-gray-300">{row.original.total_registered}</span>
+      ),
     },
     {
       accessorKey: 'is_open',
-      header: 'Is Open',
+      header: () => <div className="dark:text-white">Is Open</div>,
+      cell: ({ row }: { row: { original: IntakeWithCourseTitleWithPrice } }) => (
+        <span className="dark:text-gray-300">{row.original.is_open ? 'Yes' : 'No'}</span>
+      ),
     },
     {
       id: 'actions',
@@ -87,18 +104,18 @@ export default function IntakesTables() {
       }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="ghost">
+            <Button size="sm" variant="ghost" className="dark:text-white">
               ...
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent className="dark:bg-gray-800 dark:border-gray-700">
             <DropdownMenuItem asChild>
-              <Link href={`/admin/intakes/${row.original.id}`}>View</Link>
+              <Link href={`/admin/intakes/${row.original.id}`} className="dark:text-gray-300 dark:hover:bg-gray-700">View</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href={`/admin/intakes/edit/${row.original.id}`}>Edit</Link>
+              <Link href={`/admin/intakes/edit/${row.original.id}`} className="dark:text-gray-300 dark:hover:bg-gray-700">Edit</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDelete(row.original.id)}>
+            <DropdownMenuItem onClick={() => handleDelete(row.original.id)} className="dark:text-red-500 dark:hover:bg-gray-700">
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -113,9 +130,9 @@ export default function IntakesTables() {
 
   return (
     <Tabs defaultValue={tab ?? 'current'}>
-      <TabsList>
-        <TabsTrigger value="current">Current Intakes</TabsTrigger>
-        <TabsTrigger value="history">History Intakes</TabsTrigger>
+      <TabsList className="dark:bg-gray-800 dark:border-gray-700">
+        <TabsTrigger value="current" className="dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">Current Intakes</TabsTrigger>
+        <TabsTrigger value="history" className="dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">History Intakes</TabsTrigger>
       </TabsList>
       <TabsContent value="current">
         <DataTable

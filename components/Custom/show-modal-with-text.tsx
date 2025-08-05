@@ -13,42 +13,25 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, text }) => {
     return null;
   }
 
-  const modalStyle: React.CSSProperties = {
-    display: isOpen ? 'block' : 'none',
-    position: 'static',
-    zIndex: 1,
-    left: 0,
-    top: 0,
-    width: '100%',
-    height: '100%',
-    overflow: 'auto',
-  };
-
-  const modalContentStyle: React.CSSProperties = {
-    backgroundColor: '#fefefe',
-    margin: 'auto',
-    padding: '20px',
-    border: '1px solid #888',
-    width: '80%',
-    maxWidth: '600px',
-    borderRadius: '8px',
-  };
-
   return (
-    <div className="modal" style={modalStyle}>
-      <div className="modal-content" style={modalContentStyle}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="relative w-full max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800 dark:text-white">
         <Button
           aria-label="Close modal"
-          className="close"
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
           onClick={onClose}
           type="button"
+          variant="ghost"
         >
           &times;
         </Button>
-        <p>{text}</p>
+        <p className="text-gray-800 dark:text-gray-200">{text}</p>
       </div>
     </div>
   );
 };
+
+export default Modal;
+
 
 export default Modal;

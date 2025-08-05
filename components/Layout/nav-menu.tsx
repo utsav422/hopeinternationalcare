@@ -1,7 +1,6 @@
 import type { NavigationMenuProps } from '@radix-ui/react-navigation-menu';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -10,21 +9,24 @@ import {
 } from '@/components/ui/navigation-menu';
 import { cn } from '@/lib/utils';
 
-export const NavMenu = (props: NavigationMenuProps) => {
+export const NavMenu = (
+  props: NavigationMenuProps & { isScrolling: boolean }
+) => {
   const pathname = usePathname();
-  const [isScrolling, setIsScrolling] = useState(false);
-  useEffect(() => {
-    function handleScroll() {
-      if (window.scrollY > 0) {
-        setIsScrolling(true);
-      } else {
-        setIsScrolling(false);
-      }
-    }
+  const { isScrolling } = props;
+  //   const [isScrolling, setIsScrolling] = useState(false);
+  //   useEffect(() => {
+  //     function handleScroll() {
+  //       if (window.scrollY > 0) {
+  //         setIsScrolling(true);
+  //       } else {
+  //         setIsScrolling(false);
+  //       }
+  //     }
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  //     window.addEventListener('scroll', handleScroll);
+  //     return () => window.removeEventListener('scroll', handleScroll);
+  //   }, []);
 
   return (
     <NavigationMenu {...props}>

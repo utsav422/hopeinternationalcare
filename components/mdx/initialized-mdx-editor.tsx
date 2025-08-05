@@ -30,11 +30,12 @@ export default function InitializedMDXEditor({
   return (
     <MDXEditor
       {...props}
+      className="dark-theme"
       plugins={[
         toolbarPlugin({
           toolbarClassName: 'flex',
           toolbarContents: () => (
-            <div className="flex flex-grow">
+            <div className="flex flex-grow dark:bg-gray-700 dark:text-white">
               <UndoRedo />
               <Separator />
               <BoldItalicUnderlineToggles />

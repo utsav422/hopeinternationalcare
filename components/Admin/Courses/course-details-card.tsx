@@ -20,7 +20,9 @@ const Card = ({
   children: React.ReactNode;
   className?: string;
 }) => (
-  <div className={`rounded-lg bg-white p-6 shadow-md ${className}`}>
+  <div
+    className={`rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:border-gray-700 ${className}`}
+  >
     {children}
   </div>
 );
@@ -55,24 +57,28 @@ const CourseInfo = ({
   onCategoryAction: (action: 'add' | 'update') => void;
 }) => (
   <Card>
-    <h1 className="mb-2 font-bold text-2xl">{title}</h1>
+    <h1 className="mb-2 font-bold text-2xl dark:text-white">{title}</h1>
     <div className="grid grid-cols-2 gap-4">
       <div>
-        <p className="font-medium text-gray-500 text-sm">Level</p>
-        <p>{level}</p>
+        <p className="font-medium text-gray-500 text-sm dark:text-gray-400">
+          Level
+        </p>
+        <p className="dark:text-gray-300">{level}</p>
       </div>
       <div>
-        <p className="font-medium text-gray-500 text-sm">Category ID</p>
+        <p className="font-medium text-gray-500 text-sm dark:text-gray-400">
+          Category ID
+        </p>
         <div className="flex items-center space-x-2">
           <div>
             {categoryId ? (
               <CourseCategoryBadge categoryId={categoryId} />
             ) : (
-              <p>N/A</p>
+              <p className="dark:text-gray-300">N/A</p>
             )}
           </div>
           <Button
-            className="p-0"
+            className="p-0 dark:text-blue-400"
             onClick={() => onCategoryAction(categoryId ? 'update' : 'add')}
             variant="link"
           >
@@ -81,12 +87,16 @@ const CourseInfo = ({
         </div>
       </div>
       <div>
-        <p className="font-medium text-gray-500 text-sm">Slug</p>
-        <p>{slug}</p>
+        <p className="font-medium text-gray-500 text-sm dark:text-gray-400">
+          Slug
+        </p>
+        <p className="dark:text-gray-300">{slug}</p>
       </div>
       <div>
-        <p className="font-medium text-gray-500 text-sm">Duration</p>
-        <p>
+        <p className="font-medium text-gray-500 text-sm dark:text-gray-400">
+          Duration
+        </p>
+        <p className="dark:text-gray-300">
           {durationValue} {durationType}
         </p>
       </div>
@@ -96,33 +106,48 @@ const CourseInfo = ({
 
 const CoursePrice = ({ price }: { price: number }) => (
   <Card>
-    <p className="font-medium text-gray-500 text-sm">Price</p>
-    <p className="font-bold text-3xl">${price}</p>
+    <p className="font-medium text-gray-500 text-sm dark:text-gray-400">
+      Price
+    </p>
+    <p className="font-bold text-3xl dark:text-white">${price}</p>
   </Card>
 );
 
 const CourseIntakes = () => (
   <Card>
-    <h2 className="mb-4 font-bold text-xl">Intakes</h2>
+    <h2 className="mb-4 font-bold text-xl dark:text-white">Intakes</h2>
     <table className="w-full text-left">
       <thead>
         <tr>
-          <th className="border-b p-2">Name</th>
-          <th className="border-b p-2">Start Date</th>
-          <th className="border-b p-2">End Date</th>
-          <th className="border-b p-2">Status</th>
+          <th className="border-b p-2 dark:text-gray-300 dark:border-gray-600">
+            Name
+          </th>
+          <th className="border-b p-2 dark:text-gray-300 dark:border-gray-600">
+            Start Date
+          </th>
+          <th className="border-b p-2 dark:text-gray-300 dark:border-gray-600">
+            End Date
+          </th>
+          <th className="border-b p-2 dark:text-gray-300 dark:border-gray-600">
+            Status
+          </th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td className="p-4 text-center text-gray-500" colSpan={4}>
+          <td
+            className="p-4 text-center text-gray-500 dark:text-gray-400"
+            colSpan={4}
+          >
             No intakes available.
           </td>
         </tr>
       </tbody>
     </table>
     <div className="mt-4 flex justify-end">
-      <Button>Generate Intakes</Button>
+      <Button className="dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white">
+        Generate Intakes
+      </Button>
     </div>
   </Card>
 );
@@ -191,7 +216,7 @@ export default function CourseDetailsCard(props: { slug: string }) {
   if (!course) {
     return (
       <Card>
-        <p className="text-center text-gray-500">
+        <p className="text-center text-gray-500 dark:text-gray-400">
           Course data is not available.
         </p>
       </Card>
@@ -203,56 +228,41 @@ export default function CourseDetailsCard(props: { slug: string }) {
   };
 
   const handleFormSubmit = async (data: ZTInsertCourseCategories) => {
-    try {
-      const response = await adminUpsertCourseCategories(data);
-
-      if (response.success) {
-        if (response.message) {
-          toast.success(response.message);
+    await toast.promise(adminUpsertCourseCategories(data), {
+      loading: 'Saving category...',
+      success: (response) => {
+        if (response.success) {
+          if (response.data) {
+            adminUpdateCourseCategoryIdCol({
+              category_id: response.data.id,
+              id: course.id,
+            });
+          }
+          setIsModalOpen(false);
+          return response.message || 'Category saved successfully.';
         }
-
-        if (response.data) {
-          await adminUpdateCourseCategoryIdCol({
-            category_id: response.data.id,
-            id: course.id,
-          });
-        }
-
-        setIsModalOpen(false);
-      } else {
-        const errorMessage =
-          ('errors' in response && response.errors) ||
-          ('message' in response && response.message) ||
-          'An unknown error occurred.';
-        toast.error(errorMessage as string);
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else if (typeof error === 'string') {
-        toast.error(error);
-      } else {
-        toast.error('An unexpected error occurred.');
-      }
-    }
+        throw new Error(response.message || 'Failed to save category.');
+      },
+      error: (err) => {
+        return err.message || 'Failed to save category.';
+      },
+    });
   };
 
   const handleCategorySelect = async (categoryId: string) => {
-    try {
-      await adminUpdateCourseCategoryIdCol({
+    await toast.promise(
+      adminUpdateCourseCategoryIdCol({
         category_id: categoryId,
         id: course.id,
-      });
-      toast.success('Course category updated successfully.');
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error(
-          'An unexpected error occurred while updating the category.'
-        );
+      }),
+      {
+        loading: 'Updating category...',
+        success: 'Course category updated successfully.',
+        error: (err) => {
+          return err.message || 'Failed to update category.';
+        },
       }
-    }
+    );
   };
 
   const {

@@ -43,80 +43,82 @@ export default function PaymentsTables() {
   const columns: ColumnDef<PaymentDetailsType & { id: UniqueIdentifier }>[] = [
     {
       accessorKey: 'id',
-      header: 'Payment ID',
+      header: () => <div className="dark:text-white">Payment ID</div>,
+      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('id')}</div>,
     },
     {
       accessorKey: 'userEmail',
-      header: 'Email',
+      header: () => <div className="dark:text-white">Email</div>,
       cell: (props) => {
-        return props.row.original.userEmail;
+        return <div className="dark:text-gray-300">{props.row.original.userEmail}</div>;
       },
     },
     {
       accessorKey: 'courseTitle',
-      header: 'Course',
+      header: () => <div className="dark:text-white">Course</div>,
       cell: (props) => {
-        return props.row.original.courseTitle;
+        return <div className="dark:text-gray-300">{props.row.original.courseTitle}</div>;
       },
     },
     {
       accessorKey: 'enrolled_at',
-      header: 'Enrolled Date',
+      header: () => <div className="dark:text-white">Enrolled Date</div>,
       cell: ({
         row,
       }: {
         row: Row<PaymentDetailsType & { id: UniqueIdentifier }>;
       }) => {
         const date = new Date(row.getValue('enrolled_at'));
-        return date.toLocaleDateString();
+        return <div className="dark:text-gray-300">{date.toLocaleDateString()}</div>;
       },
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: () => <div className="dark:text-white">Status</div>,
       cell: ({
         row,
       }: {
         row: Row<PaymentDetailsType & { id: UniqueIdentifier }>;
       }) => {
         const status = row.getValue('status');
-        return status;
+        return <div className="dark:text-gray-300">{status}</div>;
       },
     },
     {
       accessorKey: 'amount',
-      header: 'Amount (NPR)',
+      header: () => <div className="dark:text-white">Amount (NPR)</div>,
       cell: ({
         row,
       }: {
         row: Row<PaymentDetailsType & { id: UniqueIdentifier }>;
       }) => {
         const status = row.getValue('amount');
-        return status;
+        return <div className="dark:text-gray-300">{status}</div>;
       },
     },
     {
       accessorKey: 'remarks',
-      header: 'Remark',
+      header: () => <div className="dark:text-white">Remark</div>,
+      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('remarks')}</div>,
     },
     {
       id: 'actions',
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="h-8 w-8 p-0" variant="ghost">
+            <Button className="h-8 w-8 p-0 dark:text-white" variant="ghost">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
             <DropdownMenuItem asChild>
-              <Link href={`/admin/payments/${row.original.id}`}>View</Link>
+              <Link href={`/admin/payments/${row.original.id}`} className="dark:text-gray-300 dark:hover:bg-gray-700">View</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href={`/admin/payments/edit/${row.original.id}`}>Edit</Link>
+              <Link href={`/admin/payments/edit/${row.original.id}`} className="dark:text-gray-300 dark:hover:bg-gray-700">Edit</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDelete(row.original.id)}>
+            <DropdownMenuItem onClick={() => handleDelete(row.original.id)} className="dark:text-red-500 dark:hover:bg-gray-700">
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -126,7 +128,7 @@ export default function PaymentsTables() {
   ];
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="dark:bg-gray-800 dark:border-gray-700">
         <CardHeader />
         <CardContent>
           <DataTable<PaymentDetailsType, unknown>

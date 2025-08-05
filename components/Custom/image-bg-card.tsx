@@ -12,7 +12,7 @@ export function ImageBackgroundCard({
   children,
 }: ImageBackgroundCardProps) {
   return (
-    <div className="relative flex h-full w-full items-center justify-center rounded-xl bg-white p-4 dark:bg-gray-800">
+    <div className="relative flex h-full w-full items-center justify-center rounded-xl bg-white p-4 dark:bg-gray-900">
       <div className="grid grid-cols-2 gap-4">
         {images.map((src, index) => (
           <div

@@ -40,7 +40,12 @@ interface IntakeFormProps {
 
 export default function IntakeForm({ id }: IntakeFormProps) {
   const router = useRouter();
-  const { data: queryResult, isLoading } = useGetIntakeById(id ?? '');
+  const { data: queryResult, isLoading, error } = useGetIntakeById(id ?? '');
+  if (error) {
+    toast.error('Error fetching intake details', {
+      description: error.message,
+    });
+  }
   const initialData = queryResult?.data;
 
   const form = useForm<ZodInsertIntakeType>({
@@ -73,9 +78,9 @@ export default function IntakeForm({ id }: IntakeFormProps) {
   return (
     <Form {...form}>
       <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="rounded-lg border p-4">
-          <h2 className="mb-4 font-semibold text-lg">Intake Details</h2>
-          <p className="text-muted-foreground text-sm">
+        <div className="rounded-lg border p-4 dark:border-gray-700 dark:bg-gray-800">
+          <h2 className="mb-4 font-semibold text-lg dark:text-gray-100">Intake Details</h2>
+          <p className="text-muted-foreground text-sm dark:text-gray-400">
             Fill in the information about the intake.
           </p>
           <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -84,11 +89,11 @@ export default function IntakeForm({ id }: IntakeFormProps) {
               name="course_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Course</FormLabel>
+                  <FormLabel className="dark:text-gray-200">Course</FormLabel>
                   <FormControl>
                     <CourseSelect field={field} />
                   </FormControl>
-                  <FormDescription className="text-xs">
+                  <FormDescription className="text-xs dark:text-gray-400">
                     Select the course for this intake.
                   </FormDescription>
                   <FormMessage />
@@ -100,14 +105,14 @@ export default function IntakeForm({ id }: IntakeFormProps) {
               name="start_date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Start Date</FormLabel>
+                  <FormLabel className="dark:text-gray-200">Start Date</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
                           className={cn(
-                            'w-full pl-3 text-left font-normal',
-                            !field.value && 'text-muted-foreground'
+                            'w-full pl-3 text-left font-normal bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
+                            !field.value && 'text-muted-foreground dark:text-gray-400'
                           )}
                           variant="outline"
                         >
@@ -120,7 +125,7 @@ export default function IntakeForm({ id }: IntakeFormProps) {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent align="start" className="w-auto p-0">
+                    <PopoverContent align="start" className="w-auto p-0 dark:bg-gray-800 dark:border-gray-700">
                       <Calendar
                         initialFocus
                         mode="single"
@@ -140,14 +145,14 @@ export default function IntakeForm({ id }: IntakeFormProps) {
               name="end_date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>End Date</FormLabel>
+                  <FormLabel className="dark:text-gray-200">End Date</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
                           className={cn(
-                            'w-full pl-3 text-left font-normal',
-                            !field.value && 'text-muted-foreground'
+                            'w-full pl-3 text-left font-normal bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
+                            !field.value && 'text-muted-foreground dark:text-gray-400'
                           )}
                           variant="outline"
                         >
@@ -160,7 +165,7 @@ export default function IntakeForm({ id }: IntakeFormProps) {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent align="start" className="w-auto p-0">
+                    <PopoverContent align="start" className="w-auto p-0 dark:bg-gray-800 dark:border-gray-700">
                       <Calendar
                         initialFocus
                         mode="single"
@@ -180,9 +185,9 @@ export default function IntakeForm({ id }: IntakeFormProps) {
               name="capacity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Capacity</FormLabel>
+                  <FormLabel className="dark:text-gray-200">Capacity</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input type="number" {...field} className="dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -193,9 +198,9 @@ export default function IntakeForm({ id }: IntakeFormProps) {
               name="total_registered"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Total Registered</FormLabel>
+                  <FormLabel className="dark:text-gray-200">Total Registered</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input type="number" {...field} className="dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -209,13 +214,13 @@ export default function IntakeForm({ id }: IntakeFormProps) {
                   <FormControl>
                     <Checkbox
                       checked={!!field.value}
-                      className="mr-2"
+                      className="mr-2 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-teal-500 dark:checked:text-white"
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
                   <FormLabel>
                     <label
-                      className="font-medium text-sm leading-none"
+                      className="font-medium text-sm leading-none dark:text-gray-200"
                       htmlFor="is_open"
                     >
                       Is this intake currently open for enrollment?
@@ -226,7 +231,7 @@ export default function IntakeForm({ id }: IntakeFormProps) {
             />
           </div>
         </div>
-        <Button type="submit">Save</Button>
+        <Button type="submit" className="dark:bg-teal-600 dark:hover:bg-teal-700 dark:text-white">Save</Button>
       </form>
     </Form>
   );

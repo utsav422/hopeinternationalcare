@@ -52,14 +52,14 @@ export default function IntakeSelect({
   }, []);
 
   if (loading) {
-    return <p>Loading courses...</p>;
+    return <p className="dark:text-white">Loading courses...</p>;
   }
 
   if (error) {
-    return <p className="text-red-500">{error}</p>;
+    return <p className="text-red-500 dark:text-red-400">{error}</p>;
   }
   if (intakes.length === 0) {
-    return <span>No intake found for course enrollments</span>;
+    return <span className="dark:text-gray-400">No intake found for course enrollments</span>;
   }
   return (
     <Select
@@ -73,18 +73,18 @@ export default function IntakeSelect({
       }}
       value={field.value ?? undefined}
     >
-      <SelectTrigger>
+      <SelectTrigger className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
         <SelectValue placeholder="Select a intake" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
         {intakes.map((intake) => (
-          <SelectItem key={intake.id} value={intake.id}>
+          <SelectItem key={intake.id} value={intake.id} className="dark:hover:bg-gray-700">
             <div className="flex items-center gap-2">
-              <span className="font-bold">{intake.courseTitle}</span>
-              <span className="text-gray-500 text-sm">
+              <span className="font-bold dark:text-white">{intake.courseTitle}</span>
+              <span className="text-gray-500 text-sm dark:text-gray-400">
                 (Capacity: {intake.capacity})
               </span>
-              <span className="text-gray-700 text-sm">
+              <span className="text-gray-700 text-sm dark:text-gray-300">
                 {new Date(intake.start_date).toLocaleDateString('en-GB', {
                   day: '2-digit',
                   month: 'short',
@@ -97,7 +97,7 @@ export default function IntakeSelect({
                   year: 'numeric',
                 })}
               </span>
-              <Badge variant={intake.is_open ? 'default' : 'destructive'}>
+              <Badge variant={intake.is_open ? 'default' : 'destructive'} className="dark:bg-gray-700 dark:text-gray-200">
                 {intake.is_open ? 'Open' : 'Closed'}
               </Badge>
             </div>

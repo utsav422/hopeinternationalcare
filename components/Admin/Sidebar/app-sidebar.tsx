@@ -76,7 +76,7 @@ export function AdminAppSidebar({ ...props }: React.ComponentProps<typeof Sideba
     ],
   };
   return (
-    <Sidebar {...props}>
+    <Sidebar {...props} className="dark:bg-gray-800 dark:border-r dark:border-gray-700">
       <SidebarHeader>
         <VersionSwitcher
           defaultVersion={data.versions[0]}
@@ -87,7 +87,7 @@ export function AdminAppSidebar({ ...props }: React.ComponentProps<typeof Sideba
       <SidebarContent>
         {data.navMain.map((nav) => (
           <SidebarGroup key={nav.title}>
-            <SidebarGroupLabel>{nav.title}</SidebarGroupLabel>
+            <SidebarGroupLabel className="dark:text-gray-400">{nav.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {nav.items?.map((subNavItem) => (
@@ -96,6 +96,7 @@ export function AdminAppSidebar({ ...props }: React.ComponentProps<typeof Sideba
                       asChild
                       isActive={subNavItem.isActive}
                       onClick={subNavItem.onClick}
+                      className="dark:text-gray-300 dark:hover:bg-gray-700 dark:focus:bg-gray-700 dark:data-[active=true]:bg-gray-700"
                     >
                       <a className="capitalize" href={subNavItem.url}>
                         {subNavItem.title}
@@ -107,7 +108,7 @@ export function AdminAppSidebar({ ...props }: React.ComponentProps<typeof Sideba
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
-        <Button onClick={signOutAction}>Logout</Button>
+        <Button onClick={signOutAction} className="dark:bg-red-600 dark:hover:bg-red-700 dark:text-white">Logout</Button>
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

@@ -27,11 +27,11 @@ import { useDeleteUser, useGetUsers } from '@/hooks/users';
 import InviteUserForm from './invite-user-form';
 
 export default function UsersTables() {
- const { page, pageSize, filters } = useDataTableQueryState();
+  const { page, pageSize, filters } = useDataTableQueryState();
   const [inviteUserAlert, setInviteUserAlert] = useState(false);
   const { data: queryResult, error } = useGetUsers(page, pageSize);
   if (error) {
-    toast.error('Error fetching categories', {
+    toast.error('Error fetching users', {
       description: error.message,
     });
   }
@@ -49,59 +49,59 @@ export default function UsersTables() {
   const columns: ColumnDef<User>[] = [
     {
       accessorKey: 'id',
-      header: 'User ID',
+      header: () => <div className="dark:text-white">User ID</div>,
+      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('id')}</div>,
       enableHiding: true,
     },
     {
-      accessorKey: 'full_name',
-      header: 'Full name',
+      accessorKey: 'fullName',
+      header: () => <div className="dark:text-white">Full name</div>,
       cell: (props) => {
-        return props.row.original.user_metadata.full_name;
+        return (
+          <div className="dark:text-gray-300">
+            {props.row.original.user_metadata?.display_name ??
+              props.row.original.user_metadata?.full_name}
+          </div>
+        );
       },
     },
     {
       accessorKey: 'email',
-      header: 'Email',
+      header: () => <div className="dark:text-white">Email</div>,
       cell: (props) => {
-        return props.row.original.email;
+        return <div className="dark:text-gray-300">{props.row.original.email}</div>;
       },
     },
     {
       accessorKey: 'phone',
-      header: 'Phone',
+      header: () => <div className="dark:text-white">Phone</div>,
       cell: (props) => {
-        return props.row.original.phone;
+        return <div className="dark:text-gray-300">{props.row.original.phone}</div>;
       },
     },
-    // {
-    //   accessorKey: 'role',
-    //   header: 'User Role',
-    //   cell: (props) => {
-    //     return props.row.original.role;
-    //   },
-    // },
+
     {
       accessorKey: 'created_at',
-      header: 'Created At',
+      header: () => <div className="dark:text-white">Created At</div>,
       cell: ({ row }: { row: Row<User> }) => {
         const date = new Date(row.getValue('created_at'));
-        return date.toLocaleDateString();
+        return <div className="dark:text-gray-300">{date.toLocaleDateString()}</div>;
       },
     },
     {
       accessorKey: 'action',
-      header: 'Action',
+      header: () => <div className="dark:text-white">Action</div>,
       cell({ row }: { row: Row<User> }) {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="h-8 w-8 p-0" variant="ghost">
+              <Button className="h-8 w-8 p-0 dark:text-white" variant="ghost">
                 <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleDelete(row.original.id)}>
+            <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
+              <DropdownMenuItem onClick={() => handleDelete(row.original.id)} className="dark:text-red-500 dark:hover:bg-gray-700">
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -128,29 +128,30 @@ export default function UsersTables() {
     });
   }
   return (
-    <Card>
+    <Card className="dark:bg-gray-800 dark:border-gray-700">
       <CardHeader />
       <CardContent>
         <DataTable<User, unknown>
           columns={columns}
-          data={filtersUserData??[]}
+          data={filtersUserData ?? []}
           headerActionNode={
             <AlertDialog
               onOpenChange={setInviteUserAlert}
               open={inviteUserAlert}
             >
               <AlertDialogTrigger asChild>
-                <AlertDialogAction onClick={() => setInviteUserAlert(true)}>
+                <AlertDialogAction onClick={() => setInviteUserAlert(true)} className="dark:bg-teal-600 dark:hover:bg-teal-700 dark:text-white">
                   Invite A User
                 </AlertDialogAction>
               </AlertDialogTrigger>
               <AlertDialogContent
                 onCloseAutoFocus={() => setInviteUserAlert(false)}
+                className="dark:bg-gray-800 dark:border-gray-700"
               >
                 <AlertDialogHeader className="flex flex-row items-center justify-between">
-                  <AlertDialogTitle> Invite a user with email</AlertDialogTitle>
+                  <AlertDialogTitle className="dark:text-white"> Invite a user with email</AlertDialogTitle>
                   <AlertDialogAction
-                    className="size-8 bg-background text-red-500 hover:bg-red-500/20"
+                    className="size-8 bg-background text-red-500 hover:bg-red-500/20 dark:bg-gray-700 dark:text-red-500 dark:hover:bg-red-500/20"
                     onClick={() => setInviteUserAlert(false)}
                     title="close this invite form"
                   >

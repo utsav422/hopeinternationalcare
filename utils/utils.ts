@@ -16,8 +16,9 @@ export const encodedRedirect = (
   );
 };
 
-export function isValidTableColumnName<
-  T extends { _: { columns: Record<string, unknown> } },
->(column: string, table: T): column is keyof T['_']['columns'] & string {
-  return column in table._.columns;
+export function isValidTableColumnName<T extends Record<string, any>>(
+  column: string,
+  table: T
+): column is keyof T & string {
+  return column in table;
 }

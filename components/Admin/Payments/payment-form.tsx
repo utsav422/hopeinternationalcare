@@ -99,15 +99,15 @@ export default function PaymentForm({ id, formTitle }: Props) {
     );
   }
   return (
-    <Card>
+    <Card className="dark:bg-gray-800 dark:border-gray-700">
       <CardHeader>
         <div className="mb-6 space-y-1">
-          <h3 className="font-medium text-lg">{formTitle}</h3>
-          <p className="text-muted-foreground text-sm">
+          <h3 className="font-medium text-lg dark:text-white">{formTitle}</h3>
+          <p className="text-muted-foreground text-sm dark:text-gray-400">
             Fill in the information about the payment.
           </p>
         </div>
-        <hr />
+        <hr className="dark:border-gray-600" />
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -121,8 +121,8 @@ export default function PaymentForm({ id, formTitle }: Props) {
               render={({ field }) => (
                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                   <div className="space-y-1 md:col-span-1">
-                    <FormLabel>Enrollment</FormLabel>
-                    <FormDescription className="text-xs">
+                    <FormLabel className="dark:text-gray-200">Enrollment</FormLabel>
+                    <FormDescription className="text-xs dark:text-gray-400">
                       Select the student enrollment.
                     </FormDescription>
                   </div>
@@ -153,8 +153,8 @@ export default function PaymentForm({ id, formTitle }: Props) {
               render={({ field }) => (
                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                   <div className="space-y-1 md:col-span-1">
-                    <FormLabel>Amount</FormLabel>
-                    <FormDescription className="text-xs">
+                    <FormLabel className="dark:text-gray-200">Amount</FormLabel>
+                    <FormDescription className="text-xs dark:text-gray-400">
                       Amount is set from the course price.
                     </FormDescription>
                   </div>
@@ -170,6 +170,7 @@ export default function PaymentForm({ id, formTitle }: Props) {
                               : e.target.valueAsNumber
                           )
                         }
+                        className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       />
                     </FormControl>
                     <FormMessage />
@@ -183,7 +184,7 @@ export default function PaymentForm({ id, formTitle }: Props) {
               render={({ field }) => (
                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                   <div className="space-y-1 md:col-span-1">
-                    <FormLabel>Payment Method</FormLabel>
+                    <FormLabel className="dark:text-gray-200">Payment Method</FormLabel>
                   </div>
                   <div className="space-y-2 md:col-span-3">
                     <FormControl>
@@ -191,15 +192,15 @@ export default function PaymentForm({ id, formTitle }: Props) {
                         onValueChange={field.onChange}
                         value={field.value}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                           <SelectValue placeholder="Select a payment method" />
                         </SelectTrigger>
-                        <SelectContent className="capitalize">
+                        <SelectContent className="capitalize dark:bg-gray-800 dark:border-gray-700 dark:text-white">
                           <SelectGroup>
                             <SelectLabel>Payment Method</SelectLabel>
                             {Object.values(PaymentMethod).map((method) => (
                               <SelectItem
-                                className="capitalize"
+                                className="capitalize dark:hover:bg-gray-700"
                                 key={method}
                                 value={method}
                               >
@@ -221,7 +222,7 @@ export default function PaymentForm({ id, formTitle }: Props) {
               render={({ field }) => (
                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                   <div className="space-y-1 md:col-span-1">
-                    <FormLabel>Payment Status</FormLabel>
+                    <FormLabel className="dark:text-gray-200">Payment Status</FormLabel>
                   </div>
                   <div className="space-y-2 md:col-span-3">
                     <FormControl>
@@ -229,15 +230,15 @@ export default function PaymentForm({ id, formTitle }: Props) {
                         onValueChange={field.onChange}
                         value={field.value}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                           <SelectValue placeholder="Select a payment status" />
                         </SelectTrigger>
-                        <SelectContent className="capitalize">
+                        <SelectContent className="capitalize dark:bg-gray-800 dark:border-gray-700 dark:text-white">
                           <SelectGroup>
                             <SelectLabel>Payment Status</SelectLabel>
                             {Object.values(PaymentStatus).map((status) => (
                               <SelectItem
-                                className="capitalize"
+                                className="capitalize dark:hover:bg-gray-700"
                                 key={status}
                                 value={status}
                               >
@@ -259,11 +260,11 @@ export default function PaymentForm({ id, formTitle }: Props) {
               render={({ field }) => (
                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                   <div className="space-y-1 md:col-span-1">
-                    <FormLabel>Remarks</FormLabel>
+                    <FormLabel className="dark:text-gray-200">Remarks</FormLabel>
                   </div>
                   <div className="space-y-2 md:col-span-3">
                     <FormControl>
-                      <Input {...field} value={field.value ?? ''} />
+                      <Input {...field} value={field.value ?? ''} className="dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </FormControl>
                     <FormMessage />
                   </div>
@@ -272,12 +273,12 @@ export default function PaymentForm({ id, formTitle }: Props) {
             />
             <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
               <div className="space-y-1 md:col-span-1">
-                <FormLabel className="font-medium text-sm leading-none">
+                <FormLabel className="font-medium text-sm leading-none dark:text-gray-200">
                   Action
                 </FormLabel>
               </div>
               <div className="space-y-2 md:col-span-3">
-                <Button disabled={isSubmitting} type="submit">
+                <Button disabled={isSubmitting} type="submit" className="dark:bg-teal-600 dark:hover:bg-teal-700 dark:text-white">
                   {isSubmitting && (
                     <svg
                       className="mr-2 h-4 w-4 animate-spin"

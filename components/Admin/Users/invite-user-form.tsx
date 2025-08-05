@@ -26,10 +26,21 @@ export default function InviteUserForm() {
     validInputs?.phone && formData.append('phone', validInputs?.phone);
     validInputs.full_name &&
       formData.append('full_name', validInputs.full_name);
-    const { success, data, message } = await inviteUserAction(formData);
-    if (success && data && message) {
-      toast.success(message);
-    }
+    await toast.promise(inviteUserAction(formData), {
+      loading: 'Sending invite...',
+      success: (result) => {
+        if (result.success && result.message) {
+          return result.message;
+        } else if (result.message) {
+          throw new Error(result.message);
+        } else {
+          throw new Error('Failed to send invite');
+        }
+      },
+      error: (error) => {
+        return error.message || 'Failed to send invite';
+      },
+    });
   };
   const form = useForm<ZInviteUserType>({
     resolver: zodResolver(InviteUserSchema),
@@ -44,22 +55,23 @@ export default function InviteUserForm() {
   return (
     <Form {...form}>
       <form
-        className="flex flex-col space-y-4 rounded-md border p-4"
+        className="flex flex-col space-y-4 rounded-md border p-4 dark:bg-gray-800 dark:border-gray-700"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <h2 className="font-semibold text-lg">Fill all the input fields.</h2>
+        <h2 className="font-semibold text-lg dark:text-white">Fill all the input fields.</h2>
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="dark:text-gray-200">Email</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Enter user email to invite"
                   required
                   type="email"
                   {...field}
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
               </FormControl>
 
@@ -73,13 +85,14 @@ export default function InviteUserForm() {
           name="full_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full name</FormLabel>
+              <FormLabel className="dark:text-gray-200">Full name</FormLabel>
               <FormControl>
                 <Input
                   id="full_name"
                   placeholder="Enter user full to invite"
                   required
                   {...field}
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
               </FormControl>
 
@@ -92,13 +105,14 @@ export default function InviteUserForm() {
           name="phone"
           render={({ field }) => (
             <FormItem className="flex flex-col items-start">
-              <FormLabel>Phone number</FormLabel>
+              <FormLabel className="dark:text-gray-200">Phone number</FormLabel>
               <FormControl className="w-full">
                 <Input
                   {...field}
                   id="phone"
                   placeholder="Enter user phone to invite"
                   required
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
               </FormControl>
 
@@ -107,7 +121,7 @@ export default function InviteUserForm() {
           )}
         />
 
-        <Button type="submit">
+        <Button type="submit" className="dark:bg-teal-600 dark:hover:bg-teal-700 dark:text-white">
           {form.formState.isSubmitting ? (
             <span>Submitting...</span>
           ) : (

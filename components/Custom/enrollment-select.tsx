@@ -52,14 +52,14 @@ export default function EnrollmentSelect({
   }, []);
 
   if (loading) {
-    return <p>Loading courses...</p>;
+    return <p className="dark:text-white">Loading courses...</p>;
   }
 
   if (error) {
-    return <p className="text-red-500">{error}</p>;
+    return <p className="text-red-500 dark:text-red-400">{error}</p>;
   }
   if (enrollments.length === 0) {
-    return <span>No intake found for course enrollments</span>;
+    return <span className="dark:text-gray-400">No intake found for course enrollments</span>;
   }
   return (
     <Select
@@ -75,20 +75,20 @@ export default function EnrollmentSelect({
       }}
       value={field.value ?? undefined}
     >
-      <SelectTrigger>
+      <SelectTrigger className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
         <SelectValue placeholder="Select a Enrollments" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
         {enrollments?.map((enrollment) => (
-          <SelectItem key={enrollment.id} value={enrollment.id}>
+          <SelectItem key={enrollment.id} value={enrollment.id} className="dark:hover:bg-gray-700">
             <div className="flex items-center gap-2">
-              <span className="font-bold">
+              <span className="font-bold dark:text-white">
                 Enrolled Date: {enrollment.enrollment_date}
               </span>
-              <span className="text-gray-500 text-sm">
+              <span className="text-gray-500 text-sm dark:text-gray-400">
                 (user: {enrollment.full_name})
               </span>
-              <span className="text-gray-700 text-sm">
+              <span className="text-gray-700 text-sm dark:text-gray-300">
                 {new Date(
                   enrollment.enrollment_date as string
                 ).toLocaleDateString('en-GB', {

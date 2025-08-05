@@ -23,17 +23,17 @@ export default function CategoryFilter({
 
   return (
     <Select onValueChange={onChange} value={value}>
-      <SelectTrigger>
+      <SelectTrigger className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
         <SelectValue placeholder="Filter by category..." />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
         {isLoading ? (
           <SelectItem disabled value="loading">
             Loading...
           </SelectItem>
         ) : (
           categories.map((category) => (
-            <SelectItem key={category.id} value={category.id}>
+            <SelectItem key={category.id} value={category.id} className="dark:hover:bg-gray-700">
               {category.name}
             </SelectItem>
           ))

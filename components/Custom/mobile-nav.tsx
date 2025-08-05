@@ -47,7 +47,7 @@ function MobileNav({ isScrolling }: { isScrolling: boolean }) {
     <>
       {' '}
       <Button
-        className={`p-2 lg:hidden ${isScrolling ? 'text-teal-900' : 'text-white'}`}
+        className={`p-2 lg:hidden ${isScrolling ? 'text-teal-900 dark:text-teal-400' : 'text-white'}`}
         onClick={handleOpen}
       >
         {open ? (
@@ -84,21 +84,21 @@ function MobileNav({ isScrolling }: { isScrolling: boolean }) {
       </Button>
       {/* Mobile menu */}
       {open && (
-        <div className="mt-2 rounded-lg bg-white px-4 pt-2 pb-4 lg:hidden">
-          <ul className="flex flex-col gap-4 text-teal-900">
+        <div className="mt-2 rounded-lg bg-white px-4 pt-2 pb-4 lg:hidden dark:bg-gray-800">
+          <ul className="flex flex-col gap-4 text-teal-900 dark:text-white">
             <NavItem href="/" label="Home" />
             <NavItem href="/aboutus" label="About Us" />
             <NavItem href="/courses" label="Our Courses" />
             <NavItem href="/contactus" label="Contact Us" />
           </ul>
           <div className="mt-4 flex gap-4">
-            <Button className="rounded-md p-2 text-teal-900 hover:bg-gray-100">
+            <Button className="rounded-md p-2 text-teal-900 hover:bg-gray-100 dark:text-teal-400 dark:hover:bg-gray-700">
               <i className="fa-brands fa-twitter text-base" />
             </Button>
-            <Button className="rounded-md p-2 text-teal-900 hover:bg-gray-100">
+            <Button className="rounded-md p-2 text-teal-900 hover:bg-gray-100 dark:text-teal-400 dark:hover:bg-gray-700">
               <i className="fa-brands fa-facebook text-base" />
             </Button>
-            <Button className="rounded-md p-2 text-teal-900 hover:bg-gray-100">
+            <Button className="rounded-md p-2 text-teal-900 hover:bg-gray-100 dark:text-teal-400 dark:hover:bg-gray-700">
               <i className="fa-brands fa-instagram text-base" />
             </Button>
           </div>

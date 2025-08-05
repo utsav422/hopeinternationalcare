@@ -56,14 +56,14 @@ export function MultiSelectFilter({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="h-8 border-dashed" size="sm" variant="outline">
+        <Button className="h-8 border-dashed dark:bg-gray-800 dark:border-gray-700 dark:text-white" size="sm" variant="outline">
           <PlusCircle className="mr-2 h-4 w-4" />
           {title}
           {selectedValues.size > 0 && (
             <>
               <Separator className="mx-2 h-4" orientation="vertical" />
               <Badge
-                className="rounded-sm px-1 font-normal lg:hidden"
+                className="rounded-sm px-1 font-normal lg:hidden dark:bg-gray-700 dark:text-gray-200"
                 variant="secondary"
               >
                 {selectedValues.size}
@@ -71,7 +71,7 @@ export function MultiSelectFilter({
               <div className="hidden space-x-1 lg:flex">
                 {selectedValues.size > 2 ? (
                   <Badge
-                    className="rounded-sm px-1 font-normal"
+                    className="rounded-sm px-1 font-normal dark:bg-gray-700 dark:text-gray-200"
                     variant="secondary"
                   >
                     {selectedValues.size} selected
@@ -81,7 +81,7 @@ export function MultiSelectFilter({
                     .filter((option) => selectedValues.has(option.value))
                     .map((option) => (
                       <Badge
-                        className="rounded-sm px-1 font-normal"
+                        className="rounded-sm px-1 font-normal dark:bg-gray-700 dark:text-gray-200"
                         key={option.value}
                         variant="secondary"
                       >
@@ -94,11 +94,11 @@ export function MultiSelectFilter({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-[200px] p-0">
+      <PopoverContent align="start" className="w-[200px] p-0 dark:bg-gray-800 dark:border-gray-700">
         <Command>
-          <CommandInput placeholder={title} />
+          <CommandInput placeholder={title} className="dark:bg-gray-700 dark:text-white" />
           <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandEmpty className="dark:text-gray-400">No results found.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
                 const isSelected = selectedValues.has(option.value);
@@ -106,6 +106,7 @@ export function MultiSelectFilter({
                   <CommandItem
                     key={option.value}
                     onSelect={() => handleSelect(option.value)}
+                    className="dark:text-white dark:hover:bg-gray-700"
                   >
                     <div
                       className={cn(
@@ -130,7 +131,7 @@ export function MultiSelectFilter({
                 <CommandSeparator />
                 <CommandGroup>
                   <CommandItem
-                    className="justify-center text-center"
+                    className="justify-center text-center dark:text-white dark:hover:bg-gray-700"
                     onSelect={handleClear}
                   >
                     Clear filters

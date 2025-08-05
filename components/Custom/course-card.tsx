@@ -117,7 +117,7 @@ export function CourseCard({
   };
 
   return (
-    <div className="group flex h-full flex-col rounded-lg bg-white p-5 shadow-lg transition duration-300 hover:scale-105 dark:bg-gray-800 dark:shadow-xl">
+    <div className="group flex h-full flex-col rounded-lg bg-white p-5 shadow-lg transition duration-300 hover:scale-105 dark:bg-gray-900 dark:shadow-2xl">
       <div className="mb-4 h-48 w-full overflow-hidden rounded-md">
         <div className="relative h-full w-full">
           <Image

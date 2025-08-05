@@ -44,15 +44,15 @@ export default function UserSelect({ field, disabled }: UserSelectProps) {
   }, []);
 
   if (loading) {
-    return <p>Loading courses...</p>;
+    return <p className="dark:text-white">Loading courses...</p>;
   }
 
   if (error) {
-    return <p className="text-red-500">{error}</p>;
+    return <p className="text-red-500 dark:text-red-400">{error}</p>;
   }
 
   if (profiles.length === 0) {
-    return <span>No user item found for enrollment selection</span>;
+    return <span className="dark:text-gray-400">No user item found for enrollment selection</span>;
   }
   return (
     <Select
@@ -60,16 +60,16 @@ export default function UserSelect({ field, disabled }: UserSelectProps) {
       onValueChange={field.onChange}
       value={field.value ?? undefined}
     >
-      <SelectTrigger>
+      <SelectTrigger className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
         <SelectValue placeholder="Select a user profile" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
         {profiles.map((profile) => (
-          <SelectItem key={profile.id} value={profile.id}>
-            <span className="font-bold">{profile.email}</span>
-            :: <span className="font-bold">{profile.full_name}</span>
-            ::<span className="font-bold">{profile.phone}</span>
-            ::<span className="font-bold">{profile.role}</span>
+          <SelectItem key={profile.id} value={profile.id} className="dark:hover:bg-gray-700">
+            <span className="font-bold dark:text-white">{profile.email}</span>
+            :: <span className="font-bold dark:text-white">{profile.full_name}</span>
+            ::<span className="font-bold dark:text-white">{profile.phone}</span>
+            ::<span className="font-bold dark:text-white">{profile.role}</span>
           </SelectItem>
         ))}
       </SelectContent>

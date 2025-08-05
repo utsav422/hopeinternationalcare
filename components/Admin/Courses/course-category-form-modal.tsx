@@ -30,12 +30,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { adminGetAllCatogies } from '@/server-actions/admin/courses-categories';
+import { useGetAllCourseCategories } from '@/hooks/course-categories';
 import {
   CategoriesInsertSchema,
   type ZTInsertCourseCategories,
-  type ZTSelectCourseCategories,
 } from '@/utils/db/drizzle-zod-schema/course-categories';
+import { toast } from 'sonner';
 
 interface Props {
   isOpen: boolean;
@@ -52,9 +52,12 @@ export default function CourseCategoryFormModal({
   onCategorySelect,
   creationOnly = false,
 }: Props) {
-  const [categories, setCategories] = useState<
-    ZTSelectCourseCategories[] | null
-  >(null);
+  const {
+    data: queryResult,
+    isLoading: isLoadingCategories,
+    error,
+  } = useGetAllCourseCategories();
+  const categories = queryResult?.data ?? null;
 
   const [showNewCategoryForm, setShowNewCategoryForm] = useState(creationOnly);
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
@@ -67,12 +70,12 @@ export default function CourseCategoryFormModal({
   });
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      const { data } = await adminGetAllCatogies();
-      setCategories(data);
-    };
-    fetchCategories();
-  }, []);
+    if (error) {
+      toast.error('Error fetching categories', {
+        description: error.message,
+      });
+    }
+  }, [error]);
 
   const handleNewCategorySubmit = (data: ZTInsertCourseCategories) => {
     onSubmit(data);
@@ -86,12 +89,12 @@ export default function CourseCategoryFormModal({
       setIsOpen(false);
     }
   };
-  const isLoadingCategoris = categories === null;
+
   return (
     <Dialog onOpenChange={setIsOpen} open={isOpen}>
-      <DialogContent>
+      <DialogContent className="dark:bg-gray-800 dark:border-gray-600">
         <DialogHeader>
-          <DialogTitle>Manage Course Category</DialogTitle>
+          <DialogTitle className="dark:text-white">Manage Course Category</DialogTitle>
         </DialogHeader>
 
         {showNewCategoryForm ? (
@@ -105,9 +108,9 @@ export default function CourseCategoryFormModal({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel className="dark:text-white">Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} className="dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -118,9 +121,9 @@ export default function CourseCategoryFormModal({
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel className="dark:text-white">Description</FormLabel>
                     <FormControl>
-                      <Textarea {...field} value={field.value ?? ''} />
+                      <Textarea {...field} value={field.value ?? ''} className="dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -131,16 +134,19 @@ export default function CourseCategoryFormModal({
         ) : (
           <div className="space-y-4">
             <Select onValueChange={setSelectedCategory}>
-              <SelectTrigger>
+              <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
-              <SelectContent>
-                {categories?.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                )) ?? <Loader className="animate-spin" />}
-                {isLoadingCategoris && <Loader className="animate-spin" />}
+              <SelectContent className="dark:bg-gray-700 dark:text-white">
+                {isLoadingCategories ? (
+                  <Loader className="animate-spin" />
+                ) : (
+                  categories?.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -154,9 +160,10 @@ export default function CourseCategoryFormModal({
               onCheckedChange={() =>
                 setShowNewCategoryForm(!showNewCategoryForm)
               }
+              className="dark:border-gray-600"
             />
             <label
-              className="font-medium text-sm leading-none"
+              className="font-medium text-sm leading-none dark:text-white"
               htmlFor="new-category-checkbox"
             >
               Create a new category
@@ -172,6 +179,7 @@ export default function CourseCategoryFormModal({
                 : handleExistingCategorySubmit
             }
             type="submit"
+            className="dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white"
           >
             {showNewCategoryForm ? 'Create' : 'Assign Category'}
           </Button>

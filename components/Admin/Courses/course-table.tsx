@@ -1,11 +1,11 @@
 // /components/Admin/Courses/CourseTable.tsx
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-// import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 // import { parseAsInteger, useQueryState } from 'nuqs';
@@ -19,8 +19,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useGetCourses } from '@/hooks/courses';
+import { useDeleteCourse, useGetCourses } from '@/hooks/courses';
+import { queryKeys } from '@/hooks/query-keys';
 import { useDataTableQueryState } from '@/hooks/use-data-table-query-state';
+import { generateIntakesForCourseAdvanced } from '@/server-actions/admin/intakes';
 // import { Input } from '@/components/ui/input';
 // import useDebounce from '@/hooks/use-debounce';
 import type {
@@ -37,39 +39,33 @@ import type {
 export default function CourseTable() {
   const router = useRouter();
   const queryState = useDataTableQueryState();
+  const queryClient = useQueryClient();
   const { data: queryResult, error } = useGetCourses({ ...queryState });
-  if (error) {
-    toast.error('Error fetching categories', {
-      description: error.message,
-    });
-  }
 
   const data = queryResult?.data as Array<
     typeof ZodCourseSelectSchema._zod.input & { category_name: string | null }
   >;
   const total = queryResult?.total ?? 0;
 
+  const { mutateAsync: deleteCourse } = useDeleteCourse();
+
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this course?')) {
       return;
     }
 
-    const res = await fetch(`/api/admin/courses/${id}`, {
-      method: 'DELETE',
+    await toast.promise(deleteCourse(id), {
+      loading: 'Deleting course...',
+      success: 'Course deleted successfully',
+      error: 'Failed to delete course',
     });
-
-    if (res.ok) {
-      router.refresh();
-    } else {
-      alert('Failed to delete course');
-    }
   };
   const columns: ColumnDef<
     ZodSelectCourseType & { category_name: string | null }
   >[] = [
     {
       accessorKey: 'image_url',
-      header: 'Image',
+      header: () => <div className="dark:text-white">Image</div>,
       cell: (cellProps) => {
         return (
           <div className="flex items-center justify-center">
@@ -90,19 +86,21 @@ export default function CourseTable() {
     },
     {
       accessorKey: 'title',
-      header: 'Title',
+      header: () => <div className="dark:text-white">Title</div>,
+      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('title')}</div>,
     },
     {
       accessorKey: 'level',
-      header: 'Level',
+      header: () => <div className="dark:text-white">Level</div>,
+      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('level')}</div>,
     },
     {
       accessorKey: 'duration_value',
-      header: 'Duration',
+      header: () => <div className="dark:text-white">Duration</div>,
 
       cell: (cellProps) => {
         return (
-          <p className="flex items-center justify-center">
+          <p className="flex items-center justify-center dark:text-gray-300">
             {cellProps.row?.original.duration_value}
           </p>
         );
@@ -110,11 +108,11 @@ export default function CourseTable() {
     },
     {
       accessorKey: 'duration_type',
-      header: 'Duration',
+      header: () => <div className="dark:text-white">Duration Type</div>,
 
       cell: (cellProps) => {
         return (
-          <p className="flex items-center justify-center">
+          <p className="flex items-center justify-center dark:text-gray-300">
             {cellProps.row?.original.duration_type}
           </p>
         );
@@ -122,11 +120,11 @@ export default function CourseTable() {
     },
     {
       accessorKey: 'category_name',
-      header: 'Category',
+      header: () => <div className="dark:text-white">Category</div>,
 
       cell: (cellProps) => {
         return (
-          <p className="flex items-center justify-center">
+          <p className="flex items-center justify-center dark:text-gray-300">
             {cellProps.row?.original.category_name}
           </p>
         );
@@ -134,11 +132,11 @@ export default function CourseTable() {
     },
     {
       accessorKey: 'created_at',
-      header: 'Create At',
+      header: () => <div className="dark:text-white">Created At</div>,
 
       cell: (cellProps) => {
         return (
-          <p className="flex items-center justify-center">
+          <p className="flex items-center justify-center dark:text-gray-300">
             {cellProps.row?.original.created_at}
           </p>
         );
@@ -146,26 +144,27 @@ export default function CourseTable() {
     },
     {
       accessorKey: 'id',
-      header: 'Actions',
+      header: () => <div className="dark:text-white">Actions</div>,
 
       cell: (cellProps) => {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost">
+              <Button size="icon" variant="ghost" className="dark:text-white">
                 <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-600">
               <DropdownMenuItem asChild>
-                <Link href={`/admin/courses/${cellProps?.row.original.slug}`}>
+                <Link href={`/admin/courses/${cellProps?.row.original.slug}`} className="dark:text-white">
                   View
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link
                   href={`/admin/courses/edit/${cellProps?.row.original.slug}`}
+                  className="dark:text-white"
                 >
                   Edit
                 </Link>
@@ -174,18 +173,25 @@ export default function CourseTable() {
                 onClick={async () => {
                   const courseId = cellProps?.row.original.id;
                   if (courseId) {
-                    const {
-                      generateIntakesForCourseAdvanced,
-                    } = require('@/server-actions/admin/intakes');
-                    await generateIntakesForCourseAdvanced(courseId);
-                    router.refresh();
+                    await toast.promise(
+                      generateIntakesForCourseAdvanced(courseId),
+                      {
+                        loading: 'Generating intakes...',
+                        success: 'Intakes generated successfully',
+                        error: 'Failed to generate intakes',
+                      }
+                    );
+                    queryClient.invalidateQueries({
+                      queryKey: queryKeys.intakes.all,
+                    });
                   }
                 }}
+                className="dark:text-white"
               >
                 Generate Intakes
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="text-red-600"
+                className="text-red-600 dark:text-red-500"
                 onClick={() => handleDelete(cellProps?.row.original.id)}
               >
                 Delete
@@ -197,7 +203,7 @@ export default function CourseTable() {
     },
   ];
   return (
-    <Card>
+    <Card className="dark:bg-gray-800 dark:border-gray-700">
       <CardHeader />
       <CardContent>
         <DataTable<

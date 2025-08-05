@@ -31,14 +31,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useGetEnrollments } from '@/hooks/enrollments';
-import { useDataTableQueryState } from '@/hooks/use-data-table-query-state';
 import {
-  adminGetEnrollmentById,
-  adminUpdateEnrollmentStatus,
-} from '@/server-actions/admin/enrollments';
-import { adminUpsertPayment } from '@/server-actions/admin/payments';
-import type { ZodSelectEnrollmentType } from '@/utils/db/drizzle-zod-schema/enrollment';
+  useGetEnrollments,
+  useUpdateEnrollmentStatus,
+} from '@/hooks/enrollments';
+import { useUpsertPayment } from '@/hooks/payments';
+import { useDataTableQueryState } from '@/hooks/use-data-table-query-state';
+
+import type { ZodEnrollmentSelectType } from '@/utils/db/drizzle-zod-schema/enrollment';
 import {
   PaymentMethod,
   type TypeEnrollmentStatus,
@@ -46,15 +46,14 @@ import {
 } from '@/utils/db/schema/enums';
 import CancelEnrollmentForm from './enrollment-cancel-form-modal';
 
-type ServerActionResponse = {
-  success: boolean;
-  message?: string;
-  errors?: string;
-};
-
 type EnrollementTableDataProps = {
-  payment_id: string | null;
-} & ZodSelectEnrollmentType;
+  payment_id: string;
+  price: number | null;
+  fullName: string | null;
+  email: string | null;
+  courseTitle: string | null;
+  start_date: string | null;
+} & Partial<ZodEnrollmentSelectType>;
 
 export default function EnrollmentTables() {
   const router = useRouter();
@@ -65,6 +64,8 @@ export default function EnrollmentTables() {
       description: error.message,
     });
   }
+  const updateEnrollmentStatusMutation = useUpdateEnrollmentStatus();
+  const upsertPaymentMutation = useUpsertPayment();
   const data = queryResult?.data as EnrollementTableDataProps[];
   const total = queryResult?.total ?? 0;
   const [isPending, startTransition] = useTransition();
@@ -78,32 +79,62 @@ export default function EnrollmentTables() {
   const handleStatusChange = (
     newStatus: TypeEnrollmentStatus,
     enrollmentId: string,
-    paymentId: string | null
+    paymentId: string | null,
+    price: number | null
   ) => {
-    startTransition(async () => {
+    startTransition(() => {
       try {
-        const { success, message, enrollment } =
-          await adminGetEnrollmentById(enrollmentId);
-
-        if (success && enrollment && enrollment.user) {
-          performUpdateStatus(
-            enrollment.id,
-            newStatus,
-            enrollment?.course?.price,
-            paymentId ?? undefined
-          );
-          if (newStatus === 'cancelled') {
-            setSelectedEnrollmentAndUserId({
-              enrollmentId: enrollment.id,
-              userId: enrollment.user.id,
-            });
-            setShowCancelModal(true);
-            return;
+        updateEnrollmentStatusMutation.mutate(
+          {
+            id: enrollmentId,
+            status: newStatus,
+          },
+          {
+            onSuccess: () => {
+              toast.success('Your inquiry has been sent!');
+              if (newStatus === 'cancelled') {
+                setSelectedEnrollmentAndUserId({
+                  enrollmentId,
+                  userId: '',
+                });
+                setShowCancelModal(true);
+              }
+              if (newStatus === 'enrolled') {
+                if (price) {
+                  upsertPaymentMutation.mutate(
+                    {
+                      id: paymentId as string,
+                      remarks: 'payment has been complete',
+                      enrollment_id: enrollmentId,
+                      amount: price,
+                      method: PaymentMethod.cash, // Default method, can be made dynamic
+                      status: 'completed' as TypePaymentStatus, // Use 'completed' as per enum
+                    },
+                    {
+                      onSuccess: () => {
+                        toast.success(
+                          paymentId
+                            ? 'Payment details updated successfully!'
+                            : 'Payment details created successfully!'
+                        );
+                      },
+                      onError: (error) => {
+                        toast.error(
+                          error?.message || 'Failed to upsert payment details.'
+                        );
+                      },
+                    }
+                  );
+                } else {
+                  toast.error('Failed to retrieve course price for payment.');
+                }
+              }
+            },
+            onError: (error) => {
+              toast.error(`Failed to send inquiry: ${error.message}`);
+            },
           }
-        }
-        if (!success && message) {
-          toast.error(message);
-        }
+        );
       } catch (error: unknown) {
         toast.error(
           error instanceof Error
@@ -116,51 +147,54 @@ export default function EnrollmentTables() {
     });
   };
 
-  const performUpdateStatus = async (
-    enrollmentId: string,
-    newStatus: TypeEnrollmentStatus,
-    price?: number,
-    paymentId?: string
-  ) => {
-    const res: ServerActionResponse = await adminUpdateEnrollmentStatus(
-      enrollmentId,
-      newStatus
-    );
-    if (res?.success) {
-      toast.success('Enrollment status updated successfully!');
-      router.refresh();
-      if (newStatus === 'enrolled') {
-        if (price) {
-          const paymentRes: ServerActionResponse = await adminUpsertPayment({
-            id: paymentId,
-            remarks: 'payment has been complete',
-            enrollment_id: enrollmentId,
-            amount: price,
-            method: PaymentMethod.cash, // Default method, can be made dynamic
-            status: 'completed' as TypePaymentStatus, // Use 'completed' as per enum
-          });
-          if (paymentRes?.success) {
-            toast.success(
-              paymentId
-                ? 'Payment details updated successfully!'
-                : 'Payment details created successfully!'
-            );
-          } else {
-            toast.error(
-              paymentRes?.message || 'Failed to upsert payment details.'
-            );
-          }
-        } else {
-          toast.error('Failed to retrieve course price for payment.');
-        }
-      }
-    } else {
-      toast.error(res?.message || 'Failed to update enrollment status.');
-    }
-    router.refresh();
-  };
+  //   const performUpdateStatus = async (
+  //     enrollmentId: string,
+  //     newStatus: TypeEnrollmentStatus,
+  //     price?: number,
+  //     paymentId?: string
+  //   ) => {
+  //     const res: ServerActionResponse = await adminUpdateEnrollmentStatus(
+  //       enrollmentId,
+  //       newStatus
+  //     );
+  //     if (res?.success) {
+  //       toast.success('Enrollment status updated successfully!');
+  //       router.refresh();
+  //       if (newStatus === 'enrolled') {
+  //         if (price) {
+  //           const paymentRes: ServerActionResponse = await adminUpsertPayment({
+  //             id: paymentId,
+  //             remarks: 'payment has been complete',
+  //             enrollment_id: enrollmentId,
+  //             amount: price,
+  //             method: PaymentMethod.cash, // Default method, can be made dynamic
+  //             status: 'completed' as TypePaymentStatus, // Use 'completed' as per enum
+  //           });
+  //           if (paymentRes?.success) {
+  //             toast.success(
+  //               paymentId
+  //                 ? 'Payment details updated successfully!'
+  //                 : 'Payment details created successfully!'
+  //             );
+  //           } else {
+  //             toast.error(
+  //               paymentRes?.message || 'Failed to upsert payment details.'
+  //             );
+  //           }
+  //         } else {
+  //           toast.error('Failed to retrieve course price for payment.');
+  //         }
+  //       }
+  //     } else {
+  //       toast.error(res?.message || 'Failed to update enrollment status.');
+  //     }
+  //     router.refresh();
+  //   };
 
   const handleDelete = async (id: string) => {
+    if (id.length <= 0) {
+      return;
+    }
     if (!confirm('Are you sure you want to delete this enrollment?')) {
       return;
     }
@@ -184,64 +218,67 @@ export default function EnrollmentTables() {
       );
     }
   };
-  const columns: ColumnDef<
-    ZodSelectEnrollmentType & { payment_id: string | null }
-  >[] = [
+  const columns: ColumnDef<EnrollementTableDataProps>[] = [
     {
-      accessorKey: 'full_name',
-      header: 'Student Name',
+      accessorKey: 'fullName',
+      header: () => <div className="dark:text-white">Student Name</div>,
+      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('fullName')}</div>,
     },
 
     {
       accessorKey: 'email',
-      header: 'Email',
+      header: () => <div className="dark:text-white">Email</div>,
+      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('email')}</div>,
     },
     {
       accessorKey: 'courseTitle',
-      header: 'Course',
+      header: () => <div className="dark:text-white">Course</div>,
+      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('courseTitle')}</div>,
     },
     {
       accessorKey: 'start_date',
-      header: 'Start Date',
-      cell: ({
-        row,
-      }: {
-        row: Row<ZodSelectEnrollmentType & { payment_id: string | null }>;
-      }) => {
+      header: () => <div className="dark:text-white">Start Date</div>,
+      cell: ({ row }: { row: Row<EnrollementTableDataProps> }) => {
         const date = new Date(row.getValue('start_date'));
-        return date.toLocaleDateString();
+        return <div className="dark:text-gray-300">{date.toLocaleDateString()}</div>;
       },
     },
-    { accessorKey: 'payment_id', header: 'Payment' },
+    { 
+      accessorKey: 'payment_id', 
+      header: () => <div className="dark:text-white">Payment</div>, 
+      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('payment_id')}</div>
+    },
     {
       accessorKey: 'status',
-      header: 'Status',
-      cell: ({
-        row,
-      }: {
-        row: Row<ZodSelectEnrollmentType & { payment_id: string | null }>;
-      }) => {
+      header: () => <div className="dark:text-white">Status</div>,
+      cell: ({ row }: { row: Row<EnrollementTableDataProps> }) => {
         const status: TypeEnrollmentStatus = row.getValue('status');
         const enrollmentId = row.original.id;
         const payment_id = row.original.payment_id;
+        const price = row.original.price;
         if (['enrolled', 'cancelled'].includes(status)) {
-          return <Badge> {status} </Badge>;
+          return <Badge className="dark:bg-gray-700 dark:text-gray-200"> {status} </Badge>;
         }
         return (
           <Select
             disabled={isPending}
             onValueChange={(value: TypeEnrollmentStatus) =>
-              handleStatusChange(value, enrollmentId, payment_id)
+              handleStatusChange(
+                value,
+                enrollmentId as string,
+                payment_id,
+                price
+              )
             }
             value={status}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] capitalize dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600">
               <SelectValue placeholder="Select Status" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="requested">Requested</SelectItem>
-              <SelectItem value="enrolled">Enrolled</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
+            <SelectContent className="dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
+              <SelectItem value="requested" className="dark:hover:bg-gray-700">Requested</SelectItem>
+              <SelectItem value="enrolled" className="dark:hover:bg-gray-700">Enrolled</SelectItem>
+              <SelectItem value="cancelled" className="dark:hover:bg-gray-700">Cancelled</SelectItem>
             </SelectContent>
           </Select>
         );
@@ -249,34 +286,30 @@ export default function EnrollmentTables() {
     },
     {
       accessorKey: 'id',
-      header: 'Actions',
+      header: () => <div className="dark:text-white">Actions</div>,
       enableHiding: false,
-      cell: ({
-        row,
-      }: {
-        row: Row<ZodSelectEnrollmentType & { payment_id: string | null }>;
-      }) => {
+      cell: ({ row }: { row: Row<EnrollementTableDataProps> }) => {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost">
+              <Button size="icon" variant="ghost" className="dark:text-white">
                 <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
               <DropdownMenuItem asChild>
-                <Link href={`/admin/enrollments/${row.original.id}`}>View</Link>
+                <Link href={`/admin/enrollments/${row.original.id}`} className="dark:text-gray-200 dark:hover:bg-gray-700">View</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href={`/admin/enrollments/edit/${row.original.id}`}>
+                <Link href={`/admin/enrollments/edit/${row.original.id}`} className="dark:text-gray-200 dark:hover:bg-gray-700">
                   Edit
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem
-                className="text-red-600"
-                onClick={() => handleDelete(row.original.id)}
+                className="text-red-600 dark:text-red-400 dark:hover:bg-gray-700"
+                onClick={() => handleDelete(row.original.id as string)}
               >
                 Delete
               </DropdownMenuItem>
@@ -287,13 +320,10 @@ export default function EnrollmentTables() {
     },
   ];
   return (
-    <Card>
-      <CardHeader />
+    <Card className="dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
+      <CardHeader className="dark:border-b dark:border-gray-700" />
       <CardContent>
-        <DataTable<
-          ZodSelectEnrollmentType & { payment_id: string | null },
-          unknown
-        >
+        <DataTable<EnrollementTableDataProps, unknown>
           columns={columns}
           data={data ?? []}
           headerActionUrl="/admin/enrollment/new"

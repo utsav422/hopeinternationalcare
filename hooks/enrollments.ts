@@ -5,12 +5,10 @@ import {
   adminDeleteEnrollment,
   adminGetEnrollmentById,
   adminGetEnrollments,
-  adminGetEnrollmentsByUserId,
-  adminGetEnrollmentWithDetails,
   adminUpdateEnrollmentStatus,
   adminUpsertEnrollment,
 } from '@/server-actions/admin/enrollments';
-import type { ZodInsertEnrollmentType } from '@/utils/db/drizzle-zod-schema/enrollment';
+import type { ZodEnrollmentInsertType } from '@/utils/db/drizzle-zod-schema/enrollment';
 import type { TypeEnrollmentStatus } from '@/utils/db/schema/enums';
 import { queryKeys } from './query-keys';
 
@@ -40,7 +38,7 @@ export const useGetEnrollmentById = (id: string) => {
 export const useUpsertEnrollment = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: ZodInsertEnrollmentType) => adminUpsertEnrollment(data),
+        mutationFn: ({ data }: { data: ZodEnrollmentInsertType}) => adminUpsertEnrollment(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.enrollments.all });
     },

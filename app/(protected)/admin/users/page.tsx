@@ -38,9 +38,7 @@ export default async function UserPage(props: {
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback="Loading users...">
-        <div className="flex flex-col gap-4">
-          <UsersTables />
-        </div>
+        <UsersTables />
       </Suspense>
     </HydrationBoundary>
   );

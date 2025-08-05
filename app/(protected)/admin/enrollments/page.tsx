@@ -35,8 +35,6 @@ export default async function EnrollmentsPage(props: {
       await adminGetEnrollments({
         page: 1,
         pageSize: 10,
-        sortBy: 'created_at',
-        order: 'desc',
         filters: [],
       }),
   });

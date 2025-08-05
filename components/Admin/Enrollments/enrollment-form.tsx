@@ -40,25 +40,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useGetEnrollmentById } from '@/hooks/enrollments';
 import { adminUpsertEnrollment } from '@/server-actions/admin/enrollments';
 import type { IntakeWithCourseTitleWithPrice } from '@/server-actions/admin/intakes';
-import { adminUpsertPayment } from '@/server-actions/admin/payments';
 import {
   ZodEnrollmentInsertSchema,
-  type ZodInsertEnrollmentType,
+  type ZodEnrollmentInsertType,
 } from '@/utils/db/drizzle-zod-schema/enrollment';
 import {
   EnrollmentStatus,
   //   durationType as durationTypeEnum,
   enrollmentStatus as enrollmentStatusEnum,
-  PaymentMethod,
-  PaymentStatus,
-  //   paymentStatus as paymentStatusEnum,
 } from '@/utils/db/schema/enums';
 
-type ServerActionResponse = {
-  success: boolean;
-  message?: string;
-  errors?: string;
-};
+
 // type CourseFormInput = TablesInsert<'courses'>
 interface Props {
   id?: string;
@@ -67,7 +59,7 @@ interface Props {
 
 export default function ({ id, formTitle }: Props) {
   const router = useRouter();
-  const [selecredPrice, setSelectedPrice] = useState<number | null>(null);
+  const [_selecredPrice, setSelectedPrice] = useState<number | null>(null);
   const {
     isLoading,
     error,
@@ -75,7 +67,7 @@ export default function ({ id, formTitle }: Props) {
   } = useGetEnrollmentById(id ?? '');
   const initialData = queryResult?.data ?? undefined;
   //   courseData && courseData.price;
-  const form = useForm<ZodInsertEnrollmentType>({
+  const form = useForm<ZodEnrollmentInsertType>({
     resolver: zodResolver(ZodEnrollmentInsertSchema),
     defaultValues: initialData || {
       intake_id: null,
@@ -95,48 +87,16 @@ export default function ({ id, formTitle }: Props) {
   }, [initialData, form]);
 
   const notes = form.watch('notes');
-  const enrollment_status = form.watch('status');
-  const onSubmit = async (values: ZodInsertEnrollmentType) => {
+  const onSubmit = async (values: ZodEnrollmentInsertType) => {
     try {
       const result = await adminUpsertEnrollment({
         ...values,
       });
-      if (!result.success && result.message) {
-        throw new Error(result.message.toString());
+      if (!result.success && result.errors) {
+        throw new Error(result.errors);
       }
-      if (!result.data) {
-        throw new Error(result.message ?? 'Somethingwent wrong');
-      }
-      const paymentRes: ServerActionResponse = await adminUpsertPayment({
-        enrollment_id: result.data[0].id,
-        remarks: (() => {
-          switch (enrollment_status) {
-            case 'requested':
-              return 'payment has been pending';
-            case 'enrolled':
-              return 'payment has been complete';
-            default:
-              return 'payment has been failed/cancelled';
-          }
-        })(),
-        amount: selecredPrice as number,
-        method: PaymentMethod.cash,
-        status: (() => {
-          switch (enrollment_status) {
-            case 'requested':
-              return PaymentStatus.pending;
-            case 'enrolled':
-              return PaymentStatus.completed;
-            default:
-              return PaymentStatus.failed;
-          }
-        })(),
-      });
-      if (paymentRes?.success) {
-        toast.success('Payment details created successfully!');
-      } else {
-        toast.error(paymentRes?.message || 'Failed to update payment details.');
-      }
+     
+     
       toast.success(values.id ? 'Enrollment updated' : 'Enrollment created');
       router.push(`/admin/enrollments?status?=${values.status}`, {
         scroll: false,
@@ -163,10 +123,10 @@ export default function ({ id, formTitle }: Props) {
     );
   }
   return (
-    <Card className="w-full max-w-screen-lg">
-      <CardHeader>
-        <CardTitle>{formTitle}</CardTitle>
-        <CardDescription>Fill all the inputs of below form</CardDescription>
+    <Card className="w-full max-w-screen-lg dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
+      <CardHeader className="dark:border-b dark:border-gray-700">
+        <CardTitle className="dark:text-gray-100">{formTitle}</CardTitle>
+        <CardDescription className="dark:text-gray-400">Fill all the inputs of below form</CardDescription>
       </CardHeader>
       <Form {...form}>
         <form className="space-y-6 p-4" onSubmit={form.handleSubmit(onSubmit)}>
@@ -177,9 +137,9 @@ export default function ({ id, formTitle }: Props) {
                 name="notes"
                 render={({ field }) => (
                   <FormItem className="mr-auto">
-                    <FormLabel>Notes</FormLabel>
+                    <FormLabel className="dark:text-gray-200">Notes</FormLabel>
                     <FormControl>
-                      <Input {...field} value={(notes as string) ?? ''} />
+                      <Input {...field} value={(notes as string) ?? ''} className="dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -193,18 +153,18 @@ export default function ({ id, formTitle }: Props) {
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Status</FormLabel>
+                    <FormLabel className="dark:text-gray-200">Status</FormLabel>
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
-                        <SelectTrigger className="capitalize">
+                        <SelectTrigger className="capitalize dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600">
                           <SelectValue placeholder="Select a enrollment type" />
                         </SelectTrigger>
-                        <SelectContent className="capitalize">
+                        <SelectContent className="capitalize dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
                           <SelectGroup>
-                            <SelectLabel>Enrollment Type</SelectLabel>
+                            <SelectLabel className="dark:text-gray-400">Enrollment Type</SelectLabel>
                             {enrollmentStatusEnum.enumValues.map((item) => {
                               return (
                                 <SelectItem
@@ -214,6 +174,7 @@ export default function ({ id, formTitle }: Props) {
                                   )}
                                   key={item}
                                   value={item}
+                                  className="dark:hover:bg-gray-700"
                                 >
                                   {item}
                                 </SelectItem>
@@ -234,7 +195,7 @@ export default function ({ id, formTitle }: Props) {
                 name="enrollment_date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Enrollment Date</FormLabel>
+                    <FormLabel className="dark:text-gray-200">Enrollment Date</FormLabel>
                     <FormControl>
                       <Input
                         type="date"
@@ -245,10 +206,11 @@ export default function ({ id, formTitle }: Props) {
                             ? new Date(field.value).toISOString().split('T')[0]
                             : ''
                         }
+                        className="dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                       />
                     </FormControl>
                     <FormMessage />
-                    <FormDescription>
+                    <FormDescription className="dark:text-gray-400">
                       This will take the current date and time
                     </FormDescription>
                   </FormItem>
@@ -261,7 +223,7 @@ export default function ({ id, formTitle }: Props) {
                 name="intake_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Select Intake</FormLabel>
+                    <FormLabel className="dark:text-gray-200">Select Intake</FormLabel>
                     <FormControl>
                       <IntakeSelect
                         field={field}
@@ -281,7 +243,7 @@ export default function ({ id, formTitle }: Props) {
                 name="user_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Select User</FormLabel>
+                    <FormLabel className="dark:text-gray-200">Select User</FormLabel>
                     <FormControl>
                       <UserSelect field={field} />
                     </FormControl>
@@ -291,8 +253,8 @@ export default function ({ id, formTitle }: Props) {
               />
             </div>
           </CardContent>
-          <CardFooter>
-            <Button className="w-full" type="submit">
+          <CardFooter className="dark:border-t dark:border-gray-700">
+            <Button className="w-full dark:bg-teal-600 dark:hover:bg-teal-700 dark:text-white" type="submit">
               {initialData ? 'Update Enrollment' : 'Create Enrollment'}
             </Button>
           </CardFooter>

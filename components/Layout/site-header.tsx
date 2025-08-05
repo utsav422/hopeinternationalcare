@@ -10,20 +10,10 @@ import {
   BreadcrumbSeparator,
 } from '../ui/breadcrumb';
 
-const getHrefFromPathname = (pathname: string) => {
-  const path = pathname
-    .split('/')
-    .filter(
-      (item) =>
-        item !== '' ||
-        !['edit', 'new'].includes(item) ||
-        !Number.isSafeInteger(Number(item)) ||
-        item.length < 7
-    );
-  if (path.length === 0 || path.includes('admin')) {
-    return '/admin';
-  }
-  return `/admin/${path.at(-1)}`;
+const getHrefFromPathname = (pathname: string, index: number) => {
+  const pathSegments = pathname.split('/').filter(Boolean);
+  const currentPath = '/' + pathSegments.slice(0, index + 1).join('/');
+  return currentPath;
 };
 export function SiteHeader() {
   const pathname = usePathname();
@@ -34,12 +24,9 @@ export function SiteHeader() {
       <Separator className="mr-2 h-4" orientation="vertical" />
       <Breadcrumb>
         <BreadcrumbList>
-          {pathname.split('/').map((item, index) => {
-            if (item === '') {
-              return null;
-            }
-            const href = getHrefFromPathname(item);
-            const isActive = index === pathname.split('/').length - 1;
+          {pathname.split('/').filter(Boolean).map((item, index, array) => {
+            const href = getHrefFromPathname(pathname, index);
+            const isActive = index === array.length - 1;
             return (
               <React.Fragment key={index + item}>
                 <BreadcrumbItem

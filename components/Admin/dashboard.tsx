@@ -78,61 +78,61 @@ export default function Dashboard() {
   return (
     <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="font-medium text-sm">Total Income</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="font-medium text-sm dark:text-white">Total Income</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground dark:text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="font-bold text-2xl">
+            <div className="font-bold text-2xl dark:text-white">
               ${Number(summary.totalIncome).toFixed(2)}
             </div>
-            <p className="text-muted-foreground text-xs">
+            <p className="text-muted-foreground text-xs dark:text-gray-400">
               Based on completed payments
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="font-medium text-sm">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="font-medium text-sm dark:text-white">Total Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground dark:text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="font-bold text-2xl">+{summary.totalUsers}</div>
-            <p className="text-muted-foreground text-xs">Registered users</p>
+            <div className="font-bold text-2xl dark:text-white">+{summary.totalUsers}</div>
+            <p className="text-muted-foreground text-xs dark:text-gray-400">Registered users</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="font-medium text-sm">
+            <CardTitle className="font-medium text-sm dark:text-white">
               Total Enrollments
             </CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
+            <BookOpen className="h-4 w-4 text-muted-foreground dark:text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="font-bold text-2xl">
+            <div className="font-bold text-2xl dark:text-white">
               +{summary.totalEnrollments}
             </div>
-            <p className="text-muted-foreground text-xs">
+            <p className="text-muted-foreground text-xs dark:text-gray-400">
               All time enrollments
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="font-medium text-sm">
+            <CardTitle className="font-medium text-sm dark:text-white">
               Completed Enrollments
             </CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            <CheckCircle className="h-4 w-4 text-muted-foreground dark:text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="font-bold text-2xl">
+            <div className="font-bold text-2xl dark:text-white">
               {summary.enrollmentsByStatus.find(
                 (e: { status: TypeEnrollmentStatus; count: number }) =>
                   e.status === 'completed'
               )?.count || 0}
             </div>
-            <p className="text-muted-foreground text-xs">
+            <p className="text-muted-foreground text-xs dark:text-gray-400">
               Enrollments with 'completed' status
             </p>
           </CardContent>
@@ -140,9 +140,9 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+        <Card className="col-span-4 dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle>Enrollments Overview</CardTitle>
+            <CardTitle className="dark:text-white">Enrollments Overview</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
             <ChartContainer
@@ -151,20 +151,20 @@ export default function Dashboard() {
             >
               <ResponsiveContainer height="100%" width="100%">
                 <BarChart data={enrollmentChartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Legend />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.2)"/>
+                  <XAxis dataKey="name" tick={{ fill: 'white' }} />
+                  <YAxis tick={{ fill: 'white' }} />
+                  <ChartTooltip content={<ChartTooltipContent className="dark:bg-gray-700 dark:border-gray-600 dark:text-white" />} />
+                  <Legend wrapperStyle={{ color: 'white' }}/>
                   <Bar dataKey="count" fill="#8884d8" name="Enrollments" />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
         </Card>
-        <Card className="col-span-3">
+        <Card className="col-span-3 dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle>Payment Status</CardTitle>
+            <CardTitle className="dark:text-white">Payment Status</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
             <ChartContainer
@@ -173,11 +173,11 @@ export default function Dashboard() {
             >
               <ResponsiveContainer height="100%" width="100%">
                 <BarChart data={paymentChartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Legend />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.2)"/>
+                  <XAxis dataKey="name" tick={{ fill: 'white' }}/>
+                  <YAxis tick={{ fill: 'white' }}/>
+                  <ChartTooltip content={<ChartTooltipContent className="dark:bg-gray-700 dark:border-gray-600 dark:text-white" />} />
+                  <Legend wrapperStyle={{ color: 'white' }}/>
                   <Bar dataKey="count" fill="#82ca9d" name="Payments Count" />
                   <Bar
                     dataKey="totalAmount"

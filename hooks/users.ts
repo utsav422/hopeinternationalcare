@@ -34,4 +34,3 @@ export const useGetUsers = (page?: number, pageSize?: number) => {
     queryFn: () => getUserList(page, pageSize),
   });
 };
-

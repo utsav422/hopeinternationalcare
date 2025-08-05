@@ -87,22 +87,23 @@ export default function ({
       {/* <pre>{JSON.stringify(pd, null, 2)}</pre> */}
       {/* <pre>{JSON.stringify(paymentDetails, null, 2)}</pre> */}
       <AlertDialog onOpenChange={setShowCancelModal} open={showCancelModal}>
-        <AlertDialogContent>
+        <AlertDialogContent className="dark:bg-gray-800 dark:border-gray-700">
           <AlertDialogHeader>
-            <AlertDialogTitle>Cancel Enrollment</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="dark:text-white">Cancel Enrollment</AlertDialogTitle>
+            <AlertDialogDescription className="dark:text-gray-400">
               Please provide a reason for cancelling this enrollment. Choose to
               refund the payment or not if payment is existed
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="cancelledReason">Reason</Label>
+              <Label htmlFor="cancelledReason" className="dark:text-gray-200">Reason</Label>
               <Textarea
                 id="cancelledReason"
                 onChange={(e) => setCancelledReason(e.target.value)}
                 placeholder="e.g., Student dropped out, Course cancelled"
                 value={cancelledReason}
+                className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
             </div>
             {isPaymentDetailFetchPending && (
@@ -116,8 +117,8 @@ export default function ({
             )}
             {paymentDetails?.amount && (
               <div className="grid gap-2">
-                <Label>Payment Info</Label>
-                <p className={'text-muted-foreground text-sm'} id={'payment'}>
+                <Label className="dark:text-gray-200">Payment Info</Label>
+                <p className={'text-muted-foreground text-sm dark:text-gray-400'} id={'payment'}>
                   This enrollment has an payment record, where
                   <span className="block">
                     Status:{' '}
@@ -135,12 +136,12 @@ export default function ({
                     Method: {paymentDetails?.created_at}
                   </span>
                 </p>
-                <Card className="space-x-2 p-3">
-                  <Checkbox name="refund" onCheckedChange={setRefund} />
-                  <Label>Refund this payment?</Label>
+                <Card className="space-x-2 p-3 dark:bg-gray-700 dark:border-gray-600">
+                  <Checkbox name="refund" onCheckedChange={setRefund} className="dark:border-gray-500" />
+                  <Label className="dark:text-gray-200">Refund this payment?</Label>
                   {refund && (
                     <div>
-                      <Label htmlFor="amount">Refund Amount</Label>
+                      <Label htmlFor="amount" className="dark:text-gray-200">Refund Amount</Label>
                       <Input
                         max={paymentDetails.amount}
                         name="amount"
@@ -157,6 +158,7 @@ export default function ({
                         placeholder="Enter the amount to refund to user"
                         type="text"
                         value={refundAmount}
+                        className="dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                       />
                     </div>
                   )}
@@ -164,13 +166,13 @@ export default function ({
               </div>
             )}
             {!(paymentDetails || isPaymentDetailFetchPending) && (
-              <p className="text-muted">
+              <p className="text-muted dark:text-gray-400">
                 No Payment Details for enrollment found
               </p>
             )}
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending} className="dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500">Cancel</AlertDialogCancel>
             <AlertDialogAction
               disabled={isPending || !cancelledReason}
               onClick={() => {
@@ -251,6 +253,7 @@ export default function ({
                   toast.error('Please provide a cancellation reason.');
                 }
               }}
+              className="dark:bg-red-600 dark:hover:bg-red-700 dark:text-white"
             >
               Confirm Cancellation
             </AlertDialogAction>

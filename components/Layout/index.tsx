@@ -1,16 +1,14 @@
 'use client';
-import type { User } from '@supabase/supabase-js';
 import { IconBrandFacebook, IconBrandInstagram } from '@tabler/icons-react';
 import { LoaderIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import React, { type ReactNode, Suspense, useEffect, useState } from 'react';
+import { type ReactNode, Suspense, useEffect, useState } from 'react';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { useAuthSession } from '@/hooks/use-auth-session';
 import { cn } from '@/lib/utils';
 import { signOutAction } from '@/server-actions/user/user-auth-actions';
-import { supabase } from '@/utils/supabase/client';
 import { AdminAppSidebar } from '../Admin/Sidebar/app-sidebar';
-import { ThemeSwitcher } from '../theme-switcher';
 import { UserAppSidebar } from '../User/Sidebar/app-sidebar';
 import { Button } from '../ui/button';
 import {
@@ -23,6 +21,7 @@ import { Logo } from './logo';
 import { NavMenu } from './nav-menu';
 import { NavigationSheet } from './navigation-sheet';
 import { SiteHeader } from './site-header';
+import { ThemeSwitcher } from '../theme-switcher';
 
 const LINKS = [
   {
@@ -37,47 +36,11 @@ const LINKS = [
 
 const CURRENT_YEAR = new Date().getFullYear();
 
-export function Layout({
-  user: userFromServer,
-  children,
-}: {
-  user: User | null;
-  children: ReactNode;
-}) {
+export function Layout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [user, setUser] = useState<User | null>(userFromServer);
-  const [_loading, setLoading] = useState(true);
-  const _disallowedPages = '/admin';
-
-  // const isAuthPage = pathname === '/sign-in' || pathname === '/sign-up' || pathname === '/admin';
-
-  const _isAuthPage =
-    pathname.includes('/sign-in') || pathname.includes('/sign-up');
-
-  const [_open, setOpen] = React.useState(false);
-  const [isScrolling, setIsScrolling] = React.useState(false);
-
-  // const handleOpen = () => setOpen((cur) => !cur);
-  const checkUser = React.useCallback(async () => {
-    const {
-      data: { user: authedUser },
-    } = await supabase.auth.getUser();
-    if (authedUser) {
-      return authedUser;
-    }
-    return null;
-  }, []);
+  const { user, loading } = useAuthSession();
+  const [isScrolling, setIsScrolling] = useState(false);
   useEffect(() => {
-    window.addEventListener(
-      'resize',
-      () => window.innerWidth >= 960 && setOpen(false)
-    );
-    async function fetchData() {
-      const userData = await checkUser();
-      setUser(userData);
-      setLoading(false);
-    }
-    fetchData();
     function handleScroll() {
       if (window.scrollY > 0) {
         setIsScrolling(true);
@@ -88,9 +51,34 @@ export function Layout({
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [checkUser]);
-
+  }, []);
   // if (isAuthPage) return null;
+  if (loading) {
+    return (
+      <SidebarProvider>
+        <div className="flex h-screen w-full">
+          <div className="w-64 border-r p-4">
+            <div className="mb-4 h-8 w-3/4 animate-pulse rounded bg-gray-200" />
+            <div className="space-y-2">
+              <div className="h-8 w-full animate-pulse rounded bg-gray-200" />
+              <div className="h-8 w-full animate-pulse rounded bg-gray-200" />
+              <div className="h-8 w-full animate-pulse rounded bg-gray-200" />
+            </div>
+          </div>
+          <div className="flex flex-1 flex-col">
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+              <div className="h-8 w-32 animate-pulse rounded bg-gray-200" />
+              <div className="ml-auto h-8 w-24 animate-pulse rounded bg-gray-200" />
+            </header>
+            <section className="w-full flex-1 p-5">
+              <div className="h-full w-full animate-pulse rounded bg-gray-100" />
+            </section>
+          </div>
+        </div>
+      </SidebarProvider>
+    );
+  }
+
   if (user && user.role === 'service_role' && pathname.includes('/admin')) {
     return (
       <SidebarProvider>
@@ -102,32 +90,35 @@ export function Layout({
       </SidebarProvider>
     );
   }
- 
+
   return (
     <>
       <header
-        className={`fixed top-0 z-50 w-full transition-all duration-500 ${pathname === '/' ? 'bg-transparent' : 'bg-white'} ${
+        className={`fixed top-0 z-50 w-full transition-all duration-500 ${pathname === '/' ? 'bg-transparent' : 'bg-white dark:bg-gray-950'} ${
           pathname.includes('/') && isScrolling
-            ? 'bg-white shadow-md'
+            ? 'bg-white shadow-md dark:bg-gray-950 dark:shadow-lg'
             : 'bg-transparent'
         }`}
       >
         <div
           className={cn(
-            'mx-auto h-16 bg-transparent text-secondary',
-            isScrolling && pathname === '/' && 'text-primary'
+            'mx-auto h-16 bg-transparent text-secondary dark:text-gray-300',
+            isScrolling && pathname === '/' && 'text-primary dark:text-white'
           )}
         >
           <div className="flex h-full items-center px-4 text-xs md:px-4 md:text-base lg:px-8">
             <Logo />
             {/* Desktop Menu */}
-            <NavMenu className="hidden md:mx-auto md:flex md:justify-between md:space-x-2 " />
-            <div className="hidden border-r md:inline" />
+            <NavMenu
+              className="hidden md:mx-auto md:flex md:justify-between md:space-x-2 "
+              isScrolling
+            />
+            <div className="hidden border-r md:inline dark:border-gray-700" />
             <NavigationMenu className="hidden lg:mx-auto lg:block">
               <NavigationMenuList
                 className={cn(
                   'space-x-1 text-xs data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-start md:text-base lg:space-x-2 xl:space-x-3',
-                  pathname !== '/' && 'text-primary '
+                  pathname !== '/' && 'text-primary dark:text-white '
                 )}
               >
                 <NavigationMenuItem
@@ -162,13 +153,13 @@ export function Layout({
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
-            <div className="hidden border-r md:inline" />
+            <div className="hidden border-r md:inline dark:border-gray-700" />
 
             <div className="hidden md:flex md:items-center md:gap-3">
               <Suspense fallback={<LoaderIcon />}>
                 {user ? (
                   <div className="flex items-center gap-4">
-                    <span className="hidden text-xs md:text-base lg:inline">
+                    <span className="hidden text-xs md:text-base lg:inline dark:text-gray-300">
                       Hey, {user.email}!
                     </span>
                     <Button
@@ -200,7 +191,7 @@ export function Layout({
                   <div className="flex gap-2">
                     <Button asChild size="sm" variant={'ghost'}>
                       <Link
-                        className={cn(pathname !== '/' && 'text-teal-500')}
+                        className={cn(pathname !== '/' && 'text-teal-500 dark:text-teal-400')}
                         href="/sign-in"
                       >
                         Sign in
@@ -230,7 +221,7 @@ export function Layout({
           </div>
         </div>
       </header>
-      <main className="flex flex-col">
+      <main className="flex flex-col dark:bg-gray-900 dark:text-gray-100">
         {user &&
           user.role === 'authenticated' &&
           pathname.includes('/user') && (

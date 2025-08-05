@@ -70,12 +70,14 @@ export async function adminGetCoursesCategories({
     name: courseCategoriesTable.name,
     description: courseCategoriesTable.description,
     created_at: courseCategoriesTable.created_at,
+    updated_at: courseCategoriesTable.updated_at,
   };
   const columnMap: Record<string, AnyColumn> = {
     id: courseCategoriesTable.id,
     name: courseCategoriesTable.name,
     description: courseCategoriesTable.description,
     created_at: courseCategoriesTable.created_at,
+    updated_at: courseCategoriesTable.updated_at,
   };
 
   const filterConditions = filters

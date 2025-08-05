@@ -86,7 +86,7 @@ const CourseCategoryBadge = ({
   //   }, [categoryId]);
 
   if (isLoading) {
-    return <Skeleton className="h-6 w-24" />;
+    return <Skeleton className="h-6 w-24 dark:bg-gray-700" />;
   }
   if (error) {
     toast.error('Something went wrong while fetching categories', {
@@ -95,20 +95,20 @@ const CourseCategoryBadge = ({
   }
 
   if (!category) {
-    return <span className="text-gray-500 text-xs">N/A</span>;
+    return <span className="text-gray-500 text-xs dark:text-gray-400">N/A</span>;
   }
 
   const content = (
     <>
-      <span className="font-bold">{category.name}</span>
+      <span className="font-bold dark:text-white">{category.name}</span>
       {showDescription && category.description && (
-        <p className="text-muted-foreground text-sm">{category.description}</p>
+        <p className="text-muted-foreground text-sm dark:text-gray-400">{category.description}</p>
       )}
     </>
   );
 
   const commonProps = {
-    className: cn(badgeVariants({ variant }), className),
+    className: cn(badgeVariants({ variant }), className, "dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"),
     ...props,
   };
 

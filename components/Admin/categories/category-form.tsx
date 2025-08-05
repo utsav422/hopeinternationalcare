@@ -92,15 +92,17 @@ export default function CategoryForm({ id, formTitle }: Props) {
   };
 
   return (
-    <Card>
+    <Card className="dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
       <CardHeader>
         <div className="mb-6 space-y-1">
-          <h3 className="font-medium text-lg">{formTitle}</h3>
-          <p className="text-muted-foreground text-sm">
+          <h3 className="font-medium text-lg dark:text-gray-100">
+            {formTitle}
+          </h3>
+          <p className="text-muted-foreground text-sm dark:text-gray-400">
             Fill in the information about the category.
           </p>
         </div>
-        <hr />
+        <hr className="dark:border-gray-700" />
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -114,14 +116,18 @@ export default function CategoryForm({ id, formTitle }: Props) {
               render={({ field }) => (
                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                   <div className="space-y-1 md:col-span-1">
-                    <FormLabel>Name</FormLabel>
-                    <FormDescription className="text-xs">
+                    <FormLabel className="dark:text-gray-200">Name</FormLabel>
+                    <FormDescription className="text-xs dark:text-gray-400">
                       The name of the category.
                     </FormDescription>
                   </div>
                   <div className="space-y-2 md:col-span-3">
                     <FormControl>
-                      <Input {...field} placeholder="e.g. Web Development" />
+                      <Input
+                        {...field}
+                        className="dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        placeholder="e.g. Web Development"
+                      />
                     </FormControl>
                     <FormMessage />
                   </div>
@@ -134,8 +140,10 @@ export default function CategoryForm({ id, formTitle }: Props) {
               render={({ field }) => (
                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                   <div className="space-y-1 md:col-span-1">
-                    <FormLabel>Description</FormLabel>
-                    <FormDescription className="text-xs">
+                    <FormLabel className="dark:text-gray-200">
+                      Description
+                    </FormLabel>
+                    <FormDescription className="text-xs dark:text-gray-400">
                       A brief description of the category.
                     </FormDescription>
                   </div>
@@ -143,6 +151,7 @@ export default function CategoryForm({ id, formTitle }: Props) {
                     <FormControl>
                       <Textarea
                         {...field}
+                        className="dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                         placeholder="Enter a description..."
                         value={field.value ?? ''}
                       />
@@ -154,15 +163,19 @@ export default function CategoryForm({ id, formTitle }: Props) {
             />
             <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
               <div className="space-y-1 md:col-span-1">
-                <FormLabel className="font-medium text-sm leading-none">
+                <FormLabel className="font-medium text-sm leading-none dark:text-gray-200">
                   Action
                 </FormLabel>
-                <FormDescription className="text-muted-foreground text-xs">
+                <FormDescription className="text-muted-foreground text-xs dark:text-gray-400">
                   Submit the form.
                 </FormDescription>
               </div>
               <div className="space-y-2 md:col-span-3">
-                <Button disabled={isSubmitting} type="submit">
+                <Button
+                  className="dark:bg-teal-600 dark:text-white dark:hover:bg-teal-700"
+                  disabled={isSubmitting}
+                  type="submit"
+                >
                   {isSubmitting && (
                     <svg
                       className="mr-2 h-4 w-4 animate-spin"

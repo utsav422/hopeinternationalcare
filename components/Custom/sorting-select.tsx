@@ -29,12 +29,12 @@ const sortingOptions = [
 export default function SortingSelect({ value, onChange }: SortingSelectProps) {
   return (
     <Select onValueChange={onChange} value={value}>
-      <SelectTrigger>
+      <SelectTrigger className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
         <SelectValue placeholder="Sort by..." />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
         {sortingOptions.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
+          <SelectItem key={option.value} value={option.value} className="dark:hover:bg-gray-700">
             {option.label}
           </SelectItem>
         ))}

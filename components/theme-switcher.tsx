@@ -30,29 +30,19 @@ const ThemeSwitcher = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button size={'sm'} variant="ghost">
-          {theme === 'light' && (
-            <Sun
-              className={'text-muted-foreground'}
-              key="light"
-              size={ICON_SIZE}
-            />
-          )}
-
-          {theme === 'dark' && (
-            <Moon
-              className={'text-muted-foreground'}
-              key="dark"
-              size={ICON_SIZE}
-            />
-          )}
-          {theme === 'system' && (
-            <Laptop
-              className={'text-muted-foreground'}
-              key="system"
-              size={ICON_SIZE}
-            />
-          )}
+        <Button size={'icon'} variant="ghost" className="relative overflow-hidden rounded-full transition-all duration-300 hover:bg-gray-200 dark:hover:bg-gray-700">
+          <Sun
+            className={`absolute transition-all duration-300 ${theme === 'light' ? 'rotate-0 scale-100 opacity-100' : '-rotate-90 scale-0 opacity-0'}`}
+            size={ICON_SIZE}
+          />
+          <Moon
+            className={`absolute transition-all duration-300 ${theme === 'dark' ? 'rotate-0 scale-100 opacity-100' : 'rotate-90 scale-0 opacity-0'}`}
+            size={ICON_SIZE}
+          />
+          <Laptop
+            className={`absolute transition-all duration-300 ${theme === 'system' ? 'rotate-0 scale-100 opacity-100' : 'rotate-90 scale-0 opacity-0'}`}
+            size={ICON_SIZE}
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-content">

@@ -29,7 +29,7 @@ export type IntakeWithCourseTitleWithPrice = {
   is_open: boolean | null;
   created_at: string;
 };
-type ListParams = {
+export type ListParams = {
   page?: number;
   pageSize?: number;
   sortBy?: string;

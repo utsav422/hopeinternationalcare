@@ -27,14 +27,14 @@ export function CategoriesTableActions({
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
         <DropdownMenuItem asChild>
-          <Link href={`/admin/categories/${id}`}>View</Link>
+          <Link href={`/admin/categories/${id}`} className="dark:text-gray-200 dark:hover:bg-gray-700">View</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={`/admin/categories/edit/${id}`}>Edit</Link>
+          <Link href={`/admin/categories/edit/${id}`} className="dark:text-gray-200 dark:hover:bg-gray-700">Edit</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onDelete(id)}>Delete</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onDelete(id)} className="dark:text-gray-200 dark:hover:bg-gray-700">Delete</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

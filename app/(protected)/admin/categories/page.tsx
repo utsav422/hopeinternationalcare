@@ -46,7 +46,7 @@ export default async function CategoriesPage(_props: {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <CategoriesTable />{' '}
+      <CategoriesTable />
     </HydrationBoundary>
   );
 }

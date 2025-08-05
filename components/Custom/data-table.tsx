@@ -275,9 +275,9 @@ export function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 dark:bg-gray-900 dark:text-white">
       <div className="flex justify-between">
-        <h1 className="font-bold text-2xl capitalize">{title}</h1>
+        <h1 className="font-bold text-2xl capitalize dark:text-white">{title}</h1>
         {/* Render custom header action node if provided */}
         {headerActionNode && headerActionNode}
         {/* Render header action button if URL and label are provided */}
