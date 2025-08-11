@@ -3,6 +3,7 @@
 
 import { desc, eq, like, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { cache } from 'react';
 import { requireAdmin } from '@/utils/auth-guard';
 import { db } from '@/utils/db/drizzle';
 import { profiles as profilesTable } from '@/utils/db/schema/profiles';
@@ -90,3 +91,6 @@ export async function adminUpdateProfile(
   await db.update(profilesTable).set(updates).where(eq(profilesTable.id, id));
   revalidatePath('/admin/users');
 }
+export const getCachedAdminProfiles = cache(adminGetProfiles);
+export const getCachedAdminAllProfiles = cache(adminGetAllProfiles);
+export const getCachedAdminProfileById = cache(adminGetProfileById);

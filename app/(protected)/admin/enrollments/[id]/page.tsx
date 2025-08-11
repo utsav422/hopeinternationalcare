@@ -2,7 +2,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import EnrollmentDetailsCard from '@/components/Admin/Enrollments/enrollment-details-card';
-import { queryKeys } from '@/hooks/query-keys';
+import { queryKeys } from '@/lib/query-keys';
 import { adminGetEnrollmentById } from '@/server-actions/admin/enrollments';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';

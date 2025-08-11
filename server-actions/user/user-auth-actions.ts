@@ -2,16 +2,18 @@
 
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { createClient } from '@/utils/supabase/server';
+import { logger } from '@/utils/logger';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { encodedRedirect } from '@/utils/utils';
 
 export const signUpAction = async (formData: FormData) => {
+  const supabase = await createServerSupabaseClient();
+  const origin = (await headers()).get('origin');
+
   const email = formData.get('email')?.toString();
   const password = formData.get('password')?.toString();
-  const supabase = await createClient();
   const full_name = formData.get('full_name')?.toString() ?? '';
   const phone = formData.get('phone')?.toString();
-  const origin = (await headers()).get('origin');
 
   if (!(email && password)) {
     return encodedRedirect(
@@ -42,7 +44,7 @@ export const signUpAction = async (formData: FormData) => {
     return encodedRedirect(
       'error',
       '/sign-up',
-      'User Singup Failed plaease contact to adminstrator for more info.'
+      'User signup failed. Please contact the administrator for more information.'
     );
   }
 
@@ -58,9 +60,12 @@ export const signUpAction = async (formData: FormData) => {
   ]);
 
   if (profileError) {
-    // TODO: Log profile creation error using a proper logging mechanism
+    logger.error('Profile creation failed', {
+      error: profileError.message,
+      userId: user.id,
+    });
   } else {
-    // TODO: Log profile created successfully using a proper logging mechanism
+    logger.info('Profile created successfully', { userId: user.id });
   }
 
   return encodedRedirect(
@@ -73,7 +78,7 @@ export const signUpAction = async (formData: FormData) => {
 export const signInAction = async (formData: FormData) => {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const supabase = await createClient();
+  const supabase = await createServerSupabaseClient();
 
   const {
     data: { user, weakPassword },
@@ -101,7 +106,7 @@ export const signInAction = async (formData: FormData) => {
 
 export const forgotPasswordAction = async (formData: FormData) => {
   const email = formData.get('email')?.toString();
-  const supabase = await createClient();
+  const supabase = await createServerSupabaseClient();
   const origin = (await headers()).get('origin');
   const callbackUrl = formData.get('callbackUrl')?.toString();
 
@@ -133,13 +138,13 @@ export const forgotPasswordAction = async (formData: FormData) => {
 };
 
 export const resetPasswordAction = async (formData: FormData) => {
-  const supabase = await createClient();
+  const supabase = await createServerSupabaseClient();
 
   const password = formData.get('password') as string;
   const confirmPassword = formData.get('confirmPassword') as string;
 
   if (!(password && confirmPassword)) {
-    encodedRedirect(
+    return encodedRedirect(
       'error',
       '/reset-password',
       'Password and confirm password are required'
@@ -147,7 +152,11 @@ export const resetPasswordAction = async (formData: FormData) => {
   }
 
   if (password !== confirmPassword) {
-    encodedRedirect('error', '/reset-password', 'Passwords do not match');
+    return encodedRedirect(
+      'error',
+      '/reset-password',
+      'Passwords do not match'
+    );
   }
 
   const { error } = await supabase.auth.updateUser({
@@ -162,11 +171,11 @@ export const resetPasswordAction = async (formData: FormData) => {
     );
   }
 
-  encodedRedirect('success', '/reset-password', 'Password updated');
+  return encodedRedirect('success', '/reset-password', 'Password updated');
 };
 
 export const signOutAction = async () => {
-  const supabase = await createClient();
+  const supabase = await createServerSupabaseClient();
   await supabase.auth.signOut();
   return redirect('/sign-in');
 };
@@ -175,12 +184,12 @@ export const setupPassword = async (formData: FormData) => {
   try {
     const refresh_token = formData.get('refresh_token')?.toString();
     const password = formData.get('password')?.toString();
-    const supabase = await createClient();
+    const supabase = await createServerSupabaseClient();
     if (!(password && refresh_token)) {
       throw new Error(
-        ` ${!password && 'Password is requried'} ${
-          !refresh_token && 'refresh_token is empty or not provided'
-        }`
+        ` ${password ? '' : 'Password is required'} ${
+          refresh_token ? '' : 'Refresh token is empty or not provided'
+        }`.trim()
       );
     }
     await supabase.auth.refreshSession({
@@ -209,7 +218,7 @@ export const setupPassword = async (formData: FormData) => {
       message:
         error instanceof Error
           ? error.message
-          : 'Something went wrong! contact to adminstrator',
+          : 'Something went wrong! Please contact the administrator.',
     };
   }
 };

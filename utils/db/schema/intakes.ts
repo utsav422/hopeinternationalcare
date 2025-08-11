@@ -40,7 +40,7 @@ export const intakes = pgTable(
       for: 'all',
       to: serviceRole,
       using: sql`(auth.jwt() ->> 'role') = 'service_role'`,
-      withCheck: sql`true`,
+      withCheck: sql`(auth.jwt() ->> 'role') = 'service_role'`,
     }),
   ]
 );
@@ -51,5 +51,3 @@ export const intakeRelations = relations(intakes, ({ one, many }) => ({
   }),
   enrollments: many(enrollments),
 }));
-
-

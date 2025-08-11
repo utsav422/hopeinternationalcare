@@ -34,9 +34,9 @@ import {
 import {
   useGetEnrollments,
   useUpdateEnrollmentStatus,
-} from '@/hooks/enrollments';
-import { useUpsertPayment } from '@/hooks/payments';
-import { useDataTableQueryState } from '@/hooks/use-data-table-query-state';
+} from '@/hooks/admin/enrollments';
+import { useUpsertPayment } from '@/hooks/admin/payments';
+import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
 
 import type { ZodEnrollmentSelectType } from '@/utils/db/drizzle-zod-schema/enrollment';
 import {
@@ -222,31 +222,41 @@ export default function EnrollmentTables() {
     {
       accessorKey: 'fullName',
       header: () => <div className="dark:text-white">Student Name</div>,
-      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('fullName')}</div>,
+      cell: ({ row }) => (
+        <div className="dark:text-gray-300">{row.getValue('fullName')}</div>
+      ),
     },
 
     {
       accessorKey: 'email',
       header: () => <div className="dark:text-white">Email</div>,
-      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('email')}</div>,
+      cell: ({ row }) => (
+        <div className="dark:text-gray-300">{row.getValue('email')}</div>
+      ),
     },
     {
       accessorKey: 'courseTitle',
       header: () => <div className="dark:text-white">Course</div>,
-      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('courseTitle')}</div>,
+      cell: ({ row }) => (
+        <div className="dark:text-gray-300">{row.getValue('courseTitle')}</div>
+      ),
     },
     {
       accessorKey: 'start_date',
       header: () => <div className="dark:text-white">Start Date</div>,
       cell: ({ row }: { row: Row<EnrollementTableDataProps> }) => {
         const date = new Date(row.getValue('start_date'));
-        return <div className="dark:text-gray-300">{date.toLocaleDateString()}</div>;
+        return (
+          <div className="dark:text-gray-300">{date.toLocaleDateString()}</div>
+        );
       },
     },
-    { 
-      accessorKey: 'payment_id', 
-      header: () => <div className="dark:text-white">Payment</div>, 
-      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('payment_id')}</div>
+    {
+      accessorKey: 'payment_id',
+      header: () => <div className="dark:text-white">Payment</div>,
+      cell: ({ row }) => (
+        <div className="dark:text-gray-300">{row.getValue('payment_id')}</div>
+      ),
     },
     {
       accessorKey: 'status',
@@ -257,7 +267,12 @@ export default function EnrollmentTables() {
         const payment_id = row.original.payment_id;
         const price = row.original.price;
         if (['enrolled', 'cancelled'].includes(status)) {
-          return <Badge className="dark:bg-gray-700 dark:text-gray-200"> {status} </Badge>;
+          return (
+            <Badge className="dark:bg-gray-700 dark:text-gray-200">
+              {' '}
+              {status}{' '}
+            </Badge>
+          );
         }
         return (
           <Select
@@ -272,13 +287,19 @@ export default function EnrollmentTables() {
             }
             value={status}
           >
-            <SelectTrigger className="w-[180px] capitalize dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600">
+            <SelectTrigger className="w-[180px] capitalize dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
               <SelectValue placeholder="Select Status" />
             </SelectTrigger>
-            <SelectContent className="dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
-              <SelectItem value="requested" className="dark:hover:bg-gray-700">Requested</SelectItem>
-              <SelectItem value="enrolled" className="dark:hover:bg-gray-700">Enrolled</SelectItem>
-              <SelectItem value="cancelled" className="dark:hover:bg-gray-700">Cancelled</SelectItem>
+            <SelectContent className="dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
+              <SelectItem className="dark:hover:bg-gray-700" value="requested">
+                Requested
+              </SelectItem>
+              <SelectItem className="dark:hover:bg-gray-700" value="enrolled">
+                Enrolled
+              </SelectItem>
+              <SelectItem className="dark:hover:bg-gray-700" value="cancelled">
+                Cancelled
+              </SelectItem>
             </SelectContent>
           </Select>
         );
@@ -292,17 +313,28 @@ export default function EnrollmentTables() {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost" className="dark:text-white">
+              <Button className="dark:text-white" size="icon" variant="ghost">
                 <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
+            <DropdownMenuContent
+              align="end"
+              className="dark:border-gray-700 dark:bg-gray-800"
+            >
               <DropdownMenuItem asChild>
-                <Link href={`/admin/enrollments/${row.original.id}`} className="dark:text-gray-200 dark:hover:bg-gray-700">View</Link>
+                <Link
+                  className="dark:text-gray-200 dark:hover:bg-gray-700"
+                  href={`/admin/enrollments/${row.original.id}`}
+                >
+                  View
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href={`/admin/enrollments/edit/${row.original.id}`} className="dark:text-gray-200 dark:hover:bg-gray-700">
+                <Link
+                  className="dark:text-gray-200 dark:hover:bg-gray-700"
+                  href={`/admin/enrollments/edit/${row.original.id}`}
+                >
                   Edit
                 </Link>
               </DropdownMenuItem>
@@ -320,8 +352,8 @@ export default function EnrollmentTables() {
     },
   ];
   return (
-    <Card className="dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
-      <CardHeader className="dark:border-b dark:border-gray-700" />
+    <Card className="dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
+      <CardHeader className="dark:border-gray-700 dark:border-b" />
       <CardContent>
         <DataTable<EnrollementTableDataProps, unknown>
           columns={columns}

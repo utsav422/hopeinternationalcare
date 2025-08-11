@@ -1,5 +1,5 @@
 // /lib/utils/supabase-upload.ts
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 
 /**
  * Upload image to Supabase Storage
@@ -10,7 +10,13 @@ export async function uploadImageToSupabase(
   const file = formData.get('file');
   const folder = formData.get('folder');
   const file_name = formData.get('file_name');
-  const client = await createClient();
+  if (!(file instanceof File)) {
+    throw new Error('Invalid file upload');
+  }
+  if (!(folder && file_name)) {
+    throw new Error('Folder and file name are required');
+  }
+  const client = await createServerSupabaseClient();
 
   const fileName = `${folder}/${Date.now()}-${file_name}`;
 

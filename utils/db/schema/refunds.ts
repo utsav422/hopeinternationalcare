@@ -48,7 +48,7 @@ export const refunds = pgTable(
       for: 'all',
       to: serviceRole,
       using: sql`(auth.jwt() ->> 'role') = 'service_role'`,
-      withCheck: sql`true`,
+      withCheck: sql`(auth.jwt() ->> 'role') = 'service_role'`,
     }),
   ]
 );

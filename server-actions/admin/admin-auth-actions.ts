@@ -1,11 +1,11 @@
 'use server';
 
 import { RedirectType, redirect } from 'next/navigation';
-import { createClient } from '@/utils/supabase/admin';
+import { createAdminSupabaseClient } from '@/utils/supabase/admin';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { encodedRedirect } from '@/utils/utils';
-
 export const signUpAction = async (formData: FormData) => {
-  const supabaseAdmin = await createClient();
+  const supabaseAdmin = createAdminSupabaseClient();
   const adminAuthClient = supabaseAdmin.auth.admin;
   const email = formData.get('email')?.toString();
   const full_name = formData.get('full_name')?.toString() ?? 'superadmin';
@@ -13,7 +13,6 @@ export const signUpAction = async (formData: FormData) => {
   const role = 'service_role';
 
   const password = formData.get('password')?.toString();
-  // const origin = (await headers()).get("origin");
 
   if (!(email && password)) {
     return encodedRedirect(
@@ -57,7 +56,7 @@ export const signUpAction = async (formData: FormData) => {
 export const signInAction = async (formData: FormData) => {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const supabase = await createClient();
+  const supabase = await createServerSupabaseClient();
 
   const {
     data: { user },
@@ -80,13 +79,13 @@ export const signInAction = async (formData: FormData) => {
   return redirect('/');
 };
 export const signOutAction = async () => {
-  const supabase = await createClient();
+  const supabase = createAdminSupabaseClient();
   await supabase.auth.signOut();
   return redirect('/sign-in', RedirectType.replace);
 };
 
 export const inviteUserAction = async (formData: FormData) => {
-  const supabaseAdmin = await createClient();
+  const supabaseAdmin = createAdminSupabaseClient();
   const adminAuthClient = supabaseAdmin.auth.admin;
   const email = formData.get('email')?.toString();
   const full_name = formData.get('full_name');
@@ -135,3 +134,10 @@ export const inviteUserAction = async (formData: FormData) => {
     message: 'Successfully invited user and created the profile',
   };
 };
+
+export const getAuthSession = async () => {
+  const supabaseAdmin = await createServerSupabaseClient();
+  return await supabaseAdmin.auth.getUser();
+};
+
+// export const getCachedAuthSession = cache(getAuthSession);

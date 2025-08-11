@@ -3,17 +3,16 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/utils/supabase/client';
-import { queryKeys } from './query-keys';
+import { queryKeys } from '../lib/query-keys';
 
 export function useAuthSession() {
   const queryClient = useQueryClient();
 
   const { data: user, isLoading: loading } = useQuery({
-    queryKey: queryKeys.users.all,
+    queryKey: queryKeys.users.session,
     queryFn: async () => {
       const { data, error } = await supabase.auth.getUser();
       if (error) {
-        // console.error('Error fetching user session:', error.message);
         throw error;
       }
       return data.user;
@@ -27,9 +26,9 @@ export function useAuthSession() {
       data: { subscription: authListener },
     } = supabase.auth.onAuthStateChange((_, session) => {
       if (session?.user) {
-        queryClient.setQueryData(queryKeys.users.all, session.user);
+        queryClient.setQueryData(queryKeys.users.session, session.user);
       } else {
-        queryClient.setQueryData(queryKeys.users.all, null);
+        queryClient.setQueryData(queryKeys.users.session, null);
       }
     });
 

@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useGetAllIntakes } from '@/hooks/intakes';
+import { useGetAllIntakes } from '@/hooks/admin/intakes';
 
 interface IntakeFilterProps {
   value: string;
@@ -36,20 +36,24 @@ export default function IntakeFilter({ value, onChange }: IntakeFilterProps) {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <SelectItem disabled value="loading" className="dark:text-gray-400">
+        <SelectItem className="dark:text-gray-400" disabled value="loading">
           Loading...
         </SelectItem>
       );
     }
     if (futureIntakes.length > 0) {
       return futureIntakes.map((intake) => (
-        <SelectItem key={intake.id} value={intake.id} className="dark:hover:bg-gray-700">
+        <SelectItem
+          className="dark:hover:bg-gray-700"
+          key={intake.id}
+          value={intake.id}
+        >
           {formatDate(intake.start_date)}
         </SelectItem>
       ));
     }
     return (
-      <SelectItem disabled value="no-intakes" className="dark:text-gray-400">
+      <SelectItem className="dark:text-gray-400" disabled value="no-intakes">
         No upcoming intakes
       </SelectItem>
     );
@@ -57,10 +61,10 @@ export default function IntakeFilter({ value, onChange }: IntakeFilterProps) {
 
   return (
     <Select onValueChange={onChange} value={value}>
-      <SelectTrigger className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+      <SelectTrigger className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
         <SelectValue placeholder="Filter by intake..." />
       </SelectTrigger>
-      <SelectContent className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+      <SelectContent className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
         {renderContent()}
       </SelectContent>
     </Select>

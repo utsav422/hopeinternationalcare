@@ -16,7 +16,7 @@ export const encodedRedirect = (
   );
 };
 
-export function isValidTableColumnName<T extends Record<string, any>>(
+export function isValidTableColumnName<T extends object>(
   column: string,
   table: T
 ): column is keyof T & string {

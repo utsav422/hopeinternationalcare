@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useGetAllCourseCategories } from '@/hooks/course-categories';
+import { useGetAllCourseCategories } from '@/hooks/admin/course-categories';
 import { adminUpsertCourseCategories } from '@/server-actions/admin/courses-categories';
 import type { ZTInsertCourseCategories } from '@/utils/db/drizzle-zod-schema/course-categories';
 import type { ZodInsertCourseType } from '@/utils/db/drizzle-zod-schema/courses';
@@ -72,7 +72,11 @@ export default function CourseCategorySelect({
     return (
       <div className="dark:text-white">
         <p>No categories found.</p>
-        <Button onClick={() => setIsModalOpen(true)} type="button" className="dark:bg-teal-600 dark:hover:bg-teal-700 dark:text-white">
+        <Button
+          className="dark:bg-teal-600 dark:text-white dark:hover:bg-teal-700"
+          onClick={() => setIsModalOpen(true)}
+          type="button"
+        >
           Create Category
         </Button>
         <CourseCategoryFormModal
@@ -92,12 +96,16 @@ export default function CourseCategorySelect({
         onValueChange={field.onChange}
         value={field?.value ?? undefined}
       >
-        <SelectTrigger className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+        <SelectTrigger className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
           <SelectValue placeholder="Select a category" />
         </SelectTrigger>
-        <SelectContent className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+        <SelectContent className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
           {categories.map((category) => (
-            <SelectItem key={category.id} value={category.id} className="dark:hover:bg-gray-700">
+            <SelectItem
+              className="dark:hover:bg-gray-700"
+              key={category.id}
+              value={category.id}
+            >
               {category.name}
             </SelectItem>
           ))}

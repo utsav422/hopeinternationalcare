@@ -12,12 +12,13 @@ import {
   type ZTSelectCourseCategories,
 } from './../../utils/db/drizzle-zod-schema/course-categories';
 
-// import { createClient } from '@/utils/supabase/server'
+// import { createServerSupabaseClient } from '@/utils/supabase/server'
 
 import type { ColumnFilter, ColumnFiltersState } from '@tanstack/react-table';
+import { cache } from 'react';
 import type { ZodSafeParseResult } from 'zod/v4';
 import { courseCategories as courseCategoriesTable } from '@/utils/db/schema/course-categories';
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { isValidTableColumnName } from '@/utils/utils';
 
 // type CourseWithDetails = InferSelectModel<typeof coursesTable>;
@@ -130,7 +131,7 @@ export async function adminGetCoursesCategories({
 export async function adminGetCourseCategoriesById(
   id: string
 ): Promise<ZodSafeParseResult<ZTSelectCourseCategories>> {
-  const user = await requireAdmin();
+  const { user } = await requireAdmin();
   if (!user || user.user_metadata?.role !== 'service_role') {
     throw new Error('Unauthorized');
   }
@@ -163,7 +164,7 @@ type CourseCategoryFormInput = TablesInsert<'course_categories'>;
 export async function adminUpsertCourseCategories(
   input: CourseCategoryFormInput
 ) {
-  const user = await requireAdmin();
+  const { user } = await requireAdmin();
   if (!user || user.user_metadata?.role !== 'service_role') {
     throw new Error('Unauthorized');
   }
@@ -176,7 +177,7 @@ export async function adminUpsertCourseCategories(
       errors: validatedFields.error.message,
     };
   }
-  const client = await createClient();
+  const client = await createServerSupabaseClient();
   const { data, error } = await client
     .from('course_categories')
     .upsert(
@@ -209,7 +210,7 @@ export async function adminUpsertCourseCategories(
  * Delete course categories by ID
  */
 export async function adminDeleteCourseCategories(id: string) {
-  const client = await createClient();
+  const client = await createServerSupabaseClient();
 
   const { error } = await client
     .from('course_categories')
@@ -222,3 +223,9 @@ export async function adminDeleteCourseCategories(id: string) {
 
   revalidatePath('/admin/courses_categories');
 }
+
+export const getCachedAdminAllCatogies = cache(adminGetAllCatogies);
+export const getCachedAdminCoursesCategories = cache(adminGetCoursesCategories);
+export const getCachedAdminCourseCategoriesById = cache(
+  adminGetCourseCategoriesById
+);

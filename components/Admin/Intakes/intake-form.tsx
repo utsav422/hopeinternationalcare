@@ -7,8 +7,16 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import CourseSelect from '@/components/Custom/course-select';
+import FormSkeleton from '@/components/Custom/form-skeleton';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
@@ -25,8 +33,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useGetIntakeById } from '@/hooks/intakes';
+import { useGetIntakeById } from '@/hooks/admin/intakes';
 import { adminUpsertIntake } from '@/server-actions/admin/intakes';
 import {
   type ZodInsertIntakeType,
@@ -36,9 +43,10 @@ import { cn } from '@/utils/utils';
 
 interface IntakeFormProps {
   id?: string;
+  formTitle?: string;
 }
 
-export default function IntakeForm({ id }: IntakeFormProps) {
+export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
   const router = useRouter();
   const { data: queryResult, isLoading, error } = useGetIntakeById(id ?? '');
   if (error) {
@@ -72,167 +80,280 @@ export default function IntakeForm({ id }: IntakeFormProps) {
   };
 
   if (isLoading) {
-    return <Skeleton className="h-96 w-full" />;
+    return <FormSkeleton />;
   }
-
+  const { isSubmitting } = form.formState;
+  const getButtonText = () => {
+    if (isSubmitting) {
+      return 'Saving...';
+    }
+    if (id) {
+      return 'Update Intake';
+    }
+    return 'Create Intake';
+  };
   return (
-    <Form {...form}>
-      <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="rounded-lg border p-4 dark:border-gray-700 dark:bg-gray-800">
-          <h2 className="mb-4 font-semibold text-lg dark:text-gray-100">Intake Details</h2>
-          <p className="text-muted-foreground text-sm dark:text-gray-400">
-            Fill in the information about the intake.
-          </p>
-          <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="course_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="dark:text-gray-200">Course</FormLabel>
-                  <FormControl>
-                    <CourseSelect field={field} />
-                  </FormControl>
-                  <FormDescription className="text-xs dark:text-gray-400">
-                    Select the course for this intake.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="start_date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel className="dark:text-gray-200">Start Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          className={cn(
-                            'w-full pl-3 text-left font-normal bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
-                            !field.value && 'text-muted-foreground dark:text-gray-400'
-                          )}
-                          variant="outline"
-                        >
-                          {field.value ? (
-                            format(new Date(field.value), 'PPP')
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent align="start" className="w-auto p-0 dark:bg-gray-800 dark:border-gray-700">
-                      <Calendar
-                        initialFocus
-                        mode="single"
-                        onSelect={(date) => field.onChange(date?.toISOString())}
-                        selected={
-                          field.value ? new Date(field.value) : undefined
-                        }
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="end_date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel className="dark:text-gray-200">End Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          className={cn(
-                            'w-full pl-3 text-left font-normal bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
-                            !field.value && 'text-muted-foreground dark:text-gray-400'
-                          )}
-                          variant="outline"
-                        >
-                          {field.value ? (
-                            format(new Date(field.value), 'PPP')
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent align="start" className="w-auto p-0 dark:bg-gray-800 dark:border-gray-700">
-                      <Calendar
-                        initialFocus
-                        mode="single"
-                        onSelect={(date) => field.onChange(date?.toISOString())}
-                        selected={
-                          field.value ? new Date(field.value) : undefined
-                        }
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="capacity"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="dark:text-gray-200">Capacity</FormLabel>
-                  <FormControl>
-                    <Input type="number" {...field} className="dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="total_registered"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="dark:text-gray-200">Total Registered</FormLabel>
-                  <FormControl>
-                    <Input type="number" {...field} className="dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="is_open"
-              render={({ field }) => (
-                <FormItem className="flex items-center">
-                  <FormControl>
-                    <Checkbox
-                      checked={!!field.value}
-                      className="mr-2 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-teal-500 dark:checked:text-white"
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel>
-                    <label
-                      className="font-medium text-sm leading-none dark:text-gray-200"
-                      htmlFor="is_open"
-                    >
-                      Is this intake currently open for enrollment?
-                    </label>
-                  </FormLabel>
-                </FormItem>
-              )}
-            />
-          </div>
+    <Card className="dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
+      <CardHeader>
+        <div className="mb-6 space-y-1">
+          <CardTitle className="font-medium text-lg dark:text-gray-100">
+            {formTitle}
+          </CardTitle>
+          <CardDescription className="dark:text-gray-400">
+            Fill in the information about the category.
+          </CardDescription>
         </div>
-        <Button type="submit" className="dark:bg-teal-600 dark:hover:bg-teal-700 dark:text-white">Save</Button>
-      </form>
-    </Form>
+        <hr className="dark:border-gray-700" />
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form
+            className="w-full space-y-8"
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="course_id"
+                render={({ field }) => (
+                  <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                    <div className="space-y-1 md:col-span-1">
+                      <FormLabel className="font-medium text-sm leading-none dark:text-white">
+                        Course
+                      </FormLabel>
+                      <FormDescription className="text-gray-600 text-xs dark:text-gray-400">
+                        Select the course for this intake.
+                      </FormDescription>
+                    </div>
+                    <div className="space-y-2 md:col-span-3">
+                      <FormControl>
+                        <CourseSelect field={field} />
+                      </FormControl>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="start_date"
+                render={({ field }) => (
+                  <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                    <div className="space-y-1 md:col-span-1">
+                      <FormLabel className="font-medium text-sm leading-none dark:text-white">
+                        Start Date
+                      </FormLabel>
+                    </div>
+                    <div className="space-y-2 md:col-span-3">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              className={cn(
+                                'w-full bg-white pl-3 text-left font-normal text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200',
+                                !field.value &&
+                                  'text-gray-500 dark:text-gray-400'
+                              )}
+                              variant="outline"
+                            >
+                              {field.value ? (
+                                format(new Date(field.value), 'PPP')
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          align="start"
+                          className="w-auto p-0 dark:border-gray-700 dark:bg-gray-800"
+                        >
+                          <Calendar
+                            initialFocus
+                            mode="single"
+                            onSelect={(date) =>
+                              field.onChange(date?.toISOString())
+                            }
+                            selected={
+                              field.value ? new Date(field.value) : undefined
+                            }
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="end_date"
+                render={({ field }) => (
+                  <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                    <div className="space-y-1 md:col-span-1">
+                      <FormLabel className="font-medium text-sm leading-none dark:text-white">
+                        End Date
+                      </FormLabel>
+                    </div>
+                    <div className="space-y-2 md:col-span-3">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              className={cn(
+                                'w-full bg-white pl-3 text-left font-normal text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200',
+                                !field.value &&
+                                  'text-gray-500 dark:text-gray-400'
+                              )}
+                              variant="outline"
+                            >
+                              {field.value ? (
+                                format(new Date(field.value), 'PPP')
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          align="start"
+                          className="w-auto p-0 dark:border-gray-700 dark:bg-gray-800"
+                        >
+                          <Calendar
+                            initialFocus
+                            mode="single"
+                            onSelect={(date) =>
+                              field.onChange(date?.toISOString())
+                            }
+                            selected={
+                              field.value ? new Date(field.value) : undefined
+                            }
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="capacity"
+                render={({ field }) => (
+                  <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                    <div className="space-y-1 md:col-span-1">
+                      <FormLabel className="font-medium text-sm leading-none dark:text-white">
+                        Capacity
+                      </FormLabel>
+                    </div>
+                    <div className="space-y-2 md:col-span-3">
+                      <FormControl>
+                        <Input
+                          type="number"
+                          {...field}
+                          className="dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="total_registered"
+                render={({ field }) => (
+                  <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                    <div className="space-y-1 md:col-span-1">
+                      <FormLabel className="font-medium text-sm leading-none dark:text-white">
+                        Total Registered
+                      </FormLabel>
+                    </div>
+                    <div className="space-y-2 md:col-span-3">
+                      <FormControl>
+                        <Input
+                          type="number"
+                          {...field}
+                          className="dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="is_open"
+                render={({ field }) => (
+                  <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                    <div className="space-y-1 md:col-span-1">
+                      <FormLabel className="font-medium text-sm leading-none dark:text-white">
+                        Is this intake currently open for enrollment?
+                      </FormLabel>
+                    </div>
+                    <div className="space-y-2 md:col-span-3">
+                      <FormControl>
+                        <Checkbox
+                          checked={!!field.value}
+                          className="mr-2 dark:border-gray-600 dark:bg-gray-700 dark:data-[state=checked]:bg-teal-500 dark:data-[state=checked]:text-white"
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+              <div className="space-y-1 md:col-span-1">
+                <FormLabel className="font-medium text-sm leading-none dark:text-white">
+                  Action{' '}
+                </FormLabel>{' '}
+                <FormDescription className="text-muted-foreground text-xs dark:text-gray-400">
+                  Submit Action Button For{' '}
+                  {initialData ? 'Updating' : 'Creating'} Intake
+                </FormDescription>
+              </div>
+              <div className="dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700">
+                <Button
+                  className="dark:bg-teal-600 dark:text-white dark:hover:bg-teal-700"
+                  disabled={isSubmitting}
+                  type="submit"
+                >
+                  {' '}
+                  {isSubmitting && (
+                    <svg
+                      className="mr-2 h-4 w-4 animate-spin"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <title>Loading</title>
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  )}
+                  {getButtonText()}
+                </Button>
+              </div>
+            </FormItem>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 }

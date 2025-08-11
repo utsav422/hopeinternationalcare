@@ -2,7 +2,7 @@
 
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import CategoriesTable from '@/components/Admin/categories/categories-table';
-import { queryKeys } from '@/hooks/query-keys';
+import { queryKeys } from '@/lib/query-keys';
 import { adminGetCoursesCategories } from '@/server-actions/admin/courses-categories';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';

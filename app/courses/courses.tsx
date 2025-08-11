@@ -11,7 +11,7 @@ import SortingSelect from '@/components/Custom/sorting-select';
 import { UpcomingIntakesBanner } from '@/components/Custom/upcoming-intakes-banner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useGetPublicCourses } from '@/hooks/public-courses';
+import { useGetPublicCourses } from '@/hooks/admin/public-courses';
 
 export function AllCourses() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -55,7 +55,7 @@ export function AllCourses() {
   };
 
   const renderSkeletons = () => {
-    return [1, 2, 3].map((num) => <CourseCardSkeleton key={num} />);
+    return [1, 2, 3].map((_) => <CourseCardSkeleton key={_} />);
   };
 
   const getButtonText = () => {
@@ -120,7 +120,7 @@ export function AllCourses() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-12 lg:py-16">
         <UpcomingIntakesBanner />
-        <header className='mt-12 mb-12 text-center'>
+        <header className="my-12 text-center">
           <h1 className="font-bold text-4xl text-gray-900 tracking-tight sm:text-5xl dark:text-white">
             Explore Our Courses
           </h1>
@@ -129,7 +129,6 @@ export function AllCourses() {
           </p>
         </header>
         <div className="flex flex-col gap-10 lg:flex-row">
-          {/* Left Sidebar */}
           <aside className="w-full self-start rounded-lg bg-white p-6 shadow-lg lg:sticky lg:top-24 lg:w-1/4 dark:bg-gray-800">
             <div className="space-y-8">
               <div>
@@ -170,7 +169,6 @@ export function AllCourses() {
             </div>
           </aside>
 
-          {/* Main Content */}
           <main className="w-full lg:w-3/4">{renderContent()}</main>
         </div>
       </div>

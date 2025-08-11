@@ -2,8 +2,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
-// import { useSearchParams } from 'next/navigation';
-import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -18,58 +16,11 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { signUpAction } from '@/server-actions/user/user-auth-actions';
 
-// Helper function to merge class names
 const cn = (...classes: string[]) => {
   return classes.filter(Boolean).join(' ');
-};
-
-// Custom LocalButton Component
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  children: React.ReactNode;
-  variant?: 'default' | 'outline';
-  className?: string;
-}
-
-const LocalButton = ({
-  children,
-  variant = 'default',
-  className = '',
-  ...props
-}: ButtonProps) => {
-  const baseStyles =
-    'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
-
-  const variantStyles = {
-    default:
-      'bg-primary bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700',
-    outline:
-      'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-  };
-
-  return (
-    <button
-      className={`${baseStyles} ${variantStyles[variant]} ${className}`}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-};
-
-// Custom Input Component
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  className?: string;
-}
-
-const Input = ({ className = '', ...props }: InputProps) => {
-  return (
-    <input
-      className={`flex h-10 w-full rounded-md border bg-background px-3 py-2 text-gray-800 text-sm ring-offset-background file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
-      {...props}
-    />
-  );
 };
 
 type RoutePoint = {
@@ -87,12 +38,11 @@ const DotMap = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
-  // Set up routes that will animate across the map
   const routes: { start: RoutePoint; end: RoutePoint; color: string }[] = [
     {
       start: { x: 100, y: 150, delay: 0 },
       end: { x: 200, y: 80, delay: 2 },
-      color: '#14B8A6', //#14B8A6 // Slightly darker blue for better visibility on light bg
+      color: '#14B8A6',
     },
     {
       start: { x: 200, y: 80, delay: 2 },
@@ -111,43 +61,34 @@ const DotMap = () => {
     },
   ];
 
-  // Create dots for the world map
   const generateDots = useCallback((width: number, height: number) => {
     const dots: DOT[] = [];
     const gap = 12;
     const dotRadius = 1;
 
-    // Create a dot grid pattern with random opacity
     for (let x = 0; x < width; x += gap) {
       for (let y = 0; y < height; y += gap) {
-        // Shape the dots to form a world map silhouette
         const isInMapShape =
-          // North America
           (x < width * 0.25 &&
             x > width * 0.05 &&
             y < height * 0.4 &&
             y > height * 0.1) ||
-          // South America
           (x < width * 0.25 &&
             x > width * 0.15 &&
             y < height * 0.8 &&
             y > height * 0.4) ||
-          // Europe
           (x < width * 0.45 &&
             x > width * 0.3 &&
             y < height * 0.35 &&
             y > height * 0.15) ||
-          // Africa
           (x < width * 0.5 &&
             x > width * 0.35 &&
             y < height * 0.65 &&
             y > height * 0.35) ||
-          // Asia
           (x < width * 0.7 &&
             x > width * 0.45 &&
             y < height * 0.5 &&
             y > height * 0.1) ||
-          // Australia
           (x < width * 0.8 &&
             x > width * 0.65 &&
             y < height * 0.8 &&
@@ -158,7 +99,7 @@ const DotMap = () => {
             x,
             y,
             radius: dotRadius,
-            opacity: Math.random() * 0.5 + 0.2, // Slightly higher opacity for light theme
+            opacity: Math.random() * 0.5 + 0.2,
           });
         }
       }
@@ -202,27 +143,24 @@ const DotMap = () => {
     let animationFrameId: number;
     let startTime = Date.now();
 
-    // Draw background dots
     function drawDots() {
       if (!ctx) {
         return;
       }
       ctx.clearRect(0, 0, dimensions.width, dimensions.height);
-      // Draw the dots
       for (const dot of dots) {
         ctx.beginPath();
         ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(20, 184, 166, ${dot.opacity})`; // Blue dots for light theme
+        ctx.fillStyle = `rgba(20, 184, 166, ${dot.opacity})`;
         ctx.fill();
       }
     }
 
-    // Draw animated routes
     function drawRoutes() {
       if (!ctx) {
         return;
       }
-      const currentTime = (Date.now() - startTime) / 1000; // Time in seconds
+      const currentTime = (Date.now() - startTime) / 1000;
 
       for (const route of routes) {
         const elapsed = currentTime - route.start.delay;
@@ -230,13 +168,12 @@ const DotMap = () => {
           return;
         }
 
-        const duration = 3; // Animation duration in seconds
+        const duration = 3;
         const progress = Math.min(elapsed / duration, 1);
 
         const x = route.start.x + (route.end.x - route.start.x) * progress;
         const y = route.start.y + (route.end.y - route.start.y) * progress;
 
-        // Draw the route line
         ctx.beginPath();
         ctx.moveTo(route.start.x, route.start.y);
         ctx.lineTo(x, y);
@@ -244,25 +181,21 @@ const DotMap = () => {
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        // Draw the start point
         ctx.beginPath();
         ctx.arc(route.start.x, route.start.y, 3, 0, Math.PI * 2);
         ctx.fillStyle = route.color;
         ctx.fill();
 
-        // Draw the moving point
         ctx.beginPath();
         ctx.arc(x, y, 3, 0, Math.PI * 2);
         ctx.fillStyle = '#14B8A6';
         ctx.fill();
 
-        // Add glow effect to the moving point
         ctx.beginPath();
         ctx.arc(x, y, 6, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(20, 184, 166, 0.4)';
         ctx.fill();
 
-        // If the route is complete, draw the end point
         if (progress === 1) {
           ctx.beginPath();
           ctx.arc(route.end.x, route.end.y, 3, 0, Math.PI * 2);
@@ -272,15 +205,12 @@ const DotMap = () => {
       }
     }
 
-    // Animation loop
     function animate() {
       drawDots();
       drawRoutes();
 
-      // If all routes are complete, restart the animation
       const currentTime = (Date.now() - startTime) / 1000;
       if (currentTime > 15) {
-        // Reset after 15 seconds
         startTime = Date.now();
       }
 
@@ -299,17 +229,15 @@ const DotMap = () => {
   );
 };
 
-const page = () => {
+const SignUpPage = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  //   const searchParams = useSearchParams();
-  //   const message = searchParams.get('message');
 
   const formSchema = z.object({
     password: z.string().min(6, 'Password must be at least 6 characters.'),
-    email: z.string().email(),
-    full_name: z.string(),
-    phone: z.string(),
+    email: z.string().email('Invalid email address'),
+    full_name: z.string().min(1, 'Full name is required'),
+    phone: z.string().min(10, 'Phone number must be at least 10 digits.'),
   });
 
   type SignupFormValues = z.infer<typeof formSchema>;
@@ -332,36 +260,34 @@ const page = () => {
     formData.set('password', data.password);
     await signUpAction(formData);
   });
+
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-teal-50 to-indigo-100 p-4">
+    <div className="flex min-h-screen w-full items-center justify-center bg-gray-100 p-4 dark:bg-gray-900">
       <div className="flex h-full w-full items-center justify-center">
         <motion.div
           animate={{ opacity: 1, scale: 1 }}
-          className="flex w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-xl"
+          className="flex w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-gray-800"
           initial={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.5 }}
         >
-          {/* Left side - Map */}
-          <div className="relative order-2 hidden h-[667px] w-1/2 overflow-hidden border-teal-100 border-r md:block">
-            <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-blue-100">
+          <div className="relative order-2 hidden h-[667px] w-1/2 overflow-hidden border-gray-200 border-r md:block dark:border-gray-700">
+            <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-blue-100 dark:from-teal-900/50 dark:to-blue-900/50">
               <DotMap />
-
-              {/* Logo and text overlay */}
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-8">
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-8 text-center">
                 <motion.div
                   animate={{ opacity: 1, y: 0 }}
                   className="mb-6"
                   initial={{ opacity: 0, y: -20 }}
                   transition={{ delay: 0.6, duration: 0.5 }}
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-indigo-600 shadow-blue-200 shadow-lg">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-indigo-600 shadow-blue-200 shadow-lg dark:shadow-blue-800">
                     <ArrowRight className="h-6 w-6 text-white" />
                   </div>
                 </motion.div>
                 <h2 className="flex gap-2">
                   <motion.span
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-2 inline-block bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text text-center font-bold text-3xl text-transparent"
+                    className="mb-2 inline-block bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text font-bold text-3xl text-transparent dark:from-teal-400 dark:to-teal-300"
                     initial={{ opacity: 0, y: -20 }}
                     transition={{ delay: 0.7, duration: 0.5 }}
                   >
@@ -369,7 +295,7 @@ const page = () => {
                   </motion.span>
                   <motion.span
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-2 inline-block bg-gradient-to-r from-blue-600 to-blue-500/80 bg-clip-text text-center font-bold text-3xl text-transparent"
+                    className="mb-2 inline-block bg-gradient-to-r from-blue-600 to-blue-500/80 bg-clip-text font-bold text-3xl text-transparent dark:from-blue-400 dark:to-blue-300/80"
                     initial={{ opacity: 0, y: -20 }}
                     transition={{ delay: 0.7, duration: 0.5 }}
                   >
@@ -378,140 +304,135 @@ const page = () => {
                 </h2>
                 <motion.p
                   animate={{ opacity: 1, y: 0 }}
-                  className="max-w-xs text-center text-gray-600 text-sm"
+                  className="max-w-xs text-gray-600 text-sm dark:text-gray-400"
                   initial={{ opacity: 0, y: -20 }}
                   transition={{ delay: 0.8, duration: 0.5 }}
                 >
-                  Sign in to access your organization web dashboard as
-                  Adminstrator
+                  Sign up to create your account and access our services.
                 </motion.p>
               </div>
             </div>
           </div>
-          {/* Right side - Sign In Form */}
-          <div className="relative order-1 flex w-full flex-col justify-center space-y-8 bg-white px-8 md:w-1/2 md:p-10">
-            <div className="my-3 flex items-center justify-center bg-transparent">
-              <Logo className="aspect-auto h-14" />
+          <div className="relative order-1 flex w-full flex-col justify-center space-y-8 bg-white px-8 py-10 md:w-1/2 md:p-10 dark:bg-gray-800">
+            <div className="flex items-center justify-center">
+              <Logo className="h-14" />
             </div>
             <Form {...form}>
-              {/* <h1 className="text-3xl font-bold text-teal-600/90 w-full absolute top-10 z-50">Hope Internation Care</h1> */}
               <motion.div
                 animate={{ opacity: 1, y: 0 }}
                 className="m-0"
                 initial={{ opacity: 0, y: 20 }}
                 transition={{ duration: 0.5 }}
               >
-                <p className="py-2 text-muted-foreground text-sm">
-                  Fill all input field marked{' '}
+                <p className="py-2 text-gray-600 text-sm dark:text-gray-400">
+                  Please fill in all fields marked with{' '}
                   <span className="text-teal-500">*</span>
                 </p>
 
                 <form className="space-y-5" onSubmit={onSubmit}>
-                  <div>
-                    <FormField
-                      control={form.control}
-                      name="full_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Full Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              minLength={6}
-                              placeholder="Enter your full name"
-                            />
-                          </FormControl>
+                  <FormField
+                    control={form.control}
+                    name="full_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="dark:text-gray-200">
+                          Full Name
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className="dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder:text-gray-500"
+                            placeholder="Enter your full name"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div>
-                    <FormField
-                      control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone</FormLabel>
-                          <FormControl>
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="dark:text-gray-200">
+                          Phone
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className="dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder:text-gray-500"
+                            placeholder="Enter your phone number"
+                            type="tel"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="dark:text-gray-200">
+                          Email
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className="dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder:text-gray-500"
+                            placeholder="Enter your email address"
+                            required
+                            type="email"
+                          />
+                        </FormControl>
+                        <FormDescription className="dark:text-gray-500">
+                          We'll never share your email.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="dark:text-gray-200">
+                          Password
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative">
                             <Input
                               {...field}
-                              maxLength={15}
-                              minLength={10}
-                              name="phone"
-                              pattern="[0-9]*"
-                              placeholder="Enter your phone number"
-                              title="Please enter a valid phone number"
-                              type="tel"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div>
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="w-full border-gray-200 bg-gray-50 text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
-                              placeholder="Enter your email address"
+                              className="pr-10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder:text-gray-500"
+                              placeholder="Enter your password"
                               required
-                              type="email"
+                              type={isPasswordVisible ? 'text' : 'password'}
                             />
-                          </FormControl>
-                          <FormDescription>
-                            We never shares your email.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div>
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                {...field}
-                                className="w-full border-gray-200 bg-gray-50 pr-10 text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
-                                placeholder="Enter your password"
-                                required
-                                type={isPasswordVisible ? 'text' : 'password'}
-                              />
-                              <Button
-                                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:bg-background/20 hover:text-gray-700"
-                                onClick={() =>
-                                  setIsPasswordVisible(!isPasswordVisible)
-                                }
-                                type="button"
-                                variant="ghost"
-                              >
-                                {isPasswordVisible ? (
-                                  <EyeOff size={18} />
-                                ) : (
-                                  <Eye size={18} />
-                                )}
-                              </Button>
-                            </div>
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                            <Button
+                              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:bg-transparent hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                              onClick={() =>
+                                setIsPasswordVisible(!isPasswordVisible)
+                              }
+                              type="button"
+                              variant="ghost"
+                            >
+                              {isPasswordVisible ? (
+                                <EyeOff size={18} />
+                              ) : (
+                                <Eye size={18} />
+                              )}
+                            </Button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <motion.div
                     className="pt-2"
@@ -520,14 +441,13 @@ const page = () => {
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <LocalButton
+                    <Button
                       className={cn(
-                        'relative w-full overflow-hidden rounded-lg bg-gradient-to-r from-teal-500 to-indigo-600 py-2 text-white transition-all duration-300 hover:from-teal-600 hover:to-indigo-700',
-                        isHovered ? 'shadow-blue-200 shadow-lg' : ''
+                        'relative w-full overflow-hidden rounded-lg bg-gradient-to-r from-teal-500 to-indigo-600 py-3 text-white transition-all duration-300 hover:from-teal-600 hover:to-indigo-700',
+                        isHovered
+                          ? 'shadow-blue-300 shadow-lg dark:shadow-blue-800'
+                          : ''
                       )}
-                      onClick={(e) => {
-                        e.preventDefault();
-                      }}
                       type="submit"
                     >
                       <span className="flex items-center justify-center">
@@ -537,15 +457,14 @@ const page = () => {
                       {isHovered && (
                         <motion.span
                           animate={{ left: '100%' }}
-                          className="absolute top-0 bottom-0 left-0 w-20 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                          className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-transparent via-white/30 to-transparent"
                           initial={{ left: '-100%' }}
                           style={{ filter: 'blur(8px)' }}
                           transition={{ duration: 1, ease: 'easeInOut' }}
                         />
                       )}
-                    </LocalButton>
+                    </Button>
                   </motion.div>
-                  <FormMessage />
                 </form>
               </motion.div>
             </Form>
@@ -556,4 +475,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default SignUpPage;

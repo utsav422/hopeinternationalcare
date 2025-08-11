@@ -20,7 +20,7 @@ export function SubmitButton({
       aria-disabled={pending}
       type="submit"
       {...props}
-      className='dark:bg-teal-600 dark:text-white dark:hover:bg-teal-700'
+      className="dark:bg-teal-600 dark:text-white dark:hover:bg-teal-700"
     >
       {pending ? pendingText : children}
     </Button>

@@ -19,10 +19,11 @@ function PageScrolling({
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  return <div className={isScrolling ? "dark:bg-gray-900 dark:shadow-lg" : ""}>{children({ isScrolling })}</div>;
+  return (
+    <div className={isScrolling ? 'dark:bg-gray-900 dark:shadow-lg' : ''}>
+      {children({ isScrolling })}
+    </div>
+  );
 }
-
-export default PageScrolling;
-
 
 export default PageScrolling;

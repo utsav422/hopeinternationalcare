@@ -1,5 +1,3 @@
-// /lib/db/schema/enrollments.ts
-
 import { relations, sql } from 'drizzle-orm';
 import {
   pgPolicy,
@@ -41,15 +39,9 @@ export const enrollments = pgTable(
     }),
     pgPolicy('authenticated users can create enrollments', {
       as: 'permissive',
-      for: 'select',
+      for: 'insert',
       to: 'public',
-      using: sql`(auth.jwt() ->> 'role') = 'authenticated'`,
-    }),
-    pgPolicy('anyone can read courses', {
-      as: 'permissive',
-      for: 'select',
-      to: 'public',
-      using: sql`true`,
+      withCheck: sql`(auth.jwt() ->> 'role') = 'authenticated'`,
     }),
     pgPolicy('admin can manage courses', {
       as: 'permissive',
@@ -72,5 +64,3 @@ export const enrollmentRelations = relations(enrollments, ({ one }) => ({
     references: [intakes.id],
   }),
 }));
-
-

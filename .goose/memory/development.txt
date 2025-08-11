@@ -1,0 +1,15 @@
+# bug critical layout ui
+Critical Bug: Footer component in Layout.tsx is missing return statement, causing the footer to not render at all.
+
+# performance data-fetching ux
+Performance Issue: The course page fetches all course data on the server side but doesn't implement proper error boundaries or loading states for better user experience.
+
+# ui ux performance carousel
+UI/UX Issue: The carousel in Hero component uses a fixed interval which might cause performance issues and doesn't handle image loading errors.
+
+# seo metadata environment
+SEO Issue: The metadata configuration uses absolute URLs but doesn't handle different environments properly (localhost vs production).
+
+# accessibility a11y ui
+Accessibility Issue: Several components lack proper aria labels and keyboard navigation support.
+

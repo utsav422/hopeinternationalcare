@@ -8,7 +8,7 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { useAuthSession } from '@/hooks/use-auth-session';
 import { cn } from '@/lib/utils';
 import { signOutAction } from '@/server-actions/user/user-auth-actions';
-import { AdminAppSidebar } from '../Admin/Sidebar/app-sidebar';
+import { ThemeSwitcher } from '../theme-switcher';
 import { UserAppSidebar } from '../User/Sidebar/app-sidebar';
 import { Button } from '../ui/button';
 import {
@@ -21,7 +21,6 @@ import { Logo } from './logo';
 import { NavMenu } from './nav-menu';
 import { NavigationSheet } from './navigation-sheet';
 import { SiteHeader } from './site-header';
-import { ThemeSwitcher } from '../theme-switcher';
 
 const LINKS = [
   {
@@ -38,8 +37,11 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 export function Layout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { user, loading } = useAuthSession();
+  const { user } = useAuthSession();
   const [isScrolling, setIsScrolling] = useState(false);
+  // Don't show header/footer for admin routes
+  const isAdminRoute = pathname.startsWith('/admin');
+  const isUserRoute = pathname.startsWith('/user');
   useEffect(() => {
     function handleScroll() {
       if (window.scrollY > 0) {
@@ -53,42 +55,38 @@ export function Layout({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   // if (isAuthPage) return null;
-  if (loading) {
-    return (
-      <SidebarProvider>
-        <div className="flex h-screen w-full">
-          <div className="w-64 border-r p-4">
-            <div className="mb-4 h-8 w-3/4 animate-pulse rounded bg-gray-200" />
-            <div className="space-y-2">
-              <div className="h-8 w-full animate-pulse rounded bg-gray-200" />
-              <div className="h-8 w-full animate-pulse rounded bg-gray-200" />
-              <div className="h-8 w-full animate-pulse rounded bg-gray-200" />
-            </div>
-          </div>
-          <div className="flex flex-1 flex-col">
-            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-              <div className="h-8 w-32 animate-pulse rounded bg-gray-200" />
-              <div className="ml-auto h-8 w-24 animate-pulse rounded bg-gray-200" />
-            </header>
-            <section className="w-full flex-1 p-5">
-              <div className="h-full w-full animate-pulse rounded bg-gray-100" />
-            </section>
-          </div>
-        </div>
-      </SidebarProvider>
-    );
+  //   if (loading) {
+  //     return (
+  //       <SidebarProvider>
+  //         <div className="flex h-screen w-full">
+  //           <div className="w-64 border-r p-4">
+  //             <div className="mb-4 h-8 w-3/4 animate-pulse rounded bg-gray-200" />
+  //             <div className="space-y-2">
+  //               <div className="h-8 w-full animate-pulse rounded bg-gray-200" />
+  //               <div className="h-8 w-full animate-pulse rounded bg-gray-200" />
+  //               <div className="h-8 w-full animate-pulse rounded bg-gray-200" />
+  //             </div>
+  //           </div>
+  //           <div className="flex flex-1 flex-col">
+  //             <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+  //               <div className="h-8 w-32 animate-pulse rounded bg-gray-200" />
+  //               <div className="ml-auto h-8 w-24 animate-pulse rounded bg-gray-200" />
+  //             </header>
+  //             <section className="w-full flex-1 p-5">
+  //               <div className="h-full w-full animate-pulse rounded bg-gray-100" />
+  //             </section>
+  //           </div>
+  //         </div>
+  //       </SidebarProvider>
+  //     );
+  //   }
+  // Handle user sidebar layout
+  if (user && user.role === 'authenticated' && isUserRoute) {
+    return <div className="my-16">{children}</div>;
   }
-
-  if (user && user.role === 'service_role' && pathname.includes('/admin')) {
-    return (
-      <SidebarProvider>
-        <AdminAppSidebar variant="inset" />
-        <SidebarInset>
-          <SiteHeader />
-          <section className="w-full p-5">{children}</section>
-        </SidebarInset>
-      </SidebarProvider>
-    );
+  if (isAdminRoute) {
+    // Let the admin layout handle admin routes
+    return <>{children}</>;
   }
 
   return (
@@ -191,7 +189,9 @@ export function Layout({ children }: { children: ReactNode }) {
                   <div className="flex gap-2">
                     <Button asChild size="sm" variant={'ghost'}>
                       <Link
-                        className={cn(pathname !== '/' && 'text-teal-500 dark:text-teal-400')}
+                        className={cn(
+                          pathname !== '/' && 'text-teal-500 dark:text-teal-400'
+                        )}
                         href="/sign-in"
                       >
                         Sign in
@@ -216,7 +216,7 @@ export function Layout({ children }: { children: ReactNode }) {
                   : 'bg-transparent text-black dark:text-white'
               )}
             >
-              <NavigationSheet />
+              <NavigationSheet isScrolling={isScrolling} />
             </div>
           </div>
         </div>
@@ -255,69 +255,73 @@ function Footer() {
     return null;
   }
 
-  <footer className="px-8 pt-24 pb-8">
-    <div className="container mx-auto flex max-w-6xl flex-col">
-      <div className="grid w-full grid-cols-1 lg:grid-cols-4">
-        <div>
-          <h6 className="mb-4 font-bold text-gray-800 text-lg">
-            Hope International Aged Care Training and Elderly Care Center
-          </h6>
+  return (
+    <footer className="px-8 pt-24 pb-8">
+      <div className="container mx-auto flex max-w-6xl flex-col">
+        <div className="grid w-full grid-cols-1 lg:grid-cols-4">
+          <div>
+            <h6 className="mb-4 font-bold text-gray-800 text-lg">
+              Hope International Aged Care Training and Elderly Care Center
+            </h6>
 
-          <p className="mb-4 text-base text-gray-800">
-            At Hope International, we are driven by a passion for enhancing the
-            quality of life for elderly individuals and empowering caregivers to
-            make a meaningful difference in their lives. Join us in our journey
-            towards creating a future where every senior receives the respect,
-            dignity, and care they deserve.Trust us with your passion, and let
-            us work together to achieve the best possible outcomes for you and
-            your goal.
-          </p>
-        </div>
+            <p className="mb-4 text-base text-gray-800">
+              At Hope International, we are driven by a passion for enhancing
+              the quality of life for elderly individuals and empowering
+              caregivers to make a meaningful difference in their lives. Join us
+              in our journey towards creating a future where every senior
+              receives the respect, dignity, and care they deserve.Trust us with
+              your passion, and let us work together to achieve the best
+              possible outcomes for you and your goal.
+            </p>
+          </div>
 
-        <div className="mb-10 ml-20 items-center gap-10 md:gap-16 lg:mb-0">
-          {LINKS.map(({ title, items }, _: number) => (
-            <ul key={title}>
-              <h6 className="mb-2 text-gray-800 text-lg">{title}</h6>
-              {items.map(({ label, href }, __: number) => (
-                <li key={href}>
-                  <a
-                    className="block py-1 text-gray-700 transition-colors hover:text-gray-900"
-                    href={href}
-                  >
-                    {label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ))}
-        </div>
+          <div className="mb-10 ml-20 items-center gap-10 md:gap-16 lg:mb-0">
+            {LINKS.map(({ title, items }, _: number) => (
+              <ul key={title}>
+                <h6 className="mb-2 text-gray-800 text-lg">{title}</h6>
+                {items.map(({ label, href }, __: number) => (
+                  <li key={href}>
+                    <a
+                      className="block py-1 text-gray-700 transition-colors hover:text-gray-900"
+                      href={href}
+                    >
+                      {label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
 
-        <div>
-          <h6 className="mb-4 font-bold text-gray-800 text-lg">Our Location</h6>
-          <div className="h-56 w-full overflow-hidden rounded-md sm:h-72 md:h-80 lg:h-96">
-            <iframe
-              allowFullScreen
-              className="h-full w-full"
-              height="100%"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d56522.59211451086!2d85.26497023124999!3d27.696839499999992!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb198d32e428a9%3A0x3f168c6bdffc0c64!2sHope%20International%20Aged%20Care%20Training%20and%20Elderly%20Care%20Center!5e0!3m2!1sen!2snp!4v1715100246835!5m2!1sen!2snp"
-              style={{ border: 0 }}
-              title="Hope International Aged Care Training and Elderly Care Center Location"
-              width="100%"
-            />
+          <div>
+            <h6 className="mb-4 font-bold text-gray-800 text-lg">
+              Our Location
+            </h6>
+            <div className="h-56 w-full overflow-hidden rounded-md sm:h-72 md:h-80 lg:h-96">
+              <iframe
+                allowFullScreen
+                className="h-full w-full"
+                height="100%"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d56522.59211451086!2d85.26497023124999!3d27.696839499999992!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb198d32e428a9%3A0x3f168c6bdffc0c64!2sHope%20International%20Aged%20Care%20Training%20and%20Elderly%20Care%20Center!5e0!3m2!1sen!2snp!4v1715100246835!5m2!1sen!2snp"
+                style={{ border: 0 }}
+                title="Hope International Aged Care Training and Elderly Care Center Location"
+                width="100%"
+              />
+            </div>
           </div>
         </div>
+        <div className="mt-16 flex items-center justify-center">
+          <p className="text-gray-700 md:text-center">
+            &copy; {CURRENT_YEAR} Hope International Aged Care Training And
+            Elderly Care Center.
+          </p>
+          <ThemeSwitcher />
+        </div>
       </div>
-      <div className="mt-16 flex items-center justify-center">
-        <p className="text-gray-700 md:text-center">
-          &copy; {CURRENT_YEAR} Hope International Aged Care Training And
-          Elderly Care Center.
-        </p>
-        <ThemeSwitcher />
-      </div>
-    </div>
-  </footer>;
+    </footer>
+  );
 }
 
 export default Layout;

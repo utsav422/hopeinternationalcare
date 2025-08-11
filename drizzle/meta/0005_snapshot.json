@@ -42,9 +42,7 @@
         "course_categories_name_unique": {
           "name": "course_categories_name_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
+          "columns": ["name"]
         }
       },
       "policies": {
@@ -52,18 +50,14 @@
           "name": "anyone can read courses categories",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "true"
         },
         "admin can manage courses categories": {
           "name": "admin can manage courses categories",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "(auth.jwt() ->> 'role') = 'service_role'",
           "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
         }
@@ -154,12 +148,8 @@
           "name": "courses_category_id_course_categories_id_fk",
           "tableFrom": "courses",
           "tableTo": "course_categories",
-          "columnsFrom": [
-            "category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["category_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -169,9 +159,7 @@
         "courses_slug_unique": {
           "name": "courses_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {
@@ -179,18 +167,14 @@
           "name": "anyone can read courses",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "true"
         },
         "admin can manage courses": {
           "name": "admin can manage courses",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "(auth.jwt() ->> 'role') = 'service_role'",
           "withCheck": "true"
         }
@@ -262,12 +246,8 @@
           "name": "enrollments_user_id_profiles_id_fk",
           "tableFrom": "enrollments",
           "tableTo": "profiles",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -275,12 +255,8 @@
           "name": "enrollments_intake_id_intakes_id_fk",
           "tableFrom": "enrollments",
           "tableTo": "intakes",
-          "columnsFrom": [
-            "intake_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intake_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -292,36 +268,28 @@
           "name": "authenticated users can view own enrollments",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "(auth.jwt() ->> 'role') = 'authenticated' AND \"enrollments\".\"user_id\" = auth.uid()"
         },
         "authenticated users can create enrollments": {
           "name": "authenticated users can create enrollments",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "(auth.jwt() ->> 'role') = 'authenticated'"
         },
         "anyone can read courses": {
           "name": "anyone can read courses",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "true"
         },
         "admin can manage courses": {
           "name": "admin can manage courses",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "(auth.jwt() ->> 'role') = 'service_role'",
           "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
         }
@@ -393,12 +361,8 @@
           "name": "intakes_course_id_courses_id_fk",
           "tableFrom": "intakes",
           "tableTo": "courses",
-          "columnsFrom": [
-            "course_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["course_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -410,18 +374,14 @@
           "name": "anyone can read intakes",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "true"
         },
         "admin can manage intakes": {
           "name": "admin can manage intakes",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "(auth.jwt() ->> 'role') = 'service_role'",
           "withCheck": "true"
         }
@@ -513,12 +473,8 @@
           "name": "payments_enrollment_id_enrollments_id_fk",
           "tableFrom": "payments",
           "tableTo": "enrollments",
-          "columnsFrom": [
-            "enrollment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["enrollment_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -530,27 +486,21 @@
           "name": "users can create their own payments",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "withCheck": "(auth.jwt() ->> 'role') = 'authenticated' AND \"payments\".\"enrollment_id\" IN (\n            SELECT id FROM enrollments WHERE user_id = auth.uid()\n          )"
         },
         "users can view their own payments": {
           "name": "users can view their own payments",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "(auth.jwt() ->> 'role') = 'authenticated' AND \"payments\".\"enrollment_id\" IN (\n            SELECT id FROM enrollments WHERE user_id = auth.uid()\n          )"
         },
         "admin can manage payments": {
           "name": "admin can manage payments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "(auth.jwt() ->> 'role') = 'service_role'",
           "withCheck": "true"
         }
@@ -608,12 +558,8 @@
           "tableFrom": "profiles",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -623,9 +569,7 @@
         "profiles_email_unique": {
           "name": "profiles_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {
@@ -633,36 +577,28 @@
           "name": "anyone can insert profile",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "withCheck": "true"
         },
         "User can view own profile": {
           "name": "User can view own profile",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "auth.uid() = \"profiles\".\"id\""
         },
         "User can update own profile": {
           "name": "User can update own profile",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "auth.uid() = \"profiles\".\"id\""
         },
         "admin can manage profile": {
           "name": "admin can manage profile",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "(auth.jwt() ->> 'role') = 'service_role'",
           "withCheck": "true"
         }
@@ -725,12 +661,8 @@
           "name": "refunds_payment_id_payments_id_fk",
           "tableFrom": "refunds",
           "tableTo": "payments",
-          "columnsFrom": [
-            "payment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["payment_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -738,12 +670,8 @@
           "name": "refunds_enrollment_id_enrollments_id_fk",
           "tableFrom": "refunds",
           "tableTo": "enrollments",
-          "columnsFrom": [
-            "enrollment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["enrollment_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -751,12 +679,8 @@
           "name": "refunds_user_id_profiles_id_fk",
           "tableFrom": "refunds",
           "tableTo": "profiles",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -768,27 +692,21 @@
           "name": "users can create their own refund requests",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "withCheck": "(auth.jwt() ->> 'role') = 'authenticated' AND \"refunds\".\"user_id\" = auth.uid()"
         },
         "users can view their own refund requests": {
           "name": "users can view their own refund requests",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "(auth.jwt() ->> 'role') = 'authenticated' AND \"refunds\".\"user_id\" = auth.uid()"
         },
         "admin can manage intakes": {
           "name": "admin can manage intakes",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "(auth.jwt() ->> 'role') = 'service_role'",
           "withCheck": "true"
         }
@@ -801,43 +719,22 @@
     "public.duration_type": {
       "name": "duration_type",
       "schema": "public",
-      "values": [
-        "days",
-        "week",
-        "month",
-        "year"
-      ]
+      "values": ["days", "week", "month", "year"]
     },
     "public.enrollment_status": {
       "name": "enrollment_status",
       "schema": "public",
-      "values": [
-        "requested",
-        "enrolled",
-        "cancelled",
-        "completed"
-      ]
+      "values": ["requested", "enrolled", "cancelled", "completed"]
     },
     "public.payment_method": {
       "name": "payment_method",
       "schema": "public",
-      "values": [
-        "cash",
-        "bank_transfer",
-        "mobile_wallets",
-        "fonepay"
-      ]
+      "values": ["cash", "bank_transfer", "mobile_wallets", "fonepay"]
     },
     "public.payment_status": {
       "name": "payment_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "completed",
-        "cancelled",
-        "failed",
-        "refunded"
-      ]
+      "values": ["pending", "completed", "cancelled", "failed", "refunded"]
     }
   },
   "schemas": {},

@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "ultracite lint && next build",
     "start": "next start",
     "db:seed": "tsx utils/db/seed.ts",
     "generate-types": "npx supabase gen types typescript --project-id ekyvcdmqqcpguabhqxrw --schema public > utils/supabase/database.types.ts"
@@ -46,8 +46,9 @@
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "@tabler/icons-react": "^3.34.0",
-    "@tanstack/react-query": "^5.83.0",
-    "@tanstack/react-query-devtools": "^5.83.0",
+    "@tanstack/react-query": "^5.84.2",
+    "@tanstack/react-query-devtools": "^5.84.2",
+    "@tanstack/react-query-next-experimental": "^5.84.2",
     "@tanstack/react-table": "^8.21.3",
     "autoprefixer": "10.4.20",
     "class-variance-authority": "^0.7.1",

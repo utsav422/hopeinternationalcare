@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useGetAllCourseCategories } from '@/hooks/course-categories';
+import { useGetAllCourseCategories } from '@/hooks/admin/course-categories';
 
 interface CategoryFilterProps {
   value: string;
@@ -23,17 +23,21 @@ export default function CategoryFilter({
 
   return (
     <Select onValueChange={onChange} value={value}>
-      <SelectTrigger className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+      <SelectTrigger className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
         <SelectValue placeholder="Filter by category..." />
       </SelectTrigger>
-      <SelectContent className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+      <SelectContent className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
         {isLoading ? (
           <SelectItem disabled value="loading">
             Loading...
           </SelectItem>
         ) : (
           categories.map((category) => (
-            <SelectItem key={category.id} value={category.id} className="dark:hover:bg-gray-700">
+            <SelectItem
+              className="dark:hover:bg-gray-700"
+              key={category.id}
+              value={category.id}
+            >
               {category.name}
             </SelectItem>
           ))

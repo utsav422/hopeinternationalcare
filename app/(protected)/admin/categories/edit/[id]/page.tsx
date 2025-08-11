@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import CategoryForm from '@/components/Admin/categories/category-form';
-import { queryKeys } from '@/hooks/query-keys';
+import { queryKeys } from '@/lib/query-keys';
 import { adminGetCourseCategoriesById } from '@/server-actions/admin/courses-categories';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';

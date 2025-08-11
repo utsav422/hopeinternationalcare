@@ -1,7 +1,18 @@
-// /server-action/public/courses.ts
 'use server';
 
-import { and, eq, exists, gte, ilike, lte, type SQL, sql } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  eq,
+  exists,
+  gte,
+  ilike,
+  lte,
+  ne,
+  type SQL,
+  sql,
+} from 'drizzle-orm';
+import { cache } from 'react';
 import { db } from '@/utils/db/drizzle';
 import { courseCategories } from '@/utils/db/schema/course-categories';
 import { courses } from '@/utils/db/schema/courses';
@@ -13,7 +24,9 @@ type Filters = {
   duration?: number;
   intake_date?: string;
 };
-
+/**
+ * Get course by params
+ */
 export async function getPublicCourses({
   page = 1,
   pageSize = 10,
@@ -63,7 +76,10 @@ export async function getPublicCourses({
   const nextIntakeSubquery = db
     .select({
       course_id: intakes.course_id,
-      min_start_date: sql<string>`min(case when ${intakes.start_date} > now() then ${intakes.start_date} else null end)`.as('min_start_date'),
+      min_start_date:
+        sql<string>`min(case when ${intakes.start_date} > now() then ${intakes.start_date} else null end)`.as(
+          'min_start_date'
+        ),
     })
     .from(intakes)
     .groupBy(intakes.course_id)
@@ -86,7 +102,6 @@ export async function getPublicCourses({
       )
     )
     .as('next_intake');
-
   const sortableColumns = {
     created_at: courses.created_at,
     name: courses.title,
@@ -96,7 +111,8 @@ export async function getPublicCourses({
     duration_value: courses.duration_value,
   };
 
-  const orderBy = sortableColumns[sortBy as keyof typeof sortableColumns] ?? courses.level;
+  const orderBy =
+    sortableColumns[sortBy as keyof typeof sortableColumns] ?? courses.level;
 
   const data = await db
     .select({
@@ -105,10 +121,11 @@ export async function getPublicCourses({
       duration_type: courses.duration_type,
       duration_value: courses.duration_value,
       price: courses.price,
-      cr_aatedAt: courses.created_at,
+      created_at: courses.created_at,
+      updated_at: courses.updated_at,
       title: courses.title,
       level: courses.level,
-      _umageUrl: courses.image_url,
+      image_url: courses.image_url,
       slug: courses.slug,
       categoryName: courseCategories.name,
       next_intake_date: nextIntakeDetails.start_date,
@@ -167,9 +184,130 @@ export async function getPublicCourseBySlug(slug?: string) {
   if (!slug) {
     throw new Error('slug is not provided');
   }
-  const result = await db.select().from(courses).where(eq(courses.slug, slug));
-  if (result.length === 0) {
+
+  const courseResult = await db
+    .select({
+      id: courses.id,
+      title: courses.title,
+      description: courses.description,
+      duration_value: courses.duration_value,
+      duration_type: courses.duration_type,
+      price: courses.price,
+      image_url: courses.image_url,
+      slug: courses.slug,
+      category_id: courses.category_id,
+      created_at: courses.created_at,
+      level: courses.level,
+      category: {
+        id: courseCategories.id,
+        name: courseCategories.name,
+        description: courseCategories.description,
+      },
+    })
+    .from(courses)
+    .leftJoin(courseCategories, eq(courses.category_id, courseCategories.id))
+    .where(eq(courses.slug, slug));
+
+  if (courseResult.length === 0) {
     return null;
   }
-  return { data: result[0] };
+
+  const courseData = courseResult[0];
+
+  const courseIntakes = await db
+    .select()
+    .from(intakes)
+    .where(
+      and(
+        eq(intakes.course_id, courseData.id),
+        gte(intakes.end_date, new Date().toISOString())
+      )
+    )
+    .orderBy(asc(intakes.start_date));
+
+  return { data: { ...courseData, intakes: courseIntakes } };
 }
+
+export async function getRelatedCourses(courseId: string, categoryId: string) {
+  try {
+    const relatedCourses = await db
+      .select({
+        id: courses.id,
+        title: courses.title,
+        slug: courses.slug,
+        description: courses.description,
+        image_url: courses.image_url,
+        price: courses.price,
+        next_intake_date:
+          sql<string>`min(case when ${intakes.start_date} > now() then ${intakes.start_date} else null end)`.as(
+            'next_intake_date'
+          ),
+        next_intake_id: intakes.id,
+        available_seats: sql<number>`coalesce(${intakes.capacity}, 0) - coalesce(${intakes.total_registered}, 0)`,
+        categoryName: courseCategories.name,
+      })
+      .from(courses)
+      .leftJoin(courseCategories, eq(courses.category_id, courseCategories.id))
+      .leftJoin(intakes, eq(courses.id, intakes.course_id))
+      .where(and(eq(courses.category_id, categoryId), ne(courses.id, courseId)))
+      .groupBy(
+        courses.id,
+        courseCategories.name,
+        intakes.id,
+        intakes.capacity,
+        intakes.total_registered
+      )
+      .orderBy(sql`random()`)
+      .limit(3);
+
+    return { data: relatedCourses };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    return { error: `Failed to fetch related courses: ${errorMessage}` };
+  }
+}
+export async function getNewCourses() {
+  try {
+    const newCourses = await db
+      .select({
+        id: courses.id,
+        title: courses.title,
+        slug: courses.slug,
+        description: courses.description,
+        image_url: courses.image_url,
+        price: courses.price,
+        next_intake_date:
+          sql<string>`min(case when ${intakes.start_date} > now() then ${intakes.start_date} else null end)`.as(
+            'next_intake_date'
+          ),
+        next_intake_id: intakes.id,
+        available_seats: sql<number>`coalesce(${intakes.capacity}, 0) - coalesce(${intakes.total_registered}, 0)`,
+        categoryName: courseCategories.name,
+      })
+      .from(courses)
+      .leftJoin(courseCategories, eq(courses.category_id, courseCategories.id))
+      .leftJoin(intakes, eq(courses.id, intakes.course_id))
+      .groupBy(
+        courses.id,
+        courseCategories.name,
+        intakes.id,
+        intakes.capacity,
+        intakes.total_registered
+      )
+      .orderBy(courses.created_at, sql`desc`)
+      .limit(3);
+
+    return { data: newCourses };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    return { error: `Failed to fetch new courses: ${errorMessage}` };
+  }
+}
+
+export const getCachedNewCourses = cache(getNewCourses);
+export const getCachedRelatedCourses = cache(getRelatedCourses);
+export const getCachedPublicCourses = cache(getPublicCourses);
+export const getCachedPublicCourseById = cache(getPublicCourseById);
+export const getCachedPublicCourseBySlug = cache(getPublicCourseBySlug);

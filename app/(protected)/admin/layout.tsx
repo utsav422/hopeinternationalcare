@@ -1,37 +1,23 @@
 import '@/app/globals.css';
-import { Suspense } from 'react';
-import { createClient } from '@/utils/supabase/server';
 
-const _LINKS = [
-  {
-    title: 'Company',
-    items: [
-      { name: 'About Us', url: '/aboutus', icon: '' },
-      { name: 'Our Courses', url: '/courses', icon: '' },
-      { name: 'Contact Us', url: 'contactus', icon: '' },
-      { name: 'Gallery', url: 'gallery', icon: '' },
-    ],
-  },
-  {
-    title: 'Social Connect',
-    items: [
-      { name: 'Facebook', url: '#', icon: 'fa-facebook' },
-      { name: 'Instagram', url: '#', icon: 'fa-instagram' },
-      { name: 'Twitter', url: '#', icon: 'fa-twitter' },
-    ],
-  },
-];
+import { AdminAppSidebar } from '@/components/Admin/Sidebar/app-sidebar';
+import { SiteHeader } from '@/components/Layout/site-header';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { requireAdmin } from '@/utils/auth-guard';
+
 export default async function Layout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-
-  const {
-    data: { user: _ },
-  } = await supabase.auth.getUser();
-  const _CURRENT_YEAR = new Date().getFullYear();
-
-  return <Suspense fallback="Loading...">{children}</Suspense>;
+  await requireAdmin();
+  return (
+    <SidebarProvider>
+      <AdminAppSidebar variant="inset" />
+      <SidebarInset>
+        <SiteHeader />
+        <main className="w-full p-5">{children}</main>
+      </SidebarInset>
+    </SidebarProvider>
+  );
 }

@@ -24,7 +24,7 @@ export const customerContactRequests = pgTable(
       .notNull()
       .default(sql`now()`),
   },
-  (table) => [
+  (_table) => [
     pgPolicy('anyone can insert contact requests', {
       as: 'permissive',
       for: 'insert',
@@ -50,5 +50,5 @@ export const customerContactRequests = pgTable(
       to: serviceRole,
       using: sql`(auth.jwt() ->> 'role') = 'service_role'`,
     }),
-  ],
+  ]
 );

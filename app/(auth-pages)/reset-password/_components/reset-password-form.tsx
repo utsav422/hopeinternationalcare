@@ -9,7 +9,6 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -26,19 +25,23 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { resetPasswordAction } from '@/server-actions/user/user-auth-actions';
+
 export default function ResetPasswordComponent() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const searchParams = useSearchParams();
-  const ressetPasswordError = searchParams.get('error');
+  const resetPasswordError = searchParams.get('error');
   const formSchema = z
     .object({
-      password: z.string().min(6),
-      confirmPassword: z.string().min(6),
+      password: z.string().min(6, 'Password must be at least 6 characters.'),
+      confirmPassword: z
+        .string()
+        .min(6, 'Password must be at least 6 characters.'),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: "Passwords don't match.",
       path: ['confirmPassword'],
     });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,54 +49,60 @@ export default function ResetPasswordComponent() {
       confirmPassword: '',
     },
   });
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const formData = new FormData();
     formData.set('password', values.password);
     formData.set('confirmPassword', values.confirmPassword);
     await resetPasswordAction(formData);
   }
+
   return (
-    <Card className="m-auto my-20 flex min-w-64 max-w-sm flex-1 flex-col gap-2 text-foreground lg:my-52 [&>input]:mb-6">
-      <CardHeader className="pb-2">
-        <CardTitle>Password Reset Form</CardTitle>
-        <CardDescription>
-          Enter your new password to change your account password
-        </CardDescription>
-        <CardAction>
-          Remember your password? &nbsp;
-          <Link className="text-primary underline" href="/sign-in">
-            Sign in
-          </Link>
-        </CardAction>
-      </CardHeader>
-      {ressetPasswordError && ressetPasswordError?.length > 0 && (
-        <p className="ps-5 text-destructive">* {ressetPasswordError}</p>
-      )}
-      <Form {...form}>
-        <form className="" onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent>
-            <div className=" mt-8 flex flex-col gap-2 [&>input]:mb-3">
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900">
+      <Card className="w-full max-w-md p-6 sm:p-8 md:p-10 dark:bg-gray-800">
+        <CardHeader className="text-center">
+          <CardTitle className="font-bold text-2xl dark:text-white">
+            Reset Password
+          </CardTitle>
+          <CardDescription className="dark:text-gray-400">
+            Enter a new password to reset your account password.
+          </CardDescription>
+        </CardHeader>
+        {resetPasswordError && (
+          <p className="mt-4 text-center text-red-500">
+            * {resetPasswordError}
+          </p>
+        )}
+        <Form {...form}>
+          <form
+            className="mt-6 space-y-6"
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            <CardContent className="space-y-6">
               <FormField
                 control={form.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>New Password</FormLabel>
+                    <FormLabel className="dark:text-gray-200">
+                      New Password
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
                           {...field}
-                          placeholder="New password"
+                          className="dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                          placeholder="Enter new password"
                           required
                           type={isPasswordVisible ? 'text' : 'password'}
                         />
                         <Button
-                          className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                          className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                           onClick={() =>
                             setIsPasswordVisible(!isPasswordVisible)
                           }
                           type="button"
-                          variant={'ghost'}
+                          variant="ghost"
                         >
                           {isPasswordVisible ? (
                             <EyeOff size={18} />
@@ -107,18 +116,19 @@ export default function ResetPasswordComponent() {
                   </FormItem>
                 )}
               />
-            </div>
-            <div className="mt-8 flex flex-col gap-2 [&>input]:mb-3">
               <FormField
                 control={form.control}
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm New Password</FormLabel>
+                    <FormLabel className="dark:text-gray-200">
+                      Confirm New Password
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder="Re enter new passsword to confirm"
+                        className="dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        placeholder="Confirm your new password"
                         required
                         type="password"
                       />
@@ -127,16 +137,33 @@ export default function ResetPasswordComponent() {
                   </FormItem>
                 )}
               />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting && <Loader size={2} />}
-              {form.formState.isSubmitting ? 'Submitting' : 'Reset Password'}
-            </Button>
-          </CardFooter>
-        </form>
-      </Form>
-    </Card>
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-4">
+              <Button
+                className="w-full"
+                disabled={form.formState.isSubmitting}
+                type="submit"
+              >
+                {form.formState.isSubmitting && (
+                  <Loader className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                {form.formState.isSubmitting
+                  ? 'Resetting Password...'
+                  : 'Reset Password'}
+              </Button>
+              <p className="text-center text-gray-600 text-sm dark:text-gray-400">
+                Remember your password?{' '}
+                <Link
+                  className="font-medium text-teal-600 hover:underline dark:text-teal-500"
+                  href="/sign-in"
+                >
+                  Sign In
+                </Link>
+              </p>
+            </CardFooter>
+          </form>
+        </Form>
+      </Card>
+    </div>
   );
 }

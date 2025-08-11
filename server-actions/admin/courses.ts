@@ -22,13 +22,14 @@ import {
   type ZodSelectCourseType,
 } from '@/utils/db/drizzle-zod-schema/courses';
 
-// import { createClient } from '@/utils/supabase/server'
+// import { createServerSupabaseClient } from '@/utils/supabase/server'
 
 import type { ColumnFilter, ColumnFiltersState } from '@tanstack/react-table';
+import { cache } from 'react';
 import type { ZodSafeParseResult } from 'zod/v4';
 import { courseCategories } from '@/utils/db/schema/course-categories';
 import { courses as coursesTable } from '@/utils/db/schema/courses';
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { isValidTableColumnName } from '@/utils/utils';
 
 // type CourseWithDetails = InferSelectModel<typeof coursesTable>;
@@ -194,7 +195,7 @@ export async function adminGetAllCourses() {
 export async function adminGetCourseById(
   id: string
 ): Promise<ZodSafeParseResult<ZodSelectCourseType>> {
-  const user = await requireAdmin();
+  const { user } = await requireAdmin();
   if (!user || user.user_metadata?.role !== 'service_role') {
     throw new Error('Unauthorized');
   }
@@ -223,7 +224,7 @@ export async function adminGetCourseById(
  * Create or update course
  */
 export async function adminUpsertCourse(formData: FormData) {
-  const user = await requireAdmin();
+  const { user } = await requireAdmin();
   if (!user || user.user_metadata?.role !== 'service_role') {
     throw new Error('Unauthorized');
   }
@@ -246,7 +247,7 @@ export async function adminUpsertCourse(formData: FormData) {
     };
   }
 
-  const client = await createClient();
+  const client = await createServerSupabaseClient();
   let imageUrl = validatedFields.data.image_url;
 
   if (imageFile && imageFile.size > 0) {
@@ -258,7 +259,10 @@ export async function adminUpsertCourse(formData: FormData) {
         await client.storage.from('media').remove([oldImageKey]);
       } catch (e) {
         const err = e as Error;
-        return { success: false, message: `Failed to delete old image: ${err.message}` };
+        return {
+          success: false,
+          message: `Failed to delete old image: ${err.message}`,
+        };
       }
     }
 
@@ -327,7 +331,7 @@ export async function adminUpdateCourseCategoryIdCol(
   input: Partial<CourseFormInput>
 ) {
   // export async function adminUpsertCourse(input: CourseFormInput) {
-  const user = await requireAdmin();
+  const { user } = await requireAdmin();
   if (!user || user.user_metadata?.role !== 'service_role') {
     throw new Error('Unauthorized');
   }
@@ -337,7 +341,7 @@ export async function adminUpdateCourseCategoryIdCol(
   if (!input.category_id) {
     throw new Error('category id is missing');
   }
-  const client = await createClient();
+  const client = await createServerSupabaseClient();
   const { data, error } = await client
     .from('courses')
     .update({
@@ -367,7 +371,7 @@ export async function adminUpdateCourseCategoryIdCol(
  * Delete course by ID
  */
 export async function adminDeleteCourse(id: string) {
-  const client = await createClient();
+  const client = await createServerSupabaseClient();
 
   const { error } = await client.from('courses').delete().eq('id', id);
 
@@ -377,3 +381,7 @@ export async function adminDeleteCourse(id: string) {
 
   revalidatePath('/admin/courses');
 }
+
+export const getCachedAdminGetCourses = cache(adminGetCourses);
+export const getCachedAdminAllCourses = cache(adminGetAllCourses);
+export const getCachedAdminCourseById = cache(adminGetCourseById);

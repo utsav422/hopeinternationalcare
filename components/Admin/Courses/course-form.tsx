@@ -1,4 +1,3 @@
-// /components/Admin/Courses/CourseModal.tsx
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,9 +11,16 @@ import {
 } from 'react-hook-form';
 import { toast } from 'sonner';
 import CourseCategorySelect from '@/components/Custom/course-category-select';
+import FormSkeleton from '@/components/Custom/form-skeleton';
 import { ControlledMDXEditor } from '@/components/mdx/controlled-mdx-editor';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -34,9 +40,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useUpsertCourse } from '@/hooks/courses';
-import { useGetPublicCourseBySlug } from '@/hooks/public-courses';
+import { useUpsertCourse } from '@/hooks/admin/courses';
+import { useGetPublicCourseBySlug } from '@/hooks/admin/public-courses';
 import {
   ZodCourseInsertSchema,
   type ZodInsertCourseType,
@@ -66,6 +71,10 @@ export default function ({ slug, formTitle }: Props) {
     error,
     data: queryResult,
   } = useGetPublicCourseBySlug(slug ?? '');
+
+  if (error) {
+    toast.error(error.message);
+  }
   const initialData = queryResult?.data ?? undefined;
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -168,23 +177,18 @@ export default function ({ slug, formTitle }: Props) {
     return 'Create Course';
   };
   if (isLoading) {
-    return (
-      <div className="flex items-center space-x-4">
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-full" />
-        </div>
-      </div>
-    );
+    return <FormSkeleton />;
   }
   return (
-    <Card className="dark:bg-gray-800 dark:border-gray-600">
+    <Card className="dark:border-gray-600 dark:bg-gray-800">
       <CardHeader>
         <div className="mb-6 space-y-1">
-          <h3 className="font-medium text-lg dark:text-white">{formTitle}</h3>
-          <p className="text-muted-foreground text-sm dark:text-gray-400">
+          <CardTitle className="font-medium text-lg dark:text-white">
+            {formTitle}
+          </CardTitle>
+          <CardDescription className="dark:text-gray-400">
             Fill in the information about the course.
-          </p>
+          </CardDescription>
         </div>
         <hr className="dark:border-gray-600" />
       </CardHeader>
@@ -209,6 +213,7 @@ export default function ({ slug, formTitle }: Props) {
                     <FormControl>
                       <Input
                         {...field}
+                        className="dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                         onChange={(e) => {
                           field.onChange(e);
                           form.setValue(
@@ -217,7 +222,6 @@ export default function ({ slug, formTitle }: Props) {
                           );
                         }}
                         placeholder="Enter title"
-                        className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       />
                     </FormControl>
                     <FormMessage className="text-xs" />
@@ -239,7 +243,11 @@ export default function ({ slug, formTitle }: Props) {
                   </div>
                   <div className="space-y-2 md:col-span-3">
                     <FormControl>
-                      <Input {...field} disabled className="dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                      <Input
+                        {...field}
+                        className="dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                        disabled
+                      />
                     </FormControl>
                     <FormMessage className="text-xs" />
                   </div>
@@ -278,6 +286,7 @@ export default function ({ slug, formTitle }: Props) {
                     <FormControl>
                       <Input
                         {...field}
+                        className="dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                         onChange={(e) =>
                           field.onChange(
                             e.target.value === ''
@@ -286,7 +295,6 @@ export default function ({ slug, formTitle }: Props) {
                           )
                         }
                         type="number"
-                        className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       />
                     </FormControl>
                     <FormMessage />
@@ -347,6 +355,7 @@ export default function ({ slug, formTitle }: Props) {
                     <FormControl>
                       <Input
                         {...field}
+                        className="dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                         max={5}
                         onChange={(e) =>
                           field.onChange(
@@ -357,7 +366,6 @@ export default function ({ slug, formTitle }: Props) {
                         }
                         placeholder="enter the course level"
                         type="number"
-                        className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       />
                     </FormControl>
                     <FormMessage className="text-xs" />
@@ -372,7 +380,9 @@ export default function ({ slug, formTitle }: Props) {
               render={({ field }) => (
                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                   <div className="space-y-1 md:col-span-1">
-                    <FormLabel className="dark:text-white">Duration Type</FormLabel>
+                    <FormLabel className="dark:text-white">
+                      Duration Type
+                    </FormLabel>
                     <FormDescription className="text-muted-foreground text-xs dark:text-gray-400">
                       Select Duration Type days/weeks/months/years
                     </FormDescription>
@@ -383,7 +393,7 @@ export default function ({ slug, formTitle }: Props) {
                         onValueChange={field.onChange}
                         value={field.value}
                       >
-                        <SelectTrigger className="w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <SelectTrigger className="w-full dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                           <SelectValue placeholder="Select a duration type" />
                         </SelectTrigger>
                         <SelectContent className="dark:bg-gray-700 dark:text-white">
@@ -416,7 +426,9 @@ export default function ({ slug, formTitle }: Props) {
               render={({ field }) => (
                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                   <div className="space-y-1 md:col-span-1">
-                    <FormLabel className="dark:text-white">Duration Value</FormLabel>
+                    <FormLabel className="dark:text-white">
+                      Duration Value
+                    </FormLabel>
                     <FormDescription className="text-muted-foreground text-xs dark:text-gray-400">
                       Enter selected duration type value
                     </FormDescription>
@@ -426,7 +438,7 @@ export default function ({ slug, formTitle }: Props) {
                       <Input
                         type="number"
                         {...field}
-                        className="w-all dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className="w-all dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                         max={MAX_DURATION_VALUE}
                         onChange={(e) =>
                           field.onChange(
@@ -483,12 +495,14 @@ export default function ({ slug, formTitle }: Props) {
                         />
 
                         <button
-                          className="flex w-full flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors hover:bg-accent dark:bg-gray-700 dark:border-gray-600"
+                          className="flex w-full flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors hover:bg-accent dark:border-gray-600 dark:bg-gray-700"
                           onClick={() => fileRef.current?.click()}
                           type="button"
                         >
                           <div className="text-center">
-                            <p className="font-medium text-sm dark:text-white">Upload a file</p>
+                            <p className="font-medium text-sm dark:text-white">
+                              Upload a file
+                            </p>
                             <p className="mt-1 text-muted-foreground text-xs dark:text-gray-400">
                               Drag & drop or click to browse
                             </p>
@@ -497,7 +511,9 @@ export default function ({ slug, formTitle }: Props) {
                             {field.value || 'No file selected'}
                             </p> */}
                         </button>
-                        <pre className="dark:text-white">{JSON.stringify(field?.value, null, 2)}</pre>
+                        <pre className="dark:text-white">
+                          {JSON.stringify(field?.value, null, 2)}
+                        </pre>
                       </div>
                     </FormControl>
                     <FormMessage className="text-xs" />
@@ -515,8 +531,12 @@ export default function ({ slug, formTitle }: Props) {
                   {initialData ? 'Updating' : 'Creating'} Course
                 </FormDescription>
               </div>
-              <div className="space-y-2 md:col-span-.tsx
-                <Button disabled={isSubmitting} type="submit" className="dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white">
+              <div className="dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700">
+                <Button
+                  className="dark:bg-teal-600 dark:text-white dark:hover:bg-teal-700"
+                  disabled={isSubmitting}
+                  type="submit"
+                >
                   {isSubmitting && (
                     <svg
                       className="mr-2 h-4 w-4 animate-spin"

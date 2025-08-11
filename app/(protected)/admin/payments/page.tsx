@@ -2,8 +2,8 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import PaymentsTables from '@/components/Admin/Payments/payments-tables';
-import { queryKeys } from '@/hooks/query-keys';
-import { adminGetPayments } from '@/server-actions/admin/payments';
+import { queryKeys } from '@/lib/query-keys';
+import { getCachedAdminPayments } from '@/server-actions/admin/payments';
 import { requireAdmin } from '@/utils/auth-guard';
 import type { TypePaymentStatus } from '@/utils/db/schema/enums';
 import { getQueryClient } from '@/utils/get-query-client';
@@ -37,7 +37,7 @@ export default async function (props: {
       status: status as TypePaymentStatus | undefined,
     }),
     queryFn: async () =>
-      await adminGetPayments({
+      await getCachedAdminPayments({
         page,
         pageSize,
         search,

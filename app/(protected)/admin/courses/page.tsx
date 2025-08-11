@@ -1,7 +1,7 @@
 'use server';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import CourseTable from '@/components/Admin/Courses/course-table';
-import { queryKeys } from '@/hooks/query-keys';
+import { queryKeys } from '@/lib/query-keys';
 import { adminGetCourses } from '@/server-actions/admin/courses';
 import { getQueryClient } from '@/utils/get-query-client';
 

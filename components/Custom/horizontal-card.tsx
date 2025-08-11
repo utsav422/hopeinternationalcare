@@ -24,10 +24,14 @@ export function CourseInfoCard({
           src="/image/aboutusbg.jpg"
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-black bg-opacity-50 text-lg text-white">
-          <div className="font-bold font-sans text-xl dark:text-white">{heading}</div>
+          <div className="font-bold font-sans text-xl dark:text-white">
+            {heading}
+          </div>
           <div className="flex items-center space-x-2">
             <i className="fas fa-clock" />
-            <span className="font-sans text-l dark:text-gray-300">{duration}</span>
+            <span className="font-sans text-l dark:text-gray-300">
+              {duration}
+            </span>
           </div>
         </div>
       </div>

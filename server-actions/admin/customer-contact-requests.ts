@@ -1,6 +1,7 @@
 'use server';
 
 import { eq } from 'drizzle-orm';
+import { cache } from 'react';
 import { requireAdmin } from '@/utils/auth-guard';
 import { db } from '@/utils/db/drizzle';
 import { ZodCustomerContactRequestInsertSchema } from '@/utils/db/drizzle-zod-schema/customer-contact-requests';
@@ -60,3 +61,7 @@ export async function deleteCustomerContactRequest(id: string) {
     return { error: `Failed to delete contact request: ${errorMessage}` };
   }
 }
+
+export const getCachedCustomerContactRequests = cache(
+  getCustomerContactRequests
+);

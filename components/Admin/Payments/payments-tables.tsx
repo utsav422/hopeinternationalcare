@@ -1,6 +1,6 @@
 'use client';
 import type { UniqueIdentifier } from '@dnd-kit/core';
-import type { ColumnDef, Row } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -14,8 +14,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useDeletePayment, useGetPayments } from '@/hooks/payments';
-import { useDataTableQueryState } from '@/hooks/use-data-table-query-state';
+import { useDeletePayment, useGetPayments } from '@/hooks/admin/payments';
+import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
 import type { PaymentDetailsType } from '@/utils/db/drizzle-zod-schema/payments';
 
 export default function PaymentsTables() {
@@ -44,62 +44,58 @@ export default function PaymentsTables() {
     {
       accessorKey: 'id',
       header: () => <div className="dark:text-white">Payment ID</div>,
-      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('id')}</div>,
+      cell: ({ row }) => (
+        <div className="dark:text-gray-300">{row.getValue('id')}</div>
+      ),
     },
     {
       accessorKey: 'userEmail',
       header: () => <div className="dark:text-white">Email</div>,
       cell: (props) => {
-        return <div className="dark:text-gray-300">{props.row.original.userEmail}</div>;
+        return (
+          <div className="dark:text-gray-300">
+            {props.row.original.userEmail}
+          </div>
+        );
       },
     },
     {
       accessorKey: 'courseTitle',
       header: () => <div className="dark:text-white">Course</div>,
       cell: (props) => {
-        return <div className="dark:text-gray-300">{props.row.original.courseTitle}</div>;
+        return (
+          <div className="dark:text-gray-300">
+            {props.row.original.courseTitle}
+          </div>
+        );
       },
     },
     {
       accessorKey: 'enrolled_at',
       header: () => <div className="dark:text-white">Enrolled Date</div>,
-      cell: ({
-        row,
-      }: {
-        row: Row<PaymentDetailsType & { id: UniqueIdentifier }>;
-      }) => {
-        const date = new Date(row.getValue('enrolled_at'));
-        return <div className="dark:text-gray-300">{date.toLocaleDateString()}</div>;
+      cell: (props) => {
+        const date = new Date(props.row.original.enrolled_at ?? '');
+
+        return (
+          <div className="dark:text-gray-300">{date.toLocaleDateString()}</div>
+        );
       },
     },
     {
       accessorKey: 'status',
       header: () => <div className="dark:text-white">Status</div>,
-      cell: ({
-        row,
-      }: {
-        row: Row<PaymentDetailsType & { id: UniqueIdentifier }>;
-      }) => {
-        const status = row.getValue('status');
+      cell: (props) => {
+        const status = props.row.original.status;
         return <div className="dark:text-gray-300">{status}</div>;
       },
     },
     {
       accessorKey: 'amount',
       header: () => <div className="dark:text-white">Amount (NPR)</div>,
-      cell: ({
-        row,
-      }: {
-        row: Row<PaymentDetailsType & { id: UniqueIdentifier }>;
-      }) => {
-        const status = row.getValue('amount');
-        return <div className="dark:text-gray-300">{status}</div>;
-      },
     },
     {
       accessorKey: 'remarks',
       header: () => <div className="dark:text-white">Remark</div>,
-      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('remarks')}</div>,
     },
     {
       id: 'actions',
@@ -111,14 +107,30 @@ export default function PaymentsTables() {
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
+          <DropdownMenuContent
+            align="end"
+            className="dark:border-gray-700 dark:bg-gray-800"
+          >
             <DropdownMenuItem asChild>
-              <Link href={`/admin/payments/${row.original.id}`} className="dark:text-gray-300 dark:hover:bg-gray-700">View</Link>
+              <Link
+                className="dark:text-gray-300 dark:hover:bg-gray-700"
+                href={`/admin/payments/${row.original.id}`}
+              >
+                View
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href={`/admin/payments/edit/${row.original.id}`} className="dark:text-gray-300 dark:hover:bg-gray-700">Edit</Link>
+              <Link
+                className="dark:text-gray-300 dark:hover:bg-gray-700"
+                href={`/admin/payments/edit/${row.original.id}`}
+              >
+                Edit
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDelete(row.original.id)} className="dark:text-red-500 dark:hover:bg-gray-700">
+            <DropdownMenuItem
+              className="dark:text-red-500 dark:hover:bg-gray-700"
+              onClick={() => handleDelete(row.original.id)}
+            >
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -128,7 +140,7 @@ export default function PaymentsTables() {
   ];
   return (
     <div className="space-y-4">
-      <Card className="dark:bg-gray-800 dark:border-gray-700">
+      <Card className="dark:border-gray-700 dark:bg-gray-800">
         <CardHeader />
         <CardContent>
           <DataTable<PaymentDetailsType, unknown>

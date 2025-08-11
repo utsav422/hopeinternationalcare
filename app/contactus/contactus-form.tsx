@@ -27,7 +27,7 @@ const contactFormSchema = z.object({
     .min(10, 'Phone number must be at least 10 digits.')
     .max(15, 'Phone number must not exceed 15 digits.')
     .optional()
-    .or(z.literal('')), // Optional phone number
+    .or(z.literal('')),
   email: z.string().email('Invalid email address.'),
   message: z
     .string()
@@ -59,7 +59,6 @@ export function ContactUsForm() {
           ? error.message
           : 'Failed to send your message. Please try again later.'
       );
-      //   console.error('Error sending email:', error);
     }
   }
 
@@ -89,9 +88,9 @@ export function ContactUsForm() {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-400"
                         placeholder="Your Full Name"
                         {...field}
+                        className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-400"
                       />
                     </FormControl>
                     <FormMessage />
@@ -109,10 +108,10 @@ export function ContactUsForm() {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-400"
                         placeholder="your@example.com"
                         type="email"
                         {...field}
+                        className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-400"
                       />
                     </FormControl>
                     <FormMessage />
@@ -130,10 +129,10 @@ export function ContactUsForm() {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-400"
                         placeholder="+977 9812344566"
                         type="tel"
                         {...field}
+                        className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-400"
                       />
                     </FormControl>
                     <FormMessage />
@@ -151,10 +150,10 @@ export function ContactUsForm() {
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-400"
                         placeholder="Type your message here..."
                         rows={5}
                         {...field}
+                        className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-400"
                       />
                     </FormControl>
                     <FormMessage />
@@ -163,7 +162,7 @@ export function ContactUsForm() {
               />
 
               <Button
-                className="w-full rounded-md bg-teal-500 px-8 py-3 font-semibold text-lg text-white shadow-md transition-colors duration-300 hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800"
+                className="w-full rounded-md bg-teal-500 px-8 py-3 font-semibold text-lg text-white shadow-md transition-colors duration-300 hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-300 dark:bg-teal-600 dark:focus:ring-teal-800 dark:hover:bg-teal-700"
                 disabled={form.formState.isSubmitting}
                 type="submit"
               >

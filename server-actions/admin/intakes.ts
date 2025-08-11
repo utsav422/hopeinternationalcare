@@ -6,11 +6,13 @@ import {
   asc,
   desc,
   eq,
+  gte,
   inArray,
   type SQL,
   sql,
 } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { cache } from 'react';
 import { requireAdmin } from '@/utils/auth-guard';
 import { db } from '@/utils/db/drizzle';
 import { courses as coursesTable } from '@/utils/db/schema/courses';
@@ -18,7 +20,7 @@ import { intakes as intakesTable } from '@/utils/db/schema/intakes';
 import { isValidTableColumnName } from '@/utils/utils';
 import { DurationType } from './../../utils/db/schema/enums';
 
-export type IntakeWithCourseTitleWithPrice = {
+export type IntakeWithCourse = {
   id: string;
   course_id: string | null;
   coursePrice: number;
@@ -26,6 +28,7 @@ export type IntakeWithCourseTitleWithPrice = {
   start_date: string;
   end_date: string;
   capacity: number;
+  total_registered: number;
   is_open: boolean | null;
   created_at: string;
 };
@@ -52,6 +55,7 @@ export async function adminGetIntakes({
   const selectColumns = {
     id: intakesTable.id,
     course_id: intakesTable.course_id,
+    total_registered: intakesTable.total_registered,
     courseTitle: coursesTable.title,
     coursePrice: coursesTable.price, // Added coursePrice
     start_date: intakesTable.start_date,
@@ -120,8 +124,35 @@ export async function adminGetIntakes({
   ]);
 
   return {
-    data: data as IntakeWithCourseTitleWithPrice[],
+    data: data as IntakeWithCourse[],
     total: count ?? 0,
+  };
+}
+
+export async function adminGetAllActiveIntake() {
+  const currentYear = new Date().getFullYear();
+
+  const data = await db
+    .select({
+      id: intakesTable.id,
+      course_id: intakesTable.course_id,
+      courseTitle: coursesTable.title,
+      coursePrice: coursesTable.price,
+      start_date: intakesTable.start_date,
+      end_date: intakesTable.end_date,
+      capacity: intakesTable.capacity,
+      is_open: intakesTable.is_open,
+      created_at: intakesTable.created_at,
+    })
+    .from(intakesTable)
+    .leftJoin(coursesTable, eq(intakesTable.course_id, coursesTable.id))
+    .where(
+      gte(sql`EXTRACT(YEAR FROM ${intakesTable.start_date})::int`, currentYear)
+    )
+    .orderBy(desc(intakesTable.created_at));
+
+  return {
+    data: data as IntakeWithCourse[],
   };
 }
 /**
@@ -145,7 +176,7 @@ export async function adminGetAllIntake() {
     .orderBy(desc(intakesTable.created_at));
 
   return {
-    data: data as IntakeWithCourseTitleWithPrice[],
+    data: data as IntakeWithCourse[],
   };
 }
 /**
@@ -316,3 +347,8 @@ export async function generateIntakesForCourseAdvanced(courseId: string) {
 
   revalidatePath(`/admin/courses/${courseId}`);
 }
+
+export const getCachedAdminIntakes = cache(adminGetIntakes);
+export const getCachedAdminAllIntake = cache(adminGetAllIntake);
+export const getCachedAdminIntakeById = cache(adminGetIntakeById);
+export const getCachedAdminGetAllActiveIntake = cache(adminGetAllActiveIntake);

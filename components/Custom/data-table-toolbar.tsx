@@ -118,7 +118,7 @@ export function DataTableToolbar<TData>({
         {availableColumnIds.includes('full_name') &&
           table?.getColumn('full_name') && (
             <Input
-              className="h-8 w-[150px] lg:w-[250px] dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+              className="h-8 w-[150px] lg:w-[250px] dark:border-gray-700 dark:bg-gray-800 dark:text-white"
               onChange={(event) => {
                 table
                   ?.getColumn('full_name')
@@ -133,7 +133,7 @@ export function DataTableToolbar<TData>({
           )}
         {availableColumnIds.includes('title') && table?.getColumn('title') && (
           <Input
-            className="h-8 w-[150px] lg:w-[250px] dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            className="h-8 w-[150px] lg:w-[250px] dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             onChange={(event) => {
               table?.getColumn('title')?.setFilterValue(event.target.value);
             }}
@@ -145,7 +145,7 @@ export function DataTableToolbar<TData>({
         )}
         {availableColumnIds.includes('name') && table?.getColumn('name') && (
           <Input
-            className="h-8 w-[150px] lg:w-[250px] dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            className="h-8 w-[150px] lg:w-[250px] dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             onChange={(event) => {
               table?.getColumn('name')?.setFilterValue(event.target.value);
             }}
@@ -156,7 +156,7 @@ export function DataTableToolbar<TData>({
         {availableColumnIds.includes('courseTitle') &&
           table?.getColumn('courseTitle') && (
             <Input
-              className="h-8 w-[150px] lg:w-[250px] dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+              className="h-8 w-[150px] lg:w-[250px] dark:border-gray-700 dark:bg-gray-800 dark:text-white"
               onChange={(event) => {
                 table
                   ?.getColumn('courseTitle')
@@ -171,7 +171,7 @@ export function DataTableToolbar<TData>({
           )}
         {availableColumnIds.includes('email') && table?.getColumn('email') && (
           <Input
-            className="h-8 w-[150px] lg:w-[250px] dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            className="h-8 w-[150px] lg:w-[250px] dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             onChange={(event) => {
               table?.getColumn('email')?.setFilterValue(event.target.value);
             }}
@@ -232,7 +232,7 @@ export function DataTableToolbar<TData>({
           )}
         {isFiltered && (
           <Button
-            className="h-8 px-2 lg:px-3 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700"
+            className="h-8 px-2 lg:px-3 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
             onClick={() => {
               _setQueryFilterSearch(null, {
                 shallow: false,

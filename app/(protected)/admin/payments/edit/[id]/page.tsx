@@ -1,8 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { Suspense } from 'react';
 import PaymentForm from '@/components/Admin/Payments/payment-form';
-import { queryKeys } from '@/hooks/query-keys';
-import { adminGetPaymentOnlyDetailsById } from '@/server-actions/admin/payments';
+import { queryKeys } from '@/lib/query-keys';
+import { getCachedAdminPaymentOnlyDetailsById } from '@/server-actions/admin/payments';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
 
@@ -19,7 +18,7 @@ export default async function EditPaymentPage(props: {
   const queryClient = getQueryClient();
   await queryClient.prefetchQuery({
     queryKey: queryKeys.payments.detail(id),
-    queryFn: () => adminGetPaymentOnlyDetailsById(id),
+    queryFn: () => getCachedAdminPaymentOnlyDetailsById(id),
   });
 
   //   const { data: payment } = await adminGetPaymentOnlyDetailsById(id);
@@ -29,9 +28,7 @@ export default async function EditPaymentPage(props: {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense fallback="Loading ...">
-        <PaymentForm formTitle="Edit Payment Form" id={id} />
-      </Suspense>
+      <PaymentForm formTitle="Edit Payment Form" id={id} />
     </HydrationBoundary>
   );
 }

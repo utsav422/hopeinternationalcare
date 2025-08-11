@@ -22,21 +22,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useDataTableQueryState } from '@/hooks/use-data-table-query-state';
-import { useDeleteUser, useGetUsers } from '@/hooks/users';
+import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
+import { useDeleteUser, useGetUsers } from '@/hooks/admin/users';
 import InviteUserForm from './invite-user-form';
 
 export default function UsersTables() {
   const { page, pageSize, filters } = useDataTableQueryState();
   const [inviteUserAlert, setInviteUserAlert] = useState(false);
-  const { data: queryResult, error } = useGetUsers(page, pageSize);
-  if (error) {
-    toast.error('Error fetching users', {
-      description: error.message,
-    });
-  }
-  const data = queryResult as User[];
-  const total = queryResult?.length ?? 0;
+  const { data: queryResult } = useGetUsers(page, pageSize);
+  const data = queryResult?.users;
+  const total = queryResult?.total ?? 0;
   const { mutateAsync: deleteUser } = useDeleteUser();
 
   const handleDelete = async (id: string) => {
@@ -50,7 +45,9 @@ export default function UsersTables() {
     {
       accessorKey: 'id',
       header: () => <div className="dark:text-white">User ID</div>,
-      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('id')}</div>,
+      cell: ({ row }) => (
+        <div className="dark:text-gray-300">{row.getValue('id')}</div>
+      ),
       enableHiding: true,
     },
     {
@@ -69,14 +66,18 @@ export default function UsersTables() {
       accessorKey: 'email',
       header: () => <div className="dark:text-white">Email</div>,
       cell: (props) => {
-        return <div className="dark:text-gray-300">{props.row.original.email}</div>;
+        return (
+          <div className="dark:text-gray-300">{props.row.original.email}</div>
+        );
       },
     },
     {
       accessorKey: 'phone',
       header: () => <div className="dark:text-white">Phone</div>,
       cell: (props) => {
-        return <div className="dark:text-gray-300">{props.row.original.phone}</div>;
+        return (
+          <div className="dark:text-gray-300">{props.row.original.phone}</div>
+        );
       },
     },
 
@@ -85,7 +86,9 @@ export default function UsersTables() {
       header: () => <div className="dark:text-white">Created At</div>,
       cell: ({ row }: { row: Row<User> }) => {
         const date = new Date(row.getValue('created_at'));
-        return <div className="dark:text-gray-300">{date.toLocaleDateString()}</div>;
+        return (
+          <div className="dark:text-gray-300">{date.toLocaleDateString()}</div>
+        );
       },
     },
     {
@@ -100,8 +103,14 @@ export default function UsersTables() {
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
-              <DropdownMenuItem onClick={() => handleDelete(row.original.id)} className="dark:text-red-500 dark:hover:bg-gray-700">
+            <DropdownMenuContent
+              align="end"
+              className="dark:border-gray-700 dark:bg-gray-800"
+            >
+              <DropdownMenuItem
+                className="dark:text-red-500 dark:hover:bg-gray-700"
+                onClick={() => handleDelete(row.original.id)}
+              >
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -110,11 +119,14 @@ export default function UsersTables() {
       },
     },
   ];
-
-  let filtersUserData = data?.filter(
-    (user) => user.role?.toLocaleLowerCase() === 'authenticated'
-  );
-  if (filters && filters.length > 0) {
+  let filtersUserData: User[] = [];
+  if (data && total > 0) {
+    filtersUserData =
+      data?.filter(
+        (user) => user.role?.toLocaleLowerCase() === 'authenticated'
+      ) ?? [];
+  }
+  if (data && filters && filters.length > 0) {
     filtersUserData = data?.filter((user) => {
       for (const filter of filters) {
         if (filter.id === 'email') {
@@ -128,7 +140,7 @@ export default function UsersTables() {
     });
   }
   return (
-    <Card className="dark:bg-gray-800 dark:border-gray-700">
+    <Card className="dark:border-gray-700 dark:bg-gray-800">
       <CardHeader />
       <CardContent>
         <DataTable<User, unknown>
@@ -140,16 +152,21 @@ export default function UsersTables() {
               open={inviteUserAlert}
             >
               <AlertDialogTrigger asChild>
-                <AlertDialogAction onClick={() => setInviteUserAlert(true)} className="dark:bg-teal-600 dark:hover:bg-teal-700 dark:text-white">
+                <AlertDialogAction
+                  className="dark:bg-teal-600 dark:text-white dark:hover:bg-teal-700"
+                  onClick={() => setInviteUserAlert(true)}
+                >
                   Invite A User
                 </AlertDialogAction>
               </AlertDialogTrigger>
               <AlertDialogContent
+                className="dark:border-gray-700 dark:bg-gray-800"
                 onCloseAutoFocus={() => setInviteUserAlert(false)}
-                className="dark:bg-gray-800 dark:border-gray-700"
               >
                 <AlertDialogHeader className="flex flex-row items-center justify-between">
-                  <AlertDialogTitle className="dark:text-white"> Invite a user with email</AlertDialogTitle>
+                  <AlertDialogTitle className="dark:text-white">
+                    Invite a user with email
+                  </AlertDialogTitle>
                   <AlertDialogAction
                     className="size-8 bg-background text-red-500 hover:bg-red-500/20 dark:bg-gray-700 dark:text-red-500 dark:hover:bg-red-500/20"
                     onClick={() => setInviteUserAlert(false)}

@@ -3,7 +3,7 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { useGetCourseCategoryById } from '@/hooks/course-categories';
+import { useGetCourseCategoryById } from '@/hooks/admin/course-categories';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '../ui/skeleton';
 
@@ -95,20 +95,28 @@ const CourseCategoryBadge = ({
   }
 
   if (!category) {
-    return <span className="text-gray-500 text-xs dark:text-gray-400">N/A</span>;
+    return (
+      <span className="text-gray-500 text-xs dark:text-gray-400">N/A</span>
+    );
   }
 
   const content = (
     <>
       <span className="font-bold dark:text-white">{category.name}</span>
       {showDescription && category.description && (
-        <p className="text-muted-foreground text-sm dark:text-gray-400">{category.description}</p>
+        <p className="text-muted-foreground text-sm dark:text-gray-400">
+          {category.description}
+        </p>
       )}
     </>
   );
 
   const commonProps = {
-    className: cn(badgeVariants({ variant }), className, "dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"),
+    className: cn(
+      badgeVariants({ variant }),
+      className,
+      'dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200'
+    ),
     ...props,
   };
 

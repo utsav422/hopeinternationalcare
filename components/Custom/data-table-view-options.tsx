@@ -23,7 +23,7 @@ export function DataTableViewOptions<TData>({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          className="ml-auto hidden h-8 lg:flex dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700"
+          className="ml-auto hidden h-8 lg:flex dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
           size="sm"
           variant="outline"
         >
@@ -31,7 +31,10 @@ export function DataTableViewOptions<TData>({
           View
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[150px] dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+      <DropdownMenuContent
+        align="end"
+        className="w-[150px] dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+      >
         <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
         <DropdownMenuSeparator className="dark:bg-gray-700" />
         {table

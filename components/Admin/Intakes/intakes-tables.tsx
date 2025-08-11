@@ -10,16 +10,35 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useDeleteIntake, useGetAllIntakes } from '@/hooks/intakes';
-import type { IntakeWithCourseTitleWithPrice } from '@/server-actions/admin/intakes';
+import { useDeleteIntake, useGetIntakes } from '@/hooks/admin/intakes';
+import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
+import type { IntakeWithCourse } from '@/server-actions/admin/intakes';
 import { DataTable } from '../../Custom/data-table';
 import { Button } from '../../ui/button';
 import { Skeleton } from '../../ui/skeleton';
 
+function IntakesTableSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-8 w-24" />
+        <Skeleton className="h-8 w-24" />
+      </div>
+      <Skeleton className="h-96 w-full" />
+    </div>
+  );
+}
+
 export default function IntakesTables() {
   const searchParams = useSearchParams();
   const tab = searchParams.get('tab');
-  const { data: queryResult, isLoading, error } = useGetAllIntakes();
+  const queryState = useDataTableQueryState();
+
+  const {
+    data: queryResult,
+    isLoading,
+    error,
+  } = useGetIntakes({ ...queryState });
   if (error) {
     toast.error('Error fetching intakes', {
       description: error.message,
@@ -49,73 +68,104 @@ export default function IntakesTables() {
   const columns = [
     {
       accessorKey: 'courseTitle',
-      header: () => <div className="dark:text-white">Course Title</div>,
-      cell: ({ row }: { row: { original: IntakeWithCourseTitleWithPrice } }) => (
-        <span className="dark:text-gray-300">{row.original.courseTitle}</span>
+      header: () => (
+        <div className="text-gray-800 dark:text-white">Course Title</div>
+      ),
+      cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {row.original.courseTitle}
+        </span>
       ),
     },
     {
       accessorKey: 'start_date',
-      header: () => <div className="dark:text-white">Start Date</div>,
-      cell: ({
-        row,
-      }: {
-        row: { original: IntakeWithCourseTitleWithPrice };
-      }) => (
-        <span className="dark:text-gray-300">{new Date(row.original.start_date).toLocaleDateString()}</span>
+      header: () => (
+        <div className="text-gray-800 dark:text-white">Start Date</div>
+      ),
+      cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {new Date(row.original.start_date).toLocaleDateString()}
+        </span>
       ),
     },
     {
       accessorKey: 'end_date',
-      header: () => <div className="dark:text-white">End Date</div>,
-      cell: ({
-        row,
-      }: {
-        row: { original: IntakeWithCourseTitleWithPrice };
-      }) => <span className="dark:text-gray-300">{new Date(row.original.end_date).toLocaleDateString()}</span>,
+      header: () => (
+        <div className="text-gray-800 dark:text-white">End Date</div>
+      ),
+      cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {new Date(row.original.end_date).toLocaleDateString()}
+        </span>
+      ),
     },
     {
       accessorKey: 'capacity',
-      header: () => <div className="dark:text-white">Capacity</div>,
-      cell: ({ row }: { row: { original: IntakeWithCourseTitleWithPrice } }) => (
-        <span className="dark:text-gray-300">{row.original.capacity}</span>
+      header: () => (
+        <div className="text-gray-800 dark:text-white">Capacity</div>
+      ),
+      cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {row.original.capacity}
+        </span>
       ),
     },
     {
       accessorKey: 'total_registered',
-      header: () => <div className="dark:text-white">Total Registered</div>,
-      cell: ({ row }: { row: { original: IntakeWithCourseTitleWithPrice } }) => (
-        <span className="dark:text-gray-300">{row.original.total_registered}</span>
+      header: () => (
+        <div className="text-gray-800 dark:text-white">Total Registered</div>
+      ),
+      cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {row.original.total_registered}
+        </span>
       ),
     },
     {
       accessorKey: 'is_open',
-      header: () => <div className="dark:text-white">Is Open</div>,
-      cell: ({ row }: { row: { original: IntakeWithCourseTitleWithPrice } }) => (
-        <span className="dark:text-gray-300">{row.original.is_open ? 'Yes' : 'No'}</span>
+      header: () => (
+        <div className="text-gray-800 dark:text-white">Is Open</div>
+      ),
+      cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {row.original.is_open ? 'Yes' : 'No'}
+        </span>
       ),
     },
     {
       id: 'actions',
-      cell: ({
-        row,
-      }: {
-        row: { original: IntakeWithCourseTitleWithPrice };
-      }) => (
+      cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="ghost" className="dark:text-white">
+            <Button
+              className="text-gray-800 dark:text-white"
+              size="sm"
+              variant="ghost"
+            >
               ...
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="dark:bg-gray-800 dark:border-gray-700">
+          <DropdownMenuContent className="dark:border-gray-700 dark:bg-gray-800">
             <DropdownMenuItem asChild>
-              <Link href={`/admin/intakes/${row.original.id}`} className="dark:text-gray-300 dark:hover:bg-gray-700">View</Link>
+              <Link
+                className="cursor-pointer text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                href={`/admin/intakes/${row.original.id}`}
+              >
+                View
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href={`/admin/intakes/edit/${row.original.id}`} className="dark:text-gray-300 dark:hover:bg-gray-700">Edit</Link>
+              <Link
+                className="cursor-pointer text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                href={`/admin/intakes/edit/${row.original.id}`}
+              >
+                Edit
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDelete(row.original.id)} className="dark:text-red-500 dark:hover:bg-gray-700">
+            <DropdownMenuItem
+              className="cursor-pointer text-red-600 dark:text-red-500 dark:hover:bg-gray-700"
+              onClick={() => handleDelete(row.original.id)}
+            >
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -125,14 +175,24 @@ export default function IntakesTables() {
   ];
 
   if (isLoading) {
-    return <Skeleton className="h-96 w-full" />;
+    return <IntakesTableSkeleton />;
   }
 
   return (
     <Tabs defaultValue={tab ?? 'current'}>
-      <TabsList className="dark:bg-gray-800 dark:border-gray-700">
-        <TabsTrigger value="current" className="dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">Current Intakes</TabsTrigger>
-        <TabsTrigger value="history" className="dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">History Intakes</TabsTrigger>
+      <TabsList className="dark:border-gray-700 dark:bg-gray-800/50">
+        <TabsTrigger
+          className="text-gray-800 dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white"
+          value="current"
+        >
+          Current Intakes
+        </TabsTrigger>
+        <TabsTrigger
+          className="text-gray-800 dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white"
+          value="history"
+        >
+          History Intakes
+        </TabsTrigger>
       </TabsList>
       <TabsContent value="current">
         <DataTable

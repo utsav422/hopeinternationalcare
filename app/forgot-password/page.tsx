@@ -13,7 +13,7 @@ export default async function page(props: {
 }) {
   const searchParams = await props.searchParams;
   const successMessage = searchParams.success as string;
-//   const errorMessage = searchParams.error as string;
+  //   const errorMessage = searchParams.error as string;
   if (successMessage && successMessage.length > 0) {
     return (
       <Card

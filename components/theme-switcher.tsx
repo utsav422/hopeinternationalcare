@@ -30,7 +30,11 @@ const ThemeSwitcher = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button size={'icon'} variant="ghost" className="relative overflow-hidden rounded-full transition-all duration-300 hover:bg-gray-200 dark:hover:bg-gray-700">
+        <Button
+          className="relative overflow-hidden rounded-full transition-all duration-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+          size={'icon'}
+          variant="ghost"
+        >
           <Sun
             className={`absolute transition-all duration-300 ${theme === 'light' ? 'rotate-0 scale-100 opacity-100' : '-rotate-90 scale-0 opacity-0'}`}
             size={ICON_SIZE}

@@ -32,6 +32,3 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, text }) => {
 };
 
 export default Modal;
-
-
-export default Modal;

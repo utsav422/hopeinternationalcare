@@ -1,5 +1,5 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { queryKeys } from '@/hooks/query-keys';
+import { queryKeys } from '@/lib/query-keys';
 import { adminGetIntakeById } from '@/server-actions/admin/intakes';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';

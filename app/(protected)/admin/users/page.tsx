@@ -1,7 +1,6 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { Suspense } from 'react';
-import UsersTables from '@/components/Admin/Users/users-tables';
-import { queryKeys } from '@/hooks/query-keys';
+import UserList from '@/components/Admin/Users';
+import { queryKeys } from '@/lib/query-keys';
 import { getUserList } from '@/server-actions/admin/users';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
@@ -35,11 +34,10 @@ export default async function UserPage(props: {
     queryKey: queryKeys.users.all,
     queryFn: async () => await getUserList(page, pageSize),
   });
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense fallback="Loading users...">
-        <UsersTables />
-      </Suspense>
+      <UserList />
     </HydrationBoundary>
   );
 }

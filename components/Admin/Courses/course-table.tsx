@@ -6,10 +6,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-// import { parseAsInteger, useQueryState } from 'nuqs';
-// import { useCallback } from 'react';
 import { DataTable } from '@/components/Custom/data-table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -19,9 +16,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useDeleteCourse, useGetCourses } from '@/hooks/courses';
-import { queryKeys } from '@/hooks/query-keys';
-import { useDataTableQueryState } from '@/hooks/use-data-table-query-state';
+import { useDeleteCourse, useGetCourses } from '@/hooks/admin/courses';
+import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
+import { queryKeys } from '@/lib/query-keys';
 import { generateIntakesForCourseAdvanced } from '@/server-actions/admin/intakes';
 // import { Input } from '@/components/ui/input';
 // import useDebounce from '@/hooks/use-debounce';
@@ -37,10 +34,9 @@ import type {
 // }
 
 export default function CourseTable() {
-  const router = useRouter();
   const queryState = useDataTableQueryState();
   const queryClient = useQueryClient();
-  const { data: queryResult, error } = useGetCourses({ ...queryState });
+  const { data: queryResult, error: _ } = useGetCourses({ ...queryState });
 
   const data = queryResult?.data as Array<
     typeof ZodCourseSelectSchema._zod.input & { category_name: string | null }
@@ -87,12 +83,16 @@ export default function CourseTable() {
     {
       accessorKey: 'title',
       header: () => <div className="dark:text-white">Title</div>,
-      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('title')}</div>,
+      cell: ({ row }) => (
+        <div className="dark:text-gray-300">{row.getValue('title')}</div>
+      ),
     },
     {
       accessorKey: 'level',
       header: () => <div className="dark:text-white">Level</div>,
-      cell: ({ row }) => <div className="dark:text-gray-300">{row.getValue('level')}</div>,
+      cell: ({ row }) => (
+        <div className="dark:text-gray-300">{row.getValue('level')}</div>
+      ),
     },
     {
       accessorKey: 'duration_value',
@@ -150,26 +150,33 @@ export default function CourseTable() {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost" className="dark:text-white">
+              <Button className="dark:text-white" size="icon" variant="ghost">
                 <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-600">
+            <DropdownMenuContent
+              align="end"
+              className="dark:border-gray-600 dark:bg-gray-800"
+            >
               <DropdownMenuItem asChild>
-                <Link href={`/admin/courses/${cellProps?.row.original.slug}`} className="dark:text-white">
+                <Link
+                  className="dark:text-white"
+                  href={`/admin/courses/${cellProps?.row.original.slug}`}
+                >
                   View
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link
-                  href={`/admin/courses/edit/${cellProps?.row.original.slug}`}
                   className="dark:text-white"
+                  href={`/admin/courses/edit/${cellProps?.row.original.slug}`}
                 >
                   Edit
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
+                className="dark:text-white"
                 onClick={async () => {
                   const courseId = cellProps?.row.original.id;
                   if (courseId) {
@@ -186,7 +193,6 @@ export default function CourseTable() {
                     });
                   }
                 }}
-                className="dark:text-white"
               >
                 Generate Intakes
               </DropdownMenuItem>
@@ -203,7 +209,7 @@ export default function CourseTable() {
     },
   ];
   return (
-    <Card className="dark:bg-gray-800 dark:border-gray-700">
+    <Card className="dark:border-gray-700 dark:bg-gray-800">
       <CardHeader />
       <CardContent>
         <DataTable<

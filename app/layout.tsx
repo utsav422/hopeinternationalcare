@@ -12,8 +12,9 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: 'Hope International Care',
-  description: 'Hope International Aged Care Training And Elderly Care Center',
+  title: 'Hope International - Aged Care Training and Elderly Care Center',
+  description:
+    'Hope International is a leading training center in Kathmandu, Nepal, providing comprehensive caregiver training and elderly care services. We empower individuals with the skills to provide exceptional care to the elderly.',
 };
 
 const roboto = Roboto({
@@ -26,11 +27,38 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Hope International',
+    url: 'https://hopeinternational.com.np',
+    logo: 'https://hopeinternational.com.np/favicon.png',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+977-980-10813999',
+      contactType: 'Customer Service',
+    },
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Durga Bhawan, Rudramati Marga, Anamnagar',
+      addressLocality: 'Kathmandu',
+      postalCode: '44600',
+      addressCountry: 'NP',
+    },
+    sameAs: [
+      'https://www.facebook.com/p/Hope-International-1000637365252 Hope-International-100063736525249/',
+    ],
+  };
+
   return (
     <html className={roboto.className} lang="en" suppressHydrationWarning>
       <head>
         <script
-          data-site="YOUR_DOMAIN_HERE"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          type="application/ld+json"
+        />
+        <script
+          data-site="hopeinternationcare.org"
           defer
           src="https://api.nepcha.com/js/nepcha-analytics.js"
         />
@@ -42,7 +70,6 @@ export default function RootLayout({
             <ThemeProvider
               attribute="class"
               defaultTheme="dark"
-              //   disableTransitionOnChange
             >
               <Layout>
                 {children}

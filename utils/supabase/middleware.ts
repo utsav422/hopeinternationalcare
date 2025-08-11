@@ -57,8 +57,8 @@ export const updateSession = async (request: NextRequest) => {
     }
     if (
       !user &&
-      request.nextUrl.pathname.startsWith('/profile') &&
-      request.nextUrl.pathname.startsWith('/admin/')
+      (request.nextUrl.pathname.startsWith('/profile') ||
+        request.nextUrl.pathname.startsWith('/admin'))
     ) {
       // no user, potentially respond by redirecting the user to the login page
       url.pathname = '/sign-in';

@@ -56,7 +56,11 @@ export function MultiSelectFilter({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="h-8 border-dashed dark:bg-gray-800 dark:border-gray-700 dark:text-white" size="sm" variant="outline">
+        <Button
+          className="h-8 border-dashed dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+          size="sm"
+          variant="outline"
+        >
           <PlusCircle className="mr-2 h-4 w-4" />
           {title}
           {selectedValues.size > 0 && (
@@ -94,19 +98,27 @@ export function MultiSelectFilter({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-[200px] p-0 dark:bg-gray-800 dark:border-gray-700">
+      <PopoverContent
+        align="start"
+        className="w-[200px] p-0 dark:border-gray-700 dark:bg-gray-800"
+      >
         <Command>
-          <CommandInput placeholder={title} className="dark:bg-gray-700 dark:text-white" />
+          <CommandInput
+            className="dark:bg-gray-700 dark:text-white"
+            placeholder={title}
+          />
           <CommandList>
-            <CommandEmpty className="dark:text-gray-400">No results found.</CommandEmpty>
+            <CommandEmpty className="dark:text-gray-400">
+              No results found.
+            </CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
                 const isSelected = selectedValues.has(option.value);
                 return (
                   <CommandItem
+                    className="dark:text-white dark:hover:bg-gray-700"
                     key={option.value}
                     onSelect={() => handleSelect(option.value)}
-                    className="dark:text-white dark:hover:bg-gray-700"
                   >
                     <div
                       className={cn(

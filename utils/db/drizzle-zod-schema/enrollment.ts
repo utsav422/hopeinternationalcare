@@ -1,6 +1,12 @@
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { enrollments } from '../schema/enrollments';
+import type {
+  courseCategories,
+  courses,
+  intakes,
+  profiles,
+} from '../schema/index';
 
 // Zod schema for inserting data into the enrollments table
 export const ZodEnrollmentInsertSchema = createInsertSchema(enrollments);
@@ -23,3 +29,11 @@ export const EnrollmentRequestSchema = z.object({
 });
 
 export type EnrollmentRequestType = z.infer<typeof EnrollmentRequestSchema>;
+
+export type EnrollmentWithDetails = {
+  enrollment: typeof enrollments.$inferSelect;
+  user: typeof profiles.$inferSelect | null;
+  intake: typeof intakes.$inferSelect | null;
+  course: typeof courses.$inferSelect | null;
+  category: typeof courseCategories.$inferSelect | null;
+};

@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -30,12 +31,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useGetAllCourseCategories } from '@/hooks/course-categories';
+import { useGetAllCourseCategories } from '@/hooks/admin/course-categories';
 import {
   CategoriesInsertSchema,
   type ZTInsertCourseCategories,
 } from '@/utils/db/drizzle-zod-schema/course-categories';
-import { toast } from 'sonner';
 
 interface Props {
   isOpen: boolean;
@@ -92,49 +92,72 @@ export default function CourseCategoryFormModal({
 
   return (
     <Dialog onOpenChange={setIsOpen} open={isOpen}>
-      <DialogContent className="dark:bg-gray-800 dark:border-gray-600">
+      <DialogContent className="dark:border-gray-600 dark:bg-gray-800">
         <DialogHeader>
-          <DialogTitle className="dark:text-white">Manage Course Category</DialogTitle>
+          <DialogTitle className="dark:text-white">
+            Manage Course Category
+          </DialogTitle>
         </DialogHeader>
 
         {showNewCategoryForm ? (
-          <Form {...form}>
-            <form
-              className="space-y-4"
-              onSubmit={form.handleSubmit(handleNewCategorySubmit)}
-            >
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="dark:text-white">Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} className="dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="dark:text-white">Description</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} value={field.value ?? ''} className="dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
+          <div className="grid grid-cols-12 gap-4">
+            <Form {...form}>
+              <form
+                className="w-full space-y-6"
+                onSubmit={form.handleSubmit(handleNewCategorySubmit)}
+              >
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                      <div className="space-y-1 md:col-span-1">
+                        <FormLabel className="dark:text-gray-200">
+                          Name
+                        </FormLabel>
+                      </div>{' '}
+                      <div className="space-y-2 md:col-span-3">
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className="dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                      <div className="space-y-1 md:col-span-1">
+                        <FormLabel className="dark:text-gray-200">
+                          Description
+                        </FormLabel>
+                      </div>
+                      <div className="space-y-2 md:col-span-3">
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            className="dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            value={field.value ?? ''}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
+          </div>
         ) : (
           <div className="space-y-4">
             <Select onValueChange={setSelectedCategory}>
-              <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <SelectTrigger className="dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent className="dark:bg-gray-700 dark:text-white">
@@ -156,11 +179,11 @@ export default function CourseCategoryFormModal({
           <div className="flex items-center space-x-2">
             <Checkbox
               checked={showNewCategoryForm}
+              className="dark:border-gray-600"
               id="new-category-checkbox"
               onCheckedChange={() =>
                 setShowNewCategoryForm(!showNewCategoryForm)
               }
-              className="dark:border-gray-600"
             />
             <label
               className="font-medium text-sm leading-none dark:text-white"
@@ -173,13 +196,13 @@ export default function CourseCategoryFormModal({
 
         <DialogFooter>
           <Button
+            className="dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700"
             onClick={
               showNewCategoryForm
                 ? form.handleSubmit(handleNewCategorySubmit)
                 : handleExistingCategorySubmit
             }
             type="submit"
-            className="dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white"
           >
             {showNewCategoryForm ? 'Create' : 'Assign Category'}
           </Button>

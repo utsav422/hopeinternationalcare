@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useGetAllCourses } from '@/hooks/courses';
+import { useGetAllCourses } from '@/hooks/admin/courses';
 import type { ZodSelectCourseType } from '@/utils/db/drizzle-zod-schema/courses';
 import type { ZodInsertIntakeType } from '@/utils/db/drizzle-zod-schema/intakes';
 import { Skeleton } from '../ui/skeleton';
@@ -51,12 +51,16 @@ export default function CourseSelect({ field, disabled }: CourseSelectProps) {
       onValueChange={field.onChange}
       value={field.value ?? undefined}
     >
-      <SelectTrigger className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+      <SelectTrigger className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
         <SelectValue placeholder="Select a course" />
       </SelectTrigger>
-      <SelectContent className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+      <SelectContent className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
         {courses?.map((course: CourseForSelect) => (
-          <SelectItem key={course.id} value={course.id} className="dark:hover:bg-gray-700">
+          <SelectItem
+            className="dark:hover:bg-gray-700"
+            key={course.id}
+            value={course.id}
+          >
             {course.title}
           </SelectItem>
         ))}

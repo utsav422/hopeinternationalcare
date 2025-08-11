@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import type { ControllerRenderProps } from 'react-hook-form';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -10,16 +10,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  adminGetAllIntake,
-  type IntakeWithCourseTitleWithPrice,
-} from '@/server-actions/admin/intakes';
-import type { ZodInsertEnrollmentType } from '@/utils/db/drizzle-zod-schema/enrollment';
+import { useGetAllActiveIntake } from '@/hooks/admin/intakes';
+import type { IntakeWithCourse } from '@/server-actions/admin/intakes';
+import type { ZodEnrollmentInsertType } from '@/utils/db/drizzle-zod-schema/enrollment';
+import { Skeleton } from '../ui/skeleton';
 
 interface IntakeSelectProps {
-  field: ControllerRenderProps<ZodInsertEnrollmentType, 'intake_id'>;
+  field: ControllerRenderProps<ZodEnrollmentInsertType, 'intake_id'>;
   disabled?: boolean;
-  getItemOnValueChanges?: (item: IntakeWithCourseTitleWithPrice) => void;
+  getItemOnValueChanges?: (item: IntakeWithCourse) => void;
 }
 
 export default function IntakeSelect({
@@ -27,45 +26,37 @@ export default function IntakeSelect({
   disabled,
   getItemOnValueChanges,
 }: IntakeSelectProps) {
-  const [intakes, setIntakes] = useState<IntakeWithCourseTitleWithPrice[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: queryResult, error, isLoading } = useGetAllActiveIntake();
+  const intakes = queryResult?.data;
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      setLoading(true);
-      try {
-        const { data } = await adminGetAllIntake();
-        setIntakes(
-          data?.filter(
-            (item) => item.is_open
-          ) as IntakeWithCourseTitleWithPrice[]
-        );
-      } catch {
-        setError('An unexpected error occurred.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCourses();
-  }, []);
-
-  if (loading) {
-    return <p className="dark:text-white">Loading courses...</p>;
+  if (isLoading) {
+    return (
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-10 w-full rounded-md" />{' '}
+      </div>
+    );
   }
 
   if (error) {
-    return <p className="text-red-500 dark:text-red-400">{error}</p>;
+    toast.error(
+      error instanceof Error
+        ? error.message
+        : 'something went wrong. please contact to adminstrator'
+    );
   }
-  if (intakes.length === 0) {
-    return <span className="dark:text-gray-400">No intake found for course enrollments</span>;
+  if (intakes?.length === 0) {
+    return (
+      <span className="dark:text-gray-400">
+        No intake found for course enrollments
+      </span>
+    );
   }
   return (
     <Select
-      disabled={disabled || loading}
+      disabled={disabled || isLoading}
       onValueChange={(value) => {
-        const selectedIntakes = intakes.find((item) => item.id === value);
+        const selectedIntakes = intakes?.find((item) => item.id === value);
         if (selectedIntakes) {
           field.onChange(value);
           getItemOnValueChanges?.(selectedIntakes);
@@ -73,14 +64,20 @@ export default function IntakeSelect({
       }}
       value={field.value ?? undefined}
     >
-      <SelectTrigger className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+      <SelectTrigger className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
         <SelectValue placeholder="Select a intake" />
       </SelectTrigger>
-      <SelectContent className="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
-        {intakes.map((intake) => (
-          <SelectItem key={intake.id} value={intake.id} className="dark:hover:bg-gray-700">
+      <SelectContent className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+        {intakes?.map((intake) => (
+          <SelectItem
+            className="dark:hover:bg-gray-700"
+            key={intake.id}
+            value={intake.id}
+          >
             <div className="flex items-center gap-2">
-              <span className="font-bold dark:text-white">{intake.courseTitle}</span>
+              <span className="font-bold dark:text-white">
+                {intake.courseTitle}
+              </span>
               <span className="text-gray-500 text-sm dark:text-gray-400">
                 (Capacity: {intake.capacity})
               </span>
@@ -97,7 +94,10 @@ export default function IntakeSelect({
                   year: 'numeric',
                 })}
               </span>
-              <Badge variant={intake.is_open ? 'default' : 'destructive'} className="dark:bg-gray-700 dark:text-gray-200">
+              <Badge
+                className="dark:bg-gray-700 dark:text-gray-200"
+                variant={intake.is_open ? 'default' : 'destructive'}
+              >
                 {intake.is_open ? 'Open' : 'Closed'}
               </Badge>
             </div>

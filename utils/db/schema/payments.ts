@@ -56,7 +56,7 @@ export const payments = pgTable(
       for: 'all',
       to: serviceRole,
       using: sql`(auth.jwt() ->> 'role') = 'service_role'`,
-      withCheck: sql`true`,
+      withCheck: sql`(auth.jwt() ->> 'role') = 'service_role'`,
     }),
   ]
 );
@@ -68,5 +68,4 @@ export const paymentRelations = relations(payments, ({ one }) => ({
   }),
 }));
 
-// export type ISelectPayment = typeof payments.$inferSelect;
-// export type IInsertPayment = typeof payments.$inferInsert;
+

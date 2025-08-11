@@ -1,10 +1,11 @@
+'use client';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Logo } from './logo';
 import { NavMenu } from './nav-menu';
 
-export const NavigationSheet = () => {
+export const NavigationSheet = ({ isScrolling }: { isScrolling: boolean }) => {
   return (
     <Sheet>
       <SheetTrigger asChild className="bg-transparent">
@@ -18,7 +19,11 @@ export const NavigationSheet = () => {
       </SheetTrigger>
       <SheetContent>
         <Logo />
-        <NavMenu className="mt-12" orientation="vertical" />
+        <NavMenu
+          className="mt-12"
+          isScrolling={isScrolling}
+          orientation="vertical"
+        />
       </SheetContent>
     </Sheet>
   );

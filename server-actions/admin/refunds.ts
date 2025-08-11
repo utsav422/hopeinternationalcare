@@ -2,6 +2,7 @@
 
 import { desc, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { cache } from 'react';
 import { requireAdmin } from '@/utils/auth-guard';
 import { db } from '@/utils/db/drizzle';
 import { ZodRefundInsertSchema } from '@/utils/db/drizzle-zod-schema/refunds';
@@ -9,7 +10,7 @@ import { payments as paymentsTable } from '@/utils/db/schema/payments';
 import { profiles as profilesTable } from '@/utils/db/schema/profiles';
 import { refunds as refundsTable } from '@/utils/db/schema/refunds';
 import type { TablesInsert } from '@/utils/supabase/database.types';
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 
 type RefundWithDetails = {
   refundId: string;
@@ -61,7 +62,7 @@ export async function adminUpsertRefund(refund: TablesInsert<'refunds'>) {
     };
   }
   // Create/Update Refund status
-  const client = await createClient();
+  const client = await createServerSupabaseClient();
 
   const { data, error } = await client
     .from('refunds')
@@ -89,3 +90,4 @@ export async function adminUpsertRefund(refund: TablesInsert<'refunds'>) {
       : 'Refund created successfully',
   };
 }
+export const getCachedAdminRefunds = cache(adminGetRefunds);

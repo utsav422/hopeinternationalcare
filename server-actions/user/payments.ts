@@ -2,6 +2,7 @@
 'use server';
 
 import { and, eq } from 'drizzle-orm';
+import { cache } from 'react';
 import { requireUser } from '@/utils/auth-guard';
 import { db } from '@/utils/db/drizzle';
 import { courses as coursesTable } from '@/utils/db/schema/courses';
@@ -86,3 +87,5 @@ export async function getUserPaymentHistory() {
 
   return data;
 }
+
+export const getCachedUserPaymentHistory = cache(getUserPaymentHistory);

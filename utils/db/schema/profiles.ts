@@ -41,7 +41,7 @@ export const profiles = pgTable(
     }),
     pgPolicy('User can update own profile', {
       as: 'permissive',
-      for: 'select',
+      for: 'update',
       to: 'public',
       using: sql`auth.uid() = ${table.id}`,
     }),
@@ -50,7 +50,7 @@ export const profiles = pgTable(
       for: 'all',
       to: serviceRole,
       using: sql`(auth.jwt() ->> 'role') = 'service_role'`,
-      withCheck: sql`true`,
+      withCheck: sql`(auth.jwt() ->> 'role') = 'service_role'`,
     }),
   ]
 );

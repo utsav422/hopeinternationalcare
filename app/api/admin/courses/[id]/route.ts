@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { adminDeleteCourse } from '@/server-actions/admin/courses';
 
 export async function DELETE(request: NextRequest) {

@@ -2,6 +2,9 @@
   "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
   "linter": {
     "rules": {
+      "style": {
+        "useConsistentBuiltinInstantiation": "off"
+      },
       "recommended": false,
       "performance": {
         "noNamespaceImport": "off"
@@ -10,7 +13,8 @@
         "noDangerouslySetInnerHtml": "off"
       },
       "suspicious": {
-        "noDocumentCookie": "off"
+        "noDocumentCookie": "off",
+        "noArrayIndexKey": "off"
       },
       "nursery": {
         "noNestedComponentDefinitions": "off",

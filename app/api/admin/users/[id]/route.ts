@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { requireAdmin } from '@/utils/auth-guard';
-import { createClient } from '@/utils/supabase/admin';
+import { logger } from '@/utils/logger';
+import { createAdminSupabaseClient } from '@/utils/supabase/admin';
 
 export async function DELETE(
   _: NextRequest,
@@ -8,7 +9,7 @@ export async function DELETE(
 ) {
   try {
     await requireAdmin();
-    const supabase = await createClient();
+    const supabase = createAdminSupabaseClient();
     const { data, error } = await supabase.auth.admin.deleteUser(
       params.id,
       true
@@ -18,15 +19,18 @@ export async function DELETE(
     }
     if (!data) {
       throw new Error(
-        'Data not found!, Something enexpected happed, please contact to adminstrator'
+        'Data not found! Something unexpected happened, please contact the administrator'
       );
     }
 
     return new Response(null, { status: 200 });
-  } catch (_error) {
-    // TODO: Log error deleting enrollment using a proper logging mechanism
+  } catch (error) {
+    logger.error('Failed to delete user', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      userId: params.id
+    });
     return new Response(
-      JSON.stringify({ message: 'Failed to soft delete user.' }),
+      JSON.stringify({ message: 'Failed to delete user.' }),
       {
         status: 500,
         headers: {

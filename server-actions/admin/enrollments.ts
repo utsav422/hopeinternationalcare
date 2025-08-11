@@ -11,8 +11,10 @@ import {
   sql,
 } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { cache } from 'react';
 import { db } from '@/utils/db/drizzle';
 import type { ZodEnrollmentInsertType } from '@/utils/db/drizzle-zod-schema/enrollment';
+import { courseCategories as categoriesSchema } from '@/utils/db/schema/course-categories';
 import { courses as courseSchema } from '@/utils/db/schema/courses';
 import { enrollments as enrollmentSchema } from '@/utils/db/schema/enrollments';
 import type {
@@ -341,7 +343,22 @@ export async function adminUpdateEnrollmentStatus(
 }
 
 export async function adminGetAllEnrollments() {
-  const data = await db.select().from(enrollmentSchema);
+  const data = await db
+    .select({
+      enrollment: enrollmentSchema,
+      user: profileSchema,
+      intake: intakeSchema,
+      course: courseSchema,
+      category: categoriesSchema,
+    })
+    .from(enrollmentSchema)
+    .leftJoin(profileSchema, eq(enrollmentSchema.user_id, profileSchema.id))
+    .leftJoin(intakeSchema, eq(enrollmentSchema.intake_id, intakeSchema.id))
+    .leftJoin(courseSchema, eq(intakeSchema.course_id, courseSchema.id))
+    .leftJoin(
+      categoriesSchema,
+      eq(courseSchema.category_id, categoriesSchema.id)
+    );
   return { data };
 }
 
@@ -375,3 +392,20 @@ export async function adminDeleteEnrollment(id: string) {
 
   revalidatePath('/admin/enrollments');
 }
+
+export const getCachedAdminEnrollments = cache(adminGetEnrollments);
+export const getCachedAdminEnrollmentById = cache(adminGetEnrollmentById);
+export const getCachedAdminEnrollmentWithDetails = cache(
+  adminGetEnrollmentWithDetails
+);
+export const getCachedAdminEnrollmentsByUserId = cache(
+  adminGetEnrollmentsByUserId
+);
+export const getCachedAdminEnrollmentWithPayment = cache(
+  adminGetEnrollmentWithPayment
+);
+
+export const getCachedAdminAllEnrollments = cache(adminGetAllEnrollments);
+export const getCachedAdminAllEnrollmentsByStatus = cache(
+  adminGetAllEnrollmentsByStatus
+);

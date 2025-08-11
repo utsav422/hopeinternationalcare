@@ -1,12 +1,13 @@
 'use client';
 
 import Image from 'next/image';
+import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { CourseCategoryBadge } from '@/components/Custom/course-category-badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetPublicCourseBySlug } from '@/hooks/public-courses';
+import { useGetPublicCourseBySlug } from '@/hooks/admin/public-courses';
 import { adminUpdateCourseCategoryIdCol } from '@/server-actions/admin/courses';
 import { adminUpsertCourseCategories } from '@/server-actions/admin/courses-categories';
 import type { ZTInsertCourseCategories } from '@/utils/db/drizzle-zod-schema/course-categories';
@@ -21,7 +22,7 @@ const Card = ({
   className?: string;
 }) => (
   <div
-    className={`rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:border-gray-700 ${className}`}
+    className={`rounded-lg bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-800 ${className}`}
   >
     {children}
   </div>
@@ -119,16 +120,16 @@ const CourseIntakes = () => (
     <table className="w-full text-left">
       <thead>
         <tr>
-          <th className="border-b p-2 dark:text-gray-300 dark:border-gray-600">
+          <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
             Name
           </th>
-          <th className="border-b p-2 dark:text-gray-300 dark:border-gray-600">
+          <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
             Start Date
           </th>
-          <th className="border-b p-2 dark:text-gray-300 dark:border-gray-600">
+          <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
             End Date
           </th>
-          <th className="border-b p-2 dark:text-gray-300 dark:border-gray-600">
+          <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
             Status
           </th>
         </tr>
@@ -145,7 +146,7 @@ const CourseIntakes = () => (
       </tbody>
     </table>
     <div className="mt-4 flex justify-end">
-      <Button className="dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white">
+      <Button className="dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700">
         Generate Intakes
       </Button>
     </div>
@@ -195,13 +196,15 @@ const CourseDetailsSkeleton = () => (
   </div>
 );
 
-export default function CourseDetailsCard(props: { slug: string }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export default function CourseDetailsCard() {
+  const params = useParams<{ slug: string }>();
+  const { slug: slug_from_url } = params;
   const {
     isLoading,
     data: queryResult,
     error,
-  } = useGetPublicCourseBySlug(props.slug);
+  } = useGetPublicCourseBySlug(slug_from_url);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const course = queryResult?.data as ZodSelectCourseType | undefined;
 
   if (isLoading) {

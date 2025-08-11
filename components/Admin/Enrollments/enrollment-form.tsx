@@ -1,8 +1,7 @@
-// /components/Admin/Courses/CourseModal.tsx
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -13,7 +12,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -37,9 +35,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetEnrollmentById } from '@/hooks/enrollments';
+import { useGetEnrollmentById } from '@/hooks/admin/enrollments';
 import { adminUpsertEnrollment } from '@/server-actions/admin/enrollments';
-import type { IntakeWithCourseTitleWithPrice } from '@/server-actions/admin/intakes';
+import type { IntakeWithCourse } from '@/server-actions/admin/intakes';
 import {
   ZodEnrollmentInsertSchema,
   type ZodEnrollmentInsertType,
@@ -50,14 +48,15 @@ import {
   enrollmentStatus as enrollmentStatusEnum,
 } from '@/utils/db/schema/enums';
 
-
 // type CourseFormInput = TablesInsert<'courses'>
 interface Props {
   id?: string;
   formTitle?: string;
 }
 
-export default function ({ id, formTitle }: Props) {
+export default function ({ formTitle }: Props) {
+  const params = useParams<{ id: string }>();
+  const id = params.id;
   const router = useRouter();
   const [_selecredPrice, setSelectedPrice] = useState<number | null>(null);
   const {
@@ -95,8 +94,7 @@ export default function ({ id, formTitle }: Props) {
       if (!result.success && result.errors) {
         throw new Error(result.errors);
       }
-     
-     
+
       toast.success(values.id ? 'Enrollment updated' : 'Enrollment created');
       router.push(`/admin/enrollments?status?=${values.status}`, {
         scroll: false,
@@ -122,59 +120,86 @@ export default function ({ id, formTitle }: Props) {
       </div>
     );
   }
+  const getButtonText = () => {
+    if (isSubmitting) {
+      return 'Saving...';
+    }
+    if (id) {
+      return 'Update Enrollment';
+    }
+    return 'Create Enrollment';
+  };
+  const { isSubmitting } = form.formState;
+
   return (
-    <Card className="w-full max-w-screen-lg dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
-      <CardHeader className="dark:border-b dark:border-gray-700">
+    <Card className="dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
+      <CardHeader className="dark:border-gray-700 dark:border-b">
         <CardTitle className="dark:text-gray-100">{formTitle}</CardTitle>
-        <CardDescription className="dark:text-gray-400">Fill all the inputs of below form</CardDescription>
+        <CardDescription className="dark:text-gray-400">
+          Fill all the inputs of below form
+        </CardDescription>
+        <hr className="dark:border-gray-600" />
       </CardHeader>
-      <Form {...form}>
-        <form className="space-y-6 p-4" onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="grid grid-cols-12 gap-4">
-            <div className="col-span-12">
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem className="mr-auto">
+      <CardContent className="grid grid-cols-12 gap-4">
+        <Form {...form}>
+          <form
+            className="w-full space-y-6"
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                  <div className="space-y-1 md:col-span-1">
                     <FormLabel className="dark:text-gray-200">Notes</FormLabel>
+                  </div>
+                  <div className="space-y-2 md:col-span-3">
                     <FormControl>
-                      <Input {...field} value={(notes as string) ?? ''} className="dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600" />
+                      <Input
+                        {...field}
+                        className="dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        value={(notes as string) ?? ''}
+                      />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                  </div>
+                </FormItem>
+              )}
+            />
 
-            <div className="col-span-6 flex space-x-5">
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                  <div className="space-y-1 md:col-span-1">
                     <FormLabel className="dark:text-gray-200">Status</FormLabel>
+                  </div>
+                  <div className="space-y-2 md:col-span-3">
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
-                        <SelectTrigger className="capitalize dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600">
+                        <SelectTrigger className="capitalize dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
                           <SelectValue placeholder="Select a enrollment type" />
                         </SelectTrigger>
-                        <SelectContent className="capitalize dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
+                        <SelectContent className="capitalize dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
                           <SelectGroup>
-                            <SelectLabel className="dark:text-gray-400">Enrollment Type</SelectLabel>
+                            <SelectLabel className="dark:text-gray-400">
+                              Enrollment Type
+                            </SelectLabel>
                             {enrollmentStatusEnum.enumValues.map((item) => {
                               return (
                                 <SelectItem
+                                  className="dark:hover:bg-gray-700"
                                   disabled={Boolean(
                                     initialData?.id &&
                                       item === EnrollmentStatus.cancelled
                                   )}
                                   key={item}
                                   value={item}
-                                  className="dark:hover:bg-gray-700"
                                 >
                                   {item}
                                 </SelectItem>
@@ -185,81 +210,133 @@ export default function ({ id, formTitle }: Props) {
                       </Select>
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="col-span-6">
-              <FormField
-                control={form.control}
-                name="enrollment_date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="dark:text-gray-200">Enrollment Date</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="enrollment_date"
+              render={({ field }) => (
+                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                  <div className="space-y-1 md:col-span-1">
+                    <FormLabel className="dark:text-gray-200">
+                      Enrollment Date
+                    </FormLabel>
+                    <FormDescription className="dark:text-gray-400">
+                      This will take the current date and time
+                    </FormDescription>
+                  </div>
+                  <div className="space-y-2 md:col-span-3">
                     <FormControl>
                       <Input
                         type="date"
                         {...field}
+                        className="dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                         disabled
                         value={
                           field.value
                             ? new Date(field.value).toISOString().split('T')[0]
                             : ''
                         }
-                        className="dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                       />
                     </FormControl>
                     <FormMessage />
-                    <FormDescription className="dark:text-gray-400">
-                      This will take the current date and time
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="col-span-12">
-              <FormField
-                control={form.control}
-                name="intake_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="dark:text-gray-200">Select Intake</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="intake_id"
+              render={({ field }) => (
+                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                  <div className="space-y-1 md:col-span-1">
+                    <FormLabel className="dark:text-gray-200">
+                      Select Intake
+                    </FormLabel>
+                  </div>
+                  <div className="space-y-2 md:col-span-3">
                     <FormControl>
                       <IntakeSelect
                         field={field}
                         getItemOnValueChanges={(
-                          selectedIntakes: IntakeWithCourseTitleWithPrice
+                          selectedIntakes: IntakeWithCourse
                         ) => setSelectedPrice(selectedIntakes.coursePrice)}
                       />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="col-span-12">
-              <FormField
-                control={form.control}
-                name="user_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="dark:text-gray-200">Select User</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="user_id"
+              render={({ field }) => (
+                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                  <div className="space-y-1 md:col-span-1">
+                    <FormLabel className="dark:text-gray-200">
+                      Select User
+                    </FormLabel>
+                  </div>
+                  <div className="space-y-2 md:col-span-3">
                     <FormControl>
                       <UserSelect field={field} />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="dark:border-t dark:border-gray-700">
-            <Button className="w-full dark:bg-teal-600 dark:hover:bg-teal-700 dark:text-white" type="submit">
-              {initialData ? 'Update Enrollment' : 'Create Enrollment'}
-            </Button>
-          </CardFooter>
-        </form>
-      </Form>
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+              <div className="space-y-1 md:col-span-1">
+                <FormLabel className="font-medium text-sm leading-none dark:text-white">
+                  Action
+                </FormLabel>
+                <FormDescription className="text-muted-foreground text-xs dark:text-gray-400">
+                  Submit Action Button For
+                  {initialData ? 'Updating' : 'Creating'} Enrollment
+                </FormDescription>
+              </div>
+              <div className="dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700">
+                <Button
+                  className="dark:bg-teal-600 dark:text-white dark:hover:bg-teal-700"
+                  type="submit"
+                >
+                  {isSubmitting && (
+                    <svg
+                      className="mr-2 h-4 w-4 animate-spin"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <title>Loading</title>
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  )}
+                  {getButtonText()}
+                  {initialData ? 'Update Enrollment' : 'Create Enrollment'}
+                </Button>
+              </div>
+            </FormItem>
+          </form>
+        </Form>
+      </CardContent>
     </Card>
   );
 }

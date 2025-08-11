@@ -46,7 +46,7 @@ export const courses = pgTable(
       for: 'all',
       to: serviceRole,
       using: sql`(auth.jwt() ->> 'role') = 'service_role'`,
-      withCheck: sql`true`,
+      withCheck: sql`(auth.jwt() ->> 'role') = 'service_role'`,
     }),
   ]
 );
@@ -58,5 +58,3 @@ export const courseRelations = relations(courses, ({ one, many }) => ({
   }),
   intakes: many(intakes),
 }));
-
-

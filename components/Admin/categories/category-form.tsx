@@ -21,7 +21,7 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   useGetCourseCategoryById,
   useUpsertCourseCategory,
-} from '@/hooks/course-categories';
+} from '@/hooks/admin/course-categories';
 import {
   CategoriesInsertSchema,
   type ZTInsertCourseCategories,

@@ -1,6 +1,8 @@
 'use client';
 import { BookOpenIcon, GiftIcon, UserIcon } from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
 import type React from 'react';
+import { useInView } from 'react-intersection-observer';
 import ImageBackgroundCard from '@/components/Custom/image-bg-card';
 
 interface OptionProps {
@@ -39,51 +41,100 @@ export default function WhyChooseUs() {
     '/image/student2.jpeg',
   ];
 
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
-    <section className="mx-auto flex w-full max-w-6xl flex-col items-center px-4 py-10 sm:px-6 lg:px-8">
+    <section
+      className="mx-auto flex w-full max-w-6xl flex-col items-center px-4 py-10 sm:px-6 lg:px-8"
+      ref={ref}
+    >
       {/* Main Title */}
-      <h2 className="mb-4 text-center font-extrabold text-3xl text-gray-900 sm:text-4xl md:text-5xl dark:text-white">
+      <motion.h2
+        animate={inView ? 'visible' : 'hidden'}
+        className="mb-4 text-center font-extrabold text-3xl text-gray-900 sm:text-4xl md:text-5xl dark:text-white"
+        initial="hidden"
+        transition={{ duration: 0.5 }}
+        variants={itemVariants}
+      >
         Why choose our course?
-      </h2>
+      </motion.h2>
 
       {/* Subtitle */}
-      <p className="mb-16 max-w-2xl text-center font-normal text-gray-600 text-xl dark:text-gray-400">
+      <motion.p
+        animate={inView ? 'visible' : 'hidden'}
+        className="mb-16 max-w-2xl text-center font-normal text-gray-600 text-xl dark:text-gray-400"
+        initial="hidden"
+        transition={{ duration: 0.5, delay: 0.2 }}
+        variants={itemVariants}
+      >
         Discover the unique advantages, benefits, and standout features that set
         our course apart from the rest.
-      </p>
+      </motion.p>
 
       {/* Content Grid */}
-      <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2">
+      <motion.div
+        animate={inView ? 'visible' : 'hidden'}
+        className="grid grid-cols-1 items-center gap-8 md:grid-cols-2"
+        initial="hidden"
+        variants={containerVariants}
+      >
         {/* Left Column: Image Background Card */}
-        <ImageBackgroundCard images={images}>
-          {/* Content for the card can go here if needed, or remove children prop if not used */}
-        </ImageBackgroundCard>
+        <motion.div variants={itemVariants}>
+          <ImageBackgroundCard images={images}>
+            {/* Content for the card can go here if needed, or remove children prop if not used */}
+          </ImageBackgroundCard>
+        </motion.div>
 
         {/* Right Column: Options */}
-        <div className="space-y-6">
+        <motion.div className="space-y-6" variants={containerVariants}>
           {/* Option 1 */}
-          <Option icon={GiftIcon} title="Comprehensive Packages">
-            We offer comprehensive caregiver training packages tailored to
-            levels 1 through 5, ensuring that our trainees are equipped with the
-            expertise needed to meet the diverse needs of aging individuals.
-          </Option>
+          <motion.div variants={itemVariants}>
+            <Option icon={GiftIcon} title="Comprehensive Packages">
+              We offer comprehensive caregiver training packages tailored to
+              levels 1 through 5, ensuring that our trainees are equipped with
+              the expertise needed to meet the diverse needs of aging
+              individuals.
+            </Option>
+          </motion.div>
 
           {/* Option 2 */}
-          <Option icon={BookOpenIcon} title="Curriculum and Contents">
-            Our curriculum covers a wide range of topics, including basic
-            caregiving techniques, specialized care for individuals with
-            conditions such as Alzheimer’s, Parkinson’s, dementia, and more.
-          </Option>
+          <motion.div variants={itemVariants}>
+            <Option icon={BookOpenIcon} title="Curriculum and Contents">
+              Our curriculum covers a wide range of topics, including basic
+              caregiving techniques, specialized care for individuals with
+              conditions such as Alzheimer’s, Parkinson’s, dementia, and more.
+            </Option>
+          </motion.div>
 
           {/* Option 3 */}
-          <Option icon={UserIcon} title="Personalized Career Guidance">
-            We believe in guiding our trainees towards fulfilling and rewarding
-            careers in elderly care. Through personalized career guidance and
-            support, we help individuals navigate their professional paths with
-            confidence and purpose.
-          </Option>
-        </div>
-      </div>
+          <motion.div variants={itemVariants}>
+            <Option icon={UserIcon} title="Personalized Career Guidance">
+              We believe in guiding our trainees towards fulfilling and
+              rewarding careers in elderly care. Through personalized career
+              guidance and support, we help individuals navigate their
+              professional paths with confidence and purpose.
+            </Option>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

@@ -1,5 +1,3 @@
-import type { FormData } from '@/app/contactus/contactus-form';
-
 export function sendEmail(data: FormData) {
   const apiEndpoint = '/api/email';
 

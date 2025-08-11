@@ -2,6 +2,7 @@
 
 import { desc, eq, like, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { cache } from 'react';
 import { requireAdmin } from '@/utils/auth-guard';
 import { db } from '@/utils/db/drizzle';
 import {
@@ -19,7 +20,7 @@ import {
 } from '@/utils/db/schema/payments';
 import { profiles as profilesTable } from '@/utils/db/schema/profiles';
 import type { TablesInsert } from '@/utils/supabase/database.types';
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 
 /**
  * Get list of payments with user/course details
@@ -110,7 +111,7 @@ export async function adminUpdatePaymentStatus(
   status: 'pending' | 'completed' | 'failed' | 'refunded',
   remarks?: string
 ) {
-  const user = await requireAdmin();
+  const { user } = await requireAdmin();
 
   if (!user || user?.user_metadata?.role !== 'service_role') {
     throw new Error('Unauthorized');
@@ -129,8 +130,7 @@ export async function adminUpdatePaymentStatus(
  */
 type PaymentFormInput = TablesInsert<'payments'>;
 export async function adminUpsertPayment(input: PaymentFormInput) {
-  // export async function adminUpsertCourse(input: CourseFormInput) {
-  const user = await requireAdmin();
+  const { user } = await requireAdmin();
   if (!user || user.user_metadata?.role !== 'service_role') {
     throw new Error('Unauthorized');
   }
@@ -143,7 +143,7 @@ export async function adminUpsertPayment(input: PaymentFormInput) {
       errors: validatedFields.error.message,
     };
   }
-  const client = await createClient();
+  const client = await createServerSupabaseClient();
 
   const { data, error } = await client
     .from('payments')
@@ -179,7 +179,7 @@ export async function adminUpsertPayment(input: PaymentFormInput) {
 export async function adminGetPaymentDetailsByEnrollmentId(
   enrollmentId: string
 ) {
-  const user = await requireAdmin();
+  const { user } = await requireAdmin();
 
   if (!user || user?.user_metadata?.role !== 'service_role') {
     throw new Error('Unauthorized');
@@ -214,7 +214,7 @@ export async function adminGetPaymentDetailsByEnrollmentId(
  * get payment details From id
  */
 export async function adminGetPaymentOnlyDetailsById(paymentId: string) {
-  const user = await requireAdmin();
+  const { user } = await requireAdmin();
 
   if (!user || user?.user_metadata?.role !== 'service_role') {
     throw new Error('Unauthorized');
@@ -251,7 +251,7 @@ export async function adminGetPaymentOnlyDetailsById(paymentId: string) {
  * get payment details and others From id
  */
 export async function adminGetPaymentDetailsWithOthersById(paymentId: string) {
-  const user = await requireAdmin();
+  const { user } = await requireAdmin();
 
   if (!user || user?.user_metadata?.role !== 'service_role') {
     throw new Error('Unauthorized');
@@ -313,7 +313,7 @@ export async function adminGetPaymentDetailsWithOthersById(paymentId: string) {
  * Delete an intake by ID
  */
 export async function adminDeletePayment(id: string) {
-  const user = await requireAdmin();
+  const { user } = await requireAdmin();
 
   if (!user || user?.user_metadata?.role !== 'service_role') {
     throw new Error('Unauthorized');
@@ -322,3 +322,13 @@ export async function adminDeletePayment(id: string) {
   await db.delete(paymentsTable).where(eq(paymentsTable.id, id));
   revalidatePath('/admin/intakes');
 }
+export const getCachedAdminPayments = cache(adminGetPayments);
+export const getCachedAdminPaymentDetailsByEnrollmentId = cache(
+  adminGetPaymentDetailsByEnrollmentId
+);
+export const getCachedAdminPaymentOnlyDetailsById = cache(
+  adminGetPaymentOnlyDetailsById
+);
+export const getCachedAdminPaymentDetailsWithOthersById = cache(
+  adminGetPaymentDetailsWithOthersById
+);

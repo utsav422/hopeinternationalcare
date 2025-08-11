@@ -1,7 +1,8 @@
 'use server';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { Suspense } from 'react';
 import EnrollmentTables from '@/components/Admin/Enrollments/enrollment-tables';
-import { queryKeys } from '@/hooks/query-keys';
+import { queryKeys } from '@/lib/query-keys';
 import { adminGetEnrollments } from '@/server-actions/admin/enrollments';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
@@ -40,8 +41,10 @@ export default async function EnrollmentsPage(props: {
   });
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <EnrollmentTables />
-    </HydrationBoundary>
+    <Suspense fallback="Loading...">
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <EnrollmentTables />
+      </HydrationBoundary>
+    </Suspense>
   );
 }

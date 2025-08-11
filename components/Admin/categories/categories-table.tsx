@@ -7,9 +7,9 @@ import { useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { DataTable } from '@/components/Custom/data-table';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { useGetCourseCategories } from '../../../hooks/course-categories';
-import { queryKeys } from '../../../hooks/query-keys';
-import { useDataTableQueryState } from '../../../hooks/use-data-table-query-state';
+import { useGetCourseCategories } from '../../../hooks/admin/course-categories';
+import { useDataTableQueryState } from '../../../hooks/admin/use-data-table-query-state';
+import { queryKeys } from '../../../lib/query-keys';
 import { adminDeleteCourseCategories } from '../../../server-actions/admin/courses-categories';
 import type { ZTSelectCourseCategories } from '../../../utils/db/drizzle-zod-schema/course-categories';
 import type { SelectCourseCategory } from '../../../utils/db/schema/course-categories';
@@ -92,8 +92,8 @@ export default function CategoriesTable() {
   //   created_at: string;
   //   updated_at: string;
   return (
-    <Card className='dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100'>
-      <CardHeader className='dark:border-gray-700 dark:border-b' />
+    <Card className="dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
+      <CardHeader className="dark:border-gray-700 dark:border-b" />
       <CardContent>
         <DataTable<SelectCourseCategory, unknown>
           columns={columns}

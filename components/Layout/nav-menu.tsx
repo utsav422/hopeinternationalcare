@@ -1,3 +1,4 @@
+'use client';
 import type { NavigationMenuProps } from '@radix-ui/react-navigation-menu';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -9,11 +10,12 @@ import {
 } from '@/components/ui/navigation-menu';
 import { cn } from '@/lib/utils';
 
-export const NavMenu = (
-  props: NavigationMenuProps & { isScrolling: boolean }
-) => {
+export const NavMenu = ({
+  isScrolling,
+  ...navProps
+}: NavigationMenuProps & { isScrolling: boolean }) => {
   const pathname = usePathname();
-  const { isScrolling } = props;
+
   //   const [isScrolling, setIsScrolling] = useState(false);
   //   useEffect(() => {
   //     function handleScroll() {
@@ -29,7 +31,7 @@ export const NavMenu = (
   //   }, []);
 
   return (
-    <NavigationMenu {...props}>
+    <NavigationMenu {...navProps}>
       <NavigationMenuList
         className={cn(
           'gap-1 space-x-0 data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-start md:gap-4',

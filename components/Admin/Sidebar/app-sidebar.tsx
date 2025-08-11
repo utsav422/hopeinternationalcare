@@ -32,7 +32,9 @@ type NavMainItem = {
   items?: SubNavItem[];
 };
 
-export function AdminAppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AdminAppSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   const data: { versions: string[]; navMain: NavMainItem[] } = {
     versions: ['1.0.1', '1.1.0-alpha', '2.0.0-beta1'],
     navMain: [
@@ -42,8 +44,13 @@ export function AdminAppSidebar({ ...props }: React.ComponentProps<typeof Sideba
         isActive: false, // Added isActive property
         items: [
           {
+            title: 'Dashboard',
+            url: '/admin',
+            isActive: false,
+          },
+          {
             title: 'Users',
-            url: '/admin//users',
+            url: '/admin/users',
             isActive: false,
           },
           {
@@ -66,17 +73,15 @@ export function AdminAppSidebar({ ...props }: React.ComponentProps<typeof Sideba
             url: '/admin/enrollments',
             isActive: false,
           },
-          {
-            title: 'Real-time Dashboard',
-            url: '/admin/dashboard/realtime',
-            isActive: false,
-          },
         ],
       },
     ],
   };
   return (
-    <Sidebar {...props} className="dark:bg-gray-800 dark:border-r dark:border-gray-700">
+    <Sidebar
+      {...props}
+      className="dark:border-gray-700 dark:border-r dark:bg-gray-800"
+    >
       <SidebarHeader>
         <VersionSwitcher
           defaultVersion={data.versions[0]}
@@ -87,16 +92,18 @@ export function AdminAppSidebar({ ...props }: React.ComponentProps<typeof Sideba
       <SidebarContent>
         {data.navMain.map((nav) => (
           <SidebarGroup key={nav.title}>
-            <SidebarGroupLabel className="dark:text-gray-400">{nav.title}</SidebarGroupLabel>
+            <SidebarGroupLabel className="dark:text-gray-400">
+              {nav.title}
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {nav.items?.map((subNavItem) => (
                   <SidebarMenuItem key={subNavItem.title}>
                     <SidebarMenuButton
                       asChild
+                      className="dark:text-gray-300 dark:data-[active=true]:bg-gray-700 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
                       isActive={subNavItem.isActive}
                       onClick={subNavItem.onClick}
-                      className="dark:text-gray-300 dark:hover:bg-gray-700 dark:focus:bg-gray-700 dark:data-[active=true]:bg-gray-700"
                     >
                       <a className="capitalize" href={subNavItem.url}>
                         {subNavItem.title}
@@ -108,7 +115,12 @@ export function AdminAppSidebar({ ...props }: React.ComponentProps<typeof Sideba
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
-        <Button onClick={signOutAction} className="dark:bg-red-600 dark:hover:bg-red-700 dark:text-white">Logout</Button>
+        <Button
+          className="dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
+          onClick={signOutAction}
+        >
+          Logout
+        </Button>
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

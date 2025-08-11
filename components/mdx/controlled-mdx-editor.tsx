@@ -1,9 +1,6 @@
 'use client';
 
-import type {
-  ControllerRenderProps,
-  FieldValues,
-} from 'react-hook-form';
+import type { ControllerRenderProps, FieldValues } from 'react-hook-form';
 import { ForwardRefEditor } from './forward-ref-editor';
 
 interface ControlledMDXEditorProps {

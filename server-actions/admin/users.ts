@@ -1,9 +1,9 @@
 'use server';
 
-import { createClient } from '@/utils/supabase/admin';
+import { createAdminSupabaseClient } from '@/utils/supabase/admin';
 import { encodedRedirect } from '@/utils/utils';
 export const createUser = async (formData: FormData) => {
-  const supabaseAdmin = await createClient();
+  const supabaseAdmin =  createAdminSupabaseClient();
   const adminAuthClient = supabaseAdmin.auth.admin;
   const email = formData.get('email')?.toString();
   const full_name = formData.get('full_name')?.toString() ?? 'superadmin';
@@ -54,19 +54,17 @@ export const createUser = async (formData: FormData) => {
 
 export const getUserList = async (page?: number, pageSize?: number) => {
   try {
-    const supabaseAdmin = await createClient();
+    const supabaseAdmin = createAdminSupabaseClient();
     const adminAuthClient = supabaseAdmin.auth.admin;
-    const {
-      data: { users },
-      error,
-    } = await adminAuthClient.listUsers({
+    const { data, error } = await adminAuthClient.listUsers({
       page,
       perPage: pageSize,
     });
+
     if (error) {
       throw new Error(error?.message);
     }
-    return users;
+    return data;
   } catch (error) {
     throw new Error(
       error instanceof Error ? error?.message : 'Something went wrong'
@@ -75,7 +73,7 @@ export const getUserList = async (page?: number, pageSize?: number) => {
 };
 
 export const adminDeleteUser = async (id: string) => {
-  const supabaseAdmin = await createClient();
+  const supabaseAdmin = createAdminSupabaseClient();
   const { error } = await supabaseAdmin.auth.admin.deleteUser(id);
 
   if (error) {

@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useCreateCustomerContactRequest } from '@/hooks/customer-contact-requests';
+import { useCreateCustomerContactRequest } from '@/hooks/admin/customer-contact-requests';
 import { useAuthSession } from '@/hooks/use-auth-session';
 import { createEnrollment } from '@/server-actions/user/enrollments';
 import {

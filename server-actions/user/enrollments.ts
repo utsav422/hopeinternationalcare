@@ -9,10 +9,11 @@ import { enrollments } from '@/utils/db/schema/enrollments';
 import { EnrollmentStatus } from '@/utils/db/schema/enums';
 import { intakes } from '@/utils/db/schema/intakes';
 import { profiles } from '@/utils/db/schema/profiles';
-import { createClient } from '@/utils/supabase/server';
+import { logger } from '@/utils/logger';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 
 export async function createEnrollment(formData: FormData) {
-  const supabase = await createClient();
+  const supabase = await createServerSupabaseClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -118,10 +119,11 @@ export async function createEnrollment(formData: FormData) {
         text: `${userProfile.full_name} (${userProfile.email}) requested enrollment for intake ID: ${intakeId}.`,
       });
     } else {
-      // Log this, but don't prevent enrollment if email sending fails
-      //   console.warn(
-      //     'Could not fetch user profile or admin emails for notification.'
-      //   );
+      logger.warn('Could not fetch user profile or admin emails for notification.', {
+        userId,
+        userProfile: !!userProfile,
+        adminsCount: admins.length,
+      });
     }
 
     return {

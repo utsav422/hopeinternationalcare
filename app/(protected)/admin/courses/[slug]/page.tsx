@@ -2,7 +2,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import CourseDetailsCard from '@/components/Admin/Courses/course-details-card';
-import { queryKeys } from '@/hooks/query-keys';
+import { queryKeys } from '@/lib/query-keys';
 import { getPublicCourseBySlug } from '@/server-actions/public/courses';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
@@ -27,12 +27,9 @@ export default async function Courses(props: {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="p-6">
-        <h1 className="mb-6 font-bold text-2xl">Course Details</h1>
-        <Suspense fallback="Loading...">
-          <CourseDetailsCard slug={slug} />
-        </Suspense>
-      </div>
+      <Suspense fallback="Loading...">
+        <CourseDetailsCard />
+      </Suspense>
     </HydrationBoundary>
   );
 }

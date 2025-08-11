@@ -1,41 +1,60 @@
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { queryKeys } from '@/hooks/query-keys';
-import { getPublicCourseBySlug } from '@/server-actions/public/courses';
-import { getCourseIntakes } from '@/server-actions/public/intakes';
-import { getQueryClient } from '@/utils/get-query-client';
-import CourseDetailClient from './_components/course-detail-client';
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from '@tanstack/react-query';
+import type { Metadata } from 'next';
+import { queryKeys } from '@/lib/query-keys';
+import { getCachedPublicCourseBySlug } from '@/server-actions/public/courses';
+import CourseDetails from './_components';
 
 interface CourseDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
+export async function generateMetadata(
+  props: CourseDetailPageProps
+): Promise<Metadata> {
+  const params = await props.params;
+  const { slug } = params;
+  const courseData = await getCachedPublicCourseBySlug(slug);
+
+  if (!courseData?.data) {
+    return {};
+  }
+  const course = courseData.data;
+  return {
+    title: `${course.title} | Hope International`,
+    description: course.description,
+    openGraph: {
+      title: `${course.title} | Hope International`,
+      description: course.description || '',
+      url: `https://hopeinternational.com.np/courses/${course.slug}`,
+      images: [
+        {
+          url: course.image_url || '/opengraph-image.png',
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
+  };
+}
+
 export default async function CourseDetailPage({
   params,
 }: CourseDetailPageProps) {
-  const queryClient = getQueryClient();
   const { slug } = await params;
+  const queryClient = new QueryClient();
 
-  // Prefetch course details
-  const courseData = await queryClient.fetchQuery({
+  await queryClient.prefetchQuery({
     queryKey: queryKeys.publicCourses.detail(slug),
-    queryFn: () => getPublicCourseBySlug(slug),
+    queryFn: () => getCachedPublicCourseBySlug(slug),
   });
 
-  const courseId = courseData?.data?.id;
-
-  // Prefetch course intakes if courseId is available
-  if (courseId) {
-    await queryClient.fetchQuery({
-      queryKey: queryKeys.intakes.detail(courseId),
-      queryFn: () => getCourseIntakes(courseId),
-    });
-  }
-
-  const dehydratedState = dehydrate(queryClient);
-
   return (
-    <HydrationBoundary state={dehydratedState}>
-      <CourseDetailClient slug={slug} />
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <CourseDetails />
     </HydrationBoundary>
   );
 }

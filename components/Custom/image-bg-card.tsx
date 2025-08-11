@@ -16,15 +16,15 @@ export function ImageBackgroundCard({
       <div className="grid grid-cols-2 gap-4">
         {images.map((src, index) => (
           <div
-            key={index}
             className="relative h-32 w-32 transform overflow-hidden rounded-xl shadow-lg transition duration-300 hover:scale-105 hover:shadow-xl md:h-40 md:w-40 lg:h-48 lg:w-48"
+            key={src}
           >
             <Image
               alt={`Gallery image ${index + 1}`}
-              src={src}
+              className="rounded-xl border-4 border-white dark:border-gray-700"
               layout="fill"
               objectFit="cover"
-              className="rounded-xl border-4 border-white dark:border-gray-700"
+              src={src}
             />
           </div>
         ))}

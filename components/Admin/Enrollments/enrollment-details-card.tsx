@@ -6,7 +6,7 @@ import { notFound, useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGetEnrollmentById } from '@/hooks/enrollments';
+import { useGetEnrollmentById } from '@/hooks/admin/enrollments';
 
 // import {
 //   Table,
@@ -35,14 +35,19 @@ function EnrollmentDetailsCard() {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {/* Enrollment Details Card */}
-      <Card className="col-span-full lg:col-span-1 dark:bg-gray-800 dark:border-gray-700">
+      <Card className="col-span-full lg:col-span-1 dark:border-gray-700 dark:bg-gray-800">
         <CardHeader>
           <CardTitle className="dark:text-white">Enrollment Details</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div>
-            <p className="font-medium text-muted-foreground text-sm dark:text-gray-400">Status</p>
-            <Badge className="mt-1 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600" variant="outline">
+            <p className="font-medium text-muted-foreground text-sm dark:text-gray-400">
+              Status
+            </p>
+            <Badge
+              className="mt-1 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+              variant="outline"
+            >
               {enrollment.status}
             </Badge>
           </div>
@@ -67,7 +72,9 @@ function EnrollmentDetailsCard() {
             </div>
           )}
           <div>
-            <p className="font-medium text-muted-foreground text-sm dark:text-gray-400">Notes</p>
+            <p className="font-medium text-muted-foreground text-sm dark:text-gray-400">
+              Notes
+            </p>
             <p className="font-semibold text-base dark:text-gray-300">
               {enrollment.notes || 'N/A'}
             </p>
@@ -86,7 +93,7 @@ function EnrollmentDetailsCard() {
       </Card>
 
       {/* User Details Card */}
-      <Card className="col-span-full lg:col-span-1 dark:bg-gray-800 dark:border-gray-700">
+      <Card className="col-span-full lg:col-span-1 dark:border-gray-700 dark:bg-gray-800">
         <CardHeader>
           <CardTitle className="dark:text-white">User Details</CardTitle>
         </CardHeader>
@@ -100,7 +107,9 @@ function EnrollmentDetailsCard() {
             </p>
           </div>
           <div>
-            <p className="font-medium text-muted-foreground text-sm dark:text-gray-400">Email</p>
+            <p className="font-medium text-muted-foreground text-sm dark:text-gray-400">
+              Email
+            </p>
             <p className="font-semibold text-base dark:text-gray-300">
               {enrollment.email || 'N/A'}
             </p>
@@ -109,13 +118,15 @@ function EnrollmentDetailsCard() {
       </Card>
 
       {/* Course Details Card */}
-      <Card className="col-span-full lg:col-span-1 dark:bg-gray-800 dark:border-gray-700">
+      <Card className="col-span-full lg:col-span-1 dark:border-gray-700 dark:bg-gray-800">
         <CardHeader>
           <CardTitle className="dark:text-white">Course Details</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div>
-            <p className="font-medium text-muted-foreground text-sm dark:text-gray-400">Title</p>
+            <p className="font-medium text-muted-foreground text-sm dark:text-gray-400">
+              Title
+            </p>
             <p className="font-semibold text-base dark:text-gray-300">
               {enrollment.courseTitle || 'N/A'}
             </p>
@@ -140,7 +151,7 @@ function EnrollmentDetailsCard() {
       </Card>
 
       {/* Intake Details Card */}
-      <Card className="col-span-full lg:col-span-1 dark:bg-gray-800 dark:border-gray-700">
+      <Card className="col-span-full lg:col-span-1 dark:border-gray-700 dark:bg-gray-800">
         <CardHeader>
           <CardTitle className="dark:text-white">Intake Details</CardTitle>
         </CardHeader>

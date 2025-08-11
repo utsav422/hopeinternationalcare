@@ -1,25 +1,30 @@
 import { createBrowserClient } from '@supabase/ssr';
 import type { Database } from './database.types';
 
-const createClient = () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!url) {
-    throw new Error('NEXT_PUBLIC_SUPABASE_URL is not defined');
+const createBrowserSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl) {
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable');
   }
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!key) {
-    throw new Error('NEXT_PUBLIC_SUPABASE_ANON_KEY is not defined');
+  if (!supabaseAnonKey) {
+    throw new Error(
+      'Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable'
+    );
   }
-  return createBrowserClient<Database>(url, key, {
+
+  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: {
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: true,
     },
-    realtime: {
-      // Enable Realtime features
-    },
+    // realtime: {
+    // Enable Realtime features
+    // },
   });
 };
 
-export const supabase = createClient();
+// Singleton instance for client components
+export const supabase = createBrowserSupabaseClient();

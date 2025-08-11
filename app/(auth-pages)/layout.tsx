@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 import '../globals.css';
 const _LINKS = [
   {
@@ -24,7 +24,7 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
+  const supabase = await createServerSupabaseClient();
 
   const {
     data: { user: _ },
