@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image from "next/legacy/image";
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';

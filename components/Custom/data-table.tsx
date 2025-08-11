@@ -347,14 +347,14 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               // Display "No results." if no data
-              <TableRow>
+              (<TableRow>
                 <TableCell
                   className="h-24 text-center"
                   colSpan={columns.length}
                 >
                   No results.
                 </TableCell>
-              </TableRow>
+              </TableRow>)
             )}
           </TableBody>
         </Table>

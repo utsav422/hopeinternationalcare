@@ -1,5 +1,5 @@
 'use client';
-import Image from 'next/image';
+import Image from "next/legacy/image";
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { toast } from 'sonner';
