@@ -1,22 +1,28 @@
 'use client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { ZodInsertPaymentType } from '@/lib/db/drizzle-zod-schema/payments';
 import {
   createPayment,
   getUserPaymentHistory,
-} from '@/server-actions/user/payments';
-import type { payments as paymentsTable } from '@/utils/db/schema/payments';
+} from '@/lib/server-actions/user/payments';
 import { queryKeys } from '../../lib/query-keys';
 
-type PaymentInsert = typeof paymentsTable.$inferInsert;
+type PaymentInsert = ZodInsertPaymentType;
 
 export const useCreatePayment = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (
+    mutationFn: async (
       data: Omit<PaymentInsert, 'id' | 'status'> & {
-        enrollment_id: number;
+        enrollment_id: string;
       }
-    ) => createPayment(data),
+    ) => {
+      const result = await createPayment(data);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.userPaymentHistory.all,
@@ -25,9 +31,15 @@ export const useCreatePayment = () => {
   });
 };
 
-export const useGetUserPaymentHistory = () => {
+export const useGetUserPaymentHistory = (page = 1, pageSize = 10) => {
   return useQuery({
-    queryKey: queryKeys.userPaymentHistory.all,
-    queryFn: () => getUserPaymentHistory(),
+    queryKey: [...queryKeys.userPaymentHistory.all, page, pageSize],
+    queryFn: async () => {
+      const result = await getUserPaymentHistory(page, pageSize);
+      if (!result.success) {
+        throw new Error(result.error as string);
+      }
+      return result.data;
+    },
   });
 };

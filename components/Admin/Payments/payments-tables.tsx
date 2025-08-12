@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useDeletePayment, useGetPayments } from '@/hooks/admin/payments';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
-import type { PaymentDetailsType } from '@/utils/db/drizzle-zod-schema/payments';
+import type { PaymentDetailsType } from '@/lib/db/drizzle-zod-schema/payments';
 
 export default function PaymentsTables() {
   const searchParams = useSearchParams();

@@ -4,7 +4,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
-import Image from "next/legacy/image";
+import Image from 'next/image';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { DataTable } from '@/components/Custom/data-table';
@@ -18,15 +18,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useDeleteCourse, useGetCourses } from '@/hooks/admin/courses';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
-import { queryKeys } from '@/lib/query-keys';
-import { generateIntakesForCourseAdvanced } from '@/server-actions/admin/intakes';
 // import { Input } from '@/components/ui/input';
 // import useDebounce from '@/hooks/use-debounce';
 import type {
   ZodCourseSelectSchema,
   //   ZodInsertCourseType,
   ZodSelectCourseType,
-} from '@/utils/db/drizzle-zod-schema/courses';
+} from '@/lib/db/drizzle-zod-schema/courses';
+import { queryKeys } from '@/lib/query-keys';
+import { generateIntakesForCourseAdvanced } from '@/lib/server-actions/admin/intakes';
 
 // interface Props {
 //   data: Array<ZodInsertCourseType & { category_name: string | null }>;

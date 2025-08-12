@@ -20,9 +20,8 @@ import { useGetEnrollmentById } from '@/hooks/admin/enrollments';
 function EnrollmentDetailsCard() {
   const params = useParams<{ id: string }>();
   const { id } = params;
-  const { data: queryResult, error, isLoading } = useGetEnrollmentById(id);
+  const { data: enrollment, error, isLoading } = useGetEnrollmentById(id);
 
-  const enrollment = queryResult?.data;
   if (isLoading) {
     return <Loader />;
   }

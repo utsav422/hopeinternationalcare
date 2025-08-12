@@ -29,6 +29,10 @@ export const queryKeys = {
     list: (params: object) =>
       [...queryKeys.enrollments.lists(), params] as const,
     details: () => [...queryKeys.enrollments.all, 'detail'] as const,
+    detailByUserId: (userId: string) =>
+      [...queryKeys.enrollments.details(), userId] as const,
+    detailByPaymentId: (paymentId: string) =>
+      [...queryKeys.enrollments.details(), paymentId] as const,
     detail: (id: string) => [...queryKeys.enrollments.details(), id] as const,
   },
   intakes: {
@@ -46,6 +50,8 @@ export const queryKeys = {
     list: (params: object) => [...queryKeys.payments.lists(), params] as const,
     details: () => [...queryKeys.payments.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.payments.details(), id] as const,
+    detailByEnrollment: (id: string) =>
+      [...queryKeys.payments.details(), id] as const,
   },
   profiles: {
     all: ['profiles'] as const,
@@ -56,6 +62,8 @@ export const queryKeys = {
   },
   refunds: {
     all: ['refunds'] as const,
+    lists: () => [...queryKeys.refunds.all, 'list'] as const,
+    list: (params: object) => [...queryKeys.refunds.lists(), params] as const,
   },
   customerContactRequests: {
     all: ['customer-contact-requests'] as const,

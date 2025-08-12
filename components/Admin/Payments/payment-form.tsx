@@ -28,13 +28,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useGetPaymentOnlyDetailsById } from '@/hooks/admin/payments';
-import { adminUpsertPayment } from '@/server-actions/admin/payments';
-import type { EnrollmentWithDetails } from '@/utils/db/drizzle-zod-schema/enrollment';
+import type { EnrollmentWithDetails } from '@/lib/db/drizzle-zod-schema/enrollments';
 import {
   type ZodInsertPaymentType,
   ZodPaymentInsertSchema,
-} from '@/utils/db/drizzle-zod-schema/payments';
-import { PaymentMethod, PaymentStatus } from '@/utils/db/schema/enums';
+} from '@/lib/db/drizzle-zod-schema/payments';
+import { PaymentMethod, PaymentStatus } from '@/lib/db/schema/enums';
+import { adminUpsertPayment } from '@/lib/server-actions/admin/payments';
 
 interface Props {
   id?: string;
@@ -44,11 +44,10 @@ interface Props {
 export default function PaymentForm({ id, formTitle }: Props) {
   const router = useRouter();
   const {
-    data: queryResult,
+    data: initialData,
     isLoading,
     error,
   } = useGetPaymentOnlyDetailsById(id ?? '');
-  const initialData = queryResult?.data;
   const form = useForm<ZodInsertPaymentType>({
     resolver: zodResolver(ZodPaymentInsertSchema),
     defaultValues: initialData || {

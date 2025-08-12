@@ -32,18 +32,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  useDeleteEnrollment,
   useGetEnrollments,
   useUpdateEnrollmentStatus,
 } from '@/hooks/admin/enrollments';
 import { useUpsertPayment } from '@/hooks/admin/payments';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
 
-import type { ZodEnrollmentSelectType } from '@/utils/db/drizzle-zod-schema/enrollment';
+import type { ZodEnrollmentSelectType } from '@/lib/db/drizzle-zod-schema/enrollments';
 import {
   PaymentMethod,
   type TypeEnrollmentStatus,
   type TypePaymentStatus,
-} from '@/utils/db/schema/enums';
+} from '@/lib/db/schema/enums';
 import CancelEnrollmentForm from './enrollment-cancel-form-modal';
 
 type EnrollementTableDataProps = {
@@ -64,6 +65,7 @@ export default function EnrollmentTables() {
       description: error.message,
     });
   }
+  const { mutateAsync: deleteEnrollment } = useDeleteEnrollment();
   const updateEnrollmentStatusMutation = useUpdateEnrollmentStatus();
   const upsertPaymentMutation = useUpsertPayment();
   const data = queryResult?.data as EnrollementTableDataProps[];
@@ -199,24 +201,11 @@ export default function EnrollmentTables() {
       return;
     }
 
-    try {
-      const res = await fetch(`/api/admin/enrollments/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (res.ok) {
-        toast.success('Enrollment deleted successfully!');
-        router.refresh();
-      } else {
-        const errorData = await res.json();
-        toast.error(errorData.message || 'Failed to delete enrollment.');
-      }
-    } catch (_error) {
-      // TODO: Log error deleting enrollment using a proper logging mechanism
-      toast.error(
-        'An unexpected error occurred while deleting the enrollment.'
-      );
-    }
+    await toast.promise(deleteEnrollment(id), {
+      loading: 'Deleting enrollment...',
+      success: 'Enrollment deleted successfully',
+      error: 'Failed to delete enrollment',
+    });
   };
   const columns: ColumnDef<EnrollementTableDataProps>[] = [
     {

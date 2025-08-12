@@ -10,8 +10,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAdminGetAllEnrollments } from '@/hooks/admin/enrollments';
-import type { EnrollmentWithDetails } from '@/utils/db/drizzle-zod-schema/enrollment';
-import type { ZodInsertPaymentType } from '@/utils/db/drizzle-zod-schema/payments';
+import type { EnrollmentWithDetails } from '@/lib/db/drizzle-zod-schema/enrollments';
+import type { ZodInsertPaymentType } from '@/lib/db/drizzle-zod-schema/payments';
 import { Skeleton } from '../ui/skeleton';
 
 interface EnrollmentSelectProps {

@@ -1,4 +1,5 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { Suspense } from 'react';
 import Dashboard from '@/components/Admin/Dasboard';
 import { queryKeys } from '@/lib/query-keys';
 import {
@@ -7,7 +8,7 @@ import {
   getTotalEnrollments,
   getTotalIncome,
   getTotalUsers,
-} from '@/server-actions/admin/dashboard';
+} from '@/lib/server-actions/admin/dashboard';
 import { getQueryClient } from '@/utils/get-query-client';
 
 export default async function AdminDashboard() {
@@ -18,27 +19,29 @@ export default async function AdminDashboard() {
     queryFn: getTotalIncome,
   });
   await queryClient.prefetchQuery({
-    queryKey: queryKeys.dashboard.totalEnrollment,
-    queryFn: getTotalEnrollments,
-  });
-  await queryClient.prefetchQuery({
     queryKey: queryKeys.dashboard.totalUsers,
     queryFn: getTotalUsers,
   });
   await queryClient.prefetchQuery({
-    queryKey: queryKeys.dashboard.enrollmentByStatus,
-    queryFn: getEnrollmentsByStatus,
+    queryKey: queryKeys.dashboard.totalEnrollment,
+    queryFn: getTotalEnrollments,
   });
   await queryClient.prefetchQuery({
     queryKey: queryKeys.dashboard.paymentByStatus,
     queryFn: getPaymentsByStatus,
   });
+  await queryClient.prefetchQuery({
+    queryKey: queryKeys.dashboard.enrollmentByStatus,
+    queryFn: getEnrollmentsByStatus,
+  });
 
   const dehydratedState = dehydrate(queryClient);
 
   return (
-    <HydrationBoundary state={dehydratedState}>
-      <Dashboard />
-    </HydrationBoundary>
+    <Suspense fallback={<div>Loading...</div>}>
+      <HydrationBoundary state={dehydratedState}>
+        <Dashboard />
+      </HydrationBoundary>
+    </Suspense>
   );
 }

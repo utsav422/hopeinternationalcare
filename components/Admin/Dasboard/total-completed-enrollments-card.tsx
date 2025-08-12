@@ -1,12 +1,11 @@
 import { CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGetEnrollementByStatus } from '@/hooks/admin/dashboard';
-import type { TypeEnrollmentStatus } from '@/utils/db/schema';
+import { useGetEnrollmentsByStatus } from '@/hooks/admin/dashboard';
+import type { TypeEnrollmentStatus } from '@/lib/db/schema';
 
 function TotalCompletedEnrollmentsCard() {
+  const { data: enrollmentsByStatus } = useGetEnrollmentsByStatus();
 
-  const { data: enrollmentsByStatus } = useGetEnrollementByStatus();
- 
   //   if (error) {
   //     toast.error(error.message);
   //   }

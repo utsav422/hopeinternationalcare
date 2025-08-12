@@ -11,8 +11,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useGetAllActiveIntake } from '@/hooks/admin/intakes';
-import type { IntakeWithCourse } from '@/server-actions/admin/intakes';
-import type { ZodEnrollmentInsertType } from '@/utils/db/drizzle-zod-schema/enrollment';
+import type { ZodEnrollmentInsertType } from '@/lib/db/drizzle-zod-schema/enrollments';
+import type { IntakeWithCourse } from '@/lib/server-actions/admin/intakes';
 import { Skeleton } from '../ui/skeleton';
 
 interface IntakeSelectProps {

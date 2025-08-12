@@ -1,12 +1,11 @@
 import { Check } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { PageParams, PageSearchParams } from '@/lib/types/shared';
 import { cn } from '@/lib/utils';
 import ForgotPasswordComponent from './_components/forgot-password-form';
 
-type Params = Promise<{ [key: string]: string }>;
-type SearchParams = Promise<{
-  [key: string]: string | string[] | undefined;
-}>;
+type Params = PageParams;
+type SearchParams = PageSearchParams;
 export default async function page(props: {
   params: Params;
   searchParams: SearchParams;

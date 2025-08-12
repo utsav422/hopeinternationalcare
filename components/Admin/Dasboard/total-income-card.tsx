@@ -3,7 +3,6 @@ import { DollarSign } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGetTotalIncome } from '@/hooks/admin/dashboard';
 
-
 function TotalIncomeCard() {
   const { data: totalIncome } = useGetTotalIncome();
 

@@ -1,6 +1,6 @@
 'use client';
 import { Suspense } from 'react';
-import { QueryErrorWrapper } from '@/components/Custom/QueryErrorWrapper';
+import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 import { DashboardCardSkeleton } from '../Dasboard';
 import UsersTables from './users-tables';
 

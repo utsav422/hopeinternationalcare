@@ -1,9 +1,8 @@
-'use server';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import CourseDetailsCard from '@/components/Admin/Courses/course-details-card';
 import { queryKeys } from '@/lib/query-keys';
-import { getPublicCourseBySlug } from '@/server-actions/public/courses';
+import { getCachedPublicCourseBySlug } from '@/lib/server-actions/public/courses';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
 
@@ -22,7 +21,7 @@ export default async function Courses(props: {
   const queryClient = getQueryClient();
   await queryClient.prefetchQuery({
     queryKey: queryKeys.courses.detail(slug),
-    queryFn: () => getPublicCourseBySlug(slug),
+    queryFn: () => getCachedPublicCourseBySlug(slug),
   });
 
   return (

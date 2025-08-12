@@ -5,7 +5,7 @@ import {
   signInAction,
   signOutAction,
   signUpAction,
-} from '@/server-actions/admin/admin-auth-actions';
+} from '@/lib/server-actions/admin/admin-auth-actions';
 
 export const useSignUp = () => {
   return useMutation({

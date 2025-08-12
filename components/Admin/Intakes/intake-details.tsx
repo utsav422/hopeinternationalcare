@@ -41,22 +41,20 @@ function IntakeDetailsSkeleton() {
 
 function IntakeDetails() {
   const { id } = useParams<{ id: string }>();
-  const { data: queryResult, error, isLoading } = useGetIntakeById(id);
+  const { data: intake, error, isLoading } = useGetIntakeById(id);
 
   if (isLoading) {
     return <IntakeDetailsSkeleton />;
   }
 
-  if (error) {
-    toast.error(error.message);
+  if (error || !intake) {
+    toast.error(error?.message ?? 'failed to ');
     return (
       <div className="flex h-full w-full items-center justify-center">
         <p className="text-red-500">Failed to load intake details.</p>
       </div>
     );
   }
-
-  const intake = queryResult?.data;
 
   if (!intake) {
     notFound();

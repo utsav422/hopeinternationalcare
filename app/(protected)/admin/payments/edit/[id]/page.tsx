@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import PaymentForm from '@/components/Admin/Payments/payment-form';
 import { queryKeys } from '@/lib/query-keys';
-import { getCachedAdminPaymentOnlyDetailsById } from '@/server-actions/admin/payments';
+import { getCachedAdminPaymentOnlyDetailsById } from '@/lib/server-actions/admin/payments';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
 

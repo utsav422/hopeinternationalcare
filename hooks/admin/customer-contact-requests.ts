@@ -1,18 +1,28 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
+import {
+  adminGetCustomerContactRequests,
   deleteCustomerContactRequest,
-  getCustomerContactRequests,
   updateCustomerContactRequestStatus,
-} from '@/server-actions/admin/customer-contact-requests';
-import { createCustomerContactRequest } from '@/server-actions/user/customer-contact-requests';
+} from '@/lib/server-actions/admin/customer-contact-requests';
+import { createCustomerContactRequest } from '@/lib/server-actions/user/customer-contact-requests';
 import { queryKeys } from '../../lib/query-keys';
 
 export function useCreateCustomerContactRequest() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createCustomerContactRequest,
+    mutationFn: async (formData: FormData) => {
+      const result = await createCustomerContactRequest(formData);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.customerContactRequests.all,
@@ -21,10 +31,36 @@ export function useCreateCustomerContactRequest() {
   });
 }
 
-export function useGetCustomerContactRequests() {
-  return useQuery({
-    queryKey: queryKeys.customerContactRequests.all,
-    queryFn: getCustomerContactRequests,
+export function useGetCustomerContactRequests({
+  page = 1,
+  pageSize = 10,
+  search,
+  status,
+}: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: string;
+} = {}) {
+  return useSuspenseQuery({
+    queryKey: queryKeys.customerContactRequests.list({
+      page,
+      pageSize,
+      search,
+      status,
+    }),
+    queryFn: async () => {
+      const result = await adminGetCustomerContactRequests({
+        page,
+        pageSize,
+        search,
+        status,
+      });
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result;
+    },
   });
 }
 

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { toast } from 'sonner';
 import {
   DropdownMenu,
@@ -12,7 +13,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDeleteIntake, useGetIntakes } from '@/hooks/admin/intakes';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
-import type { IntakeWithCourse } from '@/server-actions/admin/intakes';
+import type { IntakeWithCourse } from '@/lib/server-actions/admin/intakes';
 import { DataTable } from '../../Custom/data-table';
 import { Button } from '../../ui/button';
 import { Skeleton } from '../../ui/skeleton';
@@ -34,11 +35,7 @@ export default function IntakesTables() {
   const tab = searchParams.get('tab');
   const queryState = useDataTableQueryState();
 
-  const {
-    data: queryResult,
-    isLoading,
-    error,
-  } = useGetIntakes({ ...queryState });
+  const { data: queryResult, error } = useGetIntakes({ ...queryState });
   if (error) {
     toast.error('Error fetching intakes', {
       description: error.message,
@@ -174,44 +171,42 @@ export default function IntakesTables() {
     },
   ];
 
-  if (isLoading) {
-    return <IntakesTableSkeleton />;
-  }
-
   return (
-    <Tabs defaultValue={tab ?? 'current'}>
-      <TabsList className="dark:border-gray-700 dark:bg-gray-800/50">
-        <TabsTrigger
-          className="text-gray-800 dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white"
-          value="current"
-        >
-          Current Intakes
-        </TabsTrigger>
-        <TabsTrigger
-          className="text-gray-800 dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white"
-          value="history"
-        >
-          History Intakes
-        </TabsTrigger>
-      </TabsList>
-      <TabsContent value="current">
-        <DataTable
-          columns={columns}
-          data={currentIntakes ?? []}
-          headerActionUrl="/admin/intakes/new"
-          headerActionUrlLabel="Create New"
-          total={currentTotal}
-        />
-      </TabsContent>
-      <TabsContent value="history">
-        <DataTable
-          columns={columns}
-          data={historyIntakes ?? []}
-          headerActionUrl="/admin/intakes/new"
-          headerActionUrlLabel="Create New"
-          total={historyTotal}
-        />
-      </TabsContent>
-    </Tabs>
+    <Suspense fallback={<IntakesTableSkeleton />}>
+      <Tabs defaultValue={tab ?? 'current'}>
+        <TabsList className="dark:border-gray-700 dark:bg-gray-800/50">
+          <TabsTrigger
+            className="text-gray-800 dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white"
+            value="current"
+          >
+            Current Intakes
+          </TabsTrigger>
+          <TabsTrigger
+            className="text-gray-800 dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white"
+            value="history"
+          >
+            History Intakes
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="current">
+          <DataTable
+            columns={columns}
+            data={currentIntakes ?? []}
+            headerActionUrl="/admin/intakes/new"
+            headerActionUrlLabel="Create New"
+            total={currentTotal}
+          />
+        </TabsContent>
+        <TabsContent value="history">
+          <DataTable
+            columns={columns}
+            data={historyIntakes ?? []}
+            headerActionUrl="/admin/intakes/new"
+            headerActionUrlLabel="Create New"
+            total={historyTotal}
+          />
+        </TabsContent>
+      </Tabs>
+    </Suspense>
   );
 }

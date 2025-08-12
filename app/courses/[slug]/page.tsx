@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 import { queryKeys } from '@/lib/query-keys';
-import { getCachedPublicCourseBySlug } from '@/server-actions/public/courses';
+import { getCachedPublicCourseBySlug } from '@/lib/server-actions/public/courses';
 import CourseDetails from './_components';
 
 interface CourseDetailPageProps {

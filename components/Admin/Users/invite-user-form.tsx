@@ -21,11 +21,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { inviteUserAction } from '@/server-actions/admin/admin-auth-actions';
 import {
   InviteUserSchema,
   type ZInviteUserType,
-} from '@/utils/db/drizzle-zod-schema/users';
+} from '@/lib/db/drizzle-zod-schema/users';
+import { inviteUserAction } from '@/lib/server-actions/admin/admin-auth-actions';
 
 export default function InviteUserForm() {
   const onSubmit: SubmitHandler<ZInviteUserType> = async (validInputs) => {

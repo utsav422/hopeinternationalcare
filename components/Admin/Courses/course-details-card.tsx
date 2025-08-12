@@ -1,6 +1,6 @@
 'use client';
 
-import Image from "next/legacy/image";
+import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -8,10 +8,10 @@ import { CourseCategoryBadge } from '@/components/Custom/course-category-badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetPublicCourseBySlug } from '@/hooks/admin/public-courses';
-import { adminUpdateCourseCategoryIdCol } from '@/server-actions/admin/courses';
-import { adminUpsertCourseCategories } from '@/server-actions/admin/courses-categories';
-import type { ZTInsertCourseCategories } from '@/utils/db/drizzle-zod-schema/course-categories';
-import type { ZodSelectCourseType } from '@/utils/db/drizzle-zod-schema/courses';
+import type { ZodInsertCourseCategoryType } from '@/lib/db/drizzle-zod-schema/course-categories';
+import type { ZodSelectCourseType } from '@/lib/db/drizzle-zod-schema/courses';
+import { adminUpdateCourseCategoryIdCol } from '@/lib/server-actions/admin/courses';
+import { adminUpsertCourseCategories } from '@/lib/server-actions/admin/courses-categories';
 import CourseCategoryFormModal from './course-category-form-modal';
 
 const Card = ({
@@ -230,21 +230,19 @@ export default function CourseDetailsCard() {
     setIsModalOpen(true);
   };
 
-  const handleFormSubmit = async (data: ZTInsertCourseCategories) => {
-    await toast.promise(adminUpsertCourseCategories(data), {
+  const handleFormSubmit = (data: ZodInsertCourseCategoryType) => {
+    toast.promise(adminUpsertCourseCategories(data), {
       loading: 'Saving category...',
       success: (response) => {
-        if (response.success) {
-          if (response.data) {
-            adminUpdateCourseCategoryIdCol({
-              category_id: response.data.id,
-              id: course.id,
-            });
-          }
+        if (response.success && response.data) {
+          adminUpdateCourseCategoryIdCol({
+            category_id: response.data.id,
+            id: course.id,
+          });
           setIsModalOpen(false);
-          return response.message || 'Category saved successfully.';
+          return 'Category saved successfully.';
         }
-        throw new Error(response.message || 'Failed to save category.');
+        throw new Error(response.error || 'Failed to save category.');
       },
       error: (err) => {
         return err.message || 'Failed to save category.';
@@ -252,8 +250,8 @@ export default function CourseDetailsCard() {
     });
   };
 
-  const handleCategorySelect = async (categoryId: string) => {
-    await toast.promise(
+  const handleCategorySelect = (categoryId: string) => {
+    toast.promise(
       adminUpdateCourseCategoryIdCol({
         category_id: categoryId,
         id: course.id,

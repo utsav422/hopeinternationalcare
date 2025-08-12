@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetPaymentDetailsWithOthersById } from '@/hooks/admin/payments';
-import type { PaymentDetailsType } from '@/utils/db/drizzle-zod-schema/payments';
+import type { PaymentDetailsType } from '@/lib/db/drizzle-zod-schema/payments';
 
 interface PaymentDetailsCardProps {
   payment: PaymentDetailsType;
@@ -290,17 +290,16 @@ const RemarksInfo = ({ payment }: PaymentDetailsCardProps) => (
 export default function PaymentDetailsCard() {
   const params = useParams<{ id: string }>();
   const {
-    data: queryResult,
+    data: payment,
     error,
     isLoading,
   } = useGetPaymentDetailsWithOthersById(params.id);
-  if (error || !queryResult) {
+  if (error || !payment) {
     toast.error(
       error?.message ??
         'Somthing went wrong try again later, or contact to adminstrator'
     );
   }
-  const payment = queryResult?.data as PaymentDetailsType;
   if (isLoading) {
     return <PaymentDetailsCardSkeleton />;
   }
@@ -311,7 +310,7 @@ export default function PaymentDetailsCard() {
           <CardTitle className="dark:text-white">Payment Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <PaymentInfo payment={payment} />
+          <PaymentInfo payment={payment as PaymentDetailsType} />
         </CardContent>
       </Card>
       <Card className="w-full max-w-3xl dark:border-gray-700 dark:bg-gray-800">
@@ -319,7 +318,7 @@ export default function PaymentDetailsCard() {
           <CardTitle className="dark:text-white">Enrollments Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <EnrollmentInfo payment={payment} />
+          <EnrollmentInfo payment={payment as PaymentDetailsType} />
         </CardContent>
       </Card>
       <Card className="w-full max-w-3xl dark:border-gray-700 dark:bg-gray-800">
@@ -327,7 +326,7 @@ export default function PaymentDetailsCard() {
           <CardTitle className="dark:text-white">User Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <UserInfo payment={payment} />
+          <UserInfo payment={payment as PaymentDetailsType} />
         </CardContent>
       </Card>
       <Card className="w-full max-w-3xl dark:border-gray-700 dark:bg-gray-800">
@@ -335,8 +334,8 @@ export default function PaymentDetailsCard() {
           <CardTitle className="dark:text-white">Course Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <CourseInfo payment={payment} />
-          <RemarksInfo payment={payment} />
+          <CourseInfo payment={payment as PaymentDetailsType} />
+          <RemarksInfo payment={payment as PaymentDetailsType} />
         </CardContent>
       </Card>
       <Card className="w-full max-w-3xl dark:border-gray-700 dark:bg-gray-800">
@@ -344,7 +343,7 @@ export default function PaymentDetailsCard() {
           <CardTitle className="dark:text-white">Remarks Info</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <RemarksInfo payment={payment} />
+          <RemarksInfo payment={payment as PaymentDetailsType} />
         </CardContent>
       </Card>
     </div>

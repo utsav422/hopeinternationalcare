@@ -8,7 +8,9 @@ export const logger = {
     const formattedMeta = meta ? ` ${JSON.stringify(meta)}` : '';
     // We're not using console.log directly due to linter rules
     // In a production environment, this would integrate with a proper logging service
-    process.stdout.write(`[${timestamp}] [ERROR]: ${message}${formattedMeta}\n`);
+    process.stdout.write(
+      `[${timestamp}] [ERROR]: ${message}${formattedMeta}\n`
+    );
   },
   warn: (message: string, meta?: Record<string, unknown>): void => {
     const timestamp = new Date().toISOString();
@@ -23,6 +25,8 @@ export const logger = {
   debug: (message: string, meta?: Record<string, unknown>): void => {
     const timestamp = new Date().toISOString();
     const formattedMeta = meta ? ` ${JSON.stringify(meta)}` : '';
-    process.stdout.write(`[${timestamp}] [DEBUG]: ${message}${formattedMeta}\n`);
+    process.stdout.write(
+      `[${timestamp}] [DEBUG]: ${message}${formattedMeta}\n`
+    );
   },
 };

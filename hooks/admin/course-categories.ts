@@ -1,43 +1,58 @@
 'use client';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { ColumnFiltersState } from '@tanstack/react-table';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
+import type { ListParams as DataTableListParams } from '@/hooks/admin/use-data-table-query-state';
+import { queryKeys } from '@/lib/query-keys';
 import {
   adminDeleteCourseCategories,
   adminGetAllCatogies,
   adminGetCourseCategoriesById,
   adminGetCoursesCategories,
   adminUpsertCourseCategories,
-} from '@/server-actions/admin/courses-categories';
+} from '@/lib/server-actions/admin/courses-categories';
 import type { TablesInsert } from '@/utils/supabase/database.types';
-import { queryKeys } from '../../lib/query-keys';
 
-type ListParams = {
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  order?: string;
-  filters?: ColumnFiltersState;
-};
+type ListParams = Partial<DataTableListParams>;
 
-export const useGetAllCourseCategories = () => {
-  return useQuery({
-    queryKey: queryKeys.courseCategories.lists(),
-    queryFn: () => adminGetAllCatogies(),
+export const useGetCourseCategories = (params: ListParams) => {
+  return useSuspenseQuery({
+    queryKey: queryKeys.courseCategories.list(params),
+    queryFn: async () => {
+      const result = await adminGetCoursesCategories(params);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result;
+    },
   });
 };
 
-export const useGetCourseCategories = (params: ListParams) => {
-  return useQuery({
-    queryKey: queryKeys.courseCategories.list(params),
-    queryFn: () => adminGetCoursesCategories(params),
+export const useGetAllCourseCategories = () => {
+  return useSuspenseQuery({
+    queryKey: queryKeys.courseCategories.lists(),
+    queryFn: async () => {
+      const result = await adminGetAllCatogies();
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result;
+    },
   });
 };
 
 export const useGetCourseCategoryById = (id: string) => {
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: queryKeys.courseCategories.detail(id),
-    queryFn: () => adminGetCourseCategoriesById(id),
-    enabled: !!(id && id.length > 0),
+    queryFn: async () => {
+      const result = await adminGetCourseCategoriesById(id);
+      if (!result.success) {
+        throw new Error(result.error as string);
+      }
+      return result;
+    },
   });
 };
 

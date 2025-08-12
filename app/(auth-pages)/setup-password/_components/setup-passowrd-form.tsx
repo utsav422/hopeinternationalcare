@@ -18,8 +18,8 @@ import {
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { setupPasswordAction } from '@/lib/server-actions/user/user-auth-actions';
 import { cn } from '@/lib/utils';
-import { setupPassword } from '@/server-actions/user/user-auth-actions';
 
 export default function SetupPasswordForm() {
   const [_isLoading] = useTransition();
@@ -75,12 +75,12 @@ export default function SetupPasswordForm() {
     setupFormData.set('password', data.password);
     setupFormData.set('refresh_token', refreshToken);
 
-    const { success, message } = await setupPassword(setupFormData);
+    const { success, error } = await setupPasswordAction(setupFormData);
     if (success) {
-      toast.info(message);
+      toast.info('Your Password setup successfully completed.');
       router.push('/profile');
     } else {
-      toast.error(message);
+      toast.error(error);
     }
   });
 

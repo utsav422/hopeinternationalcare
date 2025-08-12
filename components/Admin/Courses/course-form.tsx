@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import Image from "next/legacy/image";
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -45,12 +45,12 @@ import { useGetPublicCourseBySlug } from '@/hooks/admin/public-courses';
 import {
   ZodCourseInsertSchema,
   type ZodInsertCourseType,
-} from '@/utils/db/drizzle-zod-schema/courses';
+} from '@/lib/db/drizzle-zod-schema/courses';
 import {
   DurationType,
   durationType as durationTypeEnum,
   type TypeDurationType,
-} from '@/utils/db/schema/enums';
+} from '@/lib/db/schema/enums';
 
 interface Props {
   slug?: string;

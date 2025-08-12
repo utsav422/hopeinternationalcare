@@ -24,7 +24,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { setupPasswordAction } from '@/server-actions/user/user-auth-actions';
+import { setupPasswordAction } from '@/lib/server-actions/user/user-auth-actions';
 
 export default function SetupPasswordComponent() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);

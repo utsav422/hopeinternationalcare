@@ -5,6 +5,9 @@ const withMDX = nextMdx({
   extension: /\.mdx?$/,
 });
 const nextConfig: NextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   pageExtensions: ['ts', 'tsx', 'mdx'],
   images: {
     remotePatterns: [

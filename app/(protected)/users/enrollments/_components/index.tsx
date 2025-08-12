@@ -1,36 +1,29 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { queryKeys } from '@/lib/query-keys';
-import { getUserEnrollments } from '@/server-actions/user/enrollments-actions';
+import { useGetUserEnrollments } from '@/hooks/user/user-enrollments';
+
+interface UserEnrollment {
+  id: string;
+  status: string;
+  created_at: string;
+  intake_id: string | null;
+  user_id: string | null;
+  courseTitle: string | null;
+  courseDescription: string | null;
+  courseImage: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  notes: string | null;
+}
 
 export default function UserEnrollments() {
-  const { data: queryResult, isLoading } = useQuery({
-    queryKey: queryKeys.enrollments.all,
-    queryFn: () => getUserEnrollments(),
-  });
+  const { data: queryResult } = useGetUserEnrollments();
 
   const enrollments = queryResult?.data || [];
   const total = queryResult?.total || 0;
-
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[...Array(3)].map((_, i) => (
-            <div
-              className="h-48 animate-pulse rounded-lg bg-gray-200"
-              key={i}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -51,11 +44,11 @@ export default function UserEnrollments() {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {enrollments.map((enrollment) => (
+          {enrollments.map((enrollment: UserEnrollment) => (
             <Card className="overflow-hidden" key={enrollment.id}>
               <CardHeader className="bg-muted p-4">
                 <CardTitle className="line-clamp-1 text-base">
-                  {enrollment.courseTitle}
+                  {enrollment.courseTitle || 'Untitled Course'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4">

@@ -86,19 +86,19 @@ export function AllCourses() {
     return (
       <>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-          {courses.map((course) => (
+          {courses?.map((course) => (
             <CourseCard
-              available_seats={course.available_seats}
-              categoryName={course.categoryName}
-              desc={course.description || ''}
-              heading={course._umageUrl || ''}
-              id={course.id}
-              key={course.id}
-              next_intake_date={course.next_intake_date}
-              next_intake_id={course.next_intake_id}
-              price={course.price}
-              slug={course.slug}
-              title={course.title}
+              available_seats={course?.available_seats ?? null}
+              categoryName={course?.categoryName ?? null}
+              desc={course?.description || ''}
+              heading={course?.image_url || ''}
+              id={course?.id ?? ''}
+              key={course?.id}
+              next_intake_date={course?.next_intake_date ?? null}
+              next_intake_id={course?.next_intake_id ?? null}
+              price={course?.price ?? Number.NaN}
+              slug={course?.slug ?? ''}
+              title={course?.title ?? ''}
             />
           ))}
         </div>

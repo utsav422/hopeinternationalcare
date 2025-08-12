@@ -2,16 +2,16 @@
 
 import { useQuery } from '@tanstack/react-query';
 import {
-  getActiveIntakesByCourseId,
-  getAllIntakes,
-  getIntakeById,
-} from '@/server-actions/public/intakes';
+  getCachedAllIntakes,
+  getCachedCourseActiveIntakes,
+  getCachedIntakeById,
+} from '@/lib/server-actions/public/intakes';
 import { queryKeys } from '../../lib/query-keys';
 
 export function useGetActiveIntakesByCourseId(courseId: string) {
   return useQuery({
     queryKey: queryKeys.intakes.detail(courseId),
-    queryFn: () => getActiveIntakesByCourseId(courseId),
+    queryFn: () => getCachedCourseActiveIntakes(courseId),
     enabled: !!courseId,
   });
 }
@@ -19,14 +19,14 @@ export function useGetActiveIntakesByCourseId(courseId: string) {
 export function useGetAllIntakes() {
   return useQuery({
     queryKey: queryKeys.intakes.all,
-    queryFn: getAllIntakes,
+    queryFn: getCachedAllIntakes,
   });
 }
 
 export function useGetIntakeById(id: string) {
   return useQuery({
     queryKey: queryKeys.intakes.detail(id),
-    queryFn: () => getIntakeById(id),
+    queryFn: () => getCachedIntakeById(id),
     enabled: !!id,
   });
 }

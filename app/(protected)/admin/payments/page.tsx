@@ -2,10 +2,10 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import PaymentsTables from '@/components/Admin/Payments/payments-tables';
+import type { TypePaymentStatus } from '@/lib/db/schema/enums';
 import { queryKeys } from '@/lib/query-keys';
-import { getCachedAdminPayments } from '@/server-actions/admin/payments';
+import { getCachedAdminPayments } from '@/lib/server-actions/admin/payments';
 import { requireAdmin } from '@/utils/auth-guard';
-import type { TypePaymentStatus } from '@/utils/db/schema/enums';
 import { getQueryClient } from '@/utils/get-query-client';
 
 type Params = Promise<{ id: string }>;
@@ -46,10 +46,10 @@ export default async function (props: {
   });
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense fallback="Loading...">
+    <Suspense fallback="Loading...">
+      <HydrationBoundary state={dehydrate(queryClient)}>
         <PaymentsTables />
-      </Suspense>
-    </HydrationBoundary>
+      </HydrationBoundary>
+    </Suspense>
   );
 }

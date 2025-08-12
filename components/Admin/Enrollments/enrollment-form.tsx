@@ -35,18 +35,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetEnrollmentById } from '@/hooks/admin/enrollments';
-import { adminUpsertEnrollment } from '@/server-actions/admin/enrollments';
-import type { IntakeWithCourse } from '@/server-actions/admin/intakes';
+import {
+  useGetEnrollmentById,
+  useUpsertEnrollment,
+} from '@/hooks/admin/enrollments';
 import {
   ZodEnrollmentInsertSchema,
   type ZodEnrollmentInsertType,
-} from '@/utils/db/drizzle-zod-schema/enrollment';
+} from '@/lib/db/drizzle-zod-schema/enrollments';
 import {
   EnrollmentStatus,
   //   durationType as durationTypeEnum,
   enrollmentStatus as enrollmentStatusEnum,
-} from '@/utils/db/schema/enums';
+} from '@/lib/db/schema/enums';
+import type { IntakeWithCourse } from '@/lib/server-actions/admin/intakes';
 
 // type CourseFormInput = TablesInsert<'courses'>
 interface Props {
@@ -64,7 +66,8 @@ export default function ({ formTitle }: Props) {
     error,
     data: queryResult,
   } = useGetEnrollmentById(id ?? '');
-  const initialData = queryResult?.data ?? undefined;
+  const { mutateAsync: upsertEnrollment } = useUpsertEnrollment();
+  const initialData = queryResult ?? undefined;
   //   courseData && courseData.price;
   const form = useForm<ZodEnrollmentInsertType>({
     resolver: zodResolver(ZodEnrollmentInsertSchema),
@@ -87,23 +90,16 @@ export default function ({ formTitle }: Props) {
 
   const notes = form.watch('notes');
   const onSubmit = async (values: ZodEnrollmentInsertType) => {
-    try {
-      const result = await adminUpsertEnrollment({
-        ...values,
-      });
-      if (!result.success && result.errors) {
-        throw new Error(result.errors);
-      }
-
-      toast.success(values.id ? 'Enrollment updated' : 'Enrollment created');
-      router.push(`/admin/enrollments?status?=${values.status}`, {
-        scroll: false,
-      });
-    } catch (error) {
-      toast.error('Upload failed', {
-        description: error instanceof Error ? error.message : 'Unknown error',
-      });
-    }
+    await toast.promise(upsertEnrollment(values), {
+      loading: 'Saving enrollment...',
+      success: () => {
+        router.push(`/admin/enrollments?status?=${values.status}`, {
+          scroll: false,
+        });
+        return values.id ? 'Enrollment updated' : 'Enrollment created';
+      },
+      error: 'Failed to save enrollment',
+    });
   };
   if (error) {
     toast.error('Something went wrong while fetching categories', {

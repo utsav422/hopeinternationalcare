@@ -1,9 +1,9 @@
 import { BookOpen } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGetTotalEnrollment } from '@/hooks/admin/dashboard';
+import { useGetTotalEnrollments } from '@/hooks/admin/dashboard';
 
 function TotalEnrollmentsCard() {
-  const { data: totalEnrollments } = useGetTotalEnrollment();
+  const { data: totalEnrollments } = useGetTotalEnrollments();
 
   //   if (error) {
   //     toast.error(error.message);

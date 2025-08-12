@@ -1,5 +1,5 @@
 'use client';
-import Image from "next/legacy/image";
+import Image from 'next/image';
 import { notFound, useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';

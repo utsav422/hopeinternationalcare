@@ -1,7 +1,12 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { ListParams } from '@/server-actions/admin/intakes';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
+import type { intakes as intakesTable } from '@/lib/db/schema/intakes';
+import { queryKeys } from '@/lib/query-keys';
 import {
   adminDeleteIntake,
   adminGetAllActiveIntake,
@@ -9,47 +14,64 @@ import {
   adminGetIntakeById,
   adminGetIntakes,
   adminUpsertIntake,
-} from '@/server-actions/admin/intakes';
-import { getActiveIntakesByCourseId } from '@/server-actions/public/intakes';
-import type { intakes as intakesTable } from '@/utils/db/schema/intakes';
-import { queryKeys } from '../../lib/query-keys';
+  generateIntakesForCourse,
+  generateIntakesForCourseAdvanced,
+} from '@/lib/server-actions/admin/intakes';
+import type { ListParams } from './use-data-table-query-state';
 
-export function useGetCourseIntakes(courseId: string) {
-  return useQuery({
-    queryKey: queryKeys.intakes.detail(courseId),
-    queryFn: () => getActiveIntakesByCourseId(courseId),
-    enabled: !!courseId,
-  });
-}
-
-export function useGetAllIntakes() {
-  return useQuery({
-    queryKey: queryKeys.intakes.all,
-    queryFn: adminGetAllIntake,
-  });
-}
-
-export function useGetIntakes(params: ListParams) {
-  return useQuery({
+export const useGetIntakes = (params: ListParams) => {
+  return useSuspenseQuery({
     queryKey: queryKeys.intakes.list(params),
-    queryFn: () => adminGetIntakes(params),
+    queryFn: async () => {
+      const result = await adminGetIntakes(params);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result;
+    },
   });
-}
+};
 
-export function useGetIntakeById(id: string) {
-  return useQuery({
-    queryKey: queryKeys.intakes.detail(id),
-    queryFn: () => adminGetIntakeById(id),
-    enabled: !!id,
-  });
-}
-export function useGetAllActiveIntake() {
-  return useQuery({
+export const useGetAllActiveIntake = () => {
+  return useSuspenseQuery({
     queryKey: queryKeys.intakes.activeIntakes,
-    queryFn: () => adminGetAllActiveIntake(),
+    queryFn: async () => {
+      const result = await adminGetAllActiveIntake();
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    },
   });
-}
-export function useUpsertIntake() {
+};
+
+export const useGetAllIntake = () => {
+  return useSuspenseQuery({
+    queryKey: queryKeys.intakes.all,
+    queryFn: async () => {
+      const result = await adminGetAllIntake();
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    },
+  });
+};
+
+export const useGetIntakeById = (id: string) => {
+  return useSuspenseQuery({
+    queryKey: queryKeys.intakes.detail(id),
+    queryFn: async () => {
+      const result = await adminGetIntakeById(id);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    },
+  });
+};
+
+export const useUpsertIntake = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: typeof intakesTable.$inferInsert) =>
@@ -58,9 +80,9 @@ export function useUpsertIntake() {
       queryClient.invalidateQueries({ queryKey: queryKeys.intakes.all });
     },
   });
-}
+};
 
-export function useDeleteIntake() {
+export const useDeleteIntake = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => adminDeleteIntake(id),
@@ -68,4 +90,25 @@ export function useDeleteIntake() {
       queryClient.invalidateQueries({ queryKey: queryKeys.intakes.all });
     },
   });
-}
+};
+
+export const useGenerateIntakesForCourse = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (courseId: string) => generateIntakesForCourse(courseId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.intakes.all });
+    },
+  });
+};
+
+export const useGenerateIntakesForCourseAdvanced = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (courseId: string) =>
+      generateIntakesForCourseAdvanced(courseId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.intakes.all });
+    },
+  });
+};

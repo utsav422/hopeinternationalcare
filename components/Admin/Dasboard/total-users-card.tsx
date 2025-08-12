@@ -5,7 +5,7 @@ import { useGetTotalUsers } from '@/hooks/admin/dashboard';
 
 function TotalUserCard() {
   const { data: totalUsers } = useGetTotalUsers();
-  
+
   //   if (error) {
   //     toast.error(error.message);
   //   }

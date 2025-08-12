@@ -67,10 +67,7 @@ export default function RootLayout({
       <body>
         <QueryProvider>
           <NuqsAdapter>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-            >
+            <ThemeProvider attribute="class" defaultTheme="dark">
               <Layout>
                 {children}
                 <Toaster />

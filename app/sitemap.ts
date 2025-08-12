@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { getPublicCourses } from '@/server-actions/public/courses';
+import { getPublicCourses } from '@/lib/server-actions/public/courses';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://hopeinternational.com.np';

@@ -4,7 +4,7 @@ import {
   adminDeleteUser,
   createUser,
   getUserList,
-} from '@/server-actions/admin/users';
+} from '@/lib/server-actions/admin/users';
 import { queryKeys } from '../../lib/query-keys';
 
 export const useCreateUser = () => {

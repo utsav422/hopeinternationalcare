@@ -3,44 +3,80 @@ import { useMutation } from '@tanstack/react-query';
 import {
   forgotPasswordAction,
   resetPasswordAction,
-  setupPassword,
+  setupPasswordAction,
   signInAction,
   signOutAction,
   signUpAction,
-} from '@/server-actions/user/user-auth-actions';
+} from '@/lib/server-actions/user/user-auth-actions';
 
 export const useUserSignUp = () => {
   return useMutation({
-    mutationFn: (formData: FormData) => signUpAction(formData),
+    mutationFn: async (formData: FormData) => {
+      const result = await signUpAction(formData);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    },
   });
 };
 
 export const useUserSignIn = () => {
   return useMutation({
-    mutationFn: (formData: FormData) => signInAction(formData),
+    mutationFn: async (formData: FormData) => {
+      const result = await signInAction(formData);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    },
   });
 };
 
 export const useForgotPassword = () => {
   return useMutation({
-    mutationFn: (formData: FormData) => forgotPasswordAction(formData),
+    mutationFn: async (formData: FormData) => {
+      const result = await forgotPasswordAction(formData);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    },
   });
 };
 
 export const useResetPassword = () => {
   return useMutation({
-    mutationFn: (formData: FormData) => resetPasswordAction(formData),
+    mutationFn: async (formData: FormData) => {
+      const result = await resetPasswordAction(formData);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    },
   });
 };
 
 export const useUserSignOut = () => {
   return useMutation({
-    mutationFn: () => signOutAction(),
+    mutationFn: async () => {
+      const result = await signOutAction();
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    },
   });
 };
 
 export const useSetupPassword = () => {
   return useMutation({
-    mutationFn: (formData: FormData) => setupPassword(formData),
+    mutationFn: async (formData: FormData) => {
+      const result = await setupPasswordAction(formData);
+      if (!result.success) {
+        throw new Error(result.error as string);
+      }
+      return result.data;
+    },
   });
 };

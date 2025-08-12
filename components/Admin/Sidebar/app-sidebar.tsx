@@ -13,7 +13,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar';
-import { signOutAction } from '@/server-actions/admin/admin-auth-actions';
+import { signOutAction } from '@/lib/server-actions/admin/admin-auth-actions';
 // import { enrollmentStatus, paymentStatus } from '@/utils/db/schema/enums';
 import { SearchForm } from '../search-form';
 import { VersionSwitcher } from '../version-switcher';

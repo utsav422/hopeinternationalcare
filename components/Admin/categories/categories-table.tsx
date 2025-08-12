@@ -7,50 +7,46 @@ import { useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { DataTable } from '@/components/Custom/data-table';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { useGetCourseCategories } from '../../../hooks/admin/course-categories';
-import { useDataTableQueryState } from '../../../hooks/admin/use-data-table-query-state';
-import { queryKeys } from '../../../lib/query-keys';
-import { adminDeleteCourseCategories } from '../../../server-actions/admin/courses-categories';
-import type { ZTSelectCourseCategories } from '../../../utils/db/drizzle-zod-schema/course-categories';
-import type { SelectCourseCategory } from '../../../utils/db/schema/course-categories';
+import {
+  useDeleteCourseCategory,
+  useGetCourseCategories,
+} from '@/hooks/admin/course-categories';
+import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
+import type { ZodSelectCourseCategoryType } from '@/lib/db/drizzle-zod-schema/course-categories';
 import { CategoriesTableActions } from './categories-table-actions';
 
 export default function CategoriesTable() {
   const router = useRouter();
   const queryState = useDataTableQueryState();
-  const queryClient = useQueryClient();
+  const _queryClient = useQueryClient();
 
   const { data: queryResult, error } = useGetCourseCategories({
     ...queryState,
   });
 
+  const { mutateAsync: deleteCategory } = useDeleteCourseCategory();
+
   const data = queryResult?.data;
   const total = queryResult?.total;
 
   const handleDelete = useCallback(
-    async (id: string) => {
+    (id: string) => {
       if (!confirm('Are you sure you want to delete this category?')) {
         return;
       }
 
-      const promise = adminDeleteCourseCategories(id);
+      const promise = deleteCategory(id);
 
-      await toast.promise(promise, {
+      toast.promise(promise, {
         loading: 'Deleting category...',
-        success: () => {
-          // Invalidate queries to refetch categories after successful deletion
-          queryClient.invalidateQueries({
-            queryKey: queryKeys.courseCategories.all,
-          });
-          return 'Category deleted successfully';
-        },
+        success: 'Category deleted successfully',
         error: 'Failed to delete category',
       });
     },
     [router]
   );
 
-  const columns: ColumnDef<ZTSelectCourseCategories>[] = useMemo(
+  const columns: ColumnDef<ZodSelectCourseCategoryType>[] = useMemo(
     () => [
       {
         accessorKey: 'name',
@@ -86,16 +82,12 @@ export default function CategoriesTable() {
       description: error.message,
     });
   }
-  // name: string;
-  //   id: string;
-  //   description: string | null;
-  //   created_at: string;
-  //   updated_at: string;
+
   return (
     <Card className="dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
       <CardHeader className="dark:border-gray-700 dark:border-b" />
       <CardContent>
-        <DataTable<SelectCourseCategory, unknown>
+        <DataTable<ZodSelectCourseCategoryType, unknown>
           columns={columns}
           data={data ?? []}
           headerActionUrl="/admin/categories/new"

@@ -1,6 +1,6 @@
 'use client';
 import { Suspense } from 'react';
-import { QueryErrorWrapper } from '@/components/Custom/QueryErrorWrapper';
+import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import EnrollmentOverviewCard from './enrollments-overview-card';

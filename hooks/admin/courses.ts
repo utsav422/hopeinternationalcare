@@ -1,6 +1,10 @@
 'use client';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { ColumnFiltersState } from '@tanstack/react-table';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
+import type { ListParams as DataTableListParams } from '@/hooks/admin/use-data-table-query-state';
 import {
   adminDeleteCourse,
   adminGetAllCourses,
@@ -8,37 +12,48 @@ import {
   adminGetCourses,
   adminUpdateCourseCategoryIdCol,
   adminUpsertCourse,
-} from '@/server-actions/admin/courses';
+} from '@/lib/server-actions/admin/courses';
 import type { TablesInsert } from '@/utils/supabase/database.types';
 import { queryKeys } from '../../lib/query-keys';
 
-type ListParams = {
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  order?: string;
-  filters?: ColumnFiltersState;
-};
+type ListParams = Partial<DataTableListParams>;
 
 export const useGetCourses = (params: ListParams) => {
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: queryKeys.courses.list(params),
-    queryFn: () => adminGetCourses(params),
+    queryFn: async () => {
+      const result = await adminGetCourses(params);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result;
+    },
   });
 };
 
 export const useGetAllCourses = () => {
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: queryKeys.courses.lists(),
-    queryFn: () => adminGetAllCourses(),
+    queryFn: async () => {
+      const result = await adminGetAllCourses();
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result;
+    },
   });
 };
 
 export const useGetCourseById = (id: string) => {
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: queryKeys.courses.detail(id),
-    queryFn: () => adminGetCourseById(id),
-    enabled: !!(id && id.length > 0),
+    queryFn: async () => {
+      const result = await adminGetCourseById(id);
+      if (!result.success) {
+        throw new Error(result.error as string);
+      }
+      return result;
+    },
   });
 };
 

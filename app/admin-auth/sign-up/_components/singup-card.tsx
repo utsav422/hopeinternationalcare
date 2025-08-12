@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Logo } from '@/components/Layout/logo';
 import { Label } from '@/components/ui/label';
-import { signUpAction } from '@/server-actions/admin/admin-auth-actions';
+import { signUpAction } from '@/lib/server-actions/admin/admin-auth-actions';
 
 // Helper function to merge class names
 const cn = (...classes: string[]) => {
@@ -60,17 +60,8 @@ const Input = ({ className = '', ...props }: InputProps) => {
   );
 };
 
-type RoutePoint = {
-  x: number;
-  y: number;
-  delay: number;
-};
-type DOT = {
-  x: number;
-  y: number;
-  radius: number;
-  opacity: number;
-};
+import type { DOT, RoutePoint } from '@/lib/types/shared';
+
 const DotMap = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -199,8 +190,8 @@ const DotMap = () => {
       // Draw the dots
       for (const dot of dots) {
         ctx.beginPath();
-        ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(20, 184, 166, ${dot.opacity})`; // Blue dots for light theme
+        ctx.arc(dot.x, dot.y, dot.radius ?? 1, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(20, 184, 166, ${dot.opacity ?? 0.5})`; // Blue dots for light theme
         ctx.fill();
       }
     }
@@ -213,7 +204,7 @@ const DotMap = () => {
       const currentTime = (Date.now() - startTime) / 1000; // Time in seconds
 
       for (const route of routes) {
-        const elapsed = currentTime - route.start.delay;
+        const elapsed = currentTime - (route.start.delay ?? 0);
         if (elapsed <= 0) {
           return;
         }

@@ -23,7 +23,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { forgotPasswordAction } from '@/server-actions/user/user-auth-actions';
+import { forgotPasswordAction } from '@/lib/server-actions/user/user-auth-actions';
 
 export default function ForgotPasswordComponent() {
   const searchParams = useSearchParams();

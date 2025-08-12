@@ -17,23 +17,14 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { signInAction } from '@/server-actions/user/user-auth-actions';
+import { signInAction } from '@/lib/server-actions/user/user-auth-actions';
 
 const cn = (...classes: string[]) => {
   return classes.filter(Boolean).join(' ');
 };
 
-type RoutePoint = {
-  x: number;
-  y: number;
-  delay: number;
-};
-type DOT = {
-  x: number;
-  y: number;
-  radius: number;
-  opacity: number;
-};
+import type { DOT, RoutePoint } from '@/lib/types/shared';
+
 const DotMap = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -150,8 +141,8 @@ const DotMap = () => {
       ctx.clearRect(0, 0, dimensions.width, dimensions.height);
       for (const dot of dots) {
         ctx.beginPath();
-        ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(20, 184, 166, ${dot.opacity})`;
+        ctx.arc(dot.x, dot.y, dot.radius ?? 1, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(20, 184, 166, ${dot.opacity ?? 0.5})`;
         ctx.fill();
       }
     }
@@ -163,7 +154,7 @@ const DotMap = () => {
       const currentTime = (Date.now() - startTime) / 1000;
 
       for (const route of routes) {
-        const elapsed = currentTime - route.start.delay;
+        const elapsed = currentTime - (route.start.delay ?? 0);
         if (elapsed <= 0) {
           return;
         }

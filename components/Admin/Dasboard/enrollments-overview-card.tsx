@@ -13,12 +13,11 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { useGetEnrollementByStatus } from '@/hooks/admin/dashboard';
-import type { TypeEnrollmentStatus } from '@/utils/db/schema';
+import { useGetEnrollmentsByStatus } from '@/hooks/admin/dashboard';
+import type { TypeEnrollmentStatus } from '@/lib/db/schema';
 
 function EnrollmentOverviewCard() {
-
-  const { data: enrollmentsByStatus } = useGetEnrollementByStatus();
+  const { data: enrollmentsByStatus } = useGetEnrollmentsByStatus();
 
   //   if (error) {
   //     toast.error(error.message);

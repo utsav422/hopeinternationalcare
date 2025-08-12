@@ -25,13 +25,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
-import { adminUpdateEnrollmentStatus } from '@/server-actions/admin/enrollments';
+import { useUpdateEnrollmentStatus } from '@/hooks/admin/enrollments';
 import {
-  adminGetPaymentDetailsByEnrollmentId,
-  adminUpsertPayment,
-} from '@/server-actions/admin/payments';
-import { adminUpsertRefund } from '@/server-actions/admin/refunds';
-import type { ZodSelectPaymentType } from '@/utils/db/drizzle-zod-schema/payments';
+  useGetPaymentDetailsByEnrollmentId,
+  useUpsertPayment,
+} from '@/hooks/admin/payments';
+import { useUpsertRefund } from '@/hooks/admin/refunds';
 
 export default function ({
   setShowCancelModal,
@@ -48,44 +47,85 @@ export default function ({
   afterSubmit: () => void;
 }) {
   const router = useRouter();
-  //   const fetchPaymentDetailsPromise = adminGetPaymentDetailsByEnrollmentId(
-  //     selectedEnrollmentId as string
-  //   );
-
-  //   const pd = use(fetchPaymentDetailsPromise);
+  const { data: paymentDetails, isPending: isPaymentDetailFetchPending } =
+    useGetPaymentDetailsByEnrollmentId(enrollmentId as string);
+  const { mutateAsync: updateEnrollmentStatus } = useUpdateEnrollmentStatus();
+  const { mutateAsync: upsertRefund } = useUpsertRefund();
+  const { mutateAsync: upsertPayment } = useUpsertPayment();
 
   const [cancelledReason, setCancelledReason] = useState('');
   const [refund, setRefund] = useState<CheckedState>(false);
   const [refundAmount, setRefundAmount] = useState<number>(0);
-  const [paymentDetails, setPaymentDetails] =
-    useState<ZodSelectPaymentType | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [isPaymentDetailFetchPending, startPaymentDetailsFetchTransition] =
-    useTransition();
 
-  const fetchPaymentDetail = async () => {
-    const payment = await adminGetPaymentDetailsByEnrollmentId(
-      enrollmentId as string
-    );
-    if (payment.data) {
-      setPaymentDetails(payment.data as ZodSelectPaymentType);
+  useEffect(() => {
+    if (paymentDetails) {
+      setRefundAmount(paymentDetails.amount);
+    }
+  }, [paymentDetails]);
+
+  const handleConfirmCancellation = () => {
+    if (enrollmentId && cancelledReason) {
+      startTransition(async () => {
+        await toast.promise(
+          updateEnrollmentStatus({
+            id: enrollmentId,
+            status: 'cancelled',
+            cancelled_reason: cancelledReason,
+          }),
+          {
+            loading: 'Cancelling enrollment...',
+            success: async () => {
+              if (refund && paymentDetails) {
+                await toast.promise(
+                  upsertRefund({
+                    payment_id: paymentDetails.id,
+                    enrollment_id: enrollmentId,
+                    user_id: userId,
+                    reason: cancelledReason,
+                    amount: refundAmount,
+                    created_at: new Date().toISOString(),
+                  }),
+                  {
+                    loading: 'Processing refund...',
+                    success: async () => {
+                      await toast.promise(
+                        upsertPayment({
+                          ...paymentDetails,
+                          remarks: `payment of ${paymentDetails.amount} is refunded with partial amount ${refundAmount} return to user.`,
+                          is_refunded: true,
+                          refunded_at: new Date().toISOString(),
+                          refunded_amount: refundAmount,
+                        }),
+                        {
+                          loading: 'Updating payment details...',
+                          success: 'Payment details updated',
+                          error: 'Failed to update payment details',
+                        }
+                      );
+                      return 'Refund processed successfully';
+                    },
+                    error: 'Failed to process refund',
+                  }
+                );
+              }
+              router.refresh();
+              setShowCancelModal(false);
+              setCancelledReason('');
+              afterSubmit();
+              return 'Enrollment cancelled successfully!';
+            },
+            error: 'Failed to cancel enrollment',
+          }
+        );
+      });
+    } else {
+      toast.error('Please provide a cancellation reason.');
     }
   };
-  useEffect(() => {
-    if (enrollmentId && (enrollmentId as string) && enrollmentId.length > 0) {
-      startPaymentDetailsFetchTransition(() => {
-        fetchPaymentDetail();
-      });
-    }
-    return () => {
-      null;
-    };
-  }, [enrollmentId, userId]);
 
   return (
     <div>
-      {/* <pre>{JSON.stringify(pd, null, 2)}</pre> */}
-      {/* <pre>{JSON.stringify(paymentDetails, null, 2)}</pre> */}
       <AlertDialog onOpenChange={setShowCancelModal} open={showCancelModal}>
         <AlertDialogContent className="dark:border-gray-700 dark:bg-gray-800">
           <AlertDialogHeader>
@@ -196,84 +236,7 @@ export default function ({
             <AlertDialogAction
               className="dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
               disabled={isPending || !cancelledReason}
-              onClick={() => {
-                if (enrollmentId && cancelledReason) {
-                  startTransition(async () => {
-                    try {
-                      const res = await adminUpdateEnrollmentStatus(
-                        enrollmentId,
-                        'cancelled',
-                        cancelledReason
-                      );
-                      if (res?.success) {
-                        toast.success('Enrollment cancelled successfully!');
-                        router.refresh();
-                      } else {
-                        toast.error(
-                          res?.message || 'Failed to cancel enrollment.'
-                        );
-                      }
-
-                      if (refund && paymentDetails) {
-                        // prepare new  refund data
-                        const _newRefundData = {
-                          payment_id: paymentDetails.id,
-                          enrollment_id: enrollmentId,
-                          user_id: userId,
-                          reason: cancelledReason,
-                          amount: refundAmount,
-                          created_at: new Date().toISOString(),
-                        };
-
-                        // upsert new refund data
-                        const {
-                          data: _refundData,
-                          message: refundMessage,
-                          success: refundSuccess,
-                        } = await adminUpsertRefund(_newRefundData);
-
-                        // prepare old payment data for update
-                        const _updatedPayment = {
-                          ...paymentDetails,
-                          remarks: `payment of ${paymentDetails.amount} is refunded with partial amount ${refundAmount} return to user.`,
-                          is_refunded: true,
-                          refunded_at: new Date().toISOString(),
-                          refunded_amount: refundAmount,
-                          reason: cancelledReason,
-                        };
-
-                        // upon refund success perform update payment details
-                        if (refundSuccess) {
-                          toast.success(refundMessage);
-                          const {
-                            data: _paymentData,
-                            message: paymentMessage,
-                            success: paymentSuccess,
-                          } = await adminUpsertPayment(_updatedPayment);
-
-                          if (paymentSuccess) {
-                            toast.success(paymentMessage);
-                            return;
-                          }
-                          toast.error(paymentMessage);
-                        }
-                        toast.error(refundMessage);
-                      }
-                      setShowCancelModal(false);
-                      setCancelledReason('');
-                      afterSubmit();
-                    } catch (error: unknown) {
-                      toast.error(
-                        error instanceof Error
-                          ? error.message
-                          : 'Unexpected error occured'
-                      );
-                    }
-                  });
-                } else {
-                  toast.error('Please provide a cancellation reason.');
-                }
-              }}
+              onClick={handleConfirmCancellation}
             >
               Confirm Cancellation
             </AlertDialogAction>
@@ -283,5 +246,3 @@ export default function ({
     </div>
   );
 }
-
-// export default EnrollmentCancelFormModal;

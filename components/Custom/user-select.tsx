@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useGetAllProfiles } from '@/hooks/admin/profiles';
-import type { ZodEnrollmentInsertType } from '@/utils/db/drizzle-zod-schema/enrollment';
+import type { ZodEnrollmentInsertType } from '@/lib/db/drizzle-zod-schema/enrollments';
 
 interface UserSelectProps {
   field: ControllerRenderProps<ZodEnrollmentInsertType, 'user_id'>;

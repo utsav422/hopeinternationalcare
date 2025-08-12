@@ -4,7 +4,7 @@ import { CalendarDays, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getUpcomingIntakes } from '@/server-actions/public/get-upcoming-intakes';
+import { getUpcomingIntakes } from '@/lib/server-actions/public/intakes';
 
 interface Intake {
   intakeId: string;

@@ -28,8 +28,9 @@ export const useDataTableQueryState = () => {
     defaultValue: 'created_at',
   });
 
-  const [order, setOrder] = useQueryState('order', {
+  const [order, setOrder] = useQueryState<'asc' | 'desc'>('order', {
     defaultValue: 'desc',
+    parse: (v) => (v === 'asc' || v === 'desc' ? v : 'desc'),
   });
 
   const [filters, setFilters] = useQueryState('filters', {

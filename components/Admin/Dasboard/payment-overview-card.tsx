@@ -13,11 +13,11 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { useGetPaymentByStatus } from '@/hooks/admin/dashboard';
-import type { TypePaymentStatus } from '@/utils/db/schema';
+import { useGetPaymentsByStatus } from '@/hooks/admin/dashboard';
+import type { TypePaymentStatus } from '@/lib/db/schema';
 
 function PaymentOverviewCard() {
-  const { data: paymentsByStatus } = useGetPaymentByStatus();
+  const { data: paymentsByStatus } = useGetPaymentsByStatus();
   //   if (error) {
   //     toast.error(error.message);
   // }

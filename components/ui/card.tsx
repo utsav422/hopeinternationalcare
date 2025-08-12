@@ -55,18 +55,7 @@ const CardDescription = React.forwardRef<
   />
 ));
 CardDescription.displayName = 'CardDescription';
-function CardAction({ className, ...props }: React.ComponentProps<'div'>) {
-  return (
-    <div
-      className={cn(
-        'col-start-2 row-span-2 row-start-1 self-start justify-self-end',
-        className
-      )}
-      data-slot="card-action"
-      {...props}
-    />
-  );
-}
+
 const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -91,7 +80,6 @@ export {
   Card,
   CardHeader,
   CardFooter,
-  CardAction,
   CardTitle,
   CardDescription,
   CardContent,

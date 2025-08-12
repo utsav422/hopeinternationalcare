@@ -10,8 +10,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useGetAllCourses } from '@/hooks/admin/courses';
-import type { ZodSelectCourseType } from '@/utils/db/drizzle-zod-schema/courses';
-import type { ZodInsertIntakeType } from '@/utils/db/drizzle-zod-schema/intakes';
+import type { ZodSelectCourseType } from '@/lib/db/drizzle-zod-schema/courses';
+import type { ZodInsertIntakeType } from '@/lib/db/drizzle-zod-schema/intakes';
 import { Skeleton } from '../ui/skeleton';
 
 type CourseForSelect = Omit<

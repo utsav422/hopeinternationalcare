@@ -1,8 +1,9 @@
 'use server';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { Suspense } from 'react';
 import CourseTable from '@/components/Admin/Courses/course-table';
 import { queryKeys } from '@/lib/query-keys';
-import { adminGetCourses } from '@/server-actions/admin/courses';
+import { adminGetCourses } from '@/lib/server-actions/admin/courses';
 import { getQueryClient } from '@/utils/get-query-client';
 
 type Params = Promise<{ slug: string }>;
@@ -40,8 +41,10 @@ export default async function Courses(props: {
       }),
   });
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <CourseTable />
-    </HydrationBoundary>
+    <Suspense fallback="Loading...">
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <CourseTable />
+      </HydrationBoundary>
+    </Suspense>
   );
 }

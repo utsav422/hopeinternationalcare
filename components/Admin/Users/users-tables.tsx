@@ -30,8 +30,8 @@ export default function UsersTables() {
   const { page, pageSize, filters } = useDataTableQueryState();
   const [inviteUserAlert, setInviteUserAlert] = useState(false);
   const { data: queryResult } = useGetUsers(page, pageSize);
-  const data = queryResult?.users;
-  const total = queryResult?.total ?? 0;
+  const data = queryResult?.data?.users;
+  const total = queryResult?.data?.total ?? 0;
   const { mutateAsync: deleteUser } = useDeleteUser();
 
   const handleDelete = async (id: string) => {

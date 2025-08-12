@@ -1,6 +1,6 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Image from "next/legacy/image";
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -25,11 +25,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useCreateCustomerContactRequest } from '@/hooks/admin/customer-contact-requests';
 import { useAuthSession } from '@/hooks/use-auth-session';
-import { createEnrollment } from '@/server-actions/user/enrollments';
 import {
   CustomerContactFormSchema,
   type CustomerContactFormType,
-} from '@/utils/db/drizzle-zod-schema/customer-contact-requests';
+} from '@/lib/db/drizzle-zod-schema/customer-contact-requests';
+import { createEnrollment } from '@/lib/server-actions/user/enrollments';
 import { Badge } from '../ui/badge';
 
 interface CourseCardProps {
@@ -93,7 +93,7 @@ export function CourseCard({
     if (result?.error) {
       toast.error(result.error);
     } else if (result?.success) {
-      toast.success(result.message);
+      toast.success('Enrollment successfully submitted and recorded. ');
     }
   };
 
@@ -165,8 +165,9 @@ export function CourseCard({
           )}
         </div>
         {available_seats !== null && ( // Only show if available_seats is not null
-          (<p className="text-gray-600 text-sm dark:text-gray-400">Available Seats: {available_seats}
-          </p>)
+          <p className="text-gray-600 text-sm dark:text-gray-400">
+            Available Seats: {available_seats}
+          </p>
         )}
         <div className="mt-auto flex gap-2 pt-4">
           <Link

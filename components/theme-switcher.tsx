@@ -25,14 +25,13 @@ const ThemeSwitcher = () => {
     return null;
   }
 
-  const ICON_SIZE = 16;
+  const ICON_SIZE = 20;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          className="relative overflow-hidden rounded-full transition-all duration-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-          size={'icon'}
+          className="relative h-12 w-12 overflow-hidden rounded-full transition-all duration-300 hover:bg-gray-200 dark:hover:bg-gray-700"
           variant="ghost"
         >
           <Sun

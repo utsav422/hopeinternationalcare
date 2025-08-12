@@ -1,49 +1,36 @@
 'use server';
+
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { Suspense } from 'react';
-import EnrollmentTables from '@/components/Admin/Enrollments/enrollment-tables';
+import EnrollmentsTable from '@/components/Admin/Enrollments/enrollment-tables';
 import { queryKeys } from '@/lib/query-keys';
-import { adminGetEnrollments } from '@/server-actions/admin/enrollments';
-import { requireAdmin } from '@/utils/auth-guard';
+import { adminGetEnrollments } from '@/lib/server-actions/admin/enrollments';
 import { getQueryClient } from '@/utils/get-query-client';
 
-type Params = Promise<{ id: string }>;
-type SearchParams = Promise<{
+type SearchParams = {
   page?: string;
   pageSize?: string;
-  sortBy?: string;
-  order?: string;
   filters?: string;
-  [key: string]: string | string[] | undefined;
-}>;
+};
 
 export default async function EnrollmentsPage(props: {
-  params: Params;
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }) {
-  await requireAdmin();
-  const _searchParams = await props.searchParams;
   const queryClient = getQueryClient();
-  queryClient.prefetchQuery({
-    queryKey: queryKeys.enrollments.list({
-      page: 1,
-      pageSize: 10,
-      sortBy: 'created_at',
-      order: 'desc',
-      filters: [],
-    }),
-    queryFn: async () =>
-      await adminGetEnrollments({
-        page: 1,
-        pageSize: 10,
-        filters: [],
-      }),
+  const searchParams = await props.searchParams;
+  const page = Number(searchParams.page) || 1;
+  const pageSize = Number(searchParams.pageSize) || 10;
+  const filters = searchParams.filters ? JSON.parse(searchParams.filters) : [];
+
+  await queryClient.prefetchQuery({
+    queryKey: queryKeys.enrollments.list({ page, pageSize, filters }),
+    queryFn: () => adminGetEnrollments({ page, pageSize, filters }),
   });
 
   return (
-    <Suspense fallback="Loading...">
+    <Suspense fallback={<div>Loading...</div>}>
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <EnrollmentTables />
+        <EnrollmentsTable />
       </HydrationBoundary>
     </Suspense>
   );

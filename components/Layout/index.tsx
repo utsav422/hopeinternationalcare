@@ -6,8 +6,8 @@ import { usePathname } from 'next/navigation';
 import { type ReactNode, Suspense, useEffect, useState } from 'react';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { useAuthSession } from '@/hooks/use-auth-session';
+import { signOutAction } from '@/lib/server-actions/user/user-auth-actions';
 import { cn } from '@/lib/utils';
-import { signOutAction } from '@/server-actions/user/user-auth-actions';
 import { ThemeSwitcher } from '../theme-switcher';
 import { UserAppSidebar } from '../User/Sidebar/app-sidebar';
 import { Button } from '../ui/button';
@@ -54,32 +54,7 @@ export function Layout({ children }: { children: ReactNode }) {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  // if (isAuthPage) return null;
-  //   if (loading) {
-  //     return (
-  //       <SidebarProvider>
-  //         <div className="flex h-screen w-full">
-  //           <div className="w-64 border-r p-4">
-  //             <div className="mb-4 h-8 w-3/4 animate-pulse rounded bg-gray-200" />
-  //             <div className="space-y-2">
-  //               <div className="h-8 w-full animate-pulse rounded bg-gray-200" />
-  //               <div className="h-8 w-full animate-pulse rounded bg-gray-200" />
-  //               <div className="h-8 w-full animate-pulse rounded bg-gray-200" />
-  //             </div>
-  //           </div>
-  //           <div className="flex flex-1 flex-col">
-  //             <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-  //               <div className="h-8 w-32 animate-pulse rounded bg-gray-200" />
-  //               <div className="ml-auto h-8 w-24 animate-pulse rounded bg-gray-200" />
-  //             </header>
-  //             <section className="w-full flex-1 p-5">
-  //               <div className="h-full w-full animate-pulse rounded bg-gray-100" />
-  //             </section>
-  //           </div>
-  //         </div>
-  //       </SidebarProvider>
-  //     );
-  //   }
+
   // Handle user sidebar layout
   if (user && user.role === 'authenticated' && isUserRoute) {
     return <div className="my-16">{children}</div>;
@@ -175,7 +150,11 @@ export function Layout({ children }: { children: ReactNode }) {
                           : 'Profile'}
                       </Link>
                     </Button>
-                    <form action={signOutAction}>
+                    <form
+                      action={async () => {
+                        await signOutAction();
+                      }}
+                    >
                       <Button
                         className="bg-red-500/10 text-red-500 hover:bg-red-500/95 hover:text-white"
                         type="submit"
@@ -256,15 +235,18 @@ function Footer() {
   }
 
   return (
-    <footer className="px-8 pt-24 pb-8">
+    <footer className="px-8 pt-16 pb-8 dark:bg-gray-900">
       <div className="container mx-auto flex max-w-6xl flex-col">
-        <div className="grid w-full grid-cols-1 lg:grid-cols-4">
+        <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           <div>
-            <h6 className="mb-4 font-bold text-gray-800 text-lg">
+            <div className="mb-4 flex items-center">
+              <Logo className="h-10 w-auto" />
+            </div>
+            <h6 className="mb-4 font-bold text-gray-800 text-lg dark:text-gray-100">
               Hope International Aged Care Training and Elderly Care Center
             </h6>
 
-            <p className="mb-4 text-base text-gray-800">
+            <p className="mb-4 text-base text-gray-800 dark:text-gray-300">
               At Hope International, we are driven by a passion for enhancing
               the quality of life for elderly individuals and empowering
               caregivers to make a meaningful difference in their lives. Join us
@@ -275,14 +257,14 @@ function Footer() {
             </p>
           </div>
 
-          <div className="mb-10 ml-20 items-center gap-10 md:gap-16 lg:mb-0">
+          <div className="mb-10 md:mb-0">
             {LINKS.map(({ title, items }, _: number) => (
               <ul key={title}>
-                <h6 className="mb-2 text-gray-800 text-lg">{title}</h6>
+                <h6 className="mb-2 text-gray-800 text-lg dark:text-gray-100">{title}</h6>
                 {items.map(({ label, href }, __: number) => (
                   <li key={href}>
                     <a
-                      className="block py-1 text-gray-700 transition-colors hover:text-gray-900"
+                      className="block py-1 text-gray-700 transition-colors hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
                       href={href}
                     >
                       {label}
@@ -294,10 +276,10 @@ function Footer() {
           </div>
 
           <div>
-            <h6 className="mb-4 font-bold text-gray-800 text-lg">
+            <h6 className="mb-4 font-bold text-gray-800 text-lg dark:text-gray-100">
               Our Location
             </h6>
-            <div className="h-56 w-full overflow-hidden rounded-md sm:h-72 md:h-80 lg:h-96">
+            <div className="h-64 w-full overflow-hidden rounded-md md:h-80">
               <iframe
                 allowFullScreen
                 className="h-full w-full"
@@ -312,8 +294,8 @@ function Footer() {
             </div>
           </div>
         </div>
-        <div className="mt-16 flex items-center justify-center">
-          <p className="text-gray-700 md:text-center">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 md:flex-row md:gap-0">
+          <p className="text-gray-700 md:text-center dark:text-gray-300">
             &copy; {CURRENT_YEAR} Hope International Aged Care Training And
             Elderly Care Center.
           </p>

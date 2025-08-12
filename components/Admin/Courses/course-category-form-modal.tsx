@@ -33,14 +33,14 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useGetAllCourseCategories } from '@/hooks/admin/course-categories';
 import {
-  CategoriesInsertSchema,
-  type ZTInsertCourseCategories,
-} from '@/utils/db/drizzle-zod-schema/course-categories';
+  ZodCourseCategoryInsertSchema,
+  type ZodInsertCourseCategoryType,
+} from '@/lib/db/drizzle-zod-schema/course-categories';
 
 interface Props {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  onSubmit: (data: ZTInsertCourseCategories) => void;
+  onSubmit: (data: ZodInsertCourseCategoryType) => void;
   onCategorySelect?: (categoryId: string) => void;
   creationOnly?: boolean;
 }
@@ -64,8 +64,8 @@ export default function CourseCategoryFormModal({
     undefined
   );
 
-  const form = useForm<ZTInsertCourseCategories>({
-    resolver: zodResolver(CategoriesInsertSchema),
+  const form = useForm<ZodInsertCourseCategoryType>({
+    resolver: zodResolver(ZodCourseCategoryInsertSchema),
     defaultValues: { name: '', description: '' },
   });
 
@@ -77,7 +77,7 @@ export default function CourseCategoryFormModal({
     }
   }, [error]);
 
-  const handleNewCategorySubmit = (data: ZTInsertCourseCategories) => {
+  const handleNewCategorySubmit = (data: ZodInsertCourseCategoryType) => {
     onSubmit(data);
     form.reset();
     setIsOpen(false);

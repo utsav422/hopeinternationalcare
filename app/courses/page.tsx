@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 import { queryKeys } from '@/lib/query-keys';
-import { getCachedPublicCourses } from '@/server-actions/public/courses';
+import { getCachedPublicCourses } from '@/lib/server-actions/public/courses';
 import { AllCourses } from './courses';
 
 export const metadata: Metadata = {

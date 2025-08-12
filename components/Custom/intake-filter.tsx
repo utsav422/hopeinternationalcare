@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useGetAllIntakes } from '@/hooks/admin/intakes';
+import { useGetAllIntake } from '@/hooks/admin/intakes';
 
 interface IntakeFilterProps {
   value: string;
@@ -15,12 +15,12 @@ interface IntakeFilterProps {
 }
 
 export default function IntakeFilter({ value, onChange }: IntakeFilterProps) {
-  const { data: queryResult, isLoading } = useGetAllIntakes();
+  const { data: queryData, isLoading } = useGetAllIntake();
 
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Set to start of today for comparison
 
-  const futureIntakes = (queryResult?.data ?? []).filter((intake) => {
+  const futureIntakes = (queryData ?? []).filter((intake) => {
     const startDate = new Date(intake.start_date);
     return startDate > today;
   });

@@ -11,9 +11,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useGetAllCourseCategories } from '@/hooks/admin/course-categories';
-import { adminUpsertCourseCategories } from '@/server-actions/admin/courses-categories';
-import type { ZTInsertCourseCategories } from '@/utils/db/drizzle-zod-schema/course-categories';
-import type { ZodInsertCourseType } from '@/utils/db/drizzle-zod-schema/courses';
+import type { ZodInsertCourseCategoryType } from '@/lib/db/drizzle-zod-schema/course-categories';
+import type { ZodInsertCourseType } from '@/lib/db/drizzle-zod-schema/courses';
+import { adminUpsertCourseCategories } from '@/lib/server-actions/admin/courses-categories';
 import CourseCategoryFormModal from '../Admin/Courses/course-category-form-modal';
 import { Button } from '../ui/button';
 import { FormControl } from '../ui/form';
@@ -42,7 +42,7 @@ export default function CourseCategorySelect({
   }
   const categories = queryResult?.data ?? [];
 
-  const handleCreateCategory = async (data: ZTInsertCourseCategories) => {
+  const handleCreateCategory = async (data: ZodInsertCourseCategoryType) => {
     try {
       const result = await adminUpsertCourseCategories(data);
       if (result.success) {

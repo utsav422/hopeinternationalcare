@@ -1,84 +1,80 @@
-import 'dotenv/config';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { createAdminSupabaseClient } from '@/utils/supabase/admin';
 
-import { courseCategories } from './schema/course-categories';
-import { courses } from './schema/courses';
-import { customerContactRequests } from './schema/customer-contact-requests';
-import { enableRLS } from './schema/enable-rls';
-import { enrollments } from './schema/enrollments';
-import { intakes } from './schema/intakes';
-import { manageUpdatedAt } from './schema/manage-updated-at';
-import { payments } from './schema/payments';
-import { profiles } from './schema/profiles';
-import { refunds } from './schema/refunds';
-import { updatedAt } from './schema/utils';
-
-const tables = [
-  {
-    name: 'profiles',
-    columns: profiles,
-  },
-  {
-    name: 'course_categories',
-    columns: courseCategories,
-  },
-  {
-    name: 'courses',
-    columns: courses,
-  },
-  {
-    name: 'intakes',
-    columns: intakes,
-  },
-  {
-    name: 'enrollments',
-    columns: enrollments,
-  },
-  {
-    name: 'payments',
-    columns: payments,
-  },
-  {
-    name: 'refunds',
-    columns: refunds,
-  },
-  {
-    name: 'customer_contact_requests',
-    columns: customerContactRequests,
-  },
-];
-
-const main = async () => {
-  const connectionString = process.env.SUPABASE_DB_URL;
-  if (!connectionString) {
-    throw new Error(
-      'SUPABASE_DB_URL is not defined in the environment variables.'
-    );
-  }
-  const client = postgres(connectionString, { max: 1 });
-  const db = drizzle(client);
+/**
+ * Seed function to create an administrative user with service_role
+ * This function creates a user in Supabase auth with auto-verified status
+ */
+async function seedAdminUser() {
+  // Get environment variables for admin user
+  const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@example.com';
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'admin123';
+  const adminFullName = process.env.SEED_ADMIN_FULL_NAME || 'Administrator';
+  const adminPhone = process.env.SEED_ADMIN_PHONE || '+1234567890';
 
   try {
-    process.stdout.write('Seeding database...\n');
+    // Create Supabase admin client
+    const supabaseAdmin = createAdminSupabaseClient();
+    const adminAuthClient = supabaseAdmin.auth.admin;
 
-    await db.execute(updatedAt);
+    console.log('Creating administrative user...');
 
-    const setupPromises = tables.flatMap((table) => [
-      db.execute(manageUpdatedAt(table.name)),
-      db.execute(enableRLS(table.name)),
-    ]);
+    // Create the administrative user with service_role
+    const {
+      data: { user },
+      error,
+    } = await adminAuthClient.createUser({
+      email: adminEmail,
+      password: adminPassword,
+      user_metadata: {
+        role: 'service_role',
+        full_name: adminFullName,
+        phone: adminPhone,
+      },
+      role: 'service_role',
+      email_confirm: true, // Auto-verify the user
+    });
 
-    await Promise.all(setupPromises);
+    if (error) {
+      console.error('Error creating administrative user:', error.message);
+      process.exit(1);
+    }
 
-    process.stdout.write('Database seeded successfully!\n');
+    console.log('Administrative user created successfully:', user?.email);
+
+    // Also create a profile for the user
+    if (user?.id) {
+      const { error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          full_name: adminFullName,
+          email: adminEmail,
+          phone: adminPhone,
+          role: 'service_role',
+        });
+
+      if (profileError) {
+        console.error(
+          'Error creating profile for administrative user:',
+          profileError.message
+        );
+        process.exit(1);
+      }
+
+      console.log('Profile created successfully for administrative user');
+    }
+
+    console.log('Seed completed successfully!');
     process.exit(0);
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
-    process.stderr.write(`Error seeding database: ${errorMessage}\n`);
+    console.error('Unexpected error during seeding:', error);
     process.exit(1);
   }
-};
+}
 
-main();
+// Run the seed function
+if (require.main === module) {
+  seedAdminUser();
+}
+
+export { seedAdminUser };

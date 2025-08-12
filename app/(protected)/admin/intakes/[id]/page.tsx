@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import IntakeDetails from '@/components/Admin/Intakes/intake-details';
 import { queryKeys } from '@/lib/query-keys';
-import { adminGetIntakeById } from '@/server-actions/admin/intakes';
+import { getCachedAdminIntakeById } from '@/lib/server-actions/admin/intakes';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
 
@@ -17,7 +17,7 @@ export default async function IntakeDetailsPage(props: {
   const queryClient = getQueryClient();
   await queryClient.prefetchQuery({
     queryKey: queryKeys.intakes.detail(params.id),
-    queryFn: () => adminGetIntakeById(params.id),
+    queryFn: () => getCachedAdminIntakeById(params.id),
   });
 
   return (

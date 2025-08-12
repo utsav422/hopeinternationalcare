@@ -1,41 +1,59 @@
 'use client';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
+import type { ZodSelectProfileType } from '@/lib/db/drizzle-zod-schema/profiles';
+import { queryKeys } from '@/lib/query-keys';
 import {
   adminGetAllProfiles,
   adminGetProfileById,
   adminGetProfiles,
   adminUpdateProfile,
-} from '@/server-actions/admin/profiles';
-import type { profiles as profilesTable } from '@/utils/db/schema/profiles';
-import { queryKeys } from '../../lib/query-keys';
+} from '@/lib/server-actions/admin/profiles';
 
-type ProfileWithDetails = typeof profilesTable.$inferSelect;
-
-type ListParams = {
+export const useGetProfiles = (params: {
   page?: number;
   pageSize?: number;
   search?: string;
-};
-
-export const useGetProfiles = (params: ListParams) => {
-  return useQuery({
+}) => {
+  return useSuspenseQuery({
     queryKey: queryKeys.profiles.list(params),
-    queryFn: () => adminGetProfiles(params),
+    queryFn: async () => {
+      const result = await adminGetProfiles(params);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result;
+    },
   });
 };
 
 export const useGetAllProfiles = () => {
-  return useQuery({
-    queryKey: queryKeys.profiles.lists(),
-    queryFn: () => adminGetAllProfiles(),
+  return useSuspenseQuery({
+    queryKey: queryKeys.profiles.all,
+    queryFn: async () => {
+      const result = await adminGetAllProfiles();
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    },
   });
 };
 
 export const useGetProfileById = (id: string) => {
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: queryKeys.profiles.detail(id),
-    queryFn: () => adminGetProfileById(id),
-    enabled: !!(id && id.length > 0),
+    queryFn: async () => {
+      const result = await adminGetProfileById(id);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    },
   });
 };
 
@@ -47,7 +65,7 @@ export const useUpdateProfile = () => {
       updates,
     }: {
       id: string;
-      updates: Partial<ProfileWithDetails>;
+      updates: Partial<ZodSelectProfileType>;
     }) => adminUpdateProfile(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.profiles.all });

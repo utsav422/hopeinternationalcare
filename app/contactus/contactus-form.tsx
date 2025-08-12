@@ -48,9 +48,14 @@ export function ContactUsForm() {
     },
   });
 
-  async function onSubmit(data: ContactFormValues) {
+  function onSubmit(data: ContactFormValues) {
     try {
-      await sendEmail(data);
+      const formData = new FormData();
+      formData.set('name', data.name);
+      formData.set('message', data.message);
+      formData.set('email', data.email);
+      formData.set('phone', data.phone ?? '');
+      sendEmail(formData);
       toast.success('Your message has been sent successfully!');
       form.reset();
     } catch (error: unknown) {

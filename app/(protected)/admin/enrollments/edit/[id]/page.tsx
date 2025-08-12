@@ -1,9 +1,8 @@
-'use server';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import EnrollmentFormModal from '@/components/Admin/Enrollments/enrollment-form';
 import { queryKeys } from '@/lib/query-keys';
-import { adminGetEnrollmentById } from '@/server-actions/admin/enrollments';
+import { getCachedAdminEnrollmentById } from '@/lib/server-actions/admin/enrollments';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
 
@@ -22,7 +21,7 @@ export default async function EditEnrollment(props: {
   const queryClient = getQueryClient();
   await queryClient.prefetchQuery({
     queryKey: queryKeys.enrollments.detail(id),
-    queryFn: () => adminGetEnrollmentById(id),
+    queryFn: () => getCachedAdminEnrollmentById(id),
   });
 
   return (

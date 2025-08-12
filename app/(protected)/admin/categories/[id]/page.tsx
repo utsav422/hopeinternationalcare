@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { queryKeys } from '@/lib/query-keys';
-import { adminGetCourseCategoriesById } from '@/server-actions/admin/courses-categories';
+import { getCachedAdminCourseCategoriesById } from '@/lib/server-actions/admin/courses-categories';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
 
@@ -18,10 +18,11 @@ export default async function CategoryDetailsPage(props: {
   const queryClient = getQueryClient();
   await queryClient.prefetchQuery({
     queryKey: queryKeys.courseCategories.detail(id),
-    queryFn: () => adminGetCourseCategoriesById(id),
+    queryFn: () => getCachedAdminCourseCategoriesById(id),
   });
 
-  const { data } = await adminGetCourseCategoriesById(id);
+  const result = await getCachedAdminCourseCategoriesById(id);
+  const data = result.success ? result.data : null;
 
   if (!data) {
     return <p>Category not found.</p>;

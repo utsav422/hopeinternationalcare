@@ -1,10 +1,10 @@
 'use client';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import {
-  getPublicCourseById,
-  getPublicCourseBySlug,
-  getPublicCourses,
-} from '@/server-actions/public/courses';
+  getCachedPublicCourseById,
+  getCachedPublicCourseBySlug,
+  getCachedPublicCourses,
+} from '@/lib/server-actions/public/courses';
 
 import { queryKeys } from '../../lib/query-keys';
 
@@ -22,7 +22,7 @@ export const useGetPublicCourses = ({
   return useInfiniteQuery({
     queryKey: queryKeys.publicCourses.list({ filters, sortBy, sortOrder }),
     queryFn: ({ pageParam = 1 }) =>
-      getPublicCourses({
+      getCachedPublicCourses({
         page: pageParam,
         pageSize,
         filters,
@@ -30,7 +30,7 @@ export const useGetPublicCourses = ({
         sortOrder,
       }),
     getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.data.length < pageSize) {
+      if (lastPage.data && lastPage.data.length < pageSize) {
         return;
       }
       return allPages.length + 1;
@@ -42,7 +42,7 @@ export const useGetPublicCourses = ({
 export const useGetPublicCourseById = (id: string) => {
   return useQuery({
     queryKey: queryKeys.publicCourses.detail(id),
-    queryFn: () => getPublicCourseById(id),
+    queryFn: () => getCachedPublicCourseById(id),
     enabled: !!(id && id.length > 0),
   });
 };
@@ -50,7 +50,7 @@ export const useGetPublicCourseById = (id: string) => {
 export const useGetPublicCourseBySlug = (slug: string) => {
   return useQuery({
     queryKey: queryKeys.publicCourses.detail(slug),
-    queryFn: () => getPublicCourseBySlug(slug),
+    queryFn: () => getCachedPublicCourseBySlug(slug),
     enabled: !!(slug && slug.length > 0),
   });
 };

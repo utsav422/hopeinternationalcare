@@ -7,13 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import type { PageParams, PageSearchParams } from '@/lib/types/shared';
 import { cn } from '@/lib/utils';
 import ResetPasswordComponent from './_components/reset-password-form';
 
-type Params = Promise<{ [key: string]: string }>;
-type SearchParams = Promise<{
-  [key: string]: string | string[] | undefined;
-}>;
+type Params = PageParams;
+type SearchParams = PageSearchParams;
 export default async function ResetPassword(props: {
   params: Params;
   searchParams: SearchParams;

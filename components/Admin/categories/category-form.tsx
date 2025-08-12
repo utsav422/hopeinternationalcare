@@ -23,10 +23,10 @@ import {
   useUpsertCourseCategory,
 } from '@/hooks/admin/course-categories';
 import {
-  CategoriesInsertSchema,
-  type ZTInsertCourseCategories,
+  ZodCourseCategoryInsertSchema,
+  type ZodInsertCourseCategoryType,
   //   type ZTSelectCourseCategories,
-} from '@/utils/db/drizzle-zod-schema/course-categories';
+} from '@/lib/db/drizzle-zod-schema/course-categories';
 
 interface Props {
   id?: string;
@@ -50,12 +50,12 @@ export default function CategoryForm({ id, formTitle }: Props) {
 
   if (initialDataResult && !initialDataResult.success) {
     toast.error('Data validation error', {
-      description: JSON.stringify(initialDataResult.error.flatten()),
+      description: JSON.stringify(initialDataResult.error),
     });
   }
 
-  const form = useForm<ZTInsertCourseCategories>({
-    resolver: zodResolver(CategoriesInsertSchema),
+  const form = useForm<ZodInsertCourseCategoryType>({
+    resolver: zodResolver(ZodCourseCategoryInsertSchema),
     defaultValues: initialData ?? {
       name: '',
       description: '',
@@ -70,7 +70,7 @@ export default function CategoryForm({ id, formTitle }: Props) {
     }
   }, [initialData, form]);
 
-  const onSubmit = async (values: ZTInsertCourseCategories) => {
+  const onSubmit = async (values: ZodInsertCourseCategoryType) => {
     await toast.promise(upsertCategory(values), {
       loading: 'Saving category...',
       success: () => {
