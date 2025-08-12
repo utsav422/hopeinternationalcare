@@ -1,12 +1,12 @@
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from '@tanstack/react-query';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { queryKeys } from '@/lib/query-keys';
-import { getCachedPublicCourses } from '@/lib/server-actions/public/courses';
-import { AllCourses } from './courses';
+import { getPublicCourses } from '@/lib/server-actions/public/courses';
+import { publicGetAllCatogies } from '@/lib/server-actions/public/courses-categories';
+import { getAllIntakes } from '@/lib/server-actions/public/intakes';
+import { getQueryClient } from '@/utils/get-query-client';
+import { AllCourses } from './_components/courses';
 
 export const metadata: Metadata = {
   title: 'Our Courses | Hope International',
@@ -27,19 +27,27 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Campaign() {
-  const queryClient = new QueryClient();
+export default async function Courses() {
+  const queryClient = getQueryClient();
 
   await queryClient.prefetchQuery({
     queryKey: queryKeys.publicCourses.list({ page: 1, pageSize: 10 }),
-    queryFn: () => getCachedPublicCourses({ page: 1, pageSize: 10 }),
+    queryFn: () => getPublicCourses({ page: 1, pageSize: 10 }),
+  });
+  await queryClient.prefetchQuery({
+    queryKey: queryKeys.intakes.all,
+    queryFn: getAllIntakes,
+  });
+  await queryClient.prefetchQuery({
+    queryKey: queryKeys.courseCategories.all,
+    queryFn: publicGetAllCatogies,
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="pt-20">
+      <Suspense fallback={'Loading ...'}>
         <AllCourses />
-      </div>
+      </Suspense>
     </HydrationBoundary>
   );
 }

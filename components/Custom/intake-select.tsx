@@ -26,8 +26,7 @@ export default function IntakeSelect({
   disabled,
   getItemOnValueChanges,
 }: IntakeSelectProps) {
-  const { data: queryResult, error, isLoading } = useGetAllActiveIntake();
-  const intakes = queryResult?.data;
+  const { data: intakes, error, isLoading } = useGetAllActiveIntake();
 
   if (isLoading) {
     return (

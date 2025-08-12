@@ -7,6 +7,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   ChartContainer,
@@ -15,13 +16,20 @@ import {
 } from '@/components/ui/chart';
 import { useGetEnrollmentsByStatus } from '@/hooks/admin/dashboard';
 import type { TypeEnrollmentStatus } from '@/lib/db/schema';
+import { DashboardCardSkeleton } from '.';
 
 function EnrollmentOverviewCard() {
-  const { data: enrollmentsByStatus } = useGetEnrollmentsByStatus();
+  const { data: queryResult, error, isLoading } = useGetEnrollmentsByStatus();
+  const enrollmentsByStatus = queryResult.data;
+  const success = queryResult?.success;
 
-  //   if (error) {
-  //     toast.error(error.message);
-  //   }
+  const queryDataError = queryResult?.error;
+  if (error || !queryResult || !success || queryDataError) {
+    toast.error(error?.message ?? queryDataError ?? 'Unexpected error occurs');
+  }
+  if (error) {
+    toast.error(error.message);
+  }
   const enrollmentChartData =
     enrollmentsByStatus?.map(
       (item: { status: TypeEnrollmentStatus; count: number }) => ({
@@ -29,9 +37,9 @@ function EnrollmentOverviewCard() {
         count: item.count,
       })
     ) ?? [];
-  // if (isLoading) {
-  //   return <DashboardCardSkeleton />;
-  // }
+  if (isLoading) {
+    return <DashboardCardSkeleton />;
+  }
   return (
     <Card className="col-span-4 dark:border-gray-700 dark:bg-gray-800">
       <CardHeader>

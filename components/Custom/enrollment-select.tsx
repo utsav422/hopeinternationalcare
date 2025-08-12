@@ -25,14 +25,17 @@ export default function EnrollmentSelect({
   disabled,
   getItemOnValueChanges,
 }: EnrollmentSelectProps) {
-  const { data: queryResult, error, isLoading } = useGetAllEnrollments();
+  const {
+    data: enrollmentsWithDetails,
+    error,
+    isLoading,
+  } = useGetAllEnrollments();
 
-  if (error || !queryResult) {
+  if (error || !enrollmentsWithDetails) {
     toast.error(
       error?.message ?? 'Data couldnt found. please contact to adminstrator'
     );
   }
-  const enrollmentsWithDetails = queryResult?.data;
 
   if (enrollmentsWithDetails && enrollmentsWithDetails.length === 0) {
     return (

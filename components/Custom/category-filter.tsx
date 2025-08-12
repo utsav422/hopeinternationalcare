@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useGetAllCourseCategories } from '@/hooks/admin/course-categories';
+import { useGetAllCourseCategories } from '@/hooks/public/course-categories';
 
 interface CategoryFilterProps {
   value: string;

@@ -20,39 +20,21 @@ type ListParams = Partial<DataTableListParams>;
 export const useGetCourseCategories = (params: ListParams) => {
   return useSuspenseQuery({
     queryKey: queryKeys.courseCategories.list(params),
-    queryFn: async () => {
-      const result = await adminGetCoursesCategories(params);
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      return result;
-    },
+    queryFn: async () => await adminGetCoursesCategories(params),
   });
 };
 
 export const useGetAllCourseCategories = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.courseCategories.lists(),
-    queryFn: async () => {
-      const result = await adminGetAllCatogies();
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      return result;
-    },
+    queryFn: adminGetAllCatogies,
   });
 };
 
 export const useGetCourseCategoryById = (id: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.courseCategories.detail(id),
-    queryFn: async () => {
-      const result = await adminGetCourseCategoriesById(id);
-      if (!result.success) {
-        throw new Error(result.error as string);
-      }
-      return result;
-    },
+    queryFn: async () => await adminGetCourseCategoriesById(id),
   });
 };
 

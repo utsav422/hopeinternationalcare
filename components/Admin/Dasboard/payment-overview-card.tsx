@@ -7,6 +7,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   ChartContainer,
@@ -15,12 +16,16 @@ import {
 } from '@/components/ui/chart';
 import { useGetPaymentsByStatus } from '@/hooks/admin/dashboard';
 import type { TypePaymentStatus } from '@/lib/db/schema';
+import { DashboardCardSkeleton } from '.';
 
 function PaymentOverviewCard() {
-  const { data: paymentsByStatus } = useGetPaymentsByStatus();
-  //   if (error) {
-  //     toast.error(error.message);
-  // }
+  const { data: queryResult, error, isLoading } = useGetPaymentsByStatus();
+  const success = queryResult?.success;
+  const queryDataError = queryResult?.error;
+  const paymentsByStatus = queryResult?.data;
+  if (error || !queryResult || !success || queryDataError) {
+    toast.error(error?.message ?? queryDataError ?? 'Unexpected error occurs');
+  }
   const paymentChartData =
     paymentsByStatus?.map(
       (item: {
@@ -33,9 +38,9 @@ function PaymentOverviewCard() {
         totalAmount: item.totalAmount,
       })
     ) ?? [];
-  //   if (isLoading) {
-  //     return <DashboardCardSkeleton />;
-  //   }
+  if (isLoading) {
+    return <DashboardCardSkeleton />;
+  }
   return (
     <Card className="col-span-3 dark:border-gray-700 dark:bg-gray-800">
       <CardHeader>

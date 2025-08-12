@@ -1,17 +1,24 @@
 import { CheckCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGetEnrollmentsByStatus } from '@/hooks/admin/dashboard';
 import type { TypeEnrollmentStatus } from '@/lib/db/schema';
+import { DashboardCardSkeleton } from '.';
 
 function TotalCompletedEnrollmentsCard() {
-  const { data: enrollmentsByStatus } = useGetEnrollmentsByStatus();
-
-  //   if (error) {
-  //     toast.error(error.message);
-  //   }
-  //   if (isLoading) {
-  //     return <DashboardCardSkeleton />;
-  //   }
+  const { data: queryResult, isLoading, error } = useGetEnrollmentsByStatus();
+  const success = queryResult?.success;
+  const queryDataError = queryResult?.error;
+  const enrollmentsByStatus = queryResult?.data;
+  if (error || !queryResult || !success || queryDataError) {
+    toast.error(error?.message ?? queryDataError ?? 'Unexpected error occurs');
+  }
+  if (error) {
+    toast.error(error.message);
+  }
+  if (isLoading) {
+    return <DashboardCardSkeleton />;
+  }
   return (
     <Card className="dark:border-gray-700 dark:bg-gray-800">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

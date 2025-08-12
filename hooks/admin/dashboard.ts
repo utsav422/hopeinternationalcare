@@ -27,64 +27,34 @@ export const useGetDashboardSummary = () => {
 export const useGetTotalUsers = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.dashboard.totalUsers,
-    queryFn: async () => {
-      const result = await getTotalUsers();
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      return result.data;
-    },
+    queryFn: async () => await getTotalUsers(),
   });
 };
 
 export const useGetTotalEnrollments = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.dashboard.totalEnrollment,
-    queryFn: async () => {
-      const result = await getTotalEnrollments();
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      return result.data;
-    },
+    queryFn: async () => await getTotalEnrollments(),
   });
 };
 
 export const useGetEnrollmentsByStatus = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.dashboard.enrollmentByStatus,
-    queryFn: async () => {
-      const result = await getEnrollmentsByStatus();
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      return result.data;
-    },
+    queryFn: async () => await getEnrollmentsByStatus(),
   });
 };
 
 export const useGetTotalIncome = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.dashboard.totalIncome,
-    queryFn: async () => {
-      const result = await getTotalIncome();
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      return result.data;
-    },
+    queryFn: async () => await getTotalIncome(),
   });
 };
 
 export const useGetPaymentsByStatus = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.dashboard.paymentByStatus,
-    queryFn: async () => {
-      const result = await getPaymentsByStatus();
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      return result.data;
-    },
+    queryFn: async () => await getPaymentsByStatus(),
   });
 };

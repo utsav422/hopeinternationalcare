@@ -20,4 +20,3 @@ module.exports = {
     },
   ],
 };
-// don't change anything here, unless you know what you chagning,

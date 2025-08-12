@@ -149,50 +149,6 @@ export default function EnrollmentTables() {
     });
   };
 
-  //   const performUpdateStatus = async (
-  //     enrollmentId: string,
-  //     newStatus: TypeEnrollmentStatus,
-  //     price?: number,
-  //     paymentId?: string
-  //   ) => {
-  //     const res: ServerActionResponse = await adminUpdateEnrollmentStatus(
-  //       enrollmentId,
-  //       newStatus
-  //     );
-  //     if (res?.success) {
-  //       toast.success('Enrollment status updated successfully!');
-  //       router.refresh();
-  //       if (newStatus === 'enrolled') {
-  //         if (price) {
-  //           const paymentRes: ServerActionResponse = await adminUpsertPayment({
-  //             id: paymentId,
-  //             remarks: 'payment has been complete',
-  //             enrollment_id: enrollmentId,
-  //             amount: price,
-  //             method: PaymentMethod.cash, // Default method, can be made dynamic
-  //             status: 'completed' as TypePaymentStatus, // Use 'completed' as per enum
-  //           });
-  //           if (paymentRes?.success) {
-  //             toast.success(
-  //               paymentId
-  //                 ? 'Payment details updated successfully!'
-  //                 : 'Payment details created successfully!'
-  //             );
-  //           } else {
-  //             toast.error(
-  //               paymentRes?.message || 'Failed to upsert payment details.'
-  //             );
-  //           }
-  //         } else {
-  //           toast.error('Failed to retrieve course price for payment.');
-  //         }
-  //       }
-  //     } else {
-  //       toast.error(res?.message || 'Failed to update enrollment status.');
-  //     }
-  //     router.refresh();
-  //   };
-
   const handleDelete = async (id: string) => {
     if (id.length <= 0) {
       return;

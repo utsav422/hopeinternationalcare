@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Campaign() {
+export default function Contact() {
   return (
     <>
       <ContactUs />

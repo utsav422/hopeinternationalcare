@@ -17,8 +17,8 @@ interface UserSelectProps {
 }
 
 export default function UserSelect({ field, disabled }: UserSelectProps) {
-  const { data: queryResult, error, isLoading } = useGetAllProfiles();
-  const profiles = queryResult?.data?.filter(
+  const { data: profiles, error, isLoading } = useGetAllProfiles();
+  const filteredProfiles = profiles?.filter(
     (item) => item.role === 'authenticated'
   );
 
@@ -34,7 +34,7 @@ export default function UserSelect({ field, disabled }: UserSelectProps) {
     );
   }
 
-  if (!profiles || profiles?.length === 0) {
+  if (!filteredProfiles || filteredProfiles?.length === 0) {
     return (
       <span className="dark:text-gray-400">
         No user item found for enrollment selection
@@ -51,7 +51,7 @@ export default function UserSelect({ field, disabled }: UserSelectProps) {
         <SelectValue placeholder="Select a user profile" />
       </SelectTrigger>
       <SelectContent className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-        {profiles.map((profile) => (
+        {filteredProfiles?.map((profile) => (
           <SelectItem
             className="dark:hover:bg-gray-700"
             key={profile.id}

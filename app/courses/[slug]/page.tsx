@@ -1,11 +1,8 @@
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from '@tanstack/react-query';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 import { queryKeys } from '@/lib/query-keys';
 import { getCachedPublicCourseBySlug } from '@/lib/server-actions/public/courses';
+import { getQueryClient } from '@/utils/get-query-client';
 import CourseDetails from './_components';
 
 interface CourseDetailPageProps {
@@ -45,7 +42,7 @@ export default async function CourseDetailPage({
   params,
 }: CourseDetailPageProps) {
   const { slug } = await params;
-  const queryClient = new QueryClient();
+  const queryClient = getQueryClient();
 
   await queryClient.prefetchQuery({
     queryKey: queryKeys.publicCourses.detail(slug),

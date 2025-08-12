@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useDebounce } from 'use-debounce';
 import CategoryFilter from '@/components/Custom/category-filter';
@@ -84,7 +84,7 @@ export function AllCourses() {
     }
 
     return (
-      <>
+      <div className="pt-20">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
           {courses?.map((course) => (
             <CourseCard
@@ -112,7 +112,7 @@ export function AllCourses() {
             {getButtonText()}
           </Button>
         </div>
-      </>
+      </div>
     );
   };
 
@@ -148,16 +148,22 @@ export function AllCourses() {
                   Filters
                 </h2>
                 <div className="space-y-4">
-                  <IntakeFilter
-                    onChange={(value) =>
-                      handleFilterChange('intake_date', value)
-                    }
-                    value={filters.intake_date}
-                  />
-                  <CategoryFilter
-                    onChange={(value) => handleFilterChange('category', value)}
-                    value={filters.category}
-                  />
+                  <Suspense>
+                    <IntakeFilter
+                      onChange={(value) =>
+                        handleFilterChange('intake_date', value)
+                      }
+                      value={filters.intake_date}
+                    />
+                  </Suspense>
+                  <Suspense>
+                    <CategoryFilter
+                      onChange={(value) =>
+                        handleFilterChange('category', value)
+                      }
+                      value={filters.category}
+                    />
+                  </Suspense>
                 </div>
               </div>
               <div>
