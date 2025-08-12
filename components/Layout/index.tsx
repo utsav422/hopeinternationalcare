@@ -260,7 +260,9 @@ function Footer() {
           <div className="mb-10 md:mb-0">
             {LINKS.map(({ title, items }, _: number) => (
               <ul key={title}>
-                <h6 className="mb-2 text-gray-800 text-lg dark:text-gray-100">{title}</h6>
+                <h6 className="mb-2 text-gray-800 text-lg dark:text-gray-100">
+                  {title}
+                </h6>
                 {items.map(({ label, href }, __: number) => (
                   <li key={href}>
                     <a

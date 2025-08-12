@@ -50,7 +50,7 @@ export default function CourseCategorySelect({
         refetch();
         setIsModalOpen(false);
       } else {
-        toast.error(result.errors || 'Failed to create category');
+        toast.error(result.error || 'Failed to create category');
       }
     } catch {
       toast.error('An unexpected error occurred.');

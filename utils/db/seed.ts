@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { createAdminSupabaseClient } from '@/utils/supabase/admin';
 
 /**
@@ -16,7 +17,7 @@ async function seedAdminUser() {
     const supabaseAdmin = createAdminSupabaseClient();
     const adminAuthClient = supabaseAdmin.auth.admin;
 
-    console.log('Creating administrative user...');
+    logger.info('Creating administrative user...');
 
     // Create the administrative user with service_role
     const {
@@ -35,11 +36,15 @@ async function seedAdminUser() {
     });
 
     if (error) {
-      console.error('Error creating administrative user:', error.message);
+      logger.error('Error creating administrative user:', {
+        description: error.message,
+      });
       process.exit(1);
     }
 
-    console.log('Administrative user created successfully:', user?.email);
+    logger.info('Administrative user created successfully:', {
+      user: { ...user },
+    });
 
     // Also create a profile for the user
     if (user?.id) {
@@ -54,20 +59,22 @@ async function seedAdminUser() {
         });
 
       if (profileError) {
-        console.error(
-          'Error creating profile for administrative user:',
-          profileError.message
-        );
+        logger.error('Error creating profile for administrative user:', {
+          description: profileError.message,
+        });
         process.exit(1);
       }
 
-      console.log('Profile created successfully for administrative user');
+      logger.info('Profile created successfully for administrative user');
     }
 
-    console.log('Seed completed successfully!');
+    logger.info('Seed completed successfully!');
     process.exit(0);
   } catch (error) {
-    console.error('Unexpected error during seeding:', error);
+    logger.error('Unexpected error during seeding:', {
+      description:
+        error instanceof Error ? error?.message : 'Contact to developers.',
+    });
     process.exit(1);
   }
 }
