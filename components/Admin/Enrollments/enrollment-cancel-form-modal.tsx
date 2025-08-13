@@ -2,22 +2,22 @@
 import type { CheckedState } from '@radix-ui/react-checkbox';
 import { useRouter } from 'next/navigation';
 import {
-  type Dispatch,
-  type SetStateAction,
-  useEffect,
-  useState,
-  useTransition,
+    type Dispatch,
+    type SetStateAction,
+    useEffect,
+    useState,
+    useTransition,
 } from 'react';
 import { toast } from 'sonner';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -27,222 +27,222 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { useUpdateEnrollmentStatus } from '@/hooks/admin/enrollments';
 import {
-  useGetPaymentDetailsByEnrollmentId,
-  useUpsertPayment,
+    useGetPaymentDetailsByEnrollmentId,
+    useUpsertPayment,
 } from '@/hooks/admin/payments';
 import { useUpsertRefund } from '@/hooks/admin/refunds';
 
 export default function ({
-  setShowCancelModal,
-  showCancelModal,
-  selectedEnrollmentAndUserId: { enrollmentId, userId },
-  afterSubmit,
+    setShowCancelModal,
+    showCancelModal,
+    selectedEnrollmentAndUserId: { enrollmentId, userId },
+    afterSubmit,
 }: {
-  setShowCancelModal: Dispatch<SetStateAction<boolean>>;
-  showCancelModal: boolean;
-  selectedEnrollmentAndUserId: {
-    enrollmentId: string | null;
-    userId: string | null;
-  };
-  afterSubmit: () => void;
+    setShowCancelModal: Dispatch<SetStateAction<boolean>>;
+    showCancelModal: boolean;
+    selectedEnrollmentAndUserId: {
+        enrollmentId: string | null;
+        userId: string | null;
+    };
+    afterSubmit: () => void;
 }) {
-  const router = useRouter();
-  const { data: paymentDetails, isPending: isPaymentDetailFetchPending } =
-    useGetPaymentDetailsByEnrollmentId(enrollmentId as string);
-  const { mutateAsync: updateEnrollmentStatus } = useUpdateEnrollmentStatus();
-  const { mutateAsync: upsertRefund } = useUpsertRefund();
-  const { mutateAsync: upsertPayment } = useUpsertPayment();
+    const router = useRouter();
+    const { data: paymentDetails, isPending: isPaymentDetailFetchPending } =
+        useGetPaymentDetailsByEnrollmentId(enrollmentId as string);
+    const { mutateAsync: updateEnrollmentStatus } = useUpdateEnrollmentStatus();
+    const { mutateAsync: upsertRefund } = useUpsertRefund();
+    const { mutateAsync: upsertPayment } = useUpsertPayment();
 
-  const [cancelledReason, setCancelledReason] = useState('');
-  const [refund, setRefund] = useState<CheckedState>(false);
-  const [refundAmount, setRefundAmount] = useState<number>(0);
-  const [isPending, startTransition] = useTransition();
+    const [cancelledReason, setCancelledReason] = useState('');
+    const [refund, setRefund] = useState<CheckedState>(false);
+    const [refundAmount, setRefundAmount] = useState<number>(0);
+    const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    if (paymentDetails) {
-      setRefundAmount(paymentDetails.amount);
-    }
-  }, [paymentDetails]);
+    useEffect(() => {
+        if (paymentDetails) {
+            setRefundAmount(paymentDetails.amount);
+        }
+    }, [paymentDetails]);
 
-  const handleConfirmCancellation = () => {
-    if (enrollmentId && cancelledReason) {
-      startTransition(async () => {
-        await toast.promise(
-          updateEnrollmentStatus({
-            id: enrollmentId,
-            status: 'cancelled',
-            cancelled_reason: cancelledReason,
-          }),
-          {
-            loading: 'Cancelling enrollment...',
-            success: async () => {
-              if (refund && paymentDetails) {
+    const handleConfirmCancellation = () => {
+        if (enrollmentId && cancelledReason) {
+            startTransition(async () => {
                 await toast.promise(
-                  upsertRefund({
-                    payment_id: paymentDetails.id,
-                    enrollment_id: enrollmentId,
-                    user_id: userId,
-                    reason: cancelledReason,
-                    amount: refundAmount,
-                    created_at: new Date().toISOString(),
-                  }),
-                  {
-                    loading: 'Processing refund...',
-                    success: async () => {
-                      await toast.promise(
-                        upsertPayment({
-                          ...paymentDetails,
-                          remarks: `payment of ${paymentDetails.amount} is refunded with partial amount ${refundAmount} return to user.`,
-                          is_refunded: true,
-                          refunded_at: new Date().toISOString(),
-                          refunded_amount: refundAmount,
-                        }),
-                        {
-                          loading: 'Updating payment details...',
-                          success: 'Payment details updated',
-                          error: 'Failed to update payment details',
-                        }
-                      );
-                      return 'Refund processed successfully';
-                    },
-                    error: 'Failed to process refund',
-                  }
+                    updateEnrollmentStatus({
+                        id: enrollmentId,
+                        status: 'cancelled',
+                        cancelled_reason: cancelledReason,
+                    }),
+                    {
+                        loading: 'Cancelling enrollment...',
+                        success: async () => {
+                            if (refund && paymentDetails) {
+                                await toast.promise(
+                                    upsertRefund({
+                                        payment_id: paymentDetails.id,
+                                        enrollment_id: enrollmentId,
+                                        user_id: userId,
+                                        reason: cancelledReason,
+                                        amount: refundAmount,
+                                        created_at: new Date().toISOString(),
+                                    }),
+                                    {
+                                        loading: 'Processing refund...',
+                                        success: async () => {
+                                            await toast.promise(
+                                                upsertPayment({
+                                                    ...paymentDetails,
+                                                    remarks: `payment of ${paymentDetails.amount} is refunded with partial amount ${refundAmount} return to user.`,
+                                                    is_refunded: true,
+                                                    refunded_at: new Date().toISOString(),
+                                                    refunded_amount: refundAmount,
+                                                }),
+                                                {
+                                                    loading: 'Updating payment details...',
+                                                    success: 'Payment details updated',
+                                                    error: 'Failed to update payment details',
+                                                }
+                                            );
+                                            return 'Refund processed successfully';
+                                        },
+                                        error: 'Failed to process refund',
+                                    }
+                                );
+                            }
+                            router.refresh();
+                            setShowCancelModal(false);
+                            setCancelledReason('');
+                            afterSubmit();
+                            return 'Enrollment cancelled successfully!';
+                        },
+                        error: 'Failed to cancel enrollment',
+                    }
                 );
-              }
-              router.refresh();
-              setShowCancelModal(false);
-              setCancelledReason('');
-              afterSubmit();
-              return 'Enrollment cancelled successfully!';
-            },
-            error: 'Failed to cancel enrollment',
-          }
-        );
-      });
-    } else {
-      toast.error('Please provide a cancellation reason.');
-    }
-  };
+            });
+        } else {
+            toast.error('Please provide a cancellation reason.');
+        }
+    };
 
-  return (
-    <div>
-      <AlertDialog onOpenChange={setShowCancelModal} open={showCancelModal}>
-        <AlertDialogContent className="dark:border-gray-700 dark:bg-gray-800">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="dark:text-white">
-              Cancel Enrollment
-            </AlertDialogTitle>
-            <AlertDialogDescription className="dark:text-gray-400">
-              Please provide a reason for cancelling this enrollment. Choose to
-              refund the payment or not if payment is existed
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label className="dark:text-gray-200" htmlFor="cancelledReason">
-                Reason
-              </Label>
-              <Textarea
-                className="dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                id="cancelledReason"
-                onChange={(e) => setCancelledReason(e.target.value)}
-                placeholder="e.g., Student dropped out, Course cancelled"
-                value={cancelledReason}
-              />
-            </div>
-            {isPaymentDetailFetchPending && (
-              <div className="flex items-center space-x-4">
-                <Skeleton className="h-12 w-12 rounded-full" />
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-[250px]" />
-                  <Skeleton className="h-4 w-[200px]" />
-                </div>
-              </div>
-            )}
-            {paymentDetails?.amount && (
-              <div className="grid gap-2">
-                <Label className="dark:text-gray-200">Payment Info</Label>
-                <p
-                  className={'text-muted-foreground text-sm dark:text-gray-400'}
-                  id={'payment'}
-                >
-                  This enrollment has an payment record, where
-                  <span className="block">
-                    Status:{' '}
-                    {paymentDetails?.status ?? (
-                      <Skeleton className="h-4 w-[200px]" />
-                    )}
-                  </span>
-                  <span className="block">
-                    Amount: {paymentDetails?.amount}
-                  </span>
-                  <span className="block">
-                    Created At: {paymentDetails?.method}
-                  </span>
-                  <span className="block">
-                    Method: {paymentDetails?.created_at}
-                  </span>
-                </p>
-                <Card className="space-x-2 p-3 dark:border-gray-600 dark:bg-gray-700">
-                  <Checkbox
-                    className="dark:border-gray-500"
-                    name="refund"
-                    onCheckedChange={setRefund}
-                  />
-                  <Label className="dark:text-gray-200">
-                    Refund this payment?
-                  </Label>
-                  {refund && (
-                    <div>
-                      <Label className="dark:text-gray-200" htmlFor="amount">
-                        Refund Amount
-                      </Label>
-                      <Input
-                        className="dark:border-gray-500 dark:bg-gray-600 dark:text-white"
-                        max={paymentDetails.amount}
-                        name="amount"
-                        onChange={(e) => {
-                          if (Number(e.target.value) <= paymentDetails.amount) {
-                            setRefundAmount(Number(e.target.value));
-                            return;
-                          }
-                          toast.error(
-                            `Refund Amount cannot be greater than paid amount i.e: ${paymentDetails.amount}`
-                          );
-                        }}
-                        pattern="\d{1,5}"
-                        placeholder="Enter the amount to refund to user"
-                        type="text"
-                        value={refundAmount}
-                      />
+    return (
+        <div>
+            <AlertDialog onOpenChange={setShowCancelModal} open={showCancelModal}>
+                <AlertDialogContent className="">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="">
+                            Cancel Enrollment
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="">
+                            Please provide a reason for cancelling this enrollment. Choose to
+                            refund the payment or not if payment is existed
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                            <Label className="" htmlFor="cancelledReason">
+                                Reason
+                            </Label>
+                            <Textarea
+                                className="dark:border-gray-600 dark:bg-gray-700 "
+                                id="cancelledReason"
+                                onChange={(e) => setCancelledReason(e.target.value)}
+                                placeholder="e.g., Student dropped out, Course cancelled"
+                                value={cancelledReason}
+                            />
+                        </div>
+                        {isPaymentDetailFetchPending && (
+                            <div className="flex items-center space-x-4">
+                                <Skeleton className="h-12 w-12 rounded-full" />
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-[250px]" />
+                                    <Skeleton className="h-4 w-[200px]" />
+                                </div>
+                            </div>
+                        )}
+                        {paymentDetails?.amount && (
+                            <div className="grid gap-2">
+                                <Label className="">Payment Info</Label>
+                                <p
+                                    className={'text-muted-foreground text-sm '}
+                                    id={'payment'}
+                                >
+                                    This enrollment has an payment record, where
+                                    <span className="block">
+                                        Status:{' '}
+                                        {paymentDetails?.status ?? (
+                                            <Skeleton className="h-4 w-[200px]" />
+                                        )}
+                                    </span>
+                                    <span className="block">
+                                        Amount: {paymentDetails?.amount}
+                                    </span>
+                                    <span className="block">
+                                        Created At: {paymentDetails?.method}
+                                    </span>
+                                    <span className="block">
+                                        Method: {paymentDetails?.created_at}
+                                    </span>
+                                </p>
+                                <Card className="space-x-2 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                    <Checkbox
+                                        className="dark:border-gray-500"
+                                        name="refund"
+                                        onCheckedChange={setRefund}
+                                    />
+                                    <Label className="">
+                                        Refund this payment?
+                                    </Label>
+                                    {refund && (
+                                        <div>
+                                            <Label className="" htmlFor="amount">
+                                                Refund Amount
+                                            </Label>
+                                            <Input
+                                                className="dark:border-gray-500 dark:bg-gray-600 "
+                                                max={paymentDetails.amount}
+                                                name="amount"
+                                                onChange={(e) => {
+                                                    if (Number(e.target.value) <= paymentDetails.amount) {
+                                                        setRefundAmount(Number(e.target.value));
+                                                        return;
+                                                    }
+                                                    toast.error(
+                                                        `Refund Amount cannot be greater than paid amount i.e: ${paymentDetails.amount}`
+                                                    );
+                                                }}
+                                                pattern="\d{1,5}"
+                                                placeholder="Enter the amount to refund to user"
+                                                type="text"
+                                                value={refundAmount}
+                                            />
+                                        </div>
+                                    )}
+                                </Card>
+                            </div>
+                        )}
+                        {!(paymentDetails || isPaymentDetailFetchPending) && (
+                            <p className="text-muted ">
+                                No Payment Details for enrollment found
+                            </p>
+                        )}
                     </div>
-                  )}
-                </Card>
-              </div>
-            )}
-            {!(paymentDetails || isPaymentDetailFetchPending) && (
-              <p className="text-muted dark:text-gray-400">
-                No Payment Details for enrollment found
-              </p>
-            )}
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              className="dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
-              disabled={isPending}
-            >
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              className="dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
-              disabled={isPending || !cancelledReason}
-              onClick={handleConfirmCancellation}
-            >
-              Confirm Cancellation
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  );
+                    <AlertDialogFooter>
+                        <AlertDialogCancel
+                            className="dark:bg-gray-600  dark:hover:bg-gray-500"
+                            disabled={isPending}
+                        >
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            className="dark:bg-red-600  dark:hover:bg-red-700"
+                            disabled={isPending || !cancelledReason}
+                            onClick={handleConfirmCancellation}
+                        >
+                            Confirm Cancellation
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
+    );
 }

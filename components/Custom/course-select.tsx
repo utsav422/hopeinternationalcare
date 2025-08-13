@@ -3,11 +3,11 @@
 import type { ControllerRenderProps } from 'react-hook-form';
 import { toast } from 'sonner';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 import { useGetAllCourses } from '@/hooks/admin/courses';
 import type { ZodSelectCourseType } from '@/lib/db/drizzle-zod-schema/courses';
@@ -15,56 +15,56 @@ import type { ZodInsertIntakeType } from '@/lib/db/drizzle-zod-schema/intakes';
 import { Skeleton } from '../ui/skeleton';
 
 type CourseForSelect = Omit<
-  ZodSelectCourseType,
-  'description' | 'created_at'
+    ZodSelectCourseType,
+    'description' | 'created_at'
 > & {
-  category_name: string | null;
+    category_name: string | null;
 };
 
 interface CourseSelectProps {
-  field: ControllerRenderProps<ZodInsertIntakeType, 'course_id'>;
-  disabled?: boolean;
+    field: ControllerRenderProps<ZodInsertIntakeType, 'course_id'>;
+    disabled?: boolean;
 }
 
 export default function CourseSelect({ field, disabled }: CourseSelectProps) {
-  const { isLoading, error, data: queryResult } = useGetAllCourses();
-  const courses = queryResult?.data as CourseForSelect[] | undefined;
+    const { isLoading, error, data: queryResult } = useGetAllCourses();
+    const courses = queryResult?.data as CourseForSelect[] | undefined;
 
-  if (error) {
-    toast.error('Something went wrong while fetching categories', {
-      description: error.message,
-    });
-  }
-  if (isLoading) {
+    if (error) {
+        toast.error('Something went wrong while fetching categories', {
+            description: error.message,
+        });
+    }
+    if (isLoading) {
+        return (
+            <div className="flex items-center space-x-4">
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                </div>
+            </div>
+        );
+    }
     return (
-      <div className="flex items-center space-x-4">
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-full" />
-        </div>
-      </div>
+        <Select
+            disabled={disabled || isLoading}
+            onValueChange={field.onChange}
+            value={field.value ?? undefined}
+        >
+            <SelectTrigger className="">
+                <SelectValue placeholder="Select a course" />
+            </SelectTrigger>
+            <SelectContent className="">
+                {courses?.map((course: CourseForSelect) => (
+                    <SelectItem
+                        className="dark:hover:bg-gray-700"
+                        key={course.id}
+                        value={course.id}
+                    >
+                        {course.title}
+                    </SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
     );
-  }
-  return (
-    <Select
-      disabled={disabled || isLoading}
-      onValueChange={field.onChange}
-      value={field.value ?? undefined}
-    >
-      <SelectTrigger className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-        <SelectValue placeholder="Select a course" />
-      </SelectTrigger>
-      <SelectContent className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-        {courses?.map((course: CourseForSelect) => (
-          <SelectItem
-            className="dark:hover:bg-gray-700"
-            key={course.id}
-            value={course.id}
-          >
-            {course.title}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
 }

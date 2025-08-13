@@ -184,10 +184,10 @@ export default function ({ slug, formTitle }: Props) {
         <Card className="dark:border-gray-600 dark:bg-gray-800">
             <CardHeader>
                 <div className="mb-6 space-y-1">
-                    <CardTitle className="font-medium text-lg dark:text-white">
+                    <CardTitle className="font-medium text-lg ">
                         {formTitle}
                     </CardTitle>
-                    <CardDescription className="dark:text-gray-400">
+                    <CardDescription className="">
                         Fill in the information about the course.
                     </CardDescription>
                 </div>
@@ -206,7 +206,7 @@ export default function ({ slug, formTitle }: Props) {
                             render={({ field }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="font-medium text-sm leading-none dark:text-white">
+                                        <FormLabel className="font-medium text-sm leading-none ">
                                             Title
                                         </FormLabel>
                                     </div>
@@ -214,7 +214,7 @@ export default function ({ slug, formTitle }: Props) {
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 onChange={(e) => {
                                                     field.onChange(e);
                                                     form.setValue(
@@ -237,8 +237,8 @@ export default function ({ slug, formTitle }: Props) {
                             render={({ field }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="dark:text-white">Slug</FormLabel>
-                                        <FormDescription className="text-muted-foreground text-xs dark:text-gray-400">
+                                        <FormLabel className="">Slug</FormLabel>
+                                        <FormDescription className="text-muted-foreground text-xs ">
                                             It will be auto-generated from title.
                                         </FormDescription>
                                     </div>
@@ -246,7 +246,7 @@ export default function ({ slug, formTitle }: Props) {
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 disabled
                                             />
                                         </FormControl>
@@ -262,8 +262,8 @@ export default function ({ slug, formTitle }: Props) {
                             render={({ field }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="dark:text-white">Category</FormLabel>
-                                        <FormDescription className="text-muted-foreground text-xs dark:text-gray-400">
+                                        <FormLabel className="">Category</FormLabel>
+                                        <FormDescription className="text-muted-foreground text-xs ">
                                             categories data are dynamicaly fetched.
                                         </FormDescription>
                                     </div>
@@ -286,13 +286,13 @@ export default function ({ slug, formTitle }: Props) {
                             render={({ field }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="dark:text-white">Price</FormLabel>
+                                        <FormLabel className="">Price</FormLabel>
                                     </div>
                                     <div className="space-y-2 md:col-span-3">
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 onChange={(e) =>
                                                     field.onChange(
                                                         e.target.value === ''
@@ -315,10 +315,10 @@ export default function ({ slug, formTitle }: Props) {
                             render={({ field, fieldState }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="font-medium text-sm leading-none dark:text-white">
+                                        <FormLabel className="font-medium text-sm leading-none ">
                                             Course Description
                                         </FormLabel>
-                                        <FormDescription className="text-muted-foreground text-xs dark:text-gray-400">
+                                        <FormDescription className="text-muted-foreground text-xs ">
                                             Describe your course in details
                                         </FormDescription>
                                     </div>
@@ -337,7 +337,7 @@ export default function ({ slug, formTitle }: Props) {
                                                 }}
                                             />
                                         </FormControl>
-                                        <FormDescription className="text-muted-foreground text-xs dark:text-gray-400">
+                                        <FormDescription className="text-muted-foreground text-xs ">
                                             Supports Markdown formatting
                                         </FormDescription>
                                         <FormMessage className="text-xs" />
@@ -352,8 +352,8 @@ export default function ({ slug, formTitle }: Props) {
                             render={({ field }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="dark:text-white">Level</FormLabel>
-                                        <FormDescription className="text-muted-foreground text-xs dark:text-gray-400">
+                                        <FormLabel className="">Level</FormLabel>
+                                        <FormDescription className="text-muted-foreground text-xs ">
                                             Education Level
                                         </FormDescription>
                                     </div>
@@ -361,7 +361,7 @@ export default function ({ slug, formTitle }: Props) {
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 max={5}
                                                 onChange={(e) =>
                                                     field.onChange(
@@ -386,10 +386,10 @@ export default function ({ slug, formTitle }: Props) {
                             render={({ field }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="dark:text-white">
+                                        <FormLabel className="">
                                             Duration Type
                                         </FormLabel>
-                                        <FormDescription className="text-muted-foreground text-xs dark:text-gray-400">
+                                        <FormDescription className="text-muted-foreground text-xs ">
                                             Select Duration Type days/weeks/months/years
                                         </FormDescription>
                                     </div>
@@ -399,10 +399,10 @@ export default function ({ slug, formTitle }: Props) {
                                                 onValueChange={field.onChange}
                                                 value={field.value}
                                             >
-                                                <SelectTrigger className="w-full dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                                                <SelectTrigger className="w-full dark:border-gray-600 dark:bg-gray-700 ">
                                                     <SelectValue placeholder="Select a duration type" />
                                                 </SelectTrigger>
-                                                <SelectContent className="dark:bg-gray-700 dark:text-white">
+                                                <SelectContent className="dark:bg-gray-700 ">
                                                     <SelectGroup>
                                                         <SelectLabel>Duration Type</SelectLabel>
                                                         {durationTypeEnum.enumValues.map((item) => {
@@ -432,10 +432,10 @@ export default function ({ slug, formTitle }: Props) {
                             render={({ field }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="dark:text-white">
+                                        <FormLabel className="">
                                             Duration Value
                                         </FormLabel>
-                                        <FormDescription className="text-muted-foreground text-xs dark:text-gray-400">
+                                        <FormDescription className="text-muted-foreground text-xs ">
                                             Enter selected duration type value
                                         </FormDescription>
                                     </div>
@@ -444,7 +444,7 @@ export default function ({ slug, formTitle }: Props) {
                                             <Input
                                                 type="number"
                                                 {...field}
-                                                className="w-all dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                className="w-all dark:border-gray-600 dark:bg-gray-700 "
                                                 max={MAX_DURATION_VALUE}
                                                 onChange={(e) =>
                                                     field.onChange(
@@ -468,10 +468,10 @@ export default function ({ slug, formTitle }: Props) {
                             render={({ field }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="font-medium text-sm leading-none dark:text-white">
+                                        <FormLabel className="font-medium text-sm leading-none ">
                                             Cover Image
                                         </FormLabel>
-                                        <FormDescription className="text-muted-foreground text-xs dark:text-gray-400">
+                                        <FormDescription className="text-muted-foreground text-xs ">
                                             JPG, PNG or GIF (max 2MB)
                                         </FormDescription>
                                     </div>
@@ -506,10 +506,10 @@ export default function ({ slug, formTitle }: Props) {
                                                     type="button"
                                                 >
                                                     <div className="text-center">
-                                                        <p className="font-medium text-sm dark:text-white">
+                                                        <p className="font-medium text-sm ">
                                                             Upload a file
                                                         </p>
-                                                        <p className="mt-1 text-muted-foreground text-xs dark:text-gray-400">
+                                                        <p className="mt-1 text-muted-foreground text-xs ">
                                                             Drag & drop or click to browse
                                                         </p>
                                                     </div>
@@ -517,7 +517,7 @@ export default function ({ slug, formTitle }: Props) {
                             {field.value || 'No file selected'}
                             </p> */}
                                                 </button>
-                                                <pre className="dark:text-white">
+                                                <pre className="">
                                                     {JSON.stringify(field?.value, null, 2)}
                                                 </pre>
                                             </div>
@@ -529,17 +529,17 @@ export default function ({ slug, formTitle }: Props) {
                         />
                         <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                             <div className="space-y-1 md:col-span-1">
-                                <FormLabel className="font-medium text-sm leading-none dark:text-white">
+                                <FormLabel className="font-medium text-sm leading-none ">
                                     Action{' '}
                                 </FormLabel>{' '}
-                                <FormDescription className="text-muted-foreground text-xs dark:text-gray-400">
+                                <FormDescription className="text-muted-foreground text-xs ">
                                     Submit Action Button For{' '}
                                     {initialData ? 'Updating' : 'Creating'} Course
                                 </FormDescription>
                             </div>
-                            <div className="dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700">
+                            <div className="dark:bg-blue-600  dark:hover:bg-blue-700">
                                 <Button
-                                    className="dark:bg-teal-600 dark:text-white dark:hover:bg-teal-700"
+                                    className="dark:bg-teal-600  dark:hover:bg-teal-700"
                                     disabled={isSubmitting}
                                     type="submit"
                                 >

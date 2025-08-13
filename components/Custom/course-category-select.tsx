@@ -76,10 +76,10 @@ export default function CourseCategorySelect({
 
     if (categories?.length === 0) {
         return (
-            <div className="dark:text-white">
+            <div className="">
                 <p>No categories found.</p>
                 <Button
-                    className="dark:bg-teal-600 dark:text-white dark:hover:bg-teal-700"
+                    className="dark:bg-teal-600  dark:hover:bg-teal-700"
                     onClick={() => setIsModalOpen(true)}
                     type="button"
                 >
@@ -107,10 +107,10 @@ export default function CourseCategorySelect({
                 onValueChange={field.onChange}
                 value={field?.value ?? undefined}
             >
-                <SelectTrigger className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                <SelectTrigger className="">
                     <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
-                <SelectContent className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                <SelectContent className="">
                     {categories.map((category: Category) => (
                         <SelectItem
                             className="dark:hover:bg-gray-700"

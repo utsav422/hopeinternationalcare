@@ -6,18 +6,18 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { requireAdmin } from '@/utils/auth-guard';
 
 export default async function Layout({
-  children,
+    children,
 }: {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }) {
-  await requireAdmin();
-  return (
-    <SidebarProvider>
-      <AdminAppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader />
-        <main className="w-full p-5">{children}</main>
-      </SidebarInset>
-    </SidebarProvider>
-  );
+    await requireAdmin();
+    return (
+        <SidebarProvider>
+            <AdminAppSidebar variant="inset" />
+            <SidebarInset>
+                <SiteHeader />
+                <main className="w-full p-5 ">{children}</main>
+            </SidebarInset>
+        </SidebarProvider>
+    );
 }

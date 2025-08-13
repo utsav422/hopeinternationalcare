@@ -24,10 +24,10 @@ function CourseDetails() {
         <div className="min-h-screen bg-gray-50 pt-20 dark:bg-gray-900">
             <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
                 <div className="mb-8">
-                    <h1 className="font-extrabold text-4xl text-gray-900 tracking-tight sm:text-5xl dark:text-white">
+                    <h1 className="font-extrabold text-4xl text-gray-900 tracking-tight sm:text-5xl ">
                         {course?.title}
                     </h1>
-                    <p className="mt-2 text-gray-500 text-xl dark:text-gray-400">
+                    <p className="mt-2 text-gray-500 text-xl ">
                         {course?.category?.name}
                     </p>
                 </div>

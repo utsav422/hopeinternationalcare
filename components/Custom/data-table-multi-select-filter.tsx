@@ -6,154 +6,154 @@ import type * as React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+    CommandSeparator,
 } from '@/components/ui/command';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
 } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
 interface MultiSelectFilterProps {
-  title: string;
-  options: {
-    label: string;
-    value: string;
-    icon?: React.ComponentType<{ className?: string }> | null;
-  }[];
-  selectedValues: Set<string>;
-  onValueChange: (values: string[]) => void;
+    title: string;
+    options: {
+        label: string;
+        value: string;
+        icon?: React.ComponentType<{ className?: string }> | null;
+    }[];
+    selectedValues: Set<string>;
+    onValueChange: (values: string[]) => void;
 }
 
 export function MultiSelectFilter({
-  title,
-  options,
-  selectedValues,
-  onValueChange,
+    title,
+    options,
+    selectedValues,
+    onValueChange,
 }: MultiSelectFilterProps) {
-  const handleSelect = (value: string) => {
-    const newSelectedValues = new Set(selectedValues);
-    if (newSelectedValues.has(value)) {
-      newSelectedValues.delete(value);
-    } else {
-      newSelectedValues.add(value);
-    }
-    onValueChange(Array.from(newSelectedValues));
-  };
+    const handleSelect = (value: string) => {
+        const newSelectedValues = new Set(selectedValues);
+        if (newSelectedValues.has(value)) {
+            newSelectedValues.delete(value);
+        } else {
+            newSelectedValues.add(value);
+        }
+        onValueChange(Array.from(newSelectedValues));
+    };
 
-  const handleClear = () => {
-    onValueChange([]);
-  };
+    const handleClear = () => {
+        onValueChange([]);
+    };
 
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          className="h-8 border-dashed dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-          size="sm"
-          variant="outline"
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          {title}
-          {selectedValues.size > 0 && (
-            <>
-              <Separator className="mx-2 h-4" orientation="vertical" />
-              <Badge
-                className="rounded-sm px-1 font-normal lg:hidden dark:bg-gray-700 dark:text-gray-200"
-                variant="secondary"
-              >
-                {selectedValues.size}
-              </Badge>
-              <div className="hidden space-x-1 lg:flex">
-                {selectedValues.size > 2 ? (
-                  <Badge
-                    className="rounded-sm px-1 font-normal dark:bg-gray-700 dark:text-gray-200"
-                    variant="secondary"
-                  >
-                    {selectedValues.size} selected
-                  </Badge>
-                ) : (
-                  options
-                    .filter((option) => selectedValues.has(option.value))
-                    .map((option) => (
-                      <Badge
-                        className="rounded-sm px-1 font-normal dark:bg-gray-700 dark:text-gray-200"
-                        key={option.value}
-                        variant="secondary"
-                      >
-                        {option.label}
-                      </Badge>
-                    ))
-                )}
-              </div>
-            </>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className="w-[200px] p-0 dark:border-gray-700 dark:bg-gray-800"
-      >
-        <Command>
-          <CommandInput
-            className="dark:bg-gray-700 dark:text-white"
-            placeholder={title}
-          />
-          <CommandList>
-            <CommandEmpty className="dark:text-gray-400">
-              No results found.
-            </CommandEmpty>
-            <CommandGroup>
-              {options.map((option) => {
-                const isSelected = selectedValues.has(option.value);
-                return (
-                  <CommandItem
-                    className="dark:text-white dark:hover:bg-gray-700"
-                    key={option.value}
-                    onSelect={() => handleSelect(option.value)}
-                  >
-                    <div
-                      className={cn(
-                        'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                        isSelected
-                          ? 'bg-primary text-primary-foreground'
-                          : 'opacity-50 [&_svg]:invisible'
-                      )}
-                    >
-                      <Check className="h-4 w-4" />
-                    </div>
-                    {option.icon && (
-                      <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+    return (
+        <Popover>
+            <PopoverTrigger asChild>
+                <Button
+                    className="h-8 border-dashed"
+                    size="sm"
+                    variant="outline"
+                >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    {title}
+                    {selectedValues.size > 0 && (
+                        <>
+                            <Separator className="mx-2 h-4" orientation="vertical" />
+                            <Badge
+                                className="rounded-sm px-1 font-normal lg:hidden dark:bg-gray-700 "
+                                variant="secondary"
+                            >
+                                {selectedValues.size}
+                            </Badge>
+                            <div className="hidden space-x-1 lg:flex">
+                                {selectedValues.size > 2 ? (
+                                    <Badge
+                                        className="rounded-sm px-1 font-normal dark:bg-gray-700 "
+                                        variant="secondary"
+                                    >
+                                        {selectedValues.size} selected
+                                    </Badge>
+                                ) : (
+                                    options
+                                        .filter((option) => selectedValues.has(option.value))
+                                        .map((option) => (
+                                            <Badge
+                                                className="rounded-sm px-1 font-normal dark:bg-gray-700 "
+                                                key={option.value}
+                                                variant="secondary"
+                                            >
+                                                {option.label}
+                                            </Badge>
+                                        ))
+                                )}
+                            </div>
+                        </>
                     )}
-                    <span>{option.label}</span>
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
-            {selectedValues.size > 0 && (
-              <>
-                <CommandSeparator />
-                <CommandGroup>
-                  <CommandItem
-                    className="justify-center text-center dark:text-white dark:hover:bg-gray-700"
-                    onSelect={handleClear}
-                  >
-                    Clear filters
-                  </CommandItem>
-                </CommandGroup>
-              </>
-            )}
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent
+                align="start"
+                className="w-[200px] p-0 "
+            >
+                <Command>
+                    <CommandInput
+                        className="dark:bg-gray-700 "
+                        placeholder={title}
+                    />
+                    <CommandList>
+                        <CommandEmpty className="">
+                            No results found.
+                        </CommandEmpty>
+                        <CommandGroup>
+                            {options.map((option) => {
+                                const isSelected = selectedValues.has(option.value);
+                                return (
+                                    <CommandItem
+                                        className=" dark:hover:bg-gray-700"
+                                        key={option.value}
+                                        onSelect={() => handleSelect(option.value)}
+                                    >
+                                        <div
+                                            className={cn(
+                                                'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                                                isSelected
+                                                    ? 'bg-primary text-primary-foreground'
+                                                    : 'opacity-50 [&_svg]:invisible'
+                                            )}
+                                        >
+                                            <Check className="h-4 w-4" />
+                                        </div>
+                                        {option.icon && (
+                                            <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                                        )}
+                                        <span>{option.label}</span>
+                                    </CommandItem>
+                                );
+                            })}
+                        </CommandGroup>
+                        {selectedValues.size > 0 && (
+                            <>
+                                <CommandSeparator />
+                                <CommandGroup>
+                                    <CommandItem
+                                        className="justify-center text-center  dark:hover:bg-gray-700"
+                                        onSelect={handleClear}
+                                    >
+                                        Clear filters
+                                    </CommandItem>
+                                </CommandGroup>
+                            </>
+                        )}
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
+    );
 }

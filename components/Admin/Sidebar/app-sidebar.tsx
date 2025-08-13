@@ -1,128 +1,289 @@
-// import type { ColumnFiltersState } from '@tanstack/react-table';
-// import { useQueryState } from 'next-usequerystate';
+"use client"
+
+import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
+import {
+    IconCreditCard,
+    IconDotsVertical,
+    IconLogout,
+    IconNotification,
+    IconUserCircle,
+} from "@tabler/icons-react"
+
+import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+} from "@/components/ui/avatar"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+    useSidebar,
+} from "@/components/ui/sidebar"
+import { SidebarFooter } from "@/components/ui/sidebar"
 import { Button } from '@/components/ui/button';
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarRail,
+    Sidebar,
+    SidebarContent,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    SidebarRail,
 } from '@/components/ui/sidebar';
 import { signOutAction } from '@/lib/server-actions/admin/admin-auth-actions';
-// import { enrollmentStatus, paymentStatus } from '@/utils/db/schema/enums';
-import { SearchForm } from '../search-form';
-import { VersionSwitcher } from '../version-switcher';
+import { IconInnerShadowTop } from '@tabler/icons-react';
 
 type SubNavItem = {
-  title: string;
-  url: string;
-  isActive: boolean;
-  onClick?: () => void;
+    title: string;
+    url: string;
+    isActive: boolean;
+    onClick?: () => void;
 };
 
 type NavMainItem = {
-  title: string;
-  url: string;
-  isActive: boolean;
-  items?: SubNavItem[];
+    title: string;
+    url: string;
+    isActive: boolean;
+    items?: SubNavItem[];
 };
 
 export function AdminAppSidebar({
-  ...props
+    ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const data: { versions: string[]; navMain: NavMainItem[] } = {
-    versions: ['1.0.1', '1.1.0-alpha', '2.0.0-beta1'],
-    navMain: [
-      {
-        title: 'General',
-        url: '#',
-        isActive: false, // Added isActive property
-        items: [
-          {
-            title: 'Dashboard',
-            url: '/admin',
-            isActive: false,
-          },
-          {
-            title: 'Users',
-            url: '/admin/users',
-            isActive: false,
-          },
-          {
-            title: 'Courses',
-            url: '/admin/courses',
-            isActive: false,
-          },
-          {
-            title: 'Intakes',
-            url: '/admin/intakes',
-            isActive: false,
-          },
-          {
-            title: 'Categories',
-            url: '/admin/categories',
-            isActive: false,
-          },
-          {
-            title: 'Enrollments',
-            url: '/admin/enrollments',
-            isActive: false,
-          },
+    const data = {
+        user: {
+            name: "Aaasha Bhattarai",
+            email: "bhattaraiaasha3739@gmail.com",
+            avatar: "/image/admin-avatar.png",
+        },
+        navMain: [
+            {
+                title: 'General',
+                url: '#',
+                icon: undefined,
+                isActive: false, // Added isActive property
+                sub_items: [
+                    {
+                        title: 'Dashboard',
+                        icon: undefined,
+                        url: '/admin',
+                        isActive: false,
+                    },
+                    {
+                        title: 'Users',
+                        url: '/admin/users',
+                        icon: undefined,
+                        isActive: false,
+                    },
+                    {
+                        title: 'Categories',
+                        url: '/admin/categories',
+                        icon: undefined,
+                        isActive: false,
+                    },
+                    {
+                        title: 'Courses',
+                        url: '/admin/courses',
+                        icon: undefined,
+                        isActive: false,
+                    },
+                    {
+                        title: 'Intakes',
+                        url: '/admin/intakes',
+                        icon: undefined,
+                        isActive: false,
+                    },
+                    {
+                        title: 'Enrollments',
+                        url: '/admin/enrollments',
+                        icon: undefined,
+                        isActive: false,
+                    },
+                    {
+                        title: 'Customer Contact Request',
+                        url: '/admin/customer-contact-requests',
+                        icon: undefined,
+                        isActive: false,
+                    },
+
+                ],
+            },
         ],
-      },
-    ],
-  };
-  return (
-    <Sidebar
-      {...props}
-      className="dark:border-gray-700 dark:border-r dark:bg-gray-800"
-    >
-      <SidebarHeader>
-        <VersionSwitcher
-          defaultVersion={data.versions[0]}
-          versions={data.versions}
-        />
-        <SearchForm />
-      </SidebarHeader>
-      <SidebarContent>
-        {data.navMain.map((nav) => (
-          <SidebarGroup key={nav.title}>
-            <SidebarGroupLabel className="dark:text-gray-400">
-              {nav.title}
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {nav.items?.map((subNavItem) => (
-                  <SidebarMenuItem key={subNavItem.title}>
-                    <SidebarMenuButton
-                      asChild
-                      className="dark:text-gray-300 dark:data-[active=true]:bg-gray-700 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
-                      isActive={subNavItem.isActive}
-                      onClick={subNavItem.onClick}
-                    >
-                      <a className="capitalize" href={subNavItem.url}>
-                        {subNavItem.title}
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+    };
+    return (
+        <Sidebar collapsible="offcanvas" {...props}>
+
+            <SidebarHeader>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            className="data-[slot=sidebar-menu-button]:!p-1.5"
+                        >
+                            <a href="#">
+                                <IconInnerShadowTop className="!size-5" />
+                                <span className="text-base font-semibold">Hope Internation Care ORG.</span>
+                            </a>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarHeader>
+            <SidebarContent>
+                <NavMain items={data.navMain} />
+            </SidebarContent>
+            <SidebarFooter>
+                <Button
+                    className="dark:bg-red-600  dark:hover:bg-red-700"
+                    onClick={signOutAction}
+                >
+                    Logout
+                </Button>
+                <NavUser user={data.user} />
+            </SidebarFooter>
+        </Sidebar>
+    );
+}
+
+
+function NavMain({
+    items,
+}: {
+    items: {
+        title: string
+        url: string
+        icon?: Icon
+        isActive: boolean
+        sub_items?: {
+
+            title: string
+            url: string
+            icon?: Icon
+            isActive: boolean
+        }[]
+    }[]
+}) {
+    return (<>
+        {items.map((item) => (
+            <SidebarGroup key={item.title}>
+                <SidebarGroupLabel className="">
+                    {item.title}
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        {item.sub_items?.map((subNavItem) => (
+                            <SidebarMenuItem key={subNavItem.title}>
+                                <SidebarMenuButton
+                                    asChild
+                                    className="dark:text-gray-300 dark:data-[active=true]:bg-gray-700 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
+                                    isActive={subNavItem.isActive}
+                                >
+                                    <a className="capitalize" href={subNavItem.url}>
+                                        {subNavItem.title}
+                                    </a>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
         ))}
-        <Button
-          className="dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
-          onClick={signOutAction}
-        >
-          Logout
-        </Button>
-      </SidebarContent>
-      <SidebarRail />
-    </Sidebar>
-  );
+    </>
+
+    )
+}
+
+
+
+
+export function NavUser({
+    user,
+}: {
+    user: {
+        name: string
+        email: string
+        avatar: string
+    }
+}) {
+    const { isMobile } = useSidebar()
+
+    return (
+        <SidebarMenu>
+            <SidebarMenuItem>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <SidebarMenuButton
+                            size="lg"
+                            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                        >
+                            <Avatar className="h-8 w-8 rounded-lg grayscale">
+                                <AvatarImage src={user.avatar} alt={user.name} />
+                                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                            </Avatar>
+                            <div className="grid flex-1 text-left text-sm leading-tight">
+                                <span className="truncate font-medium">{user.name}</span>
+                                <span className="text-muted-foreground truncate text-xs">
+                                    {user.email}
+                                </span>
+                            </div>
+                            <IconDotsVertical className="ml-auto size-4" />
+                        </SidebarMenuButton>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                        className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+                        side={isMobile ? "bottom" : "right"}
+                        align="end"
+                        sideOffset={4}
+                    >
+                        <DropdownMenuLabel className="p-0 font-normal">
+                            <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                                <Avatar className="h-8 w-8 rounded-lg">
+                                    <AvatarImage src={user.avatar} alt={user.name} />
+                                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                                </Avatar>
+                                <div className="grid flex-1 text-left text-sm leading-tight">
+                                    <span className="truncate font-medium">{user.name}</span>
+                                    <span className="text-muted-foreground truncate text-xs">
+                                        {user.email}
+                                    </span>
+                                </div>
+                            </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                            <DropdownMenuItem>
+                                <IconUserCircle />
+                                Account
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <IconCreditCard />
+                                Billing
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <IconNotification />
+                                Notifications
+                            </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                            onClick={signOutAction} className="text-red-600"
+                        >
+
+                            <IconLogout className="text-red-600" />
+                            Logout
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </SidebarMenuItem>
+        </SidebarMenu >
+    )
 }

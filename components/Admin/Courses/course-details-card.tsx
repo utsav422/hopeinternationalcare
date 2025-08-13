@@ -23,7 +23,7 @@ const Card = ({
     className?: string;
 }) => (
     <div
-        className={`rounded-lg bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-800 ${className}`}
+        className={`rounded-lg bg-white p-6 shadow-md  ${className}`}
     >
         {children}
     </div>
@@ -59,16 +59,16 @@ const CourseInfo = ({
     onCategoryAction: (action: 'add' | 'update') => void;
 }) => (
     <Card>
-        <h1 className="mb-2 font-bold text-2xl dark:text-white">{title}</h1>
+        <h1 className="mb-2 font-bold text-2xl ">{title}</h1>
         <div className="grid grid-cols-2 gap-4">
             <div>
-                <p className="font-medium text-gray-500 text-sm dark:text-gray-400">
+                <p className="font-medium text-gray-500 text-sm ">
                     Level
                 </p>
                 <p className="dark:text-gray-300">{level}</p>
             </div>
             <div>
-                <p className="font-medium text-gray-500 text-sm dark:text-gray-400">
+                <p className="font-medium text-gray-500 text-sm ">
                     Category ID
                 </p>
                 <div className="flex items-center space-x-2">
@@ -89,13 +89,13 @@ const CourseInfo = ({
                 </div>
             </div>
             <div>
-                <p className="font-medium text-gray-500 text-sm dark:text-gray-400">
+                <p className="font-medium text-gray-500 text-sm ">
                     Slug
                 </p>
                 <p className="dark:text-gray-300">{slug}</p>
             </div>
             <div>
-                <p className="font-medium text-gray-500 text-sm dark:text-gray-400">
+                <p className="font-medium text-gray-500 text-sm ">
                     Duration
                 </p>
                 <p className="dark:text-gray-300">
@@ -108,16 +108,16 @@ const CourseInfo = ({
 
 const CoursePrice = ({ price }: { price: number }) => (
     <Card>
-        <p className="font-medium text-gray-500 text-sm dark:text-gray-400">
+        <p className="font-medium text-gray-500 text-sm ">
             Price
         </p>
-        <p className="font-bold text-3xl dark:text-white">${price}</p>
+        <p className="font-bold text-3xl ">${price}</p>
     </Card>
 );
 
 const CourseIntakes = () => (
     <Card>
-        <h2 className="mb-4 font-bold text-xl dark:text-white">Intakes</h2>
+        <h2 className="mb-4 font-bold text-xl ">Intakes</h2>
         <table className="w-full text-left">
             <thead>
                 <tr>
@@ -138,7 +138,7 @@ const CourseIntakes = () => (
             <tbody>
                 <tr>
                     <td
-                        className="p-4 text-center text-gray-500 dark:text-gray-400"
+                        className="p-4 text-center text-gray-500 "
                         colSpan={4}
                     >
                         No intakes available.
@@ -147,7 +147,7 @@ const CourseIntakes = () => (
             </tbody>
         </table>
         <div className="mt-4 flex justify-end">
-            <Button className="dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700">
+            <Button className="dark:bg-blue-600  dark:hover:bg-blue-700">
                 Generate Intakes
             </Button>
         </div>
@@ -220,7 +220,7 @@ export default function CourseDetailsCard() {
     if (!course) {
         return (
             <Card>
-                <p className="text-center text-gray-500 dark:text-gray-400">
+                <p className="text-center text-gray-500 ">
                     Course data is not available.
                 </p>
             </Card>
@@ -295,7 +295,7 @@ export default function CourseDetailsCard() {
                         title={title}
                     />
                     <CoursePrice price={price} />
-                    
+
                     <CourseIntakes />
                 </div>
             </div>
