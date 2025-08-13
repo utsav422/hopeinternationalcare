@@ -28,26 +28,26 @@ export const metadata: Metadata = {
 };
 
 export default async function Courses() {
-    //   const queryClient = getQueryClient();
+    const queryClient = getQueryClient();
 
-    //   await queryClient.prefetchQuery({
-    //     queryKey: queryKeys.publicCourses.list({ page: 1, pageSize: 10 }),
-    //     queryFn: () => getPublicCourses({ page: 1, pageSize: 10 }),
-    //   });
-    //   await queryClient.prefetchQuery({
-    //     queryKey: queryKeys.intakes.all,
-    //     queryFn: getAllIntakes,
-    //   });
-    //   await queryClient.prefetchQuery({
-    //     queryKey: queryKeys.courseCategories.all,
-    //     queryFn: publicGetAllCatogies,
-    //   });
+    await queryClient.prefetchQuery({
+        queryKey: queryKeys.publicCourses.list({ page: 1, pageSize: 10 }),
+        queryFn: () => getPublicCourses({ page: 1, pageSize: 10 }),
+    });
+    await queryClient.prefetchQuery({
+        queryKey: queryKeys.intakes.all,
+        queryFn: getAllIntakes,
+    });
+    await queryClient.prefetchQuery({
+        queryKey: queryKeys.courseCategories.all,
+        queryFn: publicGetAllCatogies,
+    });
 
     return (
-        // <HydrationBoundary state={dehydrate(queryClient)}>
-        <Suspense fallback={'Loading ...'}>
-            <AllCourses />
-        </Suspense>
-        // </HydrationBoundary>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <Suspense fallback={'Loading ...'}>
+                <AllCourses />
+            </Suspense>
+        </HydrationBoundary>
     );
 }

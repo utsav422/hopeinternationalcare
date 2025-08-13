@@ -12,6 +12,7 @@ import { UpcomingIntakesBanner } from '@/components/Custom/upcoming-intakes-bann
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useGetPublicCourses } from '@/hooks/admin/public-courses';
+import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 
 export function AllCourses() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -35,6 +36,7 @@ export function AllCourses() {
         hasNextPage,
         isFetchingNextPage,
         status,
+        isLoading,
     } = useGetPublicCourses({
         pageSize: 9,
         filters: { ...filters, title: debouncedSearchTerm },
@@ -119,7 +121,9 @@ export function AllCourses() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
             <div className="container mx-auto px-4 py-12 lg:py-16">
-                <UpcomingIntakesBanner />
+                <Suspense fallback={'loading....'}>
+                    <UpcomingIntakesBanner />
+                </Suspense>
                 <header className="my-12 text-center">
                     <h1 className="font-bold text-4xl text-gray-900 tracking-tight sm:text-5xl dark:text-white">
                         Explore Our Courses
@@ -148,22 +152,27 @@ export function AllCourses() {
                                     Filters
                                 </h2>
                                 <div className="space-y-4">
-                                    <Suspense>
-                                        <IntakeFilter
-                                            onChange={(value) =>
-                                                handleFilterChange('intake_date', value)
-                                            }
-                                            value={filters.intake_date}
-                                        />
-                                    </Suspense>
-                                    <Suspense>
-                                        <CategoryFilter
-                                            onChange={(value) =>
-                                                handleFilterChange('category', value)
-                                            }
-                                            value={filters.category}
-                                        />
-                                    </Suspense>
+                                    <QueryErrorWrapper>
+
+                                        <Suspense fallback={'loading...'}>
+                                            <IntakeFilter
+                                                onChange={(value) =>
+                                                    handleFilterChange('intake_date', value)
+                                                }
+                                                value={filters.intake_date}
+                                            />
+                                        </Suspense>
+                                    </QueryErrorWrapper>
+                                    <QueryErrorWrapper>
+                                        <Suspense fallback={'loading...'}>
+                                            <CategoryFilter
+                                                onChange={(value) =>
+                                                    handleFilterChange('category', value)
+                                                }
+                                                value={filters.category}
+                                            />
+                                        </Suspense>
+                                    </QueryErrorWrapper>
                                 </div>
                             </div>
                             <div>
@@ -175,7 +184,7 @@ export function AllCourses() {
                         </div>
                     </aside>
 
-                    <main className="w-full lg:w-3/4">{renderContent()}</main>
+                    <main className="w-full lg:w-3/4">{isLoading ? "Loading content..." : renderContent()}</main>
                 </div>
             </div>
         </div>
