@@ -50,6 +50,13 @@
       "when": 1754239483846,
       "tag": "0006_regular_the_hunter",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1755062749791,
+      "tag": "0007_jittery_randall_flagg",
+      "breakpoints": true
     }
   ]
 }
