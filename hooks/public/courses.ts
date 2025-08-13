@@ -27,8 +27,12 @@ export const useGetPublicCourses = (params: {
         sortOrder: params.sortOrder || 'desc',
         filters: JSON.stringify(params.filters || {}),
       });
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
-      const response = await fetch(`/api/public/courses?${searchParams}`);
+      const response = await fetch(
+        `${baseUrl}/api/public/courses?${searchParams}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }
@@ -47,7 +51,12 @@ export function useGetPublicCourseById(courseId: string) {
   return useQuery({
     queryKey: queryKeys.courses.detail(courseId),
     queryFn: async () => {
-      const response = await fetch(`/api/public/courses?id=${courseId}`);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(
+        `${baseUrl}/api/public/courses?id=${courseId}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch course');
       }
@@ -65,7 +74,12 @@ export function useGetPublicCourseBySlug(slug?: string) {
   return useQuery({
     queryKey: queryKeys.courses.detail(slug || ''),
     queryFn: async () => {
-      const response = await fetch(`/api/public/courses?slug=${slug}`);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(
+        `${baseUrl}/api/public/courses?slug=${slug}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch course');
       }
@@ -83,7 +97,10 @@ export function useGetNewCourses() {
   return useQuery({
     queryKey: queryKeys.newCourses.all,
     queryFn: async () => {
-      const response = await fetch('/api/public/courses?new=true');
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(`${baseUrl}/api/public/courses?new=true`);
       if (!response.ok) {
         throw new Error('Failed to fetch new courses');
       }
@@ -104,7 +121,12 @@ export function useGetRelatedCourses(courseId: string, categoryId: string) {
         relatedTo: courseId,
         categoryId,
       });
-      const response = await fetch(`/api/public/courses?${searchParams}`);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(
+        `${baseUrl}/api/public/courses?${searchParams}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch related courses');
       }

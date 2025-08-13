@@ -34,7 +34,7 @@ export async function createEnrollment(formData: FormData) {
     if (!parsed.success) {
       return {
         success: false,
-        error: parsed.error.errors.map((e) => e.message).join(', '),
+        error: parsed.error.message,
       };
     }
 

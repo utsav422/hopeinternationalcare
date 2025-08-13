@@ -7,7 +7,11 @@ export const useGetDashboardSummary = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.dashboard.all,
     queryFn: async () => {
-      const response = await fetch('/api/admin/dashboard?summary=true');
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      const response = await fetch(
+        `${baseUrl}/api/admin/dashboard?summary=true`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch dashboard summary');
       }
@@ -24,7 +28,11 @@ export const useGetTotalUsers = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.dashboard.totalUsers,
     queryFn: async () => {
-      const response = await fetch('/api/admin/dashboard?totalUsers=true');
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      const response = await fetch(
+        `${baseUrl}/api/admin/dashboard?totalUsers=true`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch total users');
       }
@@ -41,8 +49,10 @@ export const useGetTotalEnrollments = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.dashboard.totalEnrollment,
     queryFn: async () => {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
       const response = await fetch(
-        '/api/admin/dashboard?totalEnrollments=true'
+        `${baseUrl}/api/admin/dashboard?totalEnrollments=true`
       );
       if (!response.ok) {
         throw new Error('Failed to fetch total enrollments');
@@ -60,8 +70,10 @@ export const useGetEnrollmentsByStatus = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.dashboard.enrollmentByStatus,
     queryFn: async () => {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
       const response = await fetch(
-        '/api/admin/dashboard?enrollmentsByStatus=true'
+        `${baseUrl}/api/admin/dashboard?enrollmentsByStatus=true`
       );
       if (!response.ok) {
         throw new Error('Failed to fetch enrollments by status');
@@ -81,7 +93,11 @@ export const useGetTotalIncome = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.dashboard.totalIncome,
     queryFn: async () => {
-      const response = await fetch('/api/admin/dashboard?totalIncome=true');
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      const response = await fetch(
+        `${baseUrl}/api/admin/dashboard?totalIncome=true`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch total income');
       }
@@ -98,8 +114,10 @@ export const useGetPaymentsByStatus = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.dashboard.paymentByStatus,
     queryFn: async () => {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
       const response = await fetch(
-        '/api/admin/dashboard?paymentsByStatus=true'
+        `${baseUrl}/api/admin/dashboard?paymentsByStatus=true`
       );
       if (!response.ok) {
         throw new Error('Failed to fetch payments by status');

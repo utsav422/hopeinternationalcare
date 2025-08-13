@@ -29,7 +29,12 @@ export const useGetPayments = (params: {
         search: params.search || '',
         ...(params.status && { status: params.status }),
       });
-      const response = await fetch(`/api/admin/payments?${searchParams}`);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(
+        `${baseUrl}/api/admin/payments?${searchParams}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch payments');
       }
@@ -46,8 +51,11 @@ export const useGetPaymentDetailsByEnrollmentId = (enrollmentId: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.payments.detailByEnrollment(enrollmentId),
     queryFn: async () => {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
       const response = await fetch(
-        `/api/admin/payments?enrollmentId=${enrollmentId}`
+        `${baseUrl}/api/admin/payments?enrollmentId=${enrollmentId}`
       );
       if (!response.ok) {
         throw new Error('Failed to fetch payment details');
@@ -65,7 +73,12 @@ export const useGetPaymentOnlyDetailsById = (paymentId: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.payments.detail(paymentId),
     queryFn: async () => {
-      const response = await fetch(`/api/admin/payments?id=${paymentId}`);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(
+        `${baseUrl}/api/admin/payments?id=${paymentId}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch payment details');
       }
@@ -82,8 +95,11 @@ export const useGetPaymentDetailsWithOthersById = (paymentId: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.payments.detail(paymentId),
     queryFn: async () => {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
       const response = await fetch(
-        `/api/admin/payments?id=${paymentId}&withOthers=true`
+        `${baseUrl}/api/admin/payments?id=${paymentId}&withOthers=true`
       );
       if (!response.ok) {
         throw new Error('Failed to fetch payment details');

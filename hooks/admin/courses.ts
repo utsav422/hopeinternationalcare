@@ -26,8 +26,11 @@ export const useGetCourses = (params: ListParams) => {
         order: params.order || 'desc',
         filters: JSON.stringify(params.filters || []),
       });
-
-      const response = await fetch(`/api/admin/courses?${searchParams}`);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      const response = await fetch(
+        `${baseUrl}/api/admin/courses?${searchParams}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }
@@ -46,7 +49,9 @@ export const useGetAllCourses = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.courses.lists(),
     queryFn: async () => {
-      const response = await fetch('/api/admin/courses?getAll=true');
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}/api/admin/courses?getAll=true`);
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }
@@ -65,7 +70,9 @@ export const useGetCourseById = (id: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.courses.detail(id),
     queryFn: async () => {
-      const response = await fetch(`/api/admin/courses?id=${id}`);
+              const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(`${baseUrl}/api/admin/courses?id=${id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }

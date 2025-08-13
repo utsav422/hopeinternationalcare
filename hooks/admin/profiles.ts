@@ -22,7 +22,12 @@ export const useGetProfiles = (params: {
         pageSize: params.pageSize?.toString() || '10',
         search: params.search || '',
       });
-      const response = await fetch(`/api/admin/profiles?${searchParams}`);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(
+        `${baseUrl}/api/admin/profiles?${searchParams}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch profiles');
       }
@@ -39,7 +44,10 @@ export const useGetAllProfiles = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.profiles.all,
     queryFn: async () => {
-      const response = await fetch('/api/admin/profiles?getAll=true');
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(`${baseUrl}/api/admin/profiles?getAll=true`);
       if (!response.ok) {
         throw new Error('Failed to fetch all profiles');
       }
@@ -56,7 +64,10 @@ export const useGetProfileById = (id: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.profiles.detail(id),
     queryFn: async () => {
-      const response = await fetch(`/api/admin/profiles?id=${id}`);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(`${baseUrl}/api/admin/profiles?id=${id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch profile');
       }

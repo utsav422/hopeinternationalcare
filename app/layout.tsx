@@ -1,4 +1,5 @@
-import { Roboto } from 'next/font/google';
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from 'next-themes';
 import './globals.css';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
@@ -17,10 +18,14 @@ export const metadata = {
     'Hope International is a leading training center in Kathmandu, Nepal, providing comprehensive caregiver training and elderly care services. We empower individuals with the skills to provide exceptional care to the elderly.',
 };
 
-const roboto = Roboto({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '700', '900'],
-  display: 'swap',
+const geistSans = Geist({
+    variable: "--font-geist-sans",
+    subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+    variable: "--font-geist-mono",
+    subsets: ["latin"],
 });
 export default function RootLayout({
   children,
@@ -51,7 +56,7 @@ export default function RootLayout({
   };
 
   return (
-    <html className={roboto.className} lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -64,7 +69,7 @@ export default function RootLayout({
         />
         <link href="/favicon.png" rel="shortcut icon" type="image/png" />
       </head>
-      <body>
+          <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <QueryProvider>
           <NuqsAdapter>
             <ThemeProvider attribute="class" defaultTheme="dark">

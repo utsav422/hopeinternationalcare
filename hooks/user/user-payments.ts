@@ -36,7 +36,12 @@ export const useGetUserPaymentHistory = (page = 1, pageSize = 10) => {
         page: page.toString(),
         pageSize: pageSize.toString(),
       });
-      const response = await fetch(`/api/user/payments?${searchParams}`);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(
+        `${baseUrl}/api/user/payments?${searchParams}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch payment history');
       }

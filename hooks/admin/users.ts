@@ -32,7 +32,12 @@ export const useGetUsers = (page?: number, pageSize?: number) => {
         page: page?.toString() || '1',
         pageSize: pageSize?.toString() || '10',
       });
-      const response = await fetch(`/api/admin/users?${searchParams}`);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(
+        `${baseUrl}/api/admin/users?${searchParams}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch users');
       }

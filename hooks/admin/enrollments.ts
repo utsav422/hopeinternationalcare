@@ -28,7 +28,12 @@ export const useGetEnrollments = (params: {
         pageSize: params.pageSize?.toString() || '10',
         filters: JSON.stringify(params.filters || []),
       });
-      const response = await fetch(`/api/admin/enrollments?${searchParams}`);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(
+        `${baseUrl}/api/admin/enrollments?${searchParams}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch enrollments');
       }
@@ -45,7 +50,10 @@ export const useGetEnrollmentById = (id: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.enrollments.detail(id),
     queryFn: async () => {
-      const response = await fetch(`/api/admin/enrollments?id=${id}`);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(`${baseUrl}/api/admin/enrollments?id=${id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch enrollment');
       }
@@ -62,8 +70,11 @@ export const useGetEnrollmentWithDetails = (id: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.enrollments.detail(id),
     queryFn: async () => {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
       const response = await fetch(
-        `/api/admin/enrollments?id=${id}&withDetails=true`
+        `${baseUrl}/api/admin/enrollments?id=${id}&withDetails=true`
       );
       if (!response.ok) {
         throw new Error('Failed to fetch enrollment details');
@@ -81,7 +92,12 @@ export const useGetEnrollmentsByUserId = (userId: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.enrollments.detailByUserId(userId),
     queryFn: async () => {
-      const response = await fetch(`/api/admin/enrollments?userId=${userId}`);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      const response = await fetch(
+        `${baseUrl}/api/admin/enrollments?userId=${userId}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch enrollments');
       }
@@ -98,8 +114,11 @@ export const useGetEnrollmentWithPayment = (id: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.enrollments.detailByPaymentId(id),
     queryFn: async () => {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
       const response = await fetch(
-        `/api/admin/enrollments?id=${id}&withPayment=true`
+        `${baseUrl}/api/admin/enrollments?id=${id}&withPayment=true`
       );
       if (!response.ok) {
         throw new Error('Failed to fetch enrollment with payment');
@@ -119,7 +138,11 @@ export const useGetAllEnrollments = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.enrollments.all,
     queryFn: async () => {
-      const response = await fetch('/api/admin/enrollments?getAll=true');
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      const response = await fetch(
+        `${baseUrl}/api/admin/enrollments?getAll=true`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch all enrollments');
       }
@@ -136,8 +159,11 @@ export const useGetAllEnrollmentsByStatus = (status: TypeEnrollmentStatus) => {
   return useSuspenseQuery({
     queryKey: queryKeys.enrollments.list({ status }),
     queryFn: async () => {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
       const response = await fetch(
-        `/api/admin/enrollments?getAll=true&status=${status}`
+        `${baseUrl}/api/admin/enrollments?getAll=true&status=${status}`
       );
       if (!response.ok) {
         throw new Error('Failed to fetch enrollments by status');
