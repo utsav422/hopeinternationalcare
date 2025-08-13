@@ -1,9 +1,12 @@
-import { type NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { adminDeleteCourse } from '@/lib/server-actions/admin/courses';
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const id = request.url.split('/').pop();
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { error: 'Course ID is required' },

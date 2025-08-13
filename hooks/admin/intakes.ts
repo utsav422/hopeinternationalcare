@@ -9,10 +9,6 @@ import type { intakes as intakesTable } from '@/lib/db/schema/intakes';
 import { queryKeys } from '@/lib/query-keys';
 import {
   adminDeleteIntake,
-  adminGetAllActiveIntake,
-  adminGetAllIntake,
-  adminGetIntakeById,
-  adminGetIntakes,
   adminUpsertIntake,
   generateIntakesForCourse,
   generateIntakesForCourseAdvanced,
@@ -23,9 +19,20 @@ export const useGetIntakes = (params: ListParams) => {
   return useSuspenseQuery({
     queryKey: queryKeys.intakes.list(params),
     queryFn: async () => {
-      const result = await adminGetIntakes(params);
+      const searchParams = new URLSearchParams({
+        page: params.page?.toString() || '1',
+        pageSize: params.pageSize?.toString() || '10',
+        sortBy: params.sortBy || 'created_at',
+        order: params.order || 'desc',
+        filters: JSON.stringify(params.filters || []),
+      });
+      const response = await fetch(`/api/admin/intakes?${searchParams}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch intakes');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch intakes');
       }
       return result;
     },
@@ -36,9 +43,13 @@ export const useGetAllActiveIntake = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.intakes.activeIntakes,
     queryFn: async () => {
-      const result = await adminGetAllActiveIntake();
+      const response = await fetch('/api/admin/intakes?getAllActive=true');
+      if (!response.ok) {
+        throw new Error('Failed to fetch active intakes');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch active intakes');
       }
       return result.data;
     },
@@ -49,9 +60,13 @@ export const useGetAllIntake = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.intakes.all,
     queryFn: async () => {
-      const result = await adminGetAllIntake();
+      const response = await fetch('/api/admin/intakes?getAll=true');
+      if (!response.ok) {
+        throw new Error('Failed to fetch all intakes');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch all intakes');
       }
       return result.data;
     },
@@ -62,9 +77,13 @@ export const useGetIntakeById = (id: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.intakes.detail(id),
     queryFn: async () => {
-      const result = await adminGetIntakeById(id);
+      const response = await fetch(`/api/admin/intakes?id=${id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch intake');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch intake');
       }
       return result.data;
     },

@@ -11,6 +11,16 @@ import {
 import { useGetAllProfiles } from '@/hooks/admin/profiles';
 import type { ZodEnrollmentInsertType } from '@/lib/db/drizzle-zod-schema/enrollments';
 
+interface Profile {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  role: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 interface UserSelectProps {
   field: ControllerRenderProps<ZodEnrollmentInsertType, 'user_id'>;
   disabled?: boolean;
@@ -19,7 +29,7 @@ interface UserSelectProps {
 export default function UserSelect({ field, disabled }: UserSelectProps) {
   const { data: profiles, error, isLoading } = useGetAllProfiles();
   const filteredProfiles = profiles?.filter(
-    (item) => item.role === 'authenticated'
+    (item: Profile) => item.role === 'authenticated'
   );
 
   if (isLoading) {
@@ -51,7 +61,7 @@ export default function UserSelect({ field, disabled }: UserSelectProps) {
         <SelectValue placeholder="Select a user profile" />
       </SelectTrigger>
       <SelectContent className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-        {filteredProfiles?.map((profile) => (
+        {filteredProfiles?.map((profile: Profile) => (
           <SelectItem
             className="dark:hover:bg-gray-700"
             key={profile.id}

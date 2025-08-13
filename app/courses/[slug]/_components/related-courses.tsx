@@ -39,7 +39,21 @@ export function RelatedCourses({
   if (error) {
     toast.error(error.message);
   }
-  const relatedCourses = resultData?.data;
+  const relatedCourses = resultData?.data as {
+    id: string;
+    title: string;
+    slug: string;
+    description: string | null;
+    image_url: string | null;
+    price: number;
+    next_intake_date: string;
+    next_intake_id: string | null;
+    available_seats: number;
+    categoryName: string | null;
+    level: number;
+    duration_value: number;
+    duration_type: 'days' | 'week' | 'month' | 'year';
+  }[];
   if (!relatedCourses) {
     notFound();
   }
@@ -50,34 +64,50 @@ export function RelatedCourses({
         Related Courses
       </h2>
       <ul className="space-y-4">
-        {relatedCourses.map((relatedCourse) => (
-          <li key={relatedCourse.id}>
-            <Link
-              className="group block"
-              href={`/courses/${relatedCourse.slug}`}
-            >
-              <div className="flex items-center space-x-4">
-                <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md">
-                  <Image
-                    alt={relatedCourse.title}
-                    className="h-full w-full object-cover"
-                    height={64}
-                    src={relatedCourse.image_url || '/placeholder.svg'}
-                    width={64}
-                  />
+        {relatedCourses.map(
+          (relatedCourse: {
+            id: string;
+            title: string;
+            slug: string;
+            description: string | null;
+            image_url: string | null;
+            price: number;
+            next_intake_date: string;
+            next_intake_id: string | null;
+            available_seats: number;
+            categoryName: string | null;
+            level: number;
+            duration_value: number;
+            duration_type: 'days' | 'week' | 'month' | 'year';
+          }) => (
+            <li key={relatedCourse.id}>
+              <Link
+                className="group block"
+                href={`/courses/${relatedCourse.slug}`}
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md">
+                    <Image
+                      alt={relatedCourse.title}
+                      className="h-full w-full object-cover"
+                      height={64}
+                      src={relatedCourse.image_url || '/placeholder.svg'}
+                      width={64}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800 text-lg group-hover:text-teal-500 dark:text-gray-200 dark:group-hover:text-teal-400">
+                      {relatedCourse.title}
+                    </h3>
+                    <p className="text-gray-500 text-sm dark:text-gray-400">
+                      ${relatedCourse.price}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-gray-800 text-lg group-hover:text-teal-500 dark:text-gray-200 dark:group-hover:text-teal-400">
-                    {relatedCourse.title}
-                  </h3>
-                  <p className="text-gray-500 text-sm dark:text-gray-400">
-                    ${relatedCourse.price}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          </li>
-        ))}
+              </Link>
+            </li>
+          )
+        )}
       </ul>
     </div>
   );

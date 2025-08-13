@@ -37,6 +37,7 @@ export const queryKeys = {
   },
   intakes: {
     all: ['intakes'] as const,
+    upCommingIntakes: ['up-comming-intakes'] as const,
     activeIntakes: ['active-intakes'] as const,
     inActiveIntakes: ['in-active-intakes'] as const,
     lists: () => [...queryKeys.intakes.all, 'list'] as const,

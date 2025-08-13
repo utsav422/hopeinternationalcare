@@ -6,7 +6,6 @@ import {
   useSuspenseQuery,
 } from '@tanstack/react-query';
 import {
-  adminGetCustomerContactRequests,
   deleteCustomerContactRequest,
   updateCustomerContactRequestStatus,
 } from '@/lib/server-actions/admin/customer-contact-requests';
@@ -50,14 +49,21 @@ export function useGetCustomerContactRequests({
       status,
     }),
     queryFn: async () => {
-      const result = await adminGetCustomerContactRequests({
-        page,
-        pageSize,
-        search,
-        status,
+      const searchParams = new URLSearchParams({
+        page: page.toString(),
+        pageSize: pageSize.toString(),
+        ...(search && { search }),
+        ...(status && { status }),
       });
+      const response = await fetch(
+        `/api/admin/customer-contact-requests?${searchParams}`
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch data');
       }
       return result;
     },

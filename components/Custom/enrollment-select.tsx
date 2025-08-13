@@ -57,7 +57,8 @@ export default function EnrollmentSelect({
       disabled={disabled || isLoading}
       onValueChange={(value) => {
         const selectedEnrollmentWIthDetails = enrollmentsWithDetails?.find(
-          (itemWithDetails) => itemWithDetails.enrollment.id === value
+          (itemWithDetails: EnrollmentWithDetails) =>
+            itemWithDetails.enrollment.id === value
         );
         if (selectedEnrollmentWIthDetails) {
           field.onChange(value);
@@ -70,31 +71,33 @@ export default function EnrollmentSelect({
         <SelectValue placeholder="Select a Enrollments" />
       </SelectTrigger>
       <SelectContent className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-        {enrollmentsWithDetails?.map((itemWithDetails) => (
-          <SelectItem
-            className="dark:hover:bg-gray-700"
-            key={itemWithDetails.enrollment.id}
-            value={itemWithDetails.enrollment.id}
-          >
-            <div className="flex items-center gap-2">
-              <span className="font-bold dark:text-white">
-                Enrolled Date: {itemWithDetails.enrollment.enrollment_date}
-              </span>
-              <span className="text-gray-500 text-sm dark:text-gray-400">
-                (user: {itemWithDetails.user?.full_name})
-              </span>
-              <span className="text-gray-700 text-sm dark:text-gray-300">
-                {new Date(
-                  itemWithDetails.enrollment.enrollment_date as string
-                ).toLocaleDateString('en-GB', {
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                })}{' '}
-              </span>
-            </div>
-          </SelectItem>
-        ))}
+        {enrollmentsWithDetails?.map(
+          (itemWithDetails: EnrollmentWithDetails) => (
+            <SelectItem
+              className="dark:hover:bg-gray-700"
+              key={itemWithDetails.enrollment.id}
+              value={itemWithDetails.enrollment.id}
+            >
+              <div className="flex items-center gap-2">
+                <span className="font-bold dark:text-white">
+                  Enrolled Date: {itemWithDetails.enrollment.enrollment_date}
+                </span>
+                <span className="text-gray-500 text-sm dark:text-gray-400">
+                  (user: {itemWithDetails.user?.full_name})
+                </span>
+                <span className="text-gray-700 text-sm dark:text-gray-300">
+                  {new Date(
+                    itemWithDetails.enrollment.enrollment_date as string
+                  ).toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                  })}{' '}
+                </span>
+              </div>
+            </SelectItem>
+          )
+        )}
       </SelectContent>
     </Select>
   );

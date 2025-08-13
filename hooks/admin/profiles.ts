@@ -7,12 +7,7 @@ import {
 } from '@tanstack/react-query';
 import type { ZodSelectProfileType } from '@/lib/db/drizzle-zod-schema/profiles';
 import { queryKeys } from '@/lib/query-keys';
-import {
-  adminGetAllProfiles,
-  adminGetProfileById,
-  adminGetProfiles,
-  adminUpdateProfile,
-} from '@/lib/server-actions/admin/profiles';
+import { adminUpdateProfile } from '@/lib/server-actions/admin/profiles';
 
 export const useGetProfiles = (params: {
   page?: number;
@@ -22,9 +17,18 @@ export const useGetProfiles = (params: {
   return useSuspenseQuery({
     queryKey: queryKeys.profiles.list(params),
     queryFn: async () => {
-      const result = await adminGetProfiles(params);
+      const searchParams = new URLSearchParams({
+        page: params.page?.toString() || '1',
+        pageSize: params.pageSize?.toString() || '10',
+        search: params.search || '',
+      });
+      const response = await fetch(`/api/admin/profiles?${searchParams}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch profiles');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch profiles');
       }
       return result;
     },
@@ -35,9 +39,13 @@ export const useGetAllProfiles = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.profiles.all,
     queryFn: async () => {
-      const result = await adminGetAllProfiles();
+      const response = await fetch('/api/admin/profiles?getAll=true');
+      if (!response.ok) {
+        throw new Error('Failed to fetch all profiles');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch all profiles');
       }
       return result.data;
     },
@@ -48,9 +56,13 @@ export const useGetProfileById = (id: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.profiles.detail(id),
     queryFn: async () => {
-      const result = await adminGetProfileById(id);
+      const response = await fetch(`/api/admin/profiles?id=${id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch profile');
       }
       return result.data;
     },

@@ -14,6 +14,11 @@ interface CategoryFilterProps {
   onChange: (value: string) => void;
 }
 
+type Category = {
+  id: string;
+  name: string;
+};
+
 export default function CategoryFilter({
   value,
   onChange,
@@ -32,7 +37,7 @@ export default function CategoryFilter({
             Loading...
           </SelectItem>
         ) : (
-          categories.map((category) => (
+          categories.map((category: Category) => (
             <SelectItem
               className="dark:hover:bg-gray-700"
               key={category.id}

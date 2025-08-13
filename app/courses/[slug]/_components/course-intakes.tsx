@@ -57,17 +57,29 @@ export function CourseIntakes({ courseId }: { courseId: string }) {
         Upcoming Intakes
       </h2>
       <ul className="space-y-4 text-gray-600 dark:text-gray-400">
-        {intakes.map((intake) => (
-          <li className="flex items-center" key={intake.id}>
-            <CheckCircleIcon className="mr-3 h-6 w-6 text-teal-500" />
-            <span>
-              <strong>
-                {new Date(intake.start_date).toLocaleDateString()}
-              </strong>{' '}
-              - {new Date(intake.end_date).toLocaleDateString()}
-            </span>
-          </li>
-        ))}
+        {intakes.map(
+          (intake: {
+            start_date: string;
+            end_date: string;
+            id: string;
+            created_at: string;
+            updated_at: string;
+            course_id: string | null;
+            capacity: number;
+            is_open: boolean | null;
+            total_registered: number;
+          }) => (
+            <li className="flex items-center" key={intake?.id}>
+              <CheckCircleIcon className="mr-3 h-6 w-6 text-teal-500" />
+              <span>
+                <strong>
+                  {new Date(intake?.start_date as string).toLocaleDateString()}
+                </strong>{' '}
+                - {new Date(intake?.end_date).toLocaleDateString()}
+              </span>
+            </li>
+          )
+        )}
       </ul>
       <Button
         asChild

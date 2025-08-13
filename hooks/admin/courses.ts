@@ -7,9 +7,6 @@ import {
 import type { ListParams as DataTableListParams } from '@/hooks/admin/use-data-table-query-state';
 import {
   adminDeleteCourse,
-  adminGetAllCourses,
-  adminGetCourseById,
-  adminGetCourses,
   adminUpdateCourseCategoryIdCol,
   adminUpsertCourse,
 } from '@/lib/server-actions/admin/courses';
@@ -22,10 +19,24 @@ export const useGetCourses = (params: ListParams) => {
   return useSuspenseQuery({
     queryKey: queryKeys.courses.list(params),
     queryFn: async () => {
-      const result = await adminGetCourses(params);
-      if (!result.success) {
-        throw new Error(result.error);
+      const searchParams = new URLSearchParams({
+        page: params.page?.toString() || '1',
+        pageSize: params.pageSize?.toString() || '10',
+        sortBy: params.sortBy || 'created_at',
+        order: params.order || 'desc',
+        filters: JSON.stringify(params.filters || []),
+      });
+
+      const response = await fetch(`/api/admin/courses?${searchParams}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
       }
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch data');
+      }
+
       return result;
     },
   });
@@ -35,10 +46,16 @@ export const useGetAllCourses = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.courses.lists(),
     queryFn: async () => {
-      const result = await adminGetAllCourses();
-      if (!result.success) {
-        throw new Error(result.error);
+      const response = await fetch('/api/admin/courses?getAll=true');
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
       }
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch data');
+      }
+
       return result;
     },
   });
@@ -48,10 +65,16 @@ export const useGetCourseById = (id: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.courses.detail(id),
     queryFn: async () => {
-      const result = await adminGetCourseById(id);
-      if (!result.success) {
-        throw new Error(result.error as string);
+      const response = await fetch(`/api/admin/courses?id=${id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
       }
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch data');
+      }
+
       return result;
     },
   });

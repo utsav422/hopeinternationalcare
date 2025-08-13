@@ -55,7 +55,9 @@ export default function IntakeSelect({
     <Select
       disabled={disabled || isLoading}
       onValueChange={(value) => {
-        const selectedIntakes = intakes?.find((item) => item.id === value);
+        const selectedIntakes = intakes?.find(
+          (item: IntakeWithCourse) => item.id === value
+        );
         if (selectedIntakes) {
           field.onChange(value);
           getItemOnValueChanges?.(selectedIntakes);
@@ -67,7 +69,7 @@ export default function IntakeSelect({
         <SelectValue placeholder="Select a intake" />
       </SelectTrigger>
       <SelectContent className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-        {intakes?.map((intake) => (
+        {intakes?.map((intake: IntakeWithCourse) => (
           <SelectItem
             className="dark:hover:bg-gray-700"
             key={intake.id}

@@ -57,7 +57,14 @@ export default function CourseCategoryFormModal({
     isLoading: isLoadingCategories,
     error,
   } = useGetAllCourseCategories();
-  const categories = queryResult?.data ?? null;
+  const categories =
+    (queryResult?.data as {
+      id: string;
+      name: string;
+      description: string | null;
+      created_at: string;
+      updated_at: string;
+    }[]) ?? [];
 
   const [showNewCategoryForm, setShowNewCategoryForm] = useState(creationOnly);
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(

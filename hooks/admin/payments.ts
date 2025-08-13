@@ -9,10 +9,6 @@ import type { TypePaymentStatus } from '@/lib/db/schema/enums';
 import { queryKeys } from '@/lib/query-keys';
 import {
   adminDeletePayment,
-  adminGetPaymentDetailsByEnrollmentId,
-  adminGetPaymentDetailsWithOthersById,
-  adminGetPaymentOnlyDetailsById,
-  adminGetPayments,
   adminUpdatePaymentStatus,
   adminUpsertPayment,
 } from '@/lib/server-actions/admin/payments';
@@ -27,9 +23,19 @@ export const useGetPayments = (params: {
   return useSuspenseQuery({
     queryKey: queryKeys.payments.list(params),
     queryFn: async () => {
-      const result = await adminGetPayments(params);
+      const searchParams = new URLSearchParams({
+        page: params.page?.toString() || '1',
+        pageSize: params.pageSize?.toString() || '10',
+        search: params.search || '',
+        ...(params.status && { status: params.status }),
+      });
+      const response = await fetch(`/api/admin/payments?${searchParams}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch payments');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch payments');
       }
       return result;
     },
@@ -40,9 +46,15 @@ export const useGetPaymentDetailsByEnrollmentId = (enrollmentId: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.payments.detailByEnrollment(enrollmentId),
     queryFn: async () => {
-      const result = await adminGetPaymentDetailsByEnrollmentId(enrollmentId);
+      const response = await fetch(
+        `/api/admin/payments?enrollmentId=${enrollmentId}`
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch payment details');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch payment details');
       }
       return result.data;
     },
@@ -53,9 +65,13 @@ export const useGetPaymentOnlyDetailsById = (paymentId: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.payments.detail(paymentId),
     queryFn: async () => {
-      const result = await adminGetPaymentOnlyDetailsById(paymentId);
+      const response = await fetch(`/api/admin/payments?id=${paymentId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch payment details');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch payment details');
       }
       return result.data;
     },
@@ -66,9 +82,15 @@ export const useGetPaymentDetailsWithOthersById = (paymentId: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.payments.detail(paymentId),
     queryFn: async () => {
-      const result = await adminGetPaymentDetailsWithOthersById(paymentId);
+      const response = await fetch(
+        `/api/admin/payments?id=${paymentId}&withOthers=true`
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch payment details');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch payment details');
       }
       return result.data;
     },

@@ -11,13 +11,6 @@ import type { TypeEnrollmentStatus } from '@/lib/db/schema/enums';
 import { queryKeys } from '@/lib/query-keys';
 import {
   adminDeleteEnrollment,
-  adminGetAllEnrollments,
-  adminGetAllEnrollmentsByStatus,
-  adminGetEnrollmentById,
-  adminGetEnrollments,
-  adminGetEnrollmentsByUserId,
-  adminGetEnrollmentWithDetails,
-  adminGetEnrollmentWithPayment,
   adminUpdateEnrollmentStatus,
   adminUpsertEnrollment,
 } from '@/lib/server-actions/admin/enrollments';
@@ -30,9 +23,18 @@ export const useGetEnrollments = (params: {
   return useSuspenseQuery({
     queryKey: queryKeys.enrollments.list(params),
     queryFn: async () => {
-      const result = await adminGetEnrollments(params);
+      const searchParams = new URLSearchParams({
+        page: params.page?.toString() || '1',
+        pageSize: params.pageSize?.toString() || '10',
+        filters: JSON.stringify(params.filters || []),
+      });
+      const response = await fetch(`/api/admin/enrollments?${searchParams}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch enrollments');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch enrollments');
       }
       return result;
     },
@@ -43,9 +45,13 @@ export const useGetEnrollmentById = (id: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.enrollments.detail(id),
     queryFn: async () => {
-      const result = await adminGetEnrollmentById(id);
+      const response = await fetch(`/api/admin/enrollments?id=${id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch enrollment');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch enrollment');
       }
       return result.data;
     },
@@ -56,9 +62,15 @@ export const useGetEnrollmentWithDetails = (id: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.enrollments.detail(id),
     queryFn: async () => {
-      const result = await adminGetEnrollmentWithDetails(id);
+      const response = await fetch(
+        `/api/admin/enrollments?id=${id}&withDetails=true`
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch enrollment details');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch enrollment details');
       }
       return result.data;
     },
@@ -69,9 +81,13 @@ export const useGetEnrollmentsByUserId = (userId: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.enrollments.detailByUserId(userId),
     queryFn: async () => {
-      const result = await adminGetEnrollmentsByUserId(userId);
+      const response = await fetch(`/api/admin/enrollments?userId=${userId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch enrollments');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch enrollments');
       }
       return result;
     },
@@ -82,9 +98,17 @@ export const useGetEnrollmentWithPayment = (id: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.enrollments.detailByPaymentId(id),
     queryFn: async () => {
-      const result = await adminGetEnrollmentWithPayment(id);
+      const response = await fetch(
+        `/api/admin/enrollments?id=${id}&withPayment=true`
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch enrollment with payment');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(
+          result.error || 'Failed to fetch enrollment with payment'
+        );
       }
       return result.data;
     },
@@ -95,9 +119,13 @@ export const useGetAllEnrollments = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.enrollments.all,
     queryFn: async () => {
-      const result = await adminGetAllEnrollments();
+      const response = await fetch('/api/admin/enrollments?getAll=true');
+      if (!response.ok) {
+        throw new Error('Failed to fetch all enrollments');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch all enrollments');
       }
       return result.data;
     },
@@ -108,9 +136,17 @@ export const useGetAllEnrollmentsByStatus = (status: TypeEnrollmentStatus) => {
   return useSuspenseQuery({
     queryKey: queryKeys.enrollments.list({ status }),
     queryFn: async () => {
-      const result = await adminGetAllEnrollmentsByStatus(status);
+      const response = await fetch(
+        `/api/admin/enrollments?getAll=true&status=${status}`
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch enrollments by status');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(
+          result.error || 'Failed to fetch enrollments by status'
+        );
       }
       return result.data;
     },

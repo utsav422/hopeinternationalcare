@@ -30,6 +30,16 @@ function IntakesTableSkeleton() {
   );
 }
 
+type IntakeWithNestedCourse = Omit<
+  IntakeWithCourse,
+  'courseTitle' | 'coursePrice'
+> & {
+  course?: {
+    title: string;
+    price: number;
+  };
+};
+
 export default function IntakesTables() {
   const searchParams = useSearchParams();
   const tab = searchParams.get('tab');
@@ -41,16 +51,20 @@ export default function IntakesTables() {
       description: error.message,
     });
   }
-  const data = queryResult?.data;
+  const data = queryResult?.data?.map((intake: IntakeWithNestedCourse) => ({
+    ...intake,
+    courseTitle: intake.course?.title,
+    coursePrice: intake.course?.price,
+  }));
   const { mutateAsync: deleteIntake } = useDeleteIntake();
 
   const currentYear = new Date().getFullYear();
-  const currentIntakes = data?.filter((intake) => {
-    return new Date(intake.start_date).getFullYear() === currentYear;
+  const currentIntakes = data?.filter((intake: IntakeWithCourse) => {
+    return new Date(intake?.start_date).getFullYear() === currentYear;
   });
   const currentTotal = currentIntakes?.length ?? 0;
-  const historyIntakes = data?.filter((intake) => {
-    return new Date(intake.start_date).getFullYear() !== currentYear;
+  const historyIntakes = data?.filter((intake: IntakeWithCourse) => {
+    return new Date(intake?.start_date).getFullYear() !== currentYear;
   });
   const historyTotal = historyIntakes?.length ?? 0;
 

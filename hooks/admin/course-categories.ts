@@ -8,9 +8,6 @@ import type { ListParams as DataTableListParams } from '@/hooks/admin/use-data-t
 import { queryKeys } from '@/lib/query-keys';
 import {
   adminDeleteCourseCategories,
-  adminGetAllCatogies,
-  adminGetCourseCategoriesById,
-  adminGetCoursesCategories,
   adminUpsertCourseCategories,
 } from '@/lib/server-actions/admin/courses-categories';
 import type { TablesInsert } from '@/utils/supabase/database.types';
@@ -20,21 +17,67 @@ type ListParams = Partial<DataTableListParams>;
 export const useGetCourseCategories = (params: ListParams) => {
   return useSuspenseQuery({
     queryKey: queryKeys.courseCategories.list(params),
-    queryFn: async () => await adminGetCoursesCategories(params),
+    queryFn: async () => {
+      const searchParams = new URLSearchParams({
+        page: params.page?.toString() || '1',
+        pageSize: params.pageSize?.toString() || '10',
+        sortBy: params.sortBy || 'created_at',
+        order: params.order || 'desc',
+        filters: JSON.stringify(params.filters || []),
+      });
+
+      const response = await fetch(
+        `/api/admin/courses-categories?${searchParams}`
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch data');
+      }
+
+      return result;
+    },
   });
 };
 
 export const useGetAllCourseCategories = () => {
   return useSuspenseQuery({
     queryKey: queryKeys.courseCategories.lists(),
-    queryFn: adminGetAllCatogies,
+    queryFn: async () => {
+      const response = await fetch('/api/admin/courses-categories?getAll=true');
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch data');
+      }
+
+      return result;
+    },
   });
 };
 
 export const useGetCourseCategoryById = (id: string) => {
   return useSuspenseQuery({
     queryKey: queryKeys.courseCategories.detail(id),
-    queryFn: async () => await adminGetCourseCategoriesById(id),
+    queryFn: async () => {
+      const response = await fetch(`/api/admin/courses-categories?id=${id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch data');
+      }
+
+      return result;
+    },
   });
 };
 

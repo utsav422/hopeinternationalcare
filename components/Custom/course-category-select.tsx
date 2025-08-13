@@ -24,6 +24,11 @@ interface CourseCategorySelectProps {
   disabled?: boolean;
 }
 
+type Category = {
+  id: string;
+  name: string;
+};
+
 export default function CourseCategorySelect({
   field,
   disabled,
@@ -100,7 +105,7 @@ export default function CourseCategorySelect({
           <SelectValue placeholder="Select a category" />
         </SelectTrigger>
         <SelectContent className="dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-          {categories.map((category) => (
+          {categories.map((category: Category) => (
             <SelectItem
               className="dark:hover:bg-gray-700"
               key={category.id}

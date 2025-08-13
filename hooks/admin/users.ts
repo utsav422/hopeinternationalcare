@@ -1,10 +1,6 @@
 'use client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  adminDeleteUser,
-  createUser,
-  getUserList,
-} from '@/lib/server-actions/admin/users';
+import { adminDeleteUser, createUser } from '@/lib/server-actions/admin/users';
 import { queryKeys } from '../../lib/query-keys';
 
 export const useCreateUser = () => {
@@ -31,6 +27,20 @@ export const useDeleteUser = () => {
 export const useGetUsers = (page?: number, pageSize?: number) => {
   return useQuery({
     queryKey: queryKeys.users.all,
-    queryFn: () => getUserList(page, pageSize),
+    queryFn: async () => {
+      const searchParams = new URLSearchParams({
+        page: page?.toString() || '1',
+        pageSize: pageSize?.toString() || '10',
+      });
+      const response = await fetch(`/api/admin/users?${searchParams}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch users');
+      }
+      return result;
+    },
   });
 };

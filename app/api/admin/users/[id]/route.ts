@@ -1,7 +1,35 @@
-import type { NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/utils/auth-guard';
 import { logger } from '@/utils/logger';
+
 import { createAdminSupabaseClient } from '@/utils/supabase/admin';
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+
+  try {
+    const supabaseAdmin = createAdminSupabaseClient();
+    const adminAuthClient = supabaseAdmin.auth.admin;
+    const { data, error } = await adminAuthClient.getUserById(id);
+
+    if (error) {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 500 }
+      );
+    }
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    const e = error as Error;
+    return NextResponse.json(
+      { success: false, error: e.message },
+      { status: 500 }
+    );
+  }
+}
 
 export async function DELETE(
   _: NextRequest,

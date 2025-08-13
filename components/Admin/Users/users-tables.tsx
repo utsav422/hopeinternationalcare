@@ -123,11 +123,11 @@ export default function UsersTables() {
   if (data && total > 0) {
     filtersUserData =
       data?.filter(
-        (user) => user.role?.toLocaleLowerCase() === 'authenticated'
+        (user: User) => user.role?.toLocaleLowerCase() === 'authenticated'
       ) ?? [];
   }
   if (data && filters && filters.length > 0) {
-    filtersUserData = data?.filter((user) => {
+    filtersUserData = data?.filter((user: User) => {
       for (const filter of filters) {
         if (filter.id === 'email') {
           const filterValue = String(filter.value).toLowerCase();

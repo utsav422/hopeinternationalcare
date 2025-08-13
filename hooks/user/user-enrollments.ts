@@ -5,7 +5,6 @@ import {
   useSuspenseQuery,
 } from '@tanstack/react-query';
 import { createEnrollment } from '@/lib/server-actions/user/enrollments';
-import { getUserEnrollments } from '@/lib/server-actions/user/enrollments-actions';
 import { queryKeys } from '../../lib/query-keys';
 
 export const useCreateEnrollment = () => {
@@ -28,9 +27,13 @@ export const useGetUserEnrollments = () => {
   return useSuspenseQuery({
     queryKey: [queryKeys.enrollments.all],
     queryFn: async () => {
-      const result = await getUserEnrollments();
+      const response = await fetch('/api/user/enrollments');
+      if (!response.ok) {
+        throw new Error('Failed to fetch enrollments');
+      }
+      const result = await response.json();
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Failed to fetch enrollments');
       }
       return result.data;
     },
