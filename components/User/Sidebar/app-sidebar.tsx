@@ -172,7 +172,7 @@ export function NavUser({
                         <DropdownMenuGroup>
                             <DropdownMenuItem>
                                 {/* <IconUserCircle /> */}
-                                <ThemeSwitcher />
+                                <ThemeSwitcher /> 
                             </DropdownMenuItem>
                             {/* <DropdownMenuItem>
                                 <IconCreditCard />
