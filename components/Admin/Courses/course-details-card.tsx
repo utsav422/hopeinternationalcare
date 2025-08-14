@@ -14,20 +14,9 @@ import { adminUpdateCourseCategoryIdCol } from '@/lib/server-actions/admin/cours
 import { adminUpsertCourseCategories } from '@/lib/server-actions/admin/courses-categories';
 import CourseCategoryFormModal from './course-category-form-modal';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
+import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
-const Card = ({
-    children,
-    className,
-}: {
-    children: React.ReactNode;
-    className?: string;
-}) => (
-    <div
-        className={`rounded-lg bg-white p-6 shadow-md  ${className}`}
-    >
-        {children}
-    </div>
-);
+
 
 const CourseThumbnail = ({ src, alt }: { src: string; alt: string }) => (
     <Card className="flex items-center justify-center">
@@ -59,98 +48,127 @@ const CourseInfo = ({
     onCategoryAction: (action: 'add' | 'update') => void;
 }) => (
     <Card>
-        <h1 className="mb-2 font-bold text-2xl ">{title}</h1>
-        <div className="grid grid-cols-2 gap-4">
-            <div>
-                <p className="font-medium text-gray-500 text-sm ">
-                    Level
-                </p>
-                <p className="dark:text-gray-300">{level}</p>
-            </div>
-            <div>
-                <p className="font-medium text-gray-500 text-sm ">
-                    Category ID
-                </p>
-                <div className="flex items-center space-x-2">
-                    <div>
-                        {categoryId ? (
-                            <CourseCategoryBadge categoryId={categoryId} />
-                        ) : (
-                            <p className="dark:text-gray-300">N/A</p>
-                        )}
+        <CardHeader>
+            <CardTitle>
+                <h1 className="mb-2 font-bold text-2xl ">Basic Information</h1>
+            </CardTitle>
+        </CardHeader>
+        <CardContent>
+
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <p className="font-medium text-gray-500 text-sm ">
+                        Title
+                    </p>
+                    <p className="dark:text-gray-300">{title}</p>
+                </div>
+                <div>
+                    <p className="font-medium text-gray-500 text-sm ">
+                        Level
+                    </p>
+                    <p className="dark:text-gray-300">{level}</p>
+                </div>
+                <div>
+                    <p className="font-medium text-gray-500 text-sm ">
+                        Category ID
+                    </p>
+                    <div className="flex items-center space-x-2">
+                        <div>
+                            {categoryId ? (
+                                <CourseCategoryBadge categoryId={categoryId} />
+                            ) : (
+                                <p className="dark:text-gray-300">N/A</p>
+                            )}
+                        </div>
+                        <Button
+                            onClick={() => onCategoryAction(categoryId ? 'update' : 'add')}
+                            variant="link"
+                        >
+                            {categoryId ? 'Change' : 'Add'}
+                        </Button>
                     </div>
-                    <Button
-                        className="p-0 dark:text-blue-400"
-                        onClick={() => onCategoryAction(categoryId ? 'update' : 'add')}
-                        variant="link"
-                    >
-                        {categoryId ? 'Change' : 'Add'}
-                    </Button>
+                </div>
+                <div>
+                    <p className="font-medium text-gray-500 text-sm ">
+                        Slug
+                    </p>
+                    <p className="dark:text-gray-300">{slug}</p>
+                </div>
+                <div>
+                    <p className="font-medium text-gray-500 text-sm ">
+                        Duration
+                    </p>
+                    <p className="dark:text-gray-300">
+                        {durationValue} {durationType}
+                    </p>
                 </div>
             </div>
-            <div>
-                <p className="font-medium text-gray-500 text-sm ">
-                    Slug
-                </p>
-                <p className="dark:text-gray-300">{slug}</p>
-            </div>
-            <div>
-                <p className="font-medium text-gray-500 text-sm ">
-                    Duration
-                </p>
-                <p className="dark:text-gray-300">
-                    {durationValue} {durationType}
-                </p>
-            </div>
-        </div>
+        </CardContent>
     </Card>
 );
 
 const CoursePrice = ({ price }: { price: number }) => (
     <Card>
-        <p className="font-medium text-gray-500 text-sm ">
-            Price
-        </p>
-        <p className="font-bold text-3xl ">${price}</p>
+        <CardHeader>
+            <CardTitle>
+                Price
+            </CardTitle>
+        </CardHeader>
+        <CardContent>
+            <p className="font-medium text-gray-500 text-sm ">
+                NPR
+            </p>
+            <p className="font-bold text-3xl ">{price}</p>
+        </CardContent>
     </Card>
 );
 
 const CourseIntakes = () => (
     <Card>
-        <h2 className="mb-4 font-bold text-xl ">Intakes</h2>
-        <table className="w-full text-left">
-            <thead>
-                <tr>
-                    <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
-                        Name
-                    </th>
-                    <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
-                        Start Date
-                    </th>
-                    <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
-                        End Date
-                    </th>
-                    <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
-                        Status
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td
-                        className="p-4 text-center text-gray-500 "
-                        colSpan={4}
-                    >
-                        No intakes available.
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <div className="mt-4 flex justify-end">
-            <Button className="dark:bg-blue-600  dark:hover:bg-blue-700">
-                Generate Intakes
-            </Button>
-        </div>
+        <CardHeader>
+            <CardTitle>
+                Intakes
+            </CardTitle>
+        </CardHeader>
+        <CardContent>
+
+            <table className="w-full text-left">
+                <thead>
+                    <tr>
+                        <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
+                            Name
+                        </th>
+                        <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
+                            Start Date
+                        </th>
+                        <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
+                            End Date
+                        </th>
+                        <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
+                            Status
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td
+                            className="p-4 text-center text-gray-500 "
+                            colSpan={4}
+                        >
+                            No intakes available.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </CardContent>
+        <CardFooter>
+
+            <div className="mt-4 flex justify-end">
+                <Button>
+                    Generate Intakes
+                </Button>
+            </div>
+        </CardFooter>
     </Card>
 );
 
@@ -206,7 +224,7 @@ export default function CourseDetailsCard() {
         error,
     } = useGetPublicCourseBySlug(slug_from_url);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const course = queryResult?.data as ZodSelectCourseType | undefined;
+    const course = queryResult as ZodSelectCourseType | undefined;
 
     if (isLoading) {
         return <CourseDetailsSkeleton />;
@@ -220,9 +238,11 @@ export default function CourseDetailsCard() {
     if (!course) {
         return (
             <Card>
-                <p className="text-center text-gray-500 ">
-                    Course data is not available.
-                </p>
+                <CardContent>
+                    <p className="text-center text-gray-500 ">
+                        Course data is not available.
+                    </p>
+                </CardContent>
             </Card>
         );
     }

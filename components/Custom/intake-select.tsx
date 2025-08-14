@@ -71,7 +71,6 @@ export default function IntakeSelect({
             <SelectContent className="">
                 {intakes?.map((intake: IntakeWithCourse) => (
                     <SelectItem
-                        className="dark:hover:bg-gray-700"
                         key={intake.id}
                         value={intake.id}
                     >

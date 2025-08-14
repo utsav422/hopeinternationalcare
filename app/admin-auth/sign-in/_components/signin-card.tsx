@@ -17,7 +17,7 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { signInAction } from '@/lib/server-actions/admin/admin-auth-actions';
+import { AdminSignInAction } from '@/lib/server-actions/admin/admin-auth-actions';
 
 const cn = (...classes: string[]) => {
     return classes.filter(Boolean).join(' ');
@@ -242,7 +242,7 @@ const SignInCard = () => {
             const formData = new FormData();
             formData.set('email', values.email);
             formData.set('password', values.password);
-            const result = await signInAction(formData);
+            const result = await AdminSignInAction(formData);
             if (result?.error) {
                 toast.error(result.error);
             }

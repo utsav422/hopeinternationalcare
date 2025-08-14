@@ -8,39 +8,41 @@ import { getQueryClient } from '@/utils/get-query-client';
 
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{
-  page?: string;
-  pageSize?: string;
-  sortBy?: string;
-  order?: string;
-  filters?: string;
-  [key: string]: string | string[] | undefined;
+    page?: string;
+    pageSize?: string;
+    sortBy?: string;
+    order?: string;
+    filters?: string;
+    [key: string]: string | string[] | undefined;
 }>;
 
 export default async function PaymentHistoryPage(props: {
-  params: Params;
-  searchParams: SearchParams;
+    params: Params;
+    searchParams: SearchParams;
 }) {
-  const user = await requireUser();
-  const searchParams = await props.searchParams;
+    const user = await requireUser();
+    const searchParams = await props.searchParams;
 
-  const page =
-    typeof searchParams.page === 'string' ? Number(searchParams.page) : 1;
-  const pageSize =
-    typeof searchParams.pageSize === 'string'
-      ? Number(searchParams.pageSize)
-      : 10;
+    const page =
+        typeof searchParams.page === 'string' ? Number(searchParams.page) : 1;
+    const pageSize =
+        typeof searchParams.pageSize === 'string'
+            ? Number(searchParams.pageSize)
+            : 10;
 
-  const queryClient = getQueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: [...queryKeys.userPaymentHistory.all, user.id, page, pageSize],
-    queryFn: async () => await getUserPaymentHistory(page, pageSize),
-  });
+    const queryClient = getQueryClient();
+    await queryClient.prefetchQuery({
+        queryKey: [...queryKeys.userPaymentHistory.all, user.id, page, pageSize],
+        queryFn: async () => await getUserPaymentHistory(page, pageSize),
+    });
 
-  return (
-    <Suspense fallback="Loading...">
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <PaymentHistoryTable page={page} pageSize={pageSize} />
-      </HydrationBoundary>
-    </Suspense>
-  );
+    return (
+        <Suspense fallback="Loading...">
+            <HydrationBoundary state={dehydrate(queryClient)}>
+                <Suspense>
+                    <PaymentHistoryTable page={page} pageSize={pageSize} />
+                </Suspense>
+            </HydrationBoundary>
+        </Suspense>
+    );
 }

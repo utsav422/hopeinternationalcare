@@ -5,30 +5,33 @@ import { queryKeys } from '@/lib/query-keys';
 import { getCachedPublicCourseBySlug } from '@/lib/server-actions/public/courses';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
+import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 
 type Params = Promise<{ slug: string }>;
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 export default async function Courses(props: {
-  params: Params;
-  searchParams: SearchParams;
+    params: Params;
+    searchParams: SearchParams;
 }) {
-  await requireAdmin();
+    await requireAdmin();
 
-  const params = await props.params;
-  const slug = params.slug;
+    const params = await props.params;
+    const slug = params.slug;
 
-  const queryClient = getQueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: queryKeys.courses.detail(slug),
-    queryFn: () => getCachedPublicCourseBySlug(slug),
-  });
+    const queryClient = getQueryClient();
+    await queryClient.prefetchQuery({
+        queryKey: queryKeys.courses.detail(slug),
+        queryFn: () => getCachedPublicCourseBySlug(slug),
+    });
 
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense fallback="Loading...">
-        <CourseDetailsCard />
-      </Suspense>
-    </HydrationBoundary>
-  );
+    return (
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <QueryErrorWrapper>
+                <Suspense fallback="Loading...">
+                    <CourseDetailsCard />
+                </Suspense>
+            </QueryErrorWrapper>
+        </HydrationBoundary>
+    );
 }

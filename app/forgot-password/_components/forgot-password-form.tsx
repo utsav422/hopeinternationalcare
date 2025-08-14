@@ -42,7 +42,7 @@ export default function ForgotPasswordComponent() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         const formData = new FormData();
         formData.set('email', values.email);
-        formData.set('callBaclUrl', '/forgot-password/success');
+        formData.set('callBackUrl', '/forgot-password/success');
         await forgotPasswordAction(formData);
     }
 

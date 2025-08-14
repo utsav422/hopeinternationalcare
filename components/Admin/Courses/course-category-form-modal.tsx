@@ -99,12 +99,12 @@ export default function CourseCategoryFormModal({
 
     return (
         <Dialog onOpenChange={setIsOpen} open={isOpen}>
-            <DialogContent className="dark:border-gray-600 dark:bg-gray-800">
-                <DialogHeader>
-                    <DialogTitle className="">
-                        Manage Course Category
-                    </DialogTitle>
-                </DialogHeader>
+            <DialogHeader>
+                <DialogTitle className="">
+                    Manage Course Category
+                </DialogTitle>
+            </DialogHeader>
+            <DialogContent >
 
                 {showNewCategoryForm ? (
                     <div className="grid grid-cols-12 gap-4">
@@ -127,7 +127,6 @@ export default function CourseCategoryFormModal({
                                                 <FormControl>
                                                     <Input
                                                         {...field}
-                                                        className="dark:border-gray-600 dark:bg-gray-700 "
                                                     />
                                                 </FormControl>
                                                 <FormMessage />
@@ -149,7 +148,6 @@ export default function CourseCategoryFormModal({
                                                 <FormControl>
                                                     <Textarea
                                                         {...field}
-                                                        className="dark:border-gray-600 dark:bg-gray-700 "
                                                         value={field.value ?? ''}
                                                     />
                                                 </FormControl>
@@ -164,10 +162,10 @@ export default function CourseCategoryFormModal({
                 ) : (
                     <div className="space-y-4">
                         <Select onValueChange={setSelectedCategory}>
-                            <SelectTrigger className="dark:border-gray-600 dark:bg-gray-700 ">
+                            <SelectTrigger >
                                 <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
-                            <SelectContent className="dark:bg-gray-700 ">
+                            <SelectContent >
                                 {isLoadingCategories ? (
                                     <Loader className="animate-spin" />
                                 ) : (
@@ -186,7 +184,6 @@ export default function CourseCategoryFormModal({
                     <div className="flex items-center space-x-2">
                         <Checkbox
                             checked={showNewCategoryForm}
-                            className="dark:border-gray-600"
                             id="new-category-checkbox"
                             onCheckedChange={() =>
                                 setShowNewCategoryForm(!showNewCategoryForm)
@@ -203,7 +200,6 @@ export default function CourseCategoryFormModal({
 
                 <DialogFooter>
                     <Button
-                        className="dark:bg-blue-600  dark:hover:bg-blue-700"
                         onClick={
                             showNewCategoryForm
                                 ? form.handleSubmit(handleNewCategorySubmit)

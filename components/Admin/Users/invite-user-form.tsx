@@ -61,7 +61,7 @@ export default function InviteUserForm() {
     const handleSubmit = form.handleSubmit;
 
     return (
-        <Card className="dark:border-gray-600 dark:bg-gray-800">
+        <Card >
             <CardHeader>
                 <div className="mb-6 space-y-1">
                     <CardTitle className="font-medium text-lg ">
@@ -71,7 +71,7 @@ export default function InviteUserForm() {
                         Fill in the information below.
                     </CardDescription>
                 </div>
-                <hr className="dark:border-gray-600" />
+                <hr />
             </CardHeader>
             <CardContent>
                 <Form {...form}>
@@ -93,7 +93,6 @@ export default function InviteUserForm() {
                                                 required
                                                 type="email"
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                             />
                                         </FormControl>
 
@@ -120,7 +119,6 @@ export default function InviteUserForm() {
                                                 placeholder="Enter user full to invite"
                                                 required
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                             />
                                         </FormControl>
 
@@ -143,7 +141,6 @@ export default function InviteUserForm() {
                                         <FormControl className="w-full">
                                             <Input
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 id="phone"
                                                 placeholder="Enter user phone to invite"
                                                 required
@@ -164,9 +161,8 @@ export default function InviteUserForm() {
                                     Submit Action Button For Invitation
                                 </FormDescription>
                             </div>
-                            <div className="dark:bg-blue-600  dark:hover:bg-blue-700">
+                            <div >
                                 <Button
-                                    className="dark:bg-teal-600  dark:hover:bg-teal-700"
                                     disabled={form.formState.isSubmitting}
                                     type="submit"
                                 >

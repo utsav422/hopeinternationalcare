@@ -1,10 +1,10 @@
-'use client'
-import SignInCard from './_components/signin-card';
+'use client';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
+import SignUpCard from './singup-card';
 import { useSearchParams } from 'next/navigation';
 
-export default function Login() {
+export default function AdminSignUpClient() {
     const searchParams = useSearchParams()
     const error = searchParams?.getAll('error')
 
@@ -18,9 +18,5 @@ export default function Login() {
         }
     }, [error]);
 
-    return (
-        <div className="flex min-h-screen w-full items-center justify-center">
-            <SignInCard />
-        </div>
-    );
+    return <SignUpCard />;
 }

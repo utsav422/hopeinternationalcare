@@ -35,7 +35,6 @@ export default function SortingSelect({ value, onChange }: SortingSelectProps) {
             <SelectContent className="">
                 {sortingOptions.map((option) => (
                     <SelectItem
-                        className="dark:hover:bg-gray-700"
                         key={option.value}
                         value={option.value}
                     >

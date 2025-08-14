@@ -34,9 +34,9 @@ function EnrollmentDetailsCard() {
     return (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Enrollment Details Card */}
-            <Card className="col-span-full lg:col-span-1 ">
+            <Card className="col-span-full lg:col-span-1">
                 <CardHeader>
-                    <CardTitle className="">Enrollment Details</CardTitle>
+                    <CardTitle >Enrollment Details</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4">
                     <div>
@@ -44,7 +44,6 @@ function EnrollmentDetailsCard() {
                             Status
                         </p>
                         <Badge
-                            className="mt-1 dark:border-gray-600 dark:bg-gray-700 "
                             variant="outline"
                         >
                             {enrollment.status}
@@ -94,7 +93,7 @@ function EnrollmentDetailsCard() {
             {/* User Details Card */}
             <Card className="col-span-full lg:col-span-1 ">
                 <CardHeader>
-                    <CardTitle className="">User Details</CardTitle>
+                    <CardTitle >User Details</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4">
                     <div>
@@ -117,9 +116,9 @@ function EnrollmentDetailsCard() {
             </Card>
 
             {/* Course Details Card */}
-            <Card className="col-span-full lg:col-span-1 ">
+            <Card className="col-span-full lg:col-span-1">
                 <CardHeader>
-                    <CardTitle className="">Course Details</CardTitle>
+                    <CardTitle>Course Details</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4">
                     <div>
@@ -150,9 +149,9 @@ function EnrollmentDetailsCard() {
             </Card>
 
             {/* Intake Details Card */}
-            <Card className="col-span-full lg:col-span-1 ">
+            <Card className="col-span-full lg:col-span-1">
                 <CardHeader>
-                    <CardTitle className="">Intake Details</CardTitle>
+                    <CardTitle>Intake Details</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4">
                     <div>

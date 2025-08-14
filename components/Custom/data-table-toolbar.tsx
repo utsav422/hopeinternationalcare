@@ -38,7 +38,7 @@ export const duration_types = [
     },
 ];
 
-export const statuses = [
+export const status = [
     {
         value: 'requested',
         label: 'Requested',
@@ -188,8 +188,13 @@ export function DataTableToolbar<TData>({
                         <MultiSelectFilter
                             onValueChange={(values) => {
                                 table?.getColumn('status')?.setFilterValue(values);
+                            }} onClearCallback={() => {
+                                _setQueryFilterSearch(null, {
+                                    shallow: false,
+                                });
+                                table?.resetColumnFilters();
                             }}
-                            options={statuses}
+                            options={status}
                             selectedValues={
                                 new Set(
                                     table?.getColumn('status')?.getFilterValue() as string[]
@@ -204,6 +209,12 @@ export function DataTableToolbar<TData>({
                             onValueChange={(values) => {
                                 table?.getColumn('method')?.setFilterValue(values);
                             }}
+                            onClearCallback={() => {
+                                _setQueryFilterSearch(null, {
+                                    shallow: false,
+                                });
+                                table?.resetColumnFilters();
+                            }}
                             options={methods}
                             selectedValues={
                                 new Set(
@@ -215,7 +226,12 @@ export function DataTableToolbar<TData>({
                     )}
                 {availableColumnIds.includes('duration_type') &&
                     table?.getColumn('duration_type') && (
-                        <MultiSelectFilter
+                        <MultiSelectFilter onClearCallback={() => {
+                            _setQueryFilterSearch(null, {
+                                shallow: false,
+                            });
+                            table?.resetColumnFilters();
+                        }}
                             onValueChange={(values) => {
                                 table?.getColumn('duration_type')?.setFilterValue(values);
                             }}

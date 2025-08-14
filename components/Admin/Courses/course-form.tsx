@@ -76,8 +76,9 @@ export default function ({ slug, formTitle }: Props) {
     if (error) {
         toast.error(error.message);
     }
-    const initialData = queryResult?.data ?? undefined;
-
+    const initialData = slug && slug.length > 0
+        ? queryResult
+        : undefined;
     const [imageFile, setImageFile] = useState<File | null>(null);
     const fileRef = useRef<HTMLInputElement>(null);
 
@@ -172,7 +173,7 @@ export default function ({ slug, formTitle }: Props) {
         if (isSubmitting) {
             return 'Saving...';
         }
-        if (slug) {
+        if (slug && initialData) {
             return 'Update Course';
         }
         return 'Create Course';
@@ -181,7 +182,7 @@ export default function ({ slug, formTitle }: Props) {
         return <FormSkeleton />;
     }
     return (
-        <Card className="dark:border-gray-600 dark:bg-gray-800">
+        <Card >
             <CardHeader>
                 <div className="mb-6 space-y-1">
                     <CardTitle className="font-medium text-lg ">
@@ -191,7 +192,7 @@ export default function ({ slug, formTitle }: Props) {
                         Fill in the information about the course.
                     </CardDescription>
                 </div>
-                <hr className="dark:border-gray-600" />
+                <hr />
             </CardHeader>
             <CardContent>
                 <Form {...form}>
@@ -214,7 +215,6 @@ export default function ({ slug, formTitle }: Props) {
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 onChange={(e) => {
                                                     field.onChange(e);
                                                     form.setValue(
@@ -246,7 +246,6 @@ export default function ({ slug, formTitle }: Props) {
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 disabled
                                             />
                                         </FormControl>
@@ -270,7 +269,6 @@ export default function ({ slug, formTitle }: Props) {
                                     <div className="space-y-2 md:col-span-3">
                                         <QueryErrorWrapper>
                                             <Suspense fallback={'loading...'}>
-
                                                 <CourseCategorySelect field={field} />
                                             </Suspense>
                                         </QueryErrorWrapper>
@@ -292,7 +290,6 @@ export default function ({ slug, formTitle }: Props) {
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 onChange={(e) =>
                                                     field.onChange(
                                                         e.target.value === ''
@@ -361,7 +358,6 @@ export default function ({ slug, formTitle }: Props) {
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 max={5}
                                                 onChange={(e) =>
                                                     field.onChange(
@@ -399,10 +395,10 @@ export default function ({ slug, formTitle }: Props) {
                                                 onValueChange={field.onChange}
                                                 value={field.value}
                                             >
-                                                <SelectTrigger className="w-full dark:border-gray-600 dark:bg-gray-700 ">
+                                                <SelectTrigger className="w-full ">
                                                     <SelectValue placeholder="Select a duration type" />
                                                 </SelectTrigger>
-                                                <SelectContent className="dark:bg-gray-700 ">
+                                                <SelectContent >
                                                     <SelectGroup>
                                                         <SelectLabel>Duration Type</SelectLabel>
                                                         {durationTypeEnum.enumValues.map((item) => {
@@ -444,7 +440,7 @@ export default function ({ slug, formTitle }: Props) {
                                             <Input
                                                 type="number"
                                                 {...field}
-                                                className="w-all dark:border-gray-600 dark:bg-gray-700 "
+                                                className="w-all "
                                                 max={MAX_DURATION_VALUE}
                                                 onChange={(e) =>
                                                     field.onChange(
@@ -501,7 +497,7 @@ export default function ({ slug, formTitle }: Props) {
                                                 />
 
                                                 <button
-                                                    className="flex w-full flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors hover:bg-accent dark:border-gray-600 dark:bg-gray-700"
+                                                    className="flex w-full flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors hover:bg-accent"
                                                     onClick={() => fileRef.current?.click()}
                                                     type="button"
                                                 >
@@ -517,9 +513,7 @@ export default function ({ slug, formTitle }: Props) {
                             {field.value || 'No file selected'}
                             </p> */}
                                                 </button>
-                                                <pre className="">
-                                                    {JSON.stringify(field?.value, null, 2)}
-                                                </pre>
+
                                             </div>
                                         </FormControl>
                                         <FormMessage className="text-xs" />
@@ -537,9 +531,9 @@ export default function ({ slug, formTitle }: Props) {
                                     {initialData ? 'Updating' : 'Creating'} Course
                                 </FormDescription>
                             </div>
-                            <div className="dark:bg-blue-600  dark:hover:bg-blue-700">
+                            <div >
                                 <Button
-                                    className="dark:bg-teal-600  dark:hover:bg-teal-700"
+
                                     disabled={isSubmitting}
                                     type="submit"
                                 >

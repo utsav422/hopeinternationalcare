@@ -86,7 +86,7 @@ const CourseCategoryBadge = ({
     //   }, [categoryId]);
 
     if (isLoading) {
-        return <Skeleton className="h-6 w-24 dark:bg-gray-700" />;
+        return <Skeleton className="h-6 w-24 " />;
     }
     if (error) {
         toast.error('Something went wrong while fetching categories', {
@@ -115,7 +115,6 @@ const CourseCategoryBadge = ({
         className: cn(
             badgeVariants({ variant }),
             className,
-            'dark:border-gray-600 dark:bg-gray-700 '
         ),
         ...props,
     };

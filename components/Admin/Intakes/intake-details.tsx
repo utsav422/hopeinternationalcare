@@ -9,7 +9,7 @@ import { useGetIntakeById } from '@/hooks/admin/intakes';
 
 function IntakeDetailsSkeleton() {
     return (
-        <Card className="dark:bg-gray-900/50">
+        <Card className="">
             <CardHeader>
                 <Skeleton className="h-8 w-1/4" />
             </CardHeader>
@@ -62,7 +62,7 @@ function IntakeDetails() {
 
     return (
         <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-            <Card className="dark:border-gray-800 dark:bg-gray-900/50">
+            <Card className="">
                 <CardHeader>
                     <CardTitle className="font-bold text-2xl ">
                         Intake Details

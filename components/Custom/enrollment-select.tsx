@@ -74,7 +74,6 @@ export default function EnrollmentSelect({
                 {enrollmentsWithDetails?.map(
                     (itemWithDetails: EnrollmentWithDetails) => (
                         <SelectItem
-                            className="dark:hover:bg-gray-700"
                             key={itemWithDetails.enrollment.id}
                             value={itemWithDetails.enrollment.id}
                         >

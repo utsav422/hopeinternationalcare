@@ -57,7 +57,6 @@ export default function CourseSelect({ field, disabled }: CourseSelectProps) {
             <SelectContent className="">
                 {courses?.map((course: CourseForSelect) => (
                     <SelectItem
-                        className="dark:hover:bg-gray-700"
                         key={course.id}
                         value={course.id}
                     >

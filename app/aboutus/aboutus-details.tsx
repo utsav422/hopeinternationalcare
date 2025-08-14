@@ -12,7 +12,7 @@ export function AboutUsDetails() {
                     </div>
 
                     <div className="w-full text-center lg:w-1/2 lg:text-left">
-                        <h2 className="mb-6 font-extrabold text-3xl text-gray-900 sm:text-4xl md:text-5xl ">
+                        <h2 className="mb-6 font-extrabold text-3xl text-gray-900 sm:text-4xl md:text-5xl dark:text-white">
                             About Our Company
                         </h2>
                         <p className="text-gray-700 text-lg leading-relaxed dark:text-gray-300">
@@ -33,7 +33,7 @@ export function AboutUsDetails() {
                     </div>
 
                     <div className="w-full text-center lg:w-1/2 lg:text-left">
-                        <h2 className="mb-6 font-extrabold text-3xl text-gray-900 sm:text-4xl md:text-5xl ">
+                        <h2 className="mb-6 font-extrabold text-3xl text-gray-900 sm:text-4xl md:text-5xl dark:text-white">
                             What We Do
                         </h2>
                         <p className="text-gray-700 text-lg leading-relaxed dark:text-gray-300">

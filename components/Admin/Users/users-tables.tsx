@@ -168,7 +168,7 @@ export default function UsersTables() {
                                         Invite a user with email
                                     </AlertDialogTitle>
                                     <AlertDialogAction
-                                        className="size-8 bg-background text-red-500 hover:bg-red-500/20 dark:bg-gray-700 dark:text-red-500 dark:hover:bg-red-500/20"
+                                        className="size-8 bg-background "
                                         onClick={() => setInviteUserAlert(false)}
                                         title="close this invite form"
                                     >

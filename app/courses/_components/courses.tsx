@@ -125,10 +125,10 @@ export function AllCourses() {
                     <UpcomingIntakesBanner />
                 </Suspense>
                 <header className="my-12 text-center">
-                    <h1 className="font-bold text-4xl text-gray-900 tracking-tight sm:text-5xl ">
+                    <h1 className="font-bold text-4xl text-gray-900 tracking-tight sm:text-5xl">
                         Explore Our Courses
                     </h1>
-                    <p className="mt-4 text-gray-600 text-lg ">
+                    <p className="mt-4 text-gray-600 text-lg">
                         Find the perfect course to kickstart your career in aged care.
                     </p>
                 </header>
@@ -136,11 +136,11 @@ export function AllCourses() {
                     <aside className="w-full self-start rounded-lg bg-white p-6 shadow-lg lg:sticky lg:top-24 lg:w-1/4 dark:bg-gray-800">
                         <div className="space-y-8">
                             <div>
-                                <h2 className="mb-4 font-semibold text-2xl text-gray-800 ">
+                                <h2 className="mb-4 font-semibold text-2xl text-gray-800">
                                     Search
                                 </h2>
                                 <Input
-                                    className="rounded-lg border-gray-300 bg-gray-50 text-base dark:border-gray-600 dark:bg-gray-700 "
+                                    className="rounded-lg border-gray-300 bg-gray-50 text-base dark:border-gray-600 dark:bg-gray-700"
                                     name="title"
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder="Search by title..."
@@ -148,12 +148,11 @@ export function AllCourses() {
                                 />
                             </div>
                             <div>
-                                <h2 className="mb-4 font-semibold text-2xl text-gray-800 ">
+                                <h2 className="mb-4 font-semibold text-2xl text-gray-800">
                                     Filters
                                 </h2>
                                 <div className="space-y-4">
                                     <QueryErrorWrapper>
-
                                         <Suspense fallback={'loading...'}>
                                             <IntakeFilter
                                                 onChange={(value) =>
@@ -176,7 +175,7 @@ export function AllCourses() {
                                 </div>
                             </div>
                             <div>
-                                <h2 className="mb-4 font-semibold text-2xl text-gray-800 ">
+                                <h2 className="mb-4 font-semibold text-2xl text-gray-800">
                                     Sort By
                                 </h2>
                                 <SortingSelect onChange={setSorting} value={sorting} />

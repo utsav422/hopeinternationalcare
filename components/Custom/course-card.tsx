@@ -117,14 +117,13 @@ export function CourseCard({
     };
 
     return (
-        <div className="group flex h-full flex-col rounded-lg bg-white p-5 shadow-lg transition duration-300 hover:scale-105 dark:bg-gray-900 dark:shadow-2xl">
+        <div className="group flex h-full flex-col rounded-lg bg-card p-5 shadow-lg transition duration-300 hover:scale-105">
             <div className="mb-4 h-48 w-full overflow-hidden rounded-md">
                 <div className="relative h-full w-full">
                     <Image
                         alt={title}
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                        layout="fill"
-                        objectFit="cover"
+                        fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         src={heading}
                     />
@@ -134,38 +133,38 @@ export function CourseCard({
                 <div className="flex flex-col items-start">
                     {categoryName && (
                         <Badge
-                            className="mb-2 w-fit dark:bg-gray-700 "
+                            className="mb-2 w-fit"
                             variant="secondary"
                         >
                             {categoryName}
                         </Badge>
                     )}
                     <Link className="block" href={`/courses/${slug}`}>
-                        <h3 className="font-semibold text-gray-900 text-xl transition-colors duration-300 group-hover:text-teal-600  dark:group-hover:text-teal-400">
+                        <h3 className="font-semibold text-xl transition-colors duration-300 group-hover:text-teal-600 dark:group-hover:text-teal-400">
                             {title}
                         </h3>
                     </Link>
                 </div>
-                <p className="line-clamp-3 min-h-[72px] font-normal text-base text-gray-600 dark:text-gray-300">
+                <p className="line-clamp-3 min-h-[72px] font-normal text-base">
                     {desc}
                 </p>
                 <div className="flex items-center justify-between pt-2">
-                    <span className="font-bold text-gray-800 text-lg dark:text-gray-100">
+                    <span className="font-bold text-lg">
                         रू{price} NPR
                     </span>
                     {next_intake_date && (
                         <div className="text-right">
-                            <p className="text-gray-600 text-sm ">
+                            <p className="text-sm">
                                 Next Intake:
                             </p>
-                            <p className="font-semibold text-base text-gray-800 ">
+                            <p className="font-semibold text-base">
                                 {new Date(next_intake_date).toLocaleDateString()}
                             </p>
                         </div>
                     )}
                 </div>
-                {available_seats !== null && ( // Only show if available_seats is not null
-                    <p className="text-gray-600 text-sm ">
+                {available_seats !== null && (
+                    <p className="text-sm">
                         Available Seats: {available_seats}
                     </p>
                 )}
@@ -177,7 +176,7 @@ export function CourseCard({
                         View Details
                     </Link>
                     <Button
-                        className="flex-1 rounded-md border border-teal-500 px-4 py-2 font-medium text-sm text-teal-700 transition-colors hover:bg-teal-50 dark:border-teal-400 dark:text-teal-400 dark:hover:bg-gray-700"
+                        className="flex-1 rounded-md border px-4 py-2 font-medium text-sm transition-colors"
                         disabled={
                             available_seats !== null &&
                             available_seats <= 0 &&
@@ -202,24 +201,23 @@ export function CourseCard({
                 onOpenChange={setIsEnrollmentDialogOpen}
                 open={isEnrollmentDialogOpen}
             >
-                <DialogContent className="sm:max-w-[425px] dark:bg-gray-800 ">
+                <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle className="text-gray-900 ">
+                        <DialogTitle>
                             Enrollment Information
                         </DialogTitle>
-                        <DialogDescription className="text-gray-600 ">
+                        <DialogDescription>
                             To enroll in a course, you need to be registered and logged in.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
-                        <p className="text-gray-700 dark:text-gray-300">
+                        <p>
                             Please log in or register to continue with your enrollment
                             request.
                         </p>
                         <div className="flex justify-end gap-2">
                             <Link href="/sign-in">
                                 <Button
-                                    className="dark:border-gray-600  dark:hover:bg-gray-700"
                                     variant="outline"
                                 >
                                     Login
@@ -236,12 +234,12 @@ export function CourseCard({
             </Dialog>
             {/* Contact Form Dialog */}
             <Dialog onOpenChange={setIsContactDialogOpen} open={isContactDialogOpen}>
-                <DialogContent className="sm:max-w-[425px] dark:bg-gray-800 ">
+                <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle className="text-gray-900 ">
+                        <DialogTitle>
                             Contact Us About {title}
                         </DialogTitle>
-                        <DialogDescription className="text-gray-600 ">
+                        <DialogDescription>
                             Please fill out the form below and we will get back to you
                             shortly.
                         </DialogDescription>
@@ -256,13 +254,12 @@ export function CourseCard({
                                 name="name"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-gray-800 ">
+                                        <FormLabel className="text-gray-800">
                                             Your Name
                                         </FormLabel>
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700  dark:focus:border-teal-400"
                                                 placeholder="John Doe"
                                             />
                                         </FormControl>
@@ -275,14 +272,13 @@ export function CourseCard({
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-gray-800 ">
+                                        <FormLabel className="text-gray-800">
                                             Your Email
                                         </FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="email"
                                                 {...field}
-                                                className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700  dark:focus:border-teal-400"
                                                 placeholder="john.doe@example.com"
                                             />
                                         </FormControl>
@@ -295,14 +291,13 @@ export function CourseCard({
                                 name="phone"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-gray-800 ">
+                                        <FormLabel className="text-gray-800">
                                             Phone (Optional)
                                         </FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="tel"
                                                 {...field}
-                                                className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700  dark:focus:border-teal-400"
                                                 placeholder="+1234567890"
                                             />
                                         </FormControl>
@@ -315,13 +310,12 @@ export function CourseCard({
                                 name="message"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-gray-800 ">
+                                        <FormLabel className="text-gray-800">
                                             Message
                                         </FormLabel>
                                         <FormControl>
                                             <Textarea
                                                 {...field}
-                                                className="border-gray-300 bg-gray-50 focus:border-teal-500 dark:border-gray-600 dark:bg-gray-700  dark:focus:border-teal-400"
                                                 placeholder="I would like to know more about this course..."
                                                 rows={4}
                                             />
@@ -331,7 +325,6 @@ export function CourseCard({
                                 )}
                             />
                             <Button
-                                className="w-full bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-700"
                                 disabled={createContactRequestMutation.isPending}
                                 type="submit"
                             >

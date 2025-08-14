@@ -79,7 +79,6 @@ export default function CourseCategorySelect({
             <div className="">
                 <p>No categories found.</p>
                 <Button
-                    className="dark:bg-teal-600  dark:hover:bg-teal-700"
                     onClick={() => setIsModalOpen(true)}
                     type="button"
                 >
@@ -113,7 +112,6 @@ export default function CourseCategorySelect({
                 <SelectContent className="">
                     {categories.map((category: Category) => (
                         <SelectItem
-                            className="dark:hover:bg-gray-700"
                             key={category.id}
                             value={category.id}
                         >

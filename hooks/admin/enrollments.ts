@@ -42,7 +42,8 @@ export const useGetEnrollments = (params: {
         throw new Error(result.error || 'Failed to fetch enrollments');
       }
       return result;
-    },
+      }, staleTime: 1000 * 60 * 30, // 30 minutes
+      gcTime: 1000 * 60 * 60, // 1 hour
   });
 };
 
@@ -62,7 +63,8 @@ export const useGetEnrollmentById = (id: string) => {
         throw new Error(result.error || 'Failed to fetch enrollment');
       }
       return result.data;
-    },
+      }, staleTime: 1000 * 60 * 30, // 30 minutes
+      gcTime: 1000 * 60 * 60, // 1 hour
   });
 };
 
@@ -84,7 +86,8 @@ export const useGetEnrollmentWithDetails = (id: string) => {
         throw new Error(result.error || 'Failed to fetch enrollment details');
       }
       return result.data;
-    },
+      }, staleTime: 1000 * 60 * 30, // 30 minutes
+      gcTime: 1000 * 60 * 60, // 1 hour
   });
 };
 
@@ -106,7 +109,8 @@ export const useGetEnrollmentsByUserId = (userId: string) => {
         throw new Error(result.error || 'Failed to fetch enrollments');
       }
       return result;
-    },
+      }, staleTime: 1000 * 60 * 30, // 30 minutes
+      gcTime: 1000 * 60 * 60, // 1 hour
   });
 };
 
@@ -130,7 +134,8 @@ export const useGetEnrollmentWithPayment = (id: string) => {
         );
       }
       return result.data;
-    },
+      }, staleTime: 1000 * 60 * 30, // 30 minutes
+      gcTime: 1000 * 60 * 60, // 1 hour
   });
 };
 
@@ -151,7 +156,8 @@ export const useGetAllEnrollments = () => {
         throw new Error(result.error || 'Failed to fetch all enrollments');
       }
       return result.data;
-    },
+      }, staleTime: 1000 * 60 * 30, // 30 minutes
+      gcTime: 1000 * 60 * 60, // 1 hour
   });
 };
 
@@ -175,7 +181,8 @@ export const useGetAllEnrollmentsByStatus = (status: TypeEnrollmentStatus) => {
         );
       }
       return result.data;
-    },
+      }, staleTime: 1000 * 60 * 30, // 30 minutes
+      gcTime: 1000 * 60 * 60, // 1 hour
   });
 };
 

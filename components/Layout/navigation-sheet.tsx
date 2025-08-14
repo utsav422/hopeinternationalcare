@@ -5,7 +5,11 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Logo } from './logo';
 import { NavMenu } from './nav-menu';
 
-export const NavigationSheet = ({ isScrolling }: { isScrolling: boolean }) => {
+export const NavigationSheet = ({ 
+  isHomePage
+}: { 
+  isHomePage?: boolean;
+}) => {
   return (
     <Sheet>
       <SheetTrigger asChild className="bg-transparent">
@@ -21,7 +25,7 @@ export const NavigationSheet = ({ isScrolling }: { isScrolling: boolean }) => {
         <Logo />
         <NavMenu
           className="mt-12"
-          isScrolling={isScrolling}
+          isHomePage={isHomePage}
           orientation="vertical"
         />
       </SheetContent>

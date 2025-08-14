@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import IntakeSelect from '@/components/Custom/intake-select';
@@ -49,6 +49,7 @@ import {
     enrollmentStatus as enrollmentStatusEnum,
 } from '@/lib/db/schema/enums';
 import type { IntakeWithCourse } from '@/lib/server-actions/admin/intakes';
+import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 
 // type CourseFormInput = TablesInsert<'courses'>
 interface Props {
@@ -67,8 +68,9 @@ export default function ({ formTitle }: Props) {
         data: queryResult,
     } = useGetEnrollmentById(id ?? '');
     const { mutateAsync: upsertEnrollment } = useUpsertEnrollment();
-    const initialData = queryResult ?? undefined;
-    //   courseData && courseData.price;
+    const initialData = id && id.length > 0 && queryResult?.success
+        ? queryResult.data
+        : undefined;    //   courseData && courseData.price;
     const form = useForm<ZodEnrollmentInsertType>({
         resolver: zodResolver(ZodEnrollmentInsertSchema),
         defaultValues: initialData || {
@@ -120,7 +122,7 @@ export default function ({ formTitle }: Props) {
         if (isSubmitting) {
             return 'Saving...';
         }
-        if (id) {
+        if (id && initialData) {
             return 'Update Enrollment';
         }
         return 'Create Enrollment';
@@ -128,15 +130,17 @@ export default function ({ formTitle }: Props) {
     const { isSubmitting } = form.formState;
 
     return (
-        <Card className=" dark:text-gray-100">
-            <CardHeader className="dark:border-gray-700 dark:border-b">
-                <CardTitle className="dark:text-gray-100">{formTitle}</CardTitle>
-                <CardDescription className="">
-                    Fill all the inputs of below form
-                </CardDescription>
-                <hr className="dark:border-gray-600" />
-            </CardHeader>
-            <CardContent className="grid grid-cols-12 gap-4">
+        <Card >
+            <CardHeader >
+                <div className="mb-6 space-y-1">
+
+                    <CardTitle className="font-medium text-lg">{formTitle}</CardTitle>
+                    <CardDescription className="">
+                        Fill all the inputs of below form
+                    </CardDescription>
+                </div>
+                <hr />            </CardHeader>
+            <CardContent >
                 <Form {...form}>
                     <form
                         className="w-full space-y-6"
@@ -154,7 +158,6 @@ export default function ({ formTitle }: Props) {
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 value={(notes as string) ?? ''}
                                             />
                                         </FormControl>
@@ -178,10 +181,10 @@ export default function ({ formTitle }: Props) {
                                                 onValueChange={field.onChange}
                                                 value={field.value}
                                             >
-                                                <SelectTrigger className="capitalize dark:border-gray-600 dark:bg-gray-700 ">
+                                                <SelectTrigger className="capitalize">
                                                     <SelectValue placeholder="Select a enrollment type" />
                                                 </SelectTrigger>
-                                                <SelectContent className="capitalize  dark:text-gray-100">
+                                                <SelectContent className="capitalize ">
                                                     <SelectGroup>
                                                         <SelectLabel className="">
                                                             Enrollment Type
@@ -189,7 +192,6 @@ export default function ({ formTitle }: Props) {
                                                         {enrollmentStatusEnum.enumValues.map((item) => {
                                                             return (
                                                                 <SelectItem
-                                                                    className="dark:hover:bg-gray-700"
                                                                     disabled={Boolean(
                                                                         initialData?.id &&
                                                                         item === EnrollmentStatus.cancelled
@@ -228,7 +230,6 @@ export default function ({ formTitle }: Props) {
                                             <Input
                                                 type="date"
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 disabled
                                                 value={
                                                     field.value
@@ -280,7 +281,11 @@ export default function ({ formTitle }: Props) {
                                     </div>
                                     <div className="space-y-2 md:col-span-3">
                                         <FormControl>
-                                            <UserSelect field={field} />
+                                            <QueryErrorWrapper>
+                                                <Suspense>
+                                                    <UserSelect field={field} />
+                                                </Suspense>
+                                            </QueryErrorWrapper>
                                         </FormControl>
                                         <FormMessage />
                                     </div>
@@ -297,9 +302,9 @@ export default function ({ formTitle }: Props) {
                                     {initialData ? 'Updating' : 'Creating'} Enrollment
                                 </FormDescription>
                             </div>
-                            <div className="dark:bg-blue-600  dark:hover:bg-blue-700">
-                                <Button
-                                    className="dark:bg-teal-600  dark:hover:bg-teal-700"
+                            <div >
+                                <Button disabled={isSubmitting}
+
                                     type="submit"
                                 >
                                     {isSubmitting && (
@@ -326,7 +331,6 @@ export default function ({ formTitle }: Props) {
                                         </svg>
                                     )}
                                     {getButtonText()}
-                                    {initialData ? 'Update Enrollment' : 'Create Enrollment'}
                                 </Button>
                             </div>
                         </FormItem>

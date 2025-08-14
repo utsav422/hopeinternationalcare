@@ -38,7 +38,7 @@ export default function CategoryForm({ id, formTitle }: Props) {
     const router = useRouter();
     const { data: initialDataResult, error } = useGetCourseCategoryById(id ?? '');
 
-    const initialData = initialDataResult?.success
+    const initialData = id && id.length > 0 && initialDataResult?.success
         ? initialDataResult.data
         : undefined;
 
@@ -85,24 +85,24 @@ export default function CategoryForm({ id, formTitle }: Props) {
         if (isSubmitting) {
             return 'Saving...';
         }
-        if (initialData) {
+        if (id && initialData) {
             return 'Update Category';
         }
         return 'Create Category';
     };
 
     return (
-        <Card className=" dark:text-gray-100">
+        <Card className="">
             <CardHeader>
                 <div className="mb-6 space-y-1">
-                    <h3 className="font-medium text-lg dark:text-gray-100">
+                    <h3 className="font-medium text-lg">
                         {formTitle}
                     </h3>
                     <p className="text-muted-foreground text-sm ">
                         Fill in the information about the category.
                     </p>
                 </div>
-                <hr className="dark:border-gray-700" />
+                <hr />
             </CardHeader>
             <CardContent>
                 <Form {...form}>
@@ -125,7 +125,6 @@ export default function CategoryForm({ id, formTitle }: Props) {
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 placeholder="e.g. Web Development"
                                             />
                                         </FormControl>
@@ -151,7 +150,6 @@ export default function CategoryForm({ id, formTitle }: Props) {
                                         <FormControl>
                                             <Textarea
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 placeholder="Enter a description..."
                                                 value={field.value ?? ''}
                                             />
@@ -172,7 +170,6 @@ export default function CategoryForm({ id, formTitle }: Props) {
                             </div>
                             <div className="space-y-2 md:col-span-3">
                                 <Button
-                                    className="dark:bg-teal-600  dark:hover:bg-teal-700"
                                     disabled={isSubmitting}
                                     type="submit"
                                 >

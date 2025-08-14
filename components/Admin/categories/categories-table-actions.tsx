@@ -41,14 +41,12 @@ export function CategoriesTableActions({
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                     <Link
-                        className=" dark:hover:bg-gray-700"
                         href={`/admin/categories/edit/${id}`}
                     >
                         Edit
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                    className=" dark:hover:bg-gray-700"
                     onClick={() => onDelete(id)}
                 >
                     Delete

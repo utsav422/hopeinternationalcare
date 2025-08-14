@@ -29,7 +29,7 @@ export function CourseSidebar() {
     if (error) {
         toast.error(error.message);
     }
-    const course = resultData?.data;
+    const course = resultData;
     if (!course) {
         notFound();
     }

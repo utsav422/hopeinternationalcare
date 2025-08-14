@@ -184,7 +184,6 @@ function NavMain({
                             <SidebarMenuItem key={subNavItem.title}>
                                 <SidebarMenuButton
                                     asChild
-                                    className="dark:text-gray-300 dark:data-[active=true]:bg-gray-700 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
                                     isActive={subNavItem.isActive}
                                 >
                                     <a className="capitalize" href={subNavItem.url}>

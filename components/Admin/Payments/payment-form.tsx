@@ -100,7 +100,7 @@ export default function PaymentForm({ id, formTitle }: Props) {
                         Fill in the information about the payment.
                     </p>
                 </div>
-                <hr className="dark:border-gray-600" />
+                <hr />
             </CardHeader>
             <CardContent>
                 <Form {...form}>
@@ -158,7 +158,6 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                             <Input
                                                 type="number"
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 onChange={(e) =>
                                                     field.onChange(
                                                         e.target.value === ''
@@ -189,7 +188,7 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                                 onValueChange={field.onChange}
                                                 value={field.value}
                                             >
-                                                <SelectTrigger className="dark:border-gray-600 dark:bg-gray-700 ">
+                                                <SelectTrigger>
                                                     <SelectValue placeholder="Select a payment method" />
                                                 </SelectTrigger>
                                                 <SelectContent className="capitalize ">
@@ -197,7 +196,6 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                                         <SelectLabel>Payment Method</SelectLabel>
                                                         {Object.values(PaymentMethod).map((method: string) => (
                                                             <SelectItem
-                                                                className="capitalize dark:hover:bg-gray-700"
                                                                 key={method as string}
                                                                 value={method as string}
                                                             >
@@ -229,7 +227,7 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                                 onValueChange={field.onChange}
                                                 value={field.value}
                                             >
-                                                <SelectTrigger className="dark:border-gray-600 dark:bg-gray-700 ">
+                                                <SelectTrigger >
                                                     <SelectValue placeholder="Select a payment status" />
                                                 </SelectTrigger>
                                                 <SelectContent className="capitalize ">
@@ -237,7 +235,7 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                                         <SelectLabel>Payment Status</SelectLabel>
                                                         {Object.values(PaymentStatus).map((status) => (
                                                             <SelectItem
-                                                                className="capitalize dark:hover:bg-gray-700"
+                                                                className="capitalize "
                                                                 key={status}
                                                                 value={status}
                                                             >
@@ -267,7 +265,6 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                className="dark:border-gray-600 dark:bg-gray-700 "
                                                 value={field.value ?? ''}
                                             />
                                         </FormControl>
@@ -284,7 +281,6 @@ export default function PaymentForm({ id, formTitle }: Props) {
                             </div>
                             <div className="space-y-2 md:col-span-3">
                                 <Button
-                                    className="dark:bg-teal-600  dark:hover:bg-teal-700"
                                     disabled={isSubmitting}
                                     type="submit"
                                 >

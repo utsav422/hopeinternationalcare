@@ -209,7 +209,7 @@ export default function EnrollmentTables() {
                 const price = row.original.price;
                 if (['enrolled', 'cancelled'].includes(status)) {
                     return (
-                        <Badge className="dark:bg-gray-700 ">
+                        <Badge className=" ">
                             {' '}
                             {status}{' '}
                         </Badge>
@@ -228,17 +228,17 @@ export default function EnrollmentTables() {
                         }
                         value={status}
                     >
-                        <SelectTrigger className="w-[180px] capitalize dark:border-gray-600 dark:bg-gray-700 ">
+                        <SelectTrigger className="w-[180px] capitalize ">
                             <SelectValue placeholder="Select Status" />
                         </SelectTrigger>
-                        <SelectContent className=" dark:text-gray-100">
-                            <SelectItem className="dark:hover:bg-gray-700" value="requested">
+                        <SelectContent >
+                            <SelectItem value="requested">
                                 Requested
                             </SelectItem>
-                            <SelectItem className="dark:hover:bg-gray-700" value="enrolled">
+                            <SelectItem value="enrolled">
                                 Enrolled
                             </SelectItem>
-                            <SelectItem className="dark:hover:bg-gray-700" value="cancelled">
+                            <SelectItem value="cancelled">
                                 Cancelled
                             </SelectItem>
                         </SelectContent>
@@ -265,7 +265,6 @@ export default function EnrollmentTables() {
                         >
                             <DropdownMenuItem asChild>
                                 <Link
-                                    className=" dark:hover:bg-gray-700"
                                     href={`/admin/enrollments/${row.original.id}`}
                                 >
                                     View
@@ -273,7 +272,6 @@ export default function EnrollmentTables() {
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                                 <Link
-                                    className=" dark:hover:bg-gray-700"
                                     href={`/admin/enrollments/edit/${row.original.id}`}
                                 >
                                     Edit
@@ -293,13 +291,12 @@ export default function EnrollmentTables() {
         },
     ];
     return (
-        <Card className=" dark:text-gray-100">
-            {/* <CardHeader className="dark:border-gray-700 dark:border-b" /> */}
+        <Card >
             <CardContent>
                 <DataTable<EnrollementTableDataProps, unknown>
                     columns={columns}
                     data={data ?? []}
-                    headerActionUrl="/admin/enrollment/new"
+                    headerActionUrl="/admin/enrollments/new"
                     headerActionUrlLabel="Create New"
                     title="Enrollement Management"
                     total={total}

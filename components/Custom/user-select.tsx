@@ -63,7 +63,6 @@ export default function UserSelect({ field, disabled }: UserSelectProps) {
             <SelectContent className="">
                 {filteredProfiles?.map((profile: Profile) => (
                     <SelectItem
-                        className="dark:hover:bg-gray-700"
                         key={profile.id}
                         value={profile.id}
                     >

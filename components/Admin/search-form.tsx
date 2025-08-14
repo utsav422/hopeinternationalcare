@@ -17,7 +17,6 @@ export function SearchForm({ ...props }: React.ComponentProps<'form'>) {
                         Search
                     </Label>
                     <SidebarInput
-                        className="pl-8 dark:border-gray-600 dark:bg-gray-700 "
                         id="search"
                         placeholder="Search the docs..."
                     />

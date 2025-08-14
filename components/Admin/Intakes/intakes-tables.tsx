@@ -80,7 +80,7 @@ export default function IntakesTables() {
         {
             accessorKey: 'courseTitle',
             header: () => (
-                <div className="text-gray-800 ">Course Title</div>
+                <div className=" ">Course Title</div>
             ),
             cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
                 <span className="text-gray-700 dark:text-gray-300">
@@ -91,7 +91,7 @@ export default function IntakesTables() {
         {
             accessorKey: 'start_date',
             header: () => (
-                <div className="text-gray-800 ">Start Date</div>
+                <div className=" ">Start Date</div>
             ),
             cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
                 <span className="text-gray-700 dark:text-gray-300">
@@ -102,7 +102,7 @@ export default function IntakesTables() {
         {
             accessorKey: 'end_date',
             header: () => (
-                <div className="text-gray-800 ">End Date</div>
+                <div className=" ">End Date</div>
             ),
             cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
                 <span className="text-gray-700 dark:text-gray-300">
@@ -113,7 +113,7 @@ export default function IntakesTables() {
         {
             accessorKey: 'capacity',
             header: () => (
-                <div className="text-gray-800 ">Capacity</div>
+                <div className=" ">Capacity</div>
             ),
             cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
                 <span className="text-gray-700 dark:text-gray-300">
@@ -124,7 +124,7 @@ export default function IntakesTables() {
         {
             accessorKey: 'total_registered',
             header: () => (
-                <div className="text-gray-800 ">Total Registered</div>
+                <div className=" ">Total Registered</div>
             ),
             cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
                 <span className="text-gray-700 dark:text-gray-300">
@@ -135,7 +135,7 @@ export default function IntakesTables() {
         {
             accessorKey: 'is_open',
             header: () => (
-                <div className="text-gray-800 ">Is Open</div>
+                <div className=" ">Is Open</div>
             ),
             cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
                 <span className="text-gray-700 dark:text-gray-300">
@@ -149,7 +149,6 @@ export default function IntakesTables() {
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button
-                            className="text-gray-800 "
                             size="sm"
                             variant="ghost"
                         >
@@ -159,7 +158,7 @@ export default function IntakesTables() {
                     <DropdownMenuContent className="">
                         <DropdownMenuItem asChild>
                             <Link
-                                className="cursor-pointer text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                                className="cursor-pointer "
                                 href={`/admin/intakes/${row.original.id}`}
                             >
                                 View
@@ -167,14 +166,14 @@ export default function IntakesTables() {
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                             <Link
-                                className="cursor-pointer text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                                className="cursor-pointer "
                                 href={`/admin/intakes/edit/${row.original.id}`}
                             >
                                 Edit
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                            className="cursor-pointer text-red-600 dark:text-red-500 dark:hover:bg-gray-700"
+                            className="cursor-pointer text-red-600 dark:text-red-500 "
                             onClick={() => handleDelete(row.original.id)}
                         >
                             Delete
@@ -190,13 +189,11 @@ export default function IntakesTables() {
             <Tabs defaultValue={tab ?? 'current'}>
                 <TabsList className="/50">
                     <TabsTrigger
-                        className="text-gray-800 dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white"
                         value="current"
                     >
                         Current Intakes
                     </TabsTrigger>
                     <TabsTrigger
-                        className="text-gray-800 dark:text-gray-300 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white"
                         value="history"
                     >
                         History Intakes

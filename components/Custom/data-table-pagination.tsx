@@ -45,7 +45,6 @@ export function DataTablePagination<TData>({
                         >
                             {[1, 10, 20, 30, 40, 50].map((pageSize) => (
                                 <SelectItem
-                                    className="dark:hover:bg-gray-700"
                                     key={pageSize}
                                     value={`${pageSize}`}
                                 >
@@ -61,7 +60,7 @@ export function DataTablePagination<TData>({
                 </div>
                 <div className="flex items-center space-x-2">
                     <Button
-                        className="hidden h-8 w-8 p-0 lg:flex  dark:hover:bg-gray-700"
+                        className="hidden h-8 w-8 p-0 lg:flex  "
                         disabled={!table.getCanPreviousPage()}
                         onClick={() => table.setPageIndex(0)}
                         variant="outline"
@@ -70,7 +69,7 @@ export function DataTablePagination<TData>({
                         <ChevronsLeft />
                     </Button>
                     <Button
-                        className="h-8 w-8 p-0  dark:hover:bg-gray-700"
+                        className="h-8 w-8 p-0  "
                         disabled={!table.getCanPreviousPage()}
                         onClick={() => table.previousPage()}
                         variant="outline"
@@ -79,7 +78,7 @@ export function DataTablePagination<TData>({
                         <ChevronLeft />
                     </Button>
                     <Button
-                        className="h-8 w-8 p-0  dark:hover:bg-gray-700"
+                        className="h-8 w-8 p-0  "
                         disabled={!table.getCanNextPage()}
                         onClick={() => table.nextPage()}
                         variant="outline"
@@ -88,7 +87,7 @@ export function DataTablePagination<TData>({
                         <ChevronRight />
                     </Button>
                     <Button
-                        className="hidden h-8 w-8 p-0 lg:flex  dark:hover:bg-gray-700"
+                        className="hidden h-8 w-8 p-0 lg:flex  "
                         disabled={!table.getCanNextPage()}
                         onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                         variant="outline"

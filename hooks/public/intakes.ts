@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { queryKeys } from '../../lib/query-keys';
 
 export function useGetActiveIntakesByCourseId(courseId: string) {
@@ -22,6 +22,8 @@ export function useGetActiveIntakesByCourseId(courseId: string) {
             }
             return result;
         },
+        staleTime: 1000 * 60 * 15, // 15 minutes
+        gcTime: 1000 * 60 * 60, // 1 hour
     });
 }
 
@@ -42,11 +44,13 @@ export function useGetAllIntakes() {
             }
             return result;
         },
+        staleTime: 1000 * 60 * 30, // 30 minutes
+        gcTime: 1000 * 60 * 60, // 1 hour
     });
 }
 
 export function useGetIntakeById(id: string) {
-    return useQuery({
+    return useSuspenseQuery({
         queryKey: queryKeys.intakes.detail(id),
         queryFn: async () => {
             const baseUrl =
@@ -64,12 +68,13 @@ export function useGetIntakeById(id: string) {
             }
             return result;
         },
-        enabled: !!id,
+        staleTime: 1000 * 60 * 15, // 15 minutes
+        gcTime: 1000 * 60 * 60, // 1 hour
     });
 }
 
 export function useGetUpcomingIntakes() {
-    return useQuery({
+    return useSuspenseQuery({
         queryKey: queryKeys.intakes.upCommingIntakes,
         queryFn: async () => {
             const baseUrl =
@@ -87,11 +92,13 @@ export function useGetUpcomingIntakes() {
             }
             return result;
         },
+        staleTime: 1000 * 60 * 30, // 30 minutes
+        gcTime: 1000 * 60 * 60, // 1 hour
     });
 }
 
 export function useGetCourseIntakesBySlug(slug: string) {
-    return useQuery({
+    return useSuspenseQuery({
         queryKey: queryKeys.intakes.detail(slug),
         queryFn: async () => {
             const baseUrl =
@@ -109,6 +116,7 @@ export function useGetCourseIntakesBySlug(slug: string) {
             }
             return result;
         },
-        enabled: !!slug,
+        staleTime: 1000 * 60 * 15, // 15 minutes
+        gcTime: 1000 * 60 * 60, // 1 hour
     });
 }

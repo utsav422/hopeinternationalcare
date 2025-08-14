@@ -113,7 +113,6 @@ export default function PaymentsTables() {
                     >
                         <DropdownMenuItem asChild>
                             <Link
-                                className="dark:text-gray-300 dark:hover:bg-gray-700"
                                 href={`/admin/payments/${row.original.id}`}
                             >
                                 View
@@ -121,7 +120,6 @@ export default function PaymentsTables() {
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                             <Link
-                                className="dark:text-gray-300 dark:hover:bg-gray-700"
                                 href={`/admin/payments/edit/${row.original.id}`}
                             >
                                 Edit

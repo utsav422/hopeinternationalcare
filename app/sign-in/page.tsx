@@ -24,6 +24,7 @@ const cn = (...classes: string[]) => {
 };
 
 import type { DOT, RoutePoint } from '@/lib/types/shared';
+import { useSearchParams } from 'next/navigation';
 
 const DotMap = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -221,8 +222,20 @@ const DotMap = () => {
 };
 
 const SignInPage = () => {
+    const searchParams = useSearchParams()
+    const error = searchParams?.getAll('error')
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+
+    // Display error message from URL parameter as toast
+    useEffect(() => {
+        if (error && error.length > 0) {
+            const errorMessage = Array.isArray(error)
+                ? error[0]
+                : error;
+            toast.error(decodeURIComponent(errorMessage));
+        }
+    }, [error]);
 
     const formSchema = z.object({
         email: z.string().email('Invalid email address'),

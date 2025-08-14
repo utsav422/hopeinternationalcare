@@ -32,7 +32,7 @@ export function OurGoals() {
         <section className="bg-gray-100 px-8 py-28 dark:bg-gray-800">
             <div className="container mx-auto grid animate-fade grid-cols-1 place-items-center gap-10 duration-500 lg:grid-cols-3">
                 <div className="col-span-3 text-center">
-                    <h1 className="mb-4 animate-fade-down font-bold text-4xl text-gray-900 duration-500 ">
+                    <h1 className="mb-4 animate-fade-down font-bold text-4xl text-gray-900 duration-500 dark:text-white">
                         Our Future Goals
                     </h1>
                     <p className="mb-8 animate-fade-up px-3 font-normal text-gray-700 text-lg duration-500 lg:px-0 dark:text-gray-300">
@@ -55,7 +55,7 @@ export function OurGoals() {
                         >
                             <div className="flex flex-col items-center text-center">
                                 <Icon className="mb-4 h-12 w-12 text-teal-500 dark:text-teal-400" />
-                                <h3 className="mb-3 font-semibold text-gray-900 text-xl ">
+                                <h3 className="mb-3 font-semibold text-gray-900 text-xl dark:text-white">
                                     {title}
                                 </h3>
                                 <p className="text-gray-600 dark:text-gray-300">

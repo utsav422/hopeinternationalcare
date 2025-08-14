@@ -65,13 +65,13 @@ export function OurServices() {
                     variants={containerVariants}
                 >
                     <motion.h2
-                        className="font-extrabold text-3xl text-gray-900 sm:text-4xl md:text-5xl "
+                        className="font-extrabold text-3xl text-gray-900 sm:text-4xl md:text-5xl dark:text-white"
                         variants={itemVariants}
                     >
                         Our Special Services
                     </motion.h2>
                     <motion.p
-                        className="mx-auto mt-4 max-w-2xl text-gray-500 text-xl "
+                        className="mx-auto mt-4 max-w-2xl text-gray-500 text-xl dark:text-gray-400"
                         variants={itemVariants}
                     >
                         Learn from experienced professionals who are passionate about

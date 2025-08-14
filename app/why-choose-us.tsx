@@ -13,16 +13,16 @@ interface OptionProps {
 
 function Option({ icon: Icon, title, children }: OptionProps) {
     return (
-        <div className="transform rounded-lg bg-white p-6 shadow-lg transition duration-300 hover:scale-105 hover:bg-teal-50 dark:bg-gray-800 dark:hover:bg-gray-700">
-            <div className="flex gap-4">
-                <div className="mb-4">
-                    <Icon className="size-8 text-teal-500 dark:text-teal-400" />
+        <div className="transform rounded-lg bg-white p-5 shadow-lg transition duration-300 hover:scale-[1.02] hover:bg-teal-50 dark:bg-gray-800 dark:hover:bg-gray-700 sm:p-6">
+            <div className="flex gap-3 sm:gap-4">
+                <div className="flex-shrink-0">
+                    <Icon className="size-6 text-teal-500 sm:size-8 dark:text-teal-400" />
                 </div>
                 <div>
-                    <h5 className="mb-2 font-semibold text-gray-900 text-xl ">
+                    <h5 className="mb-2 font-semibold text-gray-900 text-lg sm:text-xl dark:text-white">
                         {title}
                     </h5>
-                    <p className="font-normal text-gray-700 text-sm md:w-10/12 dark:text-gray-300">
+                    <p className="font-normal text-gray-700 text-sm dark:text-gray-300">
                         {children}
                     </p>
                 </div>
@@ -63,13 +63,13 @@ export default function WhyChooseUs() {
 
     return (
         <section
-            className="mx-auto flex w-full max-w-6xl flex-col items-center px-4 py-10 sm:px-6 lg:px-8"
+            className="mx-auto flex w-full max-w-6xl flex-col items-center px-4 py-10 sm:px-6 sm:py-16 md:py-20 lg:px-8"
             ref={ref}
         >
             {/* Main Title */}
             <motion.h2
                 animate={inView ? 'visible' : 'hidden'}
-                className="mb-4 text-center font-extrabold text-3xl text-gray-900 sm:text-4xl md:text-5xl "
+                className="mb-3 text-center font-extrabold text-2xl text-gray-900 sm:mb-4 sm:text-3xl md:text-4xl lg:text-5xl dark:text-white"
                 initial="hidden"
                 transition={{ duration: 0.5 }}
                 variants={itemVariants}
@@ -80,7 +80,7 @@ export default function WhyChooseUs() {
             {/* Subtitle */}
             <motion.p
                 animate={inView ? 'visible' : 'hidden'}
-                className="mb-16 max-w-2xl text-center font-normal text-gray-600 text-xl "
+                className="mb-10 max-w-2xl text-center font-normal text-gray-600 text-base sm:mb-16 sm:text-lg md:text-xl dark:text-gray-300"
                 initial="hidden"
                 transition={{ duration: 0.5, delay: 0.2 }}
                 variants={itemVariants}
@@ -92,19 +92,17 @@ export default function WhyChooseUs() {
             {/* Content Grid */}
             <motion.div
                 animate={inView ? 'visible' : 'hidden'}
-                className="grid grid-cols-1 items-center gap-8 md:grid-cols-2"
+                className="grid grid-cols-1 items-center gap-6 sm:gap-8 md:grid-cols-2"
                 initial="hidden"
                 variants={containerVariants}
             >
                 {/* Left Column: Image Background Card */}
                 <motion.div variants={itemVariants}>
-                    <ImageBackgroundCard images={images}>
-                        {/* Content for the card can go here if needed, or remove children prop if not used */}
-                    </ImageBackgroundCard>
+                    <ImageBackgroundCard images={images} />
                 </motion.div>
 
                 {/* Right Column: Options */}
-                <motion.div className="space-y-6" variants={containerVariants}>
+                <motion.div className="space-y-5 sm:space-y-6" variants={containerVariants}>
                     {/* Option 1 */}
                     <motion.div variants={itemVariants}>
                         <Option icon={GiftIcon} title="Comprehensive Packages">

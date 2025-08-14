@@ -58,7 +58,7 @@ function PaymentOverviewCard() {
                             <YAxis tick={{ fill: 'white' }} />
                             <ChartTooltip
                                 content={
-                                    <ChartTooltipContent className="dark:border-gray-600 dark:bg-gray-700 " />
+                                    <ChartTooltipContent />
                                 }
                             />
                             <Legend wrapperStyle={{ color: 'white' }} />

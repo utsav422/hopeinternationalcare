@@ -5,30 +5,33 @@ import { queryKeys } from '@/lib/query-keys';
 import { getCachedAdminEnrollmentById } from '@/lib/server-actions/admin/enrollments';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
+import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 export default async function EditEnrollment(props: {
-  params: Params;
-  searchParams: SearchParams;
+    params: Params;
+    searchParams: SearchParams;
 }) {
-  await requireAdmin();
+    await requireAdmin();
 
-  const params = await props.params;
-  const id = params.id;
+    const params = await props.params;
+    const id = params.id;
 
-  const queryClient = getQueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: queryKeys.enrollments.detail(id),
-    queryFn: () => getCachedAdminEnrollmentById(id),
-  });
+    const queryClient = getQueryClient();
+    await queryClient.prefetchQuery({
+        queryKey: queryKeys.enrollments.detail(id),
+        queryFn: () => getCachedAdminEnrollmentById(id),
+    });
 
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense fallback="Loading...">
-        <EnrollmentFormModal formTitle="Edit Enrollment Details" id={id} />
-      </Suspense>
-    </HydrationBoundary>
-  );
+    return (
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <QueryErrorWrapper>
+                <Suspense fallback="Loading...">
+                    <EnrollmentFormModal formTitle="Edit Enrollment Details" id={id} />
+                </Suspense>
+            </QueryErrorWrapper>
+        </HydrationBoundary>
+    );
 }

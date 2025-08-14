@@ -143,7 +143,6 @@ export default function ({
                                 Reason
                             </Label>
                             <Textarea
-                                className="dark:border-gray-600 dark:bg-gray-700 "
                                 id="cancelledReason"
                                 onChange={(e) => setCancelledReason(e.target.value)}
                                 placeholder="e.g., Student dropped out, Course cancelled"
@@ -183,9 +182,8 @@ export default function ({
                                         Method: {paymentDetails?.created_at}
                                     </span>
                                 </p>
-                                <Card className="space-x-2 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                <Card className="space-x-2 p-3 ">
                                     <Checkbox
-                                        className="dark:border-gray-500"
                                         name="refund"
                                         onCheckedChange={setRefund}
                                     />
@@ -198,7 +196,6 @@ export default function ({
                                                 Refund Amount
                                             </Label>
                                             <Input
-                                                className="dark:border-gray-500 dark:bg-gray-600 "
                                                 max={paymentDetails.amount}
                                                 name="amount"
                                                 onChange={(e) => {
@@ -228,7 +225,6 @@ export default function ({
                     </div>
                     <AlertDialogFooter>
                         <AlertDialogCancel
-                            className="dark:bg-gray-600  dark:hover:bg-gray-500"
                             disabled={isPending}
                         >
                             Cancel

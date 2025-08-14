@@ -30,6 +30,7 @@ interface MultiSelectFilterProps {
         icon?: React.ComponentType<{ className?: string }> | null;
     }[];
     selectedValues: Set<string>;
+    onClearCallback: () => void
     onValueChange: (values: string[]) => void;
 }
 
@@ -37,7 +38,7 @@ export function MultiSelectFilter({
     title,
     options,
     selectedValues,
-    onValueChange,
+    onValueChange, onClearCallback
 }: MultiSelectFilterProps) {
     const handleSelect = (value: string) => {
         const newSelectedValues = new Set(selectedValues);
@@ -51,6 +52,7 @@ export function MultiSelectFilter({
 
     const handleClear = () => {
         onValueChange([]);
+        onClearCallback();
     };
 
     return (
@@ -67,7 +69,7 @@ export function MultiSelectFilter({
                         <>
                             <Separator className="mx-2 h-4" orientation="vertical" />
                             <Badge
-                                className="rounded-sm px-1 font-normal lg:hidden dark:bg-gray-700 "
+                                className="rounded-sm px-1 font-normal lg:hidden"
                                 variant="secondary"
                             >
                                 {selectedValues.size}
@@ -75,7 +77,7 @@ export function MultiSelectFilter({
                             <div className="hidden space-x-1 lg:flex">
                                 {selectedValues.size > 2 ? (
                                     <Badge
-                                        className="rounded-sm px-1 font-normal dark:bg-gray-700 "
+                                        className="rounded-sm px-1 font-normal"
                                         variant="secondary"
                                     >
                                         {selectedValues.size} selected
@@ -85,7 +87,7 @@ export function MultiSelectFilter({
                                         .filter((option) => selectedValues.has(option.value))
                                         .map((option) => (
                                             <Badge
-                                                className="rounded-sm px-1 font-normal dark:bg-gray-700 "
+                                                className="rounded-sm px-1 font-normal"
                                                 key={option.value}
                                                 variant="secondary"
                                             >
@@ -100,15 +102,14 @@ export function MultiSelectFilter({
             </PopoverTrigger>
             <PopoverContent
                 align="start"
-                className="w-[200px] p-0 "
+                className="w-[200px] p-0"
             >
                 <Command>
                     <CommandInput
-                        className="dark:bg-gray-700 "
                         placeholder={title}
                     />
                     <CommandList>
-                        <CommandEmpty className="">
+                        <CommandEmpty>
                             No results found.
                         </CommandEmpty>
                         <CommandGroup>
@@ -116,7 +117,6 @@ export function MultiSelectFilter({
                                 const isSelected = selectedValues.has(option.value);
                                 return (
                                     <CommandItem
-                                        className=" dark:hover:bg-gray-700"
                                         key={option.value}
                                         onSelect={() => handleSelect(option.value)}
                                     >
@@ -143,7 +143,7 @@ export function MultiSelectFilter({
                                 <CommandSeparator />
                                 <CommandGroup>
                                     <CommandItem
-                                        className="justify-center text-center  dark:hover:bg-gray-700"
+                                        className="justify-center text-center"
                                         onSelect={handleClear}
                                     >
                                         Clear filters

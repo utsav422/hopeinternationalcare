@@ -4,31 +4,37 @@ import { queryKeys } from '@/lib/query-keys';
 import { getCachedAdminPaymentOnlyDetailsById } from '@/lib/server-actions/admin/payments';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
+import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
+import { Suspense } from 'react';
 
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 export default async function EditPaymentPage(props: {
-  params: Params;
-  searchParams: SearchParams;
+    params: Params;
+    searchParams: SearchParams;
 }) {
-  await requireAdmin();
-  const params = await props.params;
-  const { id } = params;
+    await requireAdmin();
+    const params = await props.params;
+    const { id } = params;
 
-  const queryClient = getQueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: queryKeys.payments.detail(id),
-    queryFn: () => getCachedAdminPaymentOnlyDetailsById(id),
-  });
+    const queryClient = getQueryClient();
+    await queryClient.prefetchQuery({
+        queryKey: queryKeys.payments.detail(id),
+        queryFn: () => getCachedAdminPaymentOnlyDetailsById(id),
+    });
 
-  //   const { data: payment } = await adminGetPaymentOnlyDetailsById(id);
-  //   if (!payment) {
-  //     notFound();
-  //   }
+    //   const { data: payment } = await adminGetPaymentOnlyDetailsById(id);
+    //   if (!payment) {
+    //     notFound();
+    //   }
 
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <PaymentForm formTitle="Edit Payment Form" id={id} />
-    </HydrationBoundary>
-  );
+    return (
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <QueryErrorWrapper>
+                <Suspense>
+                    <PaymentForm formTitle="Edit Payment Form" id={id} />
+                </Suspense>
+            </QueryErrorWrapper>
+        </HydrationBoundary>
+    );
 }

@@ -24,7 +24,7 @@ export function OurTeams() {
     return (
         <section className="py-16 md:py-24 dark:bg-gray-900">
             <div className="container mx-auto animate-fade-up text-center duration-500">
-                <h2 className="mb-4 font-bold text-4xl text-gray-900 ">
+                <h2 className="mb-4 font-bold text-4xl text-gray-900 dark:text-white">
                     Our Team
                 </h2>
                 <p className="mb-12 px-3 font-normal text-gray-700 text-lg lg:px-0 dark:text-gray-300">
@@ -47,7 +47,7 @@ export function OurTeams() {
                                     width={192}
                                 />
                             </div>
-                            <h3 className="mt-4 mb-2 font-bold text-gray-900 text-lg ">
+                            <h3 className="mt-4 mb-2 font-bold text-gray-900 text-lg dark:text-white">
                                 {username}
                             </h3>
                             <p className="font-normal text-gray-600 text-lg ">

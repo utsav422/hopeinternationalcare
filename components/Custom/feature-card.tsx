@@ -14,7 +14,7 @@ export function FeatureCard({ icon: Icon, title, children }: FeatureCardProps) {
                 <div className="mb-3 rounded-lg text-gray-900 dark:text-teal-400">
                     <Icon className="h-10 w-10 text-teal-500" />
                 </div>
-                <h5 className="mb-2 font-semibold text-gray-900 text-xl ">
+                <h5 className="mb-2 font-semibold text-gray-900 text-xl dark:text-white">
                     {title}
                 </h5>
                 <h6 className="font-normal text-base text-gray-800 dark:text-gray-300">

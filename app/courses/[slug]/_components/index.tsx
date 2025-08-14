@@ -16,7 +16,7 @@ function CourseDetails() {
     if (error) {
         toast.error(error.message);
     }
-    const course = resultData?.data;
+    const course = resultData;
     if (!course) {
         notFound();
     }
@@ -34,15 +34,19 @@ function CourseDetails() {
 
                 <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
                     <main className="lg:col-span-2">
-                        <Suspense fallback={<CourseContentSkeleton />}>
-                            <CourseContent />
-                        </Suspense>
+                        <QueryErrorWrapper>
+                            <Suspense fallback={<CourseContentSkeleton />}>
+                                <CourseContent />
+                            </Suspense>
+                        </QueryErrorWrapper>
                     </main>
 
                     <aside className="space-y-8">
-                        <Suspense fallback={<CourseSidebarSkeleton />}>
-                            <CourseSidebar />
-                        </Suspense>
+                        <QueryErrorWrapper>
+                            <Suspense fallback={<CourseSidebarSkeleton />}>
+                                <CourseSidebar />
+                            </Suspense>
+                        </QueryErrorWrapper>
                         <QueryErrorWrapper>
                             <Suspense fallback={<CourseIntakesSkeleton />}>
                                 <CourseIntakes courseId={course.id} />
