@@ -42,6 +42,7 @@ import {
 } from '@/components/ui/sidebar';
 import { signOutAction } from '@/lib/server-actions/admin/admin-auth-actions';
 import { IconInnerShadowTop } from '@tabler/icons-react';
+import { ThemeSwitcher } from "@/components/theme-switcher"
 
 type SubNavItem = {
     title: string;
@@ -260,17 +261,17 @@ export function NavUser({
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                             <DropdownMenuItem>
-                                <IconUserCircle />
-                                Account
+                                {/* <IconUserCircle /> */}
+                                <ThemeSwitcher />
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            {/* <DropdownMenuItem>
                                 <IconCreditCard />
                                 Billing
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                                 <IconNotification />
                                 Notifications
-                            </DropdownMenuItem>
+                            </DropdownMenuItem> */}
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
