@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createAdminSupabaseClient } from '@/utils/supabase/admin';
 import SignUpCard from './_components/singup-card';
 import AdminSignUpClient from './_components/admin-signup-client';
+import { Suspense } from 'react';
 
 export default async function Signup() {
     const supabase = createAdminSupabaseClient();
@@ -16,5 +17,8 @@ export default async function Signup() {
     if (isAdminAvailable) {
         redirect('/admin/sign-in');
     }
-    return <AdminSignUpClient />
+    return <Suspense>
+
+        <AdminSignUpClient />
+    </Suspense>
 }

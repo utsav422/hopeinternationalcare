@@ -1,26 +1,11 @@
-'use client'
+import { Suspense } from 'react';
 import SignInCard from './_components/signin-card';
-import { toast } from 'sonner';
-import { useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
 
-export default function Login() {
-    const searchParams = useSearchParams()
-    const error = searchParams?.getAll('error')
 
-    // Display error message from URL parameter as toast
-    useEffect(() => {
-        if (error && error.length > 0) {
-            const errorMessage = Array.isArray(error)
-                ? error[0]
-                : error;
-            toast.error(decodeURIComponent(errorMessage));
-        }
-    }, [error]);
-
+export default async function Login() {
     return (
-        <div className="flex min-h-screen w-full items-center justify-center">
+        <Suspense>
             <SignInCard />
-        </div>
+        </Suspense>
     );
 }

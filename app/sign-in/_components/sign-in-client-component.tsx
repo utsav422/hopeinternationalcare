@@ -17,7 +17,7 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { AdminSignInAction } from '@/lib/server-actions/admin/admin-auth-actions';
+import { signInAction } from '@/lib/server-actions/user/user-auth-actions';
 
 const cn = (...classes: string[]) => {
     return classes.filter(Boolean).join(' ');
@@ -221,13 +221,12 @@ const DotMap = () => {
     );
 };
 
-const SignInCard = () => {
+function SignInClientComponent() {
     const searchParams = useSearchParams()
     const error = searchParams?.getAll('error')
-
-
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+
     // Display error message from URL parameter as toast
     useEffect(() => {
         if (error && error.length > 0) {
@@ -237,6 +236,7 @@ const SignInCard = () => {
             toast.error(decodeURIComponent(errorMessage));
         }
     }, [error]);
+
     const formSchema = z.object({
         email: z.string().email('Invalid email address'),
         password: z.string().min(1, 'Password is required'),
@@ -255,7 +255,7 @@ const SignInCard = () => {
             const formData = new FormData();
             formData.set('email', values.email);
             formData.set('password', values.password);
-            const result = await AdminSignInAction(formData);
+            const result = await signInAction(formData);
             if (result?.error) {
                 toast.error(result.error);
             }
@@ -267,10 +267,8 @@ const SignInCard = () => {
             );
         }
     }
-
     return (
-
-        <div className="flex min-h-screen w-full items-center justify-center bg-gray-100 dark:bg-gray-900">
+        <div className="flex min-h-screen w-full items-center justify-center bg-gray-100 p-4 dark:bg-gray-900">
             <motion.div
                 animate={{ opacity: 1, scale: 1 }}
                 className="flex w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-gray-800"
@@ -315,8 +313,7 @@ const SignInCard = () => {
                                 initial={{ opacity: 0, y: -20 }}
                                 transition={{ delay: 0.8, duration: 0.5 }}
                             >
-                                Sign in to access your organization's web dashboard as an
-                                Administrator.
+                                Sign in to access your profile.
                             </motion.p>
                         </div>
                     </div>
@@ -332,7 +329,7 @@ const SignInCard = () => {
                         transition={{ duration: 0.5 }}
                     >
                         <p className="mb-8 text-center text-gray-500 ">
-                            Sign in as Super Admin
+                            Sign in to your account
                         </p>
                         <Form {...form}>
                             <form
@@ -412,11 +409,18 @@ const SignInCard = () => {
                                                 ? 'shadow-blue-300 shadow-lg dark:shadow-blue-800'
                                                 : ''
                                         )}
+                                        disabled={form.formState.isSubmitting}
                                         type="submit"
                                     >
                                         <span className="flex items-center justify-center">
-                                            Sign in
-                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                            {form.formState.isSubmitting ? (
+                                                'Signing in...'
+                                            ) : (
+                                                <>
+                                                    Sign in
+                                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                                </>
+                                            )}
                                         </span>
                                         {isHovered && (
                                             <motion.span
@@ -434,8 +438,7 @@ const SignInCard = () => {
                     </motion.div>
                 </div>
             </motion.div>
-        </div>
-    );
-};
+        </div>)
+}
 
-export default SignInCard;
+export default SignInClientComponent

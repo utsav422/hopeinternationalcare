@@ -31,7 +31,7 @@ async function seedAdminUser(client: SupabaseClient) {
     const {
         data: { user },
         error,
-    } = await supabaseAdmin.auth.admin.createUser({
+    } = await client.auth.admin.createUser({
         email: adminEmail,
         password: adminPassword,
         user_metadata: {
@@ -53,7 +53,7 @@ async function seedAdminUser(client: SupabaseClient) {
 
     // Also create a profile for the user
     if (user?.id) {
-        const { error: profileError } = await supabaseAdmin
+        const { error: profileError } = await client
             .from('profiles')
             .upsert({
                 id: user.id,

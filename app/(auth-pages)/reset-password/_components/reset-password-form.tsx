@@ -54,6 +54,8 @@ export default function ResetPasswordComponent() {
         const formData = new FormData();
         formData.set('password', values.password);
         formData.set('confirmPassword', values.confirmPassword);
+        formData.set('callBackUrl', '/reset-password/success');
+
         await resetPasswordAction(formData);
     }
 
