@@ -240,7 +240,7 @@ const SignUpClientComponent = () => {
 
     const formSchema = z.object({
         password: z.string().min(6, 'Password must be at least 6 characters.'),
-        email: z.string().email('Invalid email address'),
+        email: z.email('Invalid email address'),
         full_name: z.string().min(1, 'Full name is required'),
         phone: z.string().min(10, 'Phone number must be at least 10 digits.'),
     });
