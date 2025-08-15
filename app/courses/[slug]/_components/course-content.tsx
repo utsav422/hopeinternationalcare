@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { notFound, useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetPublicCourseBySlug } from '@/hooks/admin/public-courses';
+import { useGetPublicCourseBySlug } from '@/hooks/public/courses';
 import { CourseDescription } from './course-description';
 
 export function CourseContentSkeleton() {
