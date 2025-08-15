@@ -120,9 +120,6 @@ export function CourseCard({
         <div className="group flex h-full flex-col rounded-lg bg-card p-5 shadow-lg transition duration-300 hover:scale-105">
             <div className="mb-4 h-48 w-full overflow-hidden rounded-md">
                 <div className="relative h-full w-full">
-                    <img src={image_url} className="rounded-md"
-                        height={200}
-                        width={300} alt='text' />
                     <Image
                         alt={title}
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
