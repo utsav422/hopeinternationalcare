@@ -25,6 +25,10 @@ const nextConfig: NextConfig = {
                 protocol: 'https',
                 hostname: 'ekyvcdmqqcpguabhqxrw.supabase.co',
             },
+            {
+                protocol: 'https',
+                hostname: 'supabase.hopeinternationalcare.org',
+            },
         ],
     },
 };

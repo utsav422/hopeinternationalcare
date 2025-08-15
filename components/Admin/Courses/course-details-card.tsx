@@ -20,11 +20,8 @@ import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from
 
 const CourseThumbnail = ({ src, alt }: { src: string; alt: string }) => (
     <Card className="flex items-center justify-center">
-        <img className="rounded-md"
-            height={200}
-            width={300} src={src} alt='text' />
         <Image
-            alt={alt}
+            alt={alt || 'Course thumbnail'}
             className="rounded-md"
             height={200}
             width={300}
