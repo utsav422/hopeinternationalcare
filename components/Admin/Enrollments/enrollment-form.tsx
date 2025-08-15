@@ -181,7 +181,7 @@ export default function ({ formTitle }: Props) {
                                                 onValueChange={field.onChange}
                                                 value={field.value}
                                             >
-                                                <SelectTrigger className="capitalize">
+                                                <SelectTrigger className="capitalize w-full">
                                                     <SelectValue placeholder="Select a enrollment type" />
                                                 </SelectTrigger>
                                                 <SelectContent className="capitalize ">

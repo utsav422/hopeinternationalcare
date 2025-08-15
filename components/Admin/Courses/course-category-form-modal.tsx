@@ -99,70 +99,68 @@ export default function CourseCategoryFormModal({
 
     return (
         <Dialog onOpenChange={setIsOpen} open={isOpen}>
-            <DialogHeader>
-                <DialogTitle className="">
-                    Manage Course Category
-                </DialogTitle>
-            </DialogHeader>
-            <DialogContent >
 
+            <DialogContent >
+                <DialogHeader>
+                    <DialogTitle >
+                        Manage Course Category
+                    </DialogTitle>
+                </DialogHeader>
                 {showNewCategoryForm ? (
-                    <div className="grid grid-cols-12 gap-4">
-                        <Form {...form}>
-                            <form
-                                className="w-full space-y-6"
-                                onSubmit={form.handleSubmit(handleNewCategorySubmit)}
-                            >
-                                <FormField
-                                    control={form.control}
-                                    name="name"
-                                    render={({ field }) => (
-                                        <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
-                                            <div className="space-y-1 md:col-span-1">
-                                                <FormLabel className="">
-                                                    Name
-                                                </FormLabel>
-                                            </div>{' '}
-                                            <div className="space-y-2 md:col-span-3">
-                                                <FormControl>
-                                                    <Input
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </div>
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="description"
-                                    render={({ field }) => (
-                                        <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
-                                            <div className="space-y-1 md:col-span-1">
-                                                <FormLabel className="">
-                                                    Description
-                                                </FormLabel>
-                                            </div>
-                                            <div className="space-y-2 md:col-span-3">
-                                                <FormControl>
-                                                    <Textarea
-                                                        {...field}
-                                                        value={field.value ?? ''}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </div>
-                                        </FormItem>
-                                    )}
-                                />
-                            </form>
-                        </Form>
-                    </div>
+                    <Form {...form}>
+                        <form
+                            className="w-full space-y-6"
+                            onSubmit={form.handleSubmit(handleNewCategorySubmit)}
+                        >
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                                        <div className="space-y-1 md:col-span-1">
+                                            <FormLabel className="font-medium text-sm leading-none ">
+                                                Name
+                                            </FormLabel>
+                                        </div>{' '}
+                                        <div className="space-y-2 md:col-span-3">
+                                            <FormControl>
+                                                <Input
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </div>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                                        <div className="space-y-1 md:col-span-1">
+                                            <FormLabel className="font-medium text-sm leading-none ">
+                                                Description
+                                            </FormLabel>
+                                        </div>
+                                        <div className="space-y-2 md:col-span-3">
+                                            <FormControl>
+                                                <Textarea
+                                                    {...field}
+                                                    value={field.value ?? ''}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </div>
+                                    </FormItem>
+                                )}
+                            />
+                        </form>
+                    </Form>
                 ) : (
                     <div className="space-y-4">
                         <Select onValueChange={setSelectedCategory}>
-                            <SelectTrigger >
+                            <SelectTrigger className='w-full'>
                                 <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
                             <SelectContent >
@@ -200,6 +198,16 @@ export default function CourseCategoryFormModal({
 
                 <DialogFooter>
                     <Button
+                        variant={'destructive'}
+                        onClick={() => {
+                            form.reset();
+                            setIsOpen(false)
+                        }}
+                        type="submit"
+                    >
+                        Close
+                    </Button>
+                    <Button
                         onClick={
                             showNewCategoryForm
                                 ? form.handleSubmit(handleNewCategorySubmit)
@@ -211,6 +219,6 @@ export default function CourseCategoryFormModal({
                     </Button>
                 </DialogFooter>
             </DialogContent>
-        </Dialog>
+        </Dialog >
     );
 }

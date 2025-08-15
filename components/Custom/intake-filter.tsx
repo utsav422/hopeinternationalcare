@@ -65,7 +65,7 @@ export default function IntakeFilter({ value, onChange }: IntakeFilterProps) {
 
     return (
         <Select onValueChange={onChange} value={value}>
-            <SelectTrigger className="">
+            <SelectTrigger className="w-full">
                 <SelectValue placeholder="Filter by intake..." />
             </SelectTrigger>
             <SelectContent className="">

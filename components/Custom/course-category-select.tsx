@@ -106,7 +106,7 @@ export default function CourseCategorySelect({
                 onValueChange={field.onChange}
                 value={field?.value ?? undefined}
             >
-                <SelectTrigger className="">
+                <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent className="">

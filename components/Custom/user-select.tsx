@@ -57,7 +57,7 @@ export default function UserSelect({ field, disabled }: UserSelectProps) {
             onValueChange={field.onChange}
             value={field.value ?? undefined}
         >
-            <SelectTrigger className="">
+            <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a user profile" />
             </SelectTrigger>
             <SelectContent className="">

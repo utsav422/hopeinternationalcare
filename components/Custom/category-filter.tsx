@@ -28,7 +28,7 @@ export default function CategoryFilter({
 
     return (
         <Select onValueChange={onChange} value={value}>
-            <SelectTrigger className="">
+            <SelectTrigger className="w-full">
                 <SelectValue placeholder="Filter by category..." />
             </SelectTrigger>
             <SelectContent className="">

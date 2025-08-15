@@ -29,7 +29,7 @@ const sortingOptions = [
 export default function SortingSelect({ value, onChange }: SortingSelectProps) {
     return (
         <Select onValueChange={onChange} value={value}>
-            <SelectTrigger className="">
+            <SelectTrigger className="w-full">
                 <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
             <SelectContent className="">

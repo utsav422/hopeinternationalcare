@@ -188,7 +188,7 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                                 onValueChange={field.onChange}
                                                 value={field.value}
                                             >
-                                                <SelectTrigger>
+                                                <SelectTrigger className='w-full'>
                                                     <SelectValue placeholder="Select a payment method" />
                                                 </SelectTrigger>
                                                 <SelectContent className="capitalize ">
@@ -227,7 +227,7 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                                 onValueChange={field.onChange}
                                                 value={field.value}
                                             >
-                                                <SelectTrigger >
+                                                <SelectTrigger className='w-full'>
                                                     <SelectValue placeholder="Select a payment status" />
                                                 </SelectTrigger>
                                                 <SelectContent className="capitalize ">

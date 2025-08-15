@@ -228,7 +228,7 @@ export default function EnrollmentTables() {
                         }
                         value={status}
                     >
-                        <SelectTrigger className="w-[180px] capitalize ">
+                        <SelectTrigger className="w-full capitalize ">
                             <SelectValue placeholder="Select Status" />
                         </SelectTrigger>
                         <SelectContent >

@@ -67,7 +67,7 @@ export default function EnrollmentSelect({
             }}
             value={field.value ?? undefined}
         >
-            <SelectTrigger className="">
+            <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a Enrollments" />
             </SelectTrigger>
             <SelectContent className="">

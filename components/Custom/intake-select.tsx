@@ -65,7 +65,7 @@ export default function IntakeSelect({
             }}
             value={field.value ?? undefined}
         >
-            <SelectTrigger className="">
+            <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a intake" />
             </SelectTrigger>
             <SelectContent className="">

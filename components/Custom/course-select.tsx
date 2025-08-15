@@ -51,7 +51,7 @@ export default function CourseSelect({ field, disabled }: CourseSelectProps) {
             onValueChange={field.onChange}
             value={field.value ?? undefined}
         >
-            <SelectTrigger className="">
+            <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a course" />
             </SelectTrigger>
             <SelectContent className="">
