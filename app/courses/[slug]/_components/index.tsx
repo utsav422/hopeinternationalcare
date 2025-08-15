@@ -48,19 +48,17 @@ function CourseDetails() {
                                 <CourseSidebar />
                             </Suspense>
                         </QueryErrorWrapper>
-                        {course.id && <>
-                            <QueryErrorWrapper>
-                                <Suspense fallback={<CourseIntakesSkeleton />}>
-                                    <CourseIntakes courseId={course.id} />
-                                </Suspense>
-                            </QueryErrorWrapper>
-                            <Suspense fallback={<RelatedCoursesSkeleton />}>
-                                <RelatedCourses
-                                    categoryId={course.category_id as string}
-                                    courseId={course.id}
-                                />
+                        <QueryErrorWrapper>
+                            <Suspense fallback={<CourseIntakesSkeleton />}>
+                                <CourseIntakes courseId={course.id} />
                             </Suspense>
-                        </>}
+                        </QueryErrorWrapper>
+                        <Suspense fallback={<RelatedCoursesSkeleton />}>
+                            <RelatedCourses
+                                categoryId={course.category_id as string}
+                                courseId={course.id}
+                            />
+                        </Suspense>
                     </aside>
                 </div>
             </div>
