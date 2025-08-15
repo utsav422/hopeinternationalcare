@@ -1,5 +1,5 @@
 'use client';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import {
     getCachedPublicCourseById,
     getCachedPublicCourseBySlug,
@@ -26,13 +26,13 @@ export const useGetPublicCourses = ({
         }
         return acc;
     }, {} as Record<string, any>) : {};
-    
+
     return useInfiniteQuery({
-        queryKey: queryKeys.publicCourses.list({ 
-            pageSize, 
-            filters: stableFilters, 
-            sortBy, 
-            sortOrder 
+        queryKey: queryKeys.publicCourses.list({
+            pageSize,
+            filters: stableFilters,
+            sortBy,
+            sortOrder
         }),
         queryFn: async ({ pageParam = 1 }) => {
             const result = await getPublicCourses({
@@ -42,11 +42,11 @@ export const useGetPublicCourses = ({
                 sortBy,
                 sortOrder,
             });
-            
+
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch courses');
             }
-            
+
             return result;
         },
         getNextPageParam: (lastPage, allPages) => {
@@ -54,12 +54,12 @@ export const useGetPublicCourses = ({
             if (lastPage.data && lastPage.data.length < pageSize) {
                 return undefined; // No more pages
             }
-            
+
             // If we have data, there might be more pages
             if (lastPage.data && lastPage.data.length > 0) {
                 return allPages.length + 1;
             }
-            
+
             return undefined; // No more pages
         },
         initialPageParam: 1,
@@ -73,11 +73,11 @@ export const useGetPublicCourseById = (id: string) => {
         queryKey: queryKeys.publicCourses.detail(id),
         queryFn: async () => {
             const result = await getCachedPublicCourseById(id);
-            
+
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch course');
             }
-            
+
             return result.data;
         },
         enabled: !!(id && id.length > 0),
@@ -87,18 +87,18 @@ export const useGetPublicCourseById = (id: string) => {
 };
 
 export const useGetPublicCourseBySlug = (slug: string) => {
-    return useQuery({
+    return useSuspenseQuery({
         queryKey: queryKeys.publicCourses.detail(slug),
         queryFn: async () => {
             const result = await getCachedPublicCourseBySlug(slug);
-            
+
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch course');
             }
-            
+
             return result.data;
         },
-        enabled: !!(slug && slug.length > 0),
+        // enabled: !!(slug && slug.length > 0),
         staleTime: 1000 * 60 * 10, // 10 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });

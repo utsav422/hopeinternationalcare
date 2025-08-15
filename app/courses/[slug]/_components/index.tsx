@@ -2,7 +2,7 @@
 import { notFound, useParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { toast } from 'sonner';
-import { useGetPublicCourseBySlug } from '@/hooks/admin/public-courses';
+import { useGetPublicCourseBySlug } from '@/hooks/public/courses';
 import { CourseContent, CourseContentSkeleton } from './course-content';
 import { CourseIntakes, CourseIntakesSkeleton } from './course-intakes';
 import { CourseSidebar, CourseSidebarSkeleton } from './course-sidebar';

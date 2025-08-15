@@ -72,7 +72,7 @@ export function useGetPublicCourseById(courseId: string) {
 
 export function useGetPublicCourseBySlug(slug?: string) {
     return useSuspenseQuery({
-        queryKey: queryKeys.courses.detail(slug || ''),
+        queryKey: queryKeys.publicCourses.detail(slug || ''),
         queryFn: async () => {
 
 
