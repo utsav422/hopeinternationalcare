@@ -130,11 +130,11 @@ export default function ({ slug, formTitle }: Props) {
             formData.append('image_url', initialData.image_url);
         }
 
-         toast.promise(upsertCourse(formData), {
+        toast.promise(upsertCourse(formData), {
             loading: 'Saving course...',
             success: (res: {
                 success: boolean;
-                message?: string;
+                error?: string;
                 errors?: Record<string, string[] | undefined>;
                 data?: ZodInsertCourseType;
             }) => {
@@ -142,7 +142,7 @@ export default function ({ slug, formTitle }: Props) {
                     router.push('/admin/courses');
                     return `Course ${slug ? 'updated' : 'created'} successfully.`;
                 }
-                throw new Error(res.message || 'An unknown error occurred');
+                throw new Error(res.error || 'An unknown error occurred');
             },
             error: (err: Error) => {
                 return err.message || 'Failed to save course.';
