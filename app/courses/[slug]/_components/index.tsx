@@ -12,7 +12,7 @@ import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 function CourseDetails() {
     const params = useParams<{ slug: string }>();
     const slug = params.slug;
-    const { data: resultData, error } = useGetPublicCourseBySlug(slug);
+    const { data: resultData, error, isLoading } = useGetPublicCourseBySlug(slug);
     if (error) {
         toast.error(error.message);
     }
@@ -20,6 +20,7 @@ function CourseDetails() {
     if (!course) {
         notFound();
     }
+    if (isLoading) return <>Loading ...</>
     return (
         <div className="min-h-screen bg-gray-50 pt-20 dark:bg-gray-900">
             <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
@@ -47,17 +48,19 @@ function CourseDetails() {
                                 <CourseSidebar />
                             </Suspense>
                         </QueryErrorWrapper>
-                        <QueryErrorWrapper>
-                            <Suspense fallback={<CourseIntakesSkeleton />}>
-                                <CourseIntakes courseId={course.id} />
+                        {course.id && <>
+                            <QueryErrorWrapper>
+                                <Suspense fallback={<CourseIntakesSkeleton />}>
+                                    <CourseIntakes courseId={course.id} />
+                                </Suspense>
+                            </QueryErrorWrapper>
+                            <Suspense fallback={<RelatedCoursesSkeleton />}>
+                                <RelatedCourses
+                                    categoryId={course.category_id as string}
+                                    courseId={course.id}
+                                />
                             </Suspense>
-                        </QueryErrorWrapper>
-                        <Suspense fallback={<RelatedCoursesSkeleton />}>
-                            <RelatedCourses
-                                categoryId={course.category_id as string}
-                                courseId={course.id}
-                            />
-                        </Suspense>
+                        </>}
                     </aside>
                 </div>
             </div>
