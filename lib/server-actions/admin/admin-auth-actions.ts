@@ -5,6 +5,29 @@ import { createAdminSupabaseClient } from '@/utils/supabase/admin';
 import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { encodedRedirect } from '@/utils/utils';
 import { success } from 'zod';
+
+/**
+ * Builds a properly formatted URL for the setup password page with query parameters
+ * @param fullName - Optional full name parameter
+ * @param phone - Optional phone parameter
+ * @returns Formatted URL string
+ */
+function buildSetupPasswordUrl(fullName?: string, phone?: string): string {
+  // Use environment variable for base URL or default to localhost for dev
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const url = new URL('/setup-password', baseUrl);
+  
+  // Add query parameters if they exist
+  if (fullName) {
+    url.searchParams.set('full_name', fullName);
+  }
+  
+  if (phone) {
+    url.searchParams.set('phone', phone);
+  }
+  
+  return url.toString();
+}
 export const signUpAction = async (formData: FormData) => {
     const supabaseAdmin = createAdminSupabaseClient();
     const adminAuthClient = supabaseAdmin.auth.admin;
@@ -120,8 +143,7 @@ export const inviteUserAction = async (formData: FormData) => {
         };
     }
     const { data, error } = await adminAuthClient.inviteUserByEmail(email, {
-        redirectTo:
-            `http://localhost:3000/setup-password${(full_name || phone ? '?' : '').trim()}${(full_name ? 'full_name='.concat(full_name as string) : '').trim()}${(phone ? '&phone='.concat(phone as string) : '').trim()}`.trim(),
+        redirectTo: buildSetupPasswordUrl(full_name as string | undefined, phone as string | undefined),
         data: options,
     });
 

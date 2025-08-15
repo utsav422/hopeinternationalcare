@@ -32,8 +32,7 @@ export const useGetUsers = (page?: number, pageSize?: number) => {
                 page: page?.toString() || '1',
                 pageSize: pageSize?.toString() || '10',
             });
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/users?${searchParams}`

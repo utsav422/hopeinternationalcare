@@ -7,9 +7,18 @@ import Layout from '@/components/Layout';
 import { Toaster } from '@/components/ui/sonner';
 import { QueryProvider } from '@/utils/provider/query-provider';
 
-const defaultUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : 'http://localhost:3000';
+const defaultUrl = (() => {
+  const vercelUrl = process.env.VERCEL_URL;
+  if (vercelUrl) {
+    // Ensure the URL starts with https://
+    return vercelUrl.startsWith('http') ? vercelUrl : `https://${vercelUrl}`;
+  }
+  
+  // For local development or when VERCEL_URL is not set
+  return process.env.NODE_ENV === 'production' 
+    ? 'https://hopeinternational.com.np'  // Production fallback
+    : 'http://localhost:3000';            // Development fallback
+})();
 
 export const metadata = {
     metadataBase: new URL(defaultUrl),

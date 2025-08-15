@@ -55,8 +55,7 @@ export function useGetCustomerContactRequests({
                 ...(search && { search }),
                 ...(status && { status }),
             });
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/customer-contact-requests?${searchParams}`

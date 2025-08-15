@@ -28,8 +28,7 @@ export const useGetEnrollments = (params: {
                 pageSize: params.pageSize?.toString() || '10',
                 filters: JSON.stringify(params.filters || []),
             });
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/enrollments?${searchParams}`
@@ -51,8 +50,7 @@ export const useGetEnrollmentById = (id: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.enrollments.detail(id),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(`/api/admin/enrollments?id=${id}`);
             if (!response.ok) {
@@ -72,8 +70,7 @@ export const useGetEnrollmentWithDetails = (id: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.enrollments.detail(id),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/enrollments?id=${id}&withDetails=true`
@@ -95,8 +92,7 @@ export const useGetEnrollmentsByUserId = (userId: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.enrollments.detailByUserId(userId),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/enrollments?userId=${userId}`
@@ -118,8 +114,7 @@ export const useGetEnrollmentWithPayment = (id: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.enrollments.detailByPaymentId(id),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/enrollments?id=${id}&withPayment=true`
@@ -143,8 +138,7 @@ export const useGetAllEnrollments = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.enrollments.all,
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
             const response = await fetch(
                 `/api/admin/enrollments?getAll=true`
             );
@@ -165,8 +159,7 @@ export const useGetAllEnrollmentsByStatus = (status: TypeEnrollmentStatus) => {
     return useSuspenseQuery({
         queryKey: queryKeys.enrollments.list({ status }),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/enrollments?getAll=true&status=${status}`

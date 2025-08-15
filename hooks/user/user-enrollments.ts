@@ -27,8 +27,7 @@ export const useGetUserEnrollments = () => {
     return useSuspenseQuery({
         queryKey: [queryKeys.enrollments.all],
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(`/api/user/enrollments`);
             if (!response.ok) {

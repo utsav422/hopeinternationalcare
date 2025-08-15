@@ -24,8 +24,7 @@ export const useGetRefunds = (params: {
                 search: params.search || '',
                 ...(params.status && { status: params.status }),
             });
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/refunds?${searchParams}`

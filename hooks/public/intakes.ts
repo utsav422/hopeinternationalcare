@@ -7,8 +7,7 @@ export function useGetActiveIntakesByCourseId(courseId: string) {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.detail(courseId),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/public/intakes?courseId=${courseId}`
@@ -31,8 +30,7 @@ export function useGetAllIntakes() {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.all,
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(`/api/public/intakes?all=true`);
             if (!response.ok) {
@@ -53,8 +51,7 @@ export function useGetIntakeById(id: string) {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.detail(id),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/public/intakes?intakeId=${id}`
@@ -77,8 +74,7 @@ export function useGetUpcomingIntakes() {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.upCommingIntakes,
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/public/intakes?upcoming=true`
@@ -101,8 +97,7 @@ export function useGetCourseIntakesBySlug(slug: string) {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.detail(slug),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/public/intakes?slug=${slug}`

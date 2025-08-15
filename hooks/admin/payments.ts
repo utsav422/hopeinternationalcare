@@ -30,8 +30,7 @@ export const useGetPayments = (params: {
                 search: params.search || '',
                 ...(params.status && { status: params.status }),
             });
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/payments?${searchParams}`
@@ -53,8 +52,7 @@ export const useGetPaymentDetailsByEnrollmentId = (enrollmentId: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.payments.detailByEnrollment(enrollmentId),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/payments?enrollmentId=${enrollmentId}`
@@ -76,8 +74,7 @@ export const useGetPaymentOnlyDetailsById = (paymentId: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.payments.detail(paymentId),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/payments?id=${paymentId}`
@@ -99,8 +96,7 @@ export const useGetPaymentDetailsWithOthersById = (paymentId: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.payments.detail(paymentId),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/payments?id=${paymentId}&withOthers=true`

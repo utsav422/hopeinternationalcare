@@ -26,8 +26,7 @@ export const useGetIntakes = (params: ListParams) => {
                 order: params.order || 'desc',
                 filters: JSON.stringify(params.filters || []),
             });
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/intakes?${searchParams}`
@@ -49,8 +48,7 @@ export const useGetAllActiveIntake = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.activeIntakes,
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/intakes?getAllActive=true`
@@ -72,8 +70,7 @@ export const useGetAllIntake = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.all,
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
             const response = await fetch(`/api/admin/intakes?getAll=true`);
             if (!response.ok) {
                 throw new Error('Failed to fetch all intakes');
@@ -92,8 +89,7 @@ export const useGetIntakeById = (id: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.detail(id),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(`/api/admin/intakes?id=${id}`);
             if (!response.ok) {

@@ -25,8 +25,7 @@ export const useGetCourseCategories = (params: ListParams) => {
                 order: params.order || 'desc',
                 filters: JSON.stringify(params.filters || []),
             });
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
             const response = await fetch(
                 `/api/admin/courses-categories?${searchParams}`
             );
@@ -49,8 +48,7 @@ export const useGetAllCourseCategories = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.courseCategories.lists(),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
             const response = await fetch(
                 `/api/admin/courses-categories?getAll=true`
             );
@@ -73,8 +71,7 @@ export const useGetCourseCategoryById = (id: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.courseCategories.detail(id),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
             const response = await fetch(
                 `/api/admin/courses-categories?id=${id}`
             );

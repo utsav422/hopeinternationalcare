@@ -22,8 +22,7 @@ export const useGetProfiles = (params: {
                 pageSize: params.pageSize?.toString() || '10',
                 search: params.search || '',
             });
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/admin/profiles?${searchParams}`
@@ -45,8 +44,7 @@ export const useGetAllProfiles = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.profiles.all,
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(`/api/admin/profiles?getAll=true`);
             if (!response.ok) {
@@ -66,8 +64,7 @@ export const useGetProfileById = (id: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.profiles.detail(id),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(`/api/admin/profiles?id=${id}`);
             if (!response.ok) {

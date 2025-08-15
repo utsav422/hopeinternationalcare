@@ -6,8 +6,7 @@ export const useGetAllCourseCategories = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.courseCategories.all,
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
             const response = await fetch(`/api/public/courses-categories`);
             if (!response.ok) {
                 throw new Error('Failed to fetch data');

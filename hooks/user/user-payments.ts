@@ -36,8 +36,7 @@ export const useGetUserPaymentHistory = (page = 1, pageSize = 10) => {
                 page: page.toString(),
                 pageSize: pageSize.toString(),
             });
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/user/payments?${searchParams}`

@@ -27,8 +27,7 @@ export const useGetPublicCourses = (params: {
                 sortOrder: params.sortOrder || 'desc',
                 filters: JSON.stringify(params.filters || {}),
             });
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/public/courses?${searchParams}`
@@ -52,8 +51,7 @@ export function useGetPublicCourseById(courseId: string) {
     return useSuspenseQuery({
         queryKey: queryKeys.courses.detail(courseId),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/public/courses?id=${courseId}`
@@ -76,8 +74,7 @@ export function useGetPublicCourseBySlug(slug?: string) {
     return useSuspenseQuery({
         queryKey: queryKeys.courses.detail(slug || ''),
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/public/courses?slug=${slug}`
@@ -100,8 +97,7 @@ export function useGetNewCourses() {
     return useSuspenseQuery({
         queryKey: queryKeys.newCourses.all,
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(`/api/public/courses?new=true`);
             if (!response.ok) {
@@ -125,8 +121,7 @@ export function useGetRelatedCourses(courseId: string, categoryId: string) {
                 relatedTo: courseId,
                 categoryId,
             });
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 
             const response = await fetch(
                 `/api/public/courses?${searchParams}`

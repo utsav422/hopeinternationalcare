@@ -7,8 +7,7 @@ export const useGetDashboardSummary = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.dashboard.all,
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
             const response = await fetch(
                 `/api/admin/dashboard?summary=true`
             );
@@ -29,8 +28,7 @@ export const useGetTotalUsers = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.dashboard.totalUsers,
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
             const response = await fetch(
                 `/api/admin/dashboard?totalUsers=true`
             );
@@ -51,8 +49,7 @@ export const useGetTotalEnrollments = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.dashboard.totalEnrollment,
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
             const response = await fetch(
                 `/api/admin/dashboard?totalEnrollments=true`
             );
@@ -73,8 +70,7 @@ export const useGetEnrollmentsByStatus = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.dashboard.enrollmentByStatus,
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
             const response = await fetch(
                 `/api/admin/dashboard?enrollmentsByStatus=true`
             );
@@ -97,8 +93,7 @@ export const useGetTotalIncome = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.dashboard.totalIncome,
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
             const response = await fetch(
                 `/api/admin/dashboard?totalIncome=true`
             );
@@ -119,8 +114,7 @@ export const useGetPaymentsByStatus = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.dashboard.paymentByStatus,
         queryFn: async () => {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
             const response = await fetch(
                 `/api/admin/dashboard?paymentsByStatus=true`
             );
