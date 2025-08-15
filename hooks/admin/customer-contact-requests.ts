@@ -59,7 +59,7 @@ export function useGetCustomerContactRequests({
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
             const response = await fetch(
-                `${baseUrl}/api/admin/customer-contact-requests?${searchParams}`
+                `/api/admin/customer-contact-requests?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch data');

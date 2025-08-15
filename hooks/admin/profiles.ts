@@ -26,7 +26,7 @@ export const useGetProfiles = (params: {
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
             const response = await fetch(
-                `${baseUrl}/api/admin/profiles?${searchParams}`
+                `/api/admin/profiles?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch profiles');
@@ -48,7 +48,7 @@ export const useGetAllProfiles = () => {
             const baseUrl =
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
-            const response = await fetch(`${baseUrl}/api/admin/profiles?getAll=true`);
+            const response = await fetch(`/api/admin/profiles?getAll=true`);
             if (!response.ok) {
                 throw new Error('Failed to fetch all profiles');
             }
@@ -69,7 +69,7 @@ export const useGetProfileById = (id: string) => {
             const baseUrl =
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
-            const response = await fetch(`${baseUrl}/api/admin/profiles?id=${id}`);
+            const response = await fetch(`/api/admin/profiles?id=${id}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch profile');
             }

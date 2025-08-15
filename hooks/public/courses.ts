@@ -31,7 +31,7 @@ export const useGetPublicCourses = (params: {
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
             const response = await fetch(
-                `${baseUrl}/api/public/courses?${searchParams}`
+                `/api/public/courses?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
@@ -56,7 +56,7 @@ export function useGetPublicCourseById(courseId: string) {
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
             const response = await fetch(
-                `${baseUrl}/api/public/courses?id=${courseId}`
+                `/api/public/courses?id=${courseId}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch course');
@@ -80,7 +80,7 @@ export function useGetPublicCourseBySlug(slug?: string) {
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
             const response = await fetch(
-                `${baseUrl}/api/public/courses?slug=${slug}`
+                `/api/public/courses?slug=${slug}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch course');
@@ -103,7 +103,7 @@ export function useGetNewCourses() {
             const baseUrl =
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
-            const response = await fetch(`${baseUrl}/api/public/courses?new=true`);
+            const response = await fetch(`/api/public/courses?new=true`);
             if (!response.ok) {
                 throw new Error('Failed to fetch new courses');
             }
@@ -129,7 +129,7 @@ export function useGetRelatedCourses(courseId: string, categoryId: string) {
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
             const response = await fetch(
-                `${baseUrl}/api/public/courses?${searchParams}`
+                `/api/public/courses?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch related courses');

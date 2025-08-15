@@ -11,7 +11,7 @@ export function useGetActiveIntakesByCourseId(courseId: string) {
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
             const response = await fetch(
-                `${baseUrl}/api/public/intakes?courseId=${courseId}`
+                `/api/public/intakes?courseId=${courseId}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch intakes');
@@ -34,7 +34,7 @@ export function useGetAllIntakes() {
             const baseUrl =
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
-            const response = await fetch(`${baseUrl}/api/public/intakes?all=true`);
+            const response = await fetch(`/api/public/intakes?all=true`);
             if (!response.ok) {
                 throw new Error('Failed to fetch intakes');
             }
@@ -57,7 +57,7 @@ export function useGetIntakeById(id: string) {
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
             const response = await fetch(
-                `${baseUrl}/api/public/intakes?intakeId=${id}`
+                `/api/public/intakes?intakeId=${id}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch intake');
@@ -81,7 +81,7 @@ export function useGetUpcomingIntakes() {
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
             const response = await fetch(
-                `${baseUrl}/api/public/intakes?upcoming=true`
+                `/api/public/intakes?upcoming=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch upcoming intakes');
@@ -105,7 +105,7 @@ export function useGetCourseIntakesBySlug(slug: string) {
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
             const response = await fetch(
-                `${baseUrl}/api/public/intakes?slug=${slug}`
+                `/api/public/intakes?slug=${slug}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch intakes');

@@ -30,7 +30,7 @@ export const useGetUserEnrollments = () => {
             const baseUrl =
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
-            const response = await fetch(`${baseUrl}/api/user/enrollments`);
+            const response = await fetch(`/api/user/enrollments`);
             if (!response.ok) {
                 throw new Error('Failed to fetch enrollments');
             }

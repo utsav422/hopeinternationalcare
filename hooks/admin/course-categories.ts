@@ -28,7 +28,7 @@ export const useGetCourseCategories = (params: ListParams) => {
             const baseUrl =
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
             const response = await fetch(
-                `${baseUrl}/api/admin/courses-categories?${searchParams}`
+                `/api/admin/courses-categories?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
@@ -52,7 +52,7 @@ export const useGetAllCourseCategories = () => {
             const baseUrl =
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
             const response = await fetch(
-                `${baseUrl}/api/admin/courses-categories?getAll=true`
+                `/api/admin/courses-categories?getAll=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
@@ -76,7 +76,7 @@ export const useGetCourseCategoryById = (id: string) => {
             const baseUrl =
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
             const response = await fetch(
-                `${baseUrl}/api/admin/courses-categories?id=${id}`
+                `/api/admin/courses-categories?id=${id}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch data');

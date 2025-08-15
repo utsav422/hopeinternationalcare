@@ -20,7 +20,7 @@ export const useGetPayments = (params: {
     search?: string;
     status?: TypePaymentStatus;
 }) => {
-    
+
     return useSuspenseQuery({
         queryKey: queryKeys.payments.list(params),
         queryFn: async () => {
@@ -34,7 +34,7 @@ export const useGetPayments = (params: {
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
             const response = await fetch(
-                `${baseUrl}/api/admin/payments?${searchParams}`
+                `/api/admin/payments?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch payments');
@@ -57,7 +57,7 @@ export const useGetPaymentDetailsByEnrollmentId = (enrollmentId: string) => {
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
             const response = await fetch(
-                `${baseUrl}/api/admin/payments?enrollmentId=${enrollmentId}`
+                `/api/admin/payments?enrollmentId=${enrollmentId}`
             );
             const result = await response.json();
             if (!response.ok) {
@@ -80,7 +80,7 @@ export const useGetPaymentOnlyDetailsById = (paymentId: string) => {
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
             const response = await fetch(
-                `${baseUrl}/api/admin/payments?id=${paymentId}`
+                `/api/admin/payments?id=${paymentId}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch payment details');
@@ -103,7 +103,7 @@ export const useGetPaymentDetailsWithOthersById = (paymentId: string) => {
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
             const response = await fetch(
-                `${baseUrl}/api/admin/payments?id=${paymentId}&withOthers=true`
+                `/api/admin/payments?id=${paymentId}&withOthers=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch payment details');

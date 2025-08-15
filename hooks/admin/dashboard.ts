@@ -10,7 +10,7 @@ export const useGetDashboardSummary = () => {
             const baseUrl =
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
             const response = await fetch(
-                `${baseUrl}/api/admin/dashboard?summary=true`
+                `/api/admin/dashboard?summary=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch dashboard summary');
@@ -32,7 +32,7 @@ export const useGetTotalUsers = () => {
             const baseUrl =
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
             const response = await fetch(
-                `${baseUrl}/api/admin/dashboard?totalUsers=true`
+                `/api/admin/dashboard?totalUsers=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch total users');
@@ -54,7 +54,7 @@ export const useGetTotalEnrollments = () => {
             const baseUrl =
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
             const response = await fetch(
-                `${baseUrl}/api/admin/dashboard?totalEnrollments=true`
+                `/api/admin/dashboard?totalEnrollments=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch total enrollments');
@@ -76,7 +76,7 @@ export const useGetEnrollmentsByStatus = () => {
             const baseUrl =
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
             const response = await fetch(
-                `${baseUrl}/api/admin/dashboard?enrollmentsByStatus=true`
+                `/api/admin/dashboard?enrollmentsByStatus=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch enrollments by status');
@@ -100,7 +100,7 @@ export const useGetTotalIncome = () => {
             const baseUrl =
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
             const response = await fetch(
-                `${baseUrl}/api/admin/dashboard?totalIncome=true`
+                `/api/admin/dashboard?totalIncome=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch total income');
@@ -122,7 +122,7 @@ export const useGetPaymentsByStatus = () => {
             const baseUrl =
                 process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
             const response = await fetch(
-                `${baseUrl}/api/admin/dashboard?paymentsByStatus=true`
+                `/api/admin/dashboard?paymentsByStatus=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch payments by status');
