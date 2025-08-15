@@ -54,7 +54,7 @@ export default async function CourseDetailPage({
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
             <QueryErrorWrapper>
-                <Suspense>
+                <Suspense fallback={<>Loading ...</>}>
                     <CourseDetails />
                 </Suspense>
             </QueryErrorWrapper>
