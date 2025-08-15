@@ -22,15 +22,18 @@ import {
 } from '@mdxeditor/editor';
 import type { ForwardedRef } from 'react';
 import '@mdxeditor/editor/style.css';
+import { useTheme } from 'next-themes';
 
 export default function InitializedMDXEditor({
     editorRef,
     ...props
 }: { editorRef: ForwardedRef<MDXEditorMethods> | null } & MDXEditorProps) {
+    const { theme, setTheme } = useTheme();
+
     return (
         <MDXEditor
             {...props}
-            className="dark-theme"
+            className={`${theme === 'light' ? 'light-theme' : 'dark-theme'}`}
             plugins={[
                 toolbarPlugin({
                     toolbarClassName: 'flex',
