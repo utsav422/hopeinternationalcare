@@ -35,7 +35,7 @@ export const useGetUsers = (page?: number, pageSize?: number) => {
 
 
             const response = await fetch(
-                `/api/admin/users?${searchParams}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/users?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch users');

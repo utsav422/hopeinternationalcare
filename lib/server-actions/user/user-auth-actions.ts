@@ -28,7 +28,7 @@ export const signUpAction = async (formData: FormData) => {
                     full_name,
                     role: 'authenticated',
                 },
-                emailRedirectTo: `${origin}/api/auth/callback`,
+                emailRedirectTo: `${origin}${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback`,
             },
         });
 
@@ -60,12 +60,12 @@ export const signUpAction = async (formData: FormData) => {
                 error: profileError.message,
                 userId: user.id,
             });
-            
+
             // Check for duplicate email error
             if (profileError.message.includes('duplicate key value violates unique constraint "profiles_email_unique"')) {
                 return { success: false, error: 'user with email is already exist, try again with another email' };
             }
-            
+
             return { success: false, error: profileError.message }
         }
         logger.info('Profile created successfully', { userId: user.id });
@@ -116,7 +116,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
         }
 
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${origin}/api/auth/callback?redirect_to=/reset-password`,
+            redirectTo: `${origin}${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback?redirect_to=/reset-password`,
         });
 
         if (error) {

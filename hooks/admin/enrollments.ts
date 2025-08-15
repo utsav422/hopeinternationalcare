@@ -31,7 +31,7 @@ export const useGetEnrollments = (params: {
 
 
             const response = await fetch(
-                `/api/admin/enrollments?${searchParams}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/enrollments?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch enrollments');
@@ -52,7 +52,7 @@ export const useGetEnrollmentById = (id: string) => {
         queryFn: async () => {
 
 
-            const response = await fetch(`/api/admin/enrollments?id=${id}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/enrollments?id=${id}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch enrollment');
             }
@@ -73,7 +73,7 @@ export const useGetEnrollmentWithDetails = (id: string) => {
 
 
             const response = await fetch(
-                `/api/admin/enrollments?id=${id}&withDetails=true`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/enrollments?id=${id}&withDetails=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch enrollment details');
@@ -95,7 +95,7 @@ export const useGetEnrollmentsByUserId = (userId: string) => {
 
 
             const response = await fetch(
-                `/api/admin/enrollments?userId=${userId}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/enrollments?userId=${userId}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch enrollments');
@@ -117,7 +117,7 @@ export const useGetEnrollmentWithPayment = (id: string) => {
 
 
             const response = await fetch(
-                `/api/admin/enrollments?id=${id}&withPayment=true`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/enrollments?id=${id}&withPayment=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch enrollment with payment');
@@ -140,7 +140,7 @@ export const useGetAllEnrollments = () => {
         queryFn: async () => {
 
             const response = await fetch(
-                `/api/admin/enrollments?getAll=true`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/enrollments?getAll=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch all enrollments');
@@ -162,7 +162,7 @@ export const useGetAllEnrollmentsByStatus = (status: TypeEnrollmentStatus) => {
 
 
             const response = await fetch(
-                `/api/admin/enrollments?getAll=true&status=${status}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/enrollments?getAll=true&status=${status}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch enrollments by status');

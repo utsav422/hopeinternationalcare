@@ -25,7 +25,7 @@ export const useGetProfiles = (params: {
 
 
             const response = await fetch(
-                `/api/admin/profiles?${searchParams}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/profiles?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch profiles');
@@ -46,7 +46,7 @@ export const useGetAllProfiles = () => {
         queryFn: async () => {
 
 
-            const response = await fetch(`/api/admin/profiles?getAll=true`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/profiles?getAll=true`);
             if (!response.ok) {
                 throw new Error('Failed to fetch all profiles');
             }
@@ -66,7 +66,7 @@ export const useGetProfileById = (id: string) => {
         queryFn: async () => {
 
 
-            const response = await fetch(`/api/admin/profiles?id=${id}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/profiles?id=${id}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch profile');
             }

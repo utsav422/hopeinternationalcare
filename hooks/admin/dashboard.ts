@@ -9,7 +9,7 @@ export const useGetDashboardSummary = () => {
         queryFn: async () => {
 
             const response = await fetch(
-                `/api/admin/dashboard?summary=true`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/dashboard?summary=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch dashboard summary');
@@ -30,7 +30,7 @@ export const useGetTotalUsers = () => {
         queryFn: async () => {
 
             const response = await fetch(
-                `/api/admin/dashboard?totalUsers=true`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/dashboard?totalUsers=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch total users');
@@ -51,7 +51,7 @@ export const useGetTotalEnrollments = () => {
         queryFn: async () => {
 
             const response = await fetch(
-                `/api/admin/dashboard?totalEnrollments=true`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/dashboard?totalEnrollments=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch total enrollments');
@@ -72,7 +72,7 @@ export const useGetEnrollmentsByStatus = () => {
         queryFn: async () => {
 
             const response = await fetch(
-                `/api/admin/dashboard?enrollmentsByStatus=true`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/dashboard?enrollmentsByStatus=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch enrollments by status');
@@ -95,7 +95,7 @@ export const useGetTotalIncome = () => {
         queryFn: async () => {
 
             const response = await fetch(
-                `/api/admin/dashboard?totalIncome=true`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/dashboard?totalIncome=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch total income');
@@ -116,7 +116,7 @@ export const useGetPaymentsByStatus = () => {
         queryFn: async () => {
 
             const response = await fetch(
-                `/api/admin/dashboard?paymentsByStatus=true`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/dashboard?paymentsByStatus=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch payments by status');

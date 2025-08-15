@@ -7,7 +7,7 @@ export const useGetAllCourseCategories = () => {
         queryKey: queryKeys.courseCategories.all,
         queryFn: async () => {
 
-            const response = await fetch(`/api/public/courses-categories`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/public/courses-categories`);
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
             }

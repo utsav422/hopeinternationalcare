@@ -27,7 +27,7 @@ export const useGetRefunds = (params: {
 
 
             const response = await fetch(
-                `/api/admin/refunds?${searchParams}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/refunds?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch refunds');

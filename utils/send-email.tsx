@@ -1,6 +1,6 @@
 export function sendEmail(data: FormData) {
 
-    const apiEndpoint = `/api/email'`;
+    const apiEndpoint = `${process.env.NEXT_PUBLIC_SITE_URL}/api/email'`;
 
     fetch(apiEndpoint, {
         method: 'POST',

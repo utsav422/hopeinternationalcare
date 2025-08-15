@@ -29,7 +29,7 @@ export const useGetIntakes = (params: ListParams) => {
 
 
             const response = await fetch(
-                `/api/admin/intakes?${searchParams}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/intakes?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch intakes');
@@ -51,7 +51,7 @@ export const useGetAllActiveIntake = () => {
 
 
             const response = await fetch(
-                `/api/admin/intakes?getAllActive=true`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/intakes?getAllActive=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch active intakes');
@@ -71,7 +71,7 @@ export const useGetAllIntake = () => {
         queryKey: queryKeys.intakes.all,
         queryFn: async () => {
 
-            const response = await fetch(`/api/admin/intakes?getAll=true`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/intakes?getAll=true`);
             if (!response.ok) {
                 throw new Error('Failed to fetch all intakes');
             }
@@ -91,7 +91,7 @@ export const useGetIntakeById = (id: string) => {
         queryFn: async () => {
 
 
-            const response = await fetch(`/api/admin/intakes?id=${id}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/intakes?id=${id}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch intake');
             }

@@ -58,7 +58,7 @@ export function useGetCustomerContactRequests({
 
 
             const response = await fetch(
-                `/api/admin/customer-contact-requests?${searchParams}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/customer-contact-requests?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch data');

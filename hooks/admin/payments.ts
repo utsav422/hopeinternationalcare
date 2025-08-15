@@ -33,7 +33,7 @@ export const useGetPayments = (params: {
 
 
             const response = await fetch(
-                `/api/admin/payments?${searchParams}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/payments?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch payments');
@@ -55,7 +55,7 @@ export const useGetPaymentDetailsByEnrollmentId = (enrollmentId: string) => {
 
 
             const response = await fetch(
-                `/api/admin/payments?enrollmentId=${enrollmentId}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/payments?enrollmentId=${enrollmentId}`
             );
             const result = await response.json();
             if (!response.ok) {
@@ -77,7 +77,7 @@ export const useGetPaymentOnlyDetailsById = (paymentId: string) => {
 
 
             const response = await fetch(
-                `/api/admin/payments?id=${paymentId}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/payments?id=${paymentId}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch payment details');
@@ -99,7 +99,7 @@ export const useGetPaymentDetailsWithOthersById = (paymentId: string) => {
 
 
             const response = await fetch(
-                `/api/admin/payments?id=${paymentId}&withOthers=true`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/payments?id=${paymentId}&withOthers=true`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch payment details');

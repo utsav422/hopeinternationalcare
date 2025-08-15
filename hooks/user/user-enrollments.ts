@@ -29,7 +29,7 @@ export const useGetUserEnrollments = () => {
         queryFn: async () => {
 
 
-            const response = await fetch(`/api/user/enrollments`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user/enrollments`);
             if (!response.ok) {
                 throw new Error('Failed to fetch enrollments');
             }

@@ -28,7 +28,7 @@ export const useGetCourses = (params: ListParams) => {
             });
 
             const response = await fetch(
-                `/api/admin/courses?${searchParams}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/courses?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
@@ -50,7 +50,7 @@ export const useGetAllCourses = () => {
         queryKey: queryKeys.courses.lists(),
         queryFn: async () => {
 
-            const response = await fetch(`/api/admin/courses?getAll=true`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/courses?getAll=true`);
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
             }
@@ -71,7 +71,7 @@ export const useGetCourseById = (id: string) => {
         queryKey: queryKeys.courses.detail(id),
         queryFn: async () => {
 
-            const response = await fetch(`/api/admin/courses?id=${id}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/courses?id=${id}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
             }

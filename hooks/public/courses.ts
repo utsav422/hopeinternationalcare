@@ -30,7 +30,7 @@ export const useGetPublicCourses = (params: {
 
 
             const response = await fetch(
-                `/api/public/courses?${searchParams}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/public/courses?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
@@ -54,7 +54,7 @@ export function useGetPublicCourseById(courseId: string) {
 
 
             const response = await fetch(
-                `/api/public/courses?id=${courseId}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/public/courses?id=${courseId}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch course');
@@ -77,7 +77,7 @@ export function useGetPublicCourseBySlug(slug?: string) {
 
 
             const response = await fetch(
-                `/api/public/courses?slug=${slug}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/public/courses?slug=${slug}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch course');
@@ -99,7 +99,7 @@ export function useGetNewCourses() {
         queryFn: async () => {
 
 
-            const response = await fetch(`/api/public/courses?new=true`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/public/courses?new=true`);
             if (!response.ok) {
                 throw new Error('Failed to fetch new courses');
             }
@@ -124,7 +124,7 @@ export function useGetRelatedCourses(courseId: string, categoryId: string) {
 
 
             const response = await fetch(
-                `/api/public/courses?${searchParams}`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/api/public/courses?${searchParams}`
             );
             if (!response.ok) {
                 throw new Error('Failed to fetch related courses');
