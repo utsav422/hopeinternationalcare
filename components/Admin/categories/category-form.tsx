@@ -73,9 +73,16 @@ export default function CategoryForm({ id, formTitle }: Props) {
     const onSubmit = async (values: ZodInsertCourseCategoryType) => {
         toast.promise(upsertCategory(values), {
             loading: 'Saving category...',
-            success: () => {
-                router.push('/admin/categories');
-                return `Category ${initialData ? 'updated' : 'created'} successfully.`;
+            success: ({ success, error }: {
+                success: boolean,
+                error?: string,
+            }) => {
+                if (success) {
+                    router.push('/admin/categories');
+                    return `Category ${initialData ? 'updated' : 'created'} successfully.`;
+                }
+                throw new Error(error || 'An unknown error occurred');
+
             },
             error: (error) => error instanceof Error ? error.message : 'Failed to save category.',
         });
