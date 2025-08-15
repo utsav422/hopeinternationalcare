@@ -93,7 +93,7 @@ export function AllCourses() {
                             available_seats={course?.available_seats ?? null}
                             categoryName={course?.categoryName ?? null}
                             desc={course?.description || ''}
-                            heading={course?.image_url || ''}
+                            image_url={course?.image_url || ''}
                             id={course?.id ?? ''}
                             key={course?.id}
                             next_intake_date={course?.next_intake_date ?? null}
