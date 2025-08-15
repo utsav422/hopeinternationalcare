@@ -2,7 +2,7 @@ import { CurrencyDollarIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { notFound, useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetPublicCourseBySlug } from '@/hooks/admin/public-courses';
+import { useGetPublicCourseBySlug } from '@/hooks/public/courses';
 
 export function CourseSidebarSkeleton() {
     return (
