@@ -101,15 +101,9 @@ export function UserAppSidebar({
                         </SidebarGroupContent>
                     </SidebarGroup>
                 ))}
-                <Button onClick={signOutAction}>Logout</Button>
             </SidebarContent>
             <SidebarFooter>
-                <Button
-                    className="dark:bg-red-600  dark:hover:bg-red-700"
-                    onClick={signOutAction}
-                >
-                    Logout
-                </Button>
+
                 {user && <NavUser user={user} />}
             </SidebarFooter>
         </Sidebar>
@@ -171,17 +165,8 @@ export function NavUser({
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                             <DropdownMenuItem>
-                                {/* <IconUserCircle /> */}
-                                <ThemeSwitcher /> 
+                                <ThemeSwitcher />
                             </DropdownMenuItem>
-                            {/* <DropdownMenuItem>
-                                <IconCreditCard />
-                                Billing
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <IconNotification />
-                                Notifications
-                            </DropdownMenuItem> */}
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem

@@ -3,6 +3,7 @@
 import { headers } from 'next/headers';
 import { logger } from '@/utils/logger';
 import { createServerSupabaseClient } from '@/utils/supabase/server';
+import { createAdminSupabaseClient } from '@/utils/supabase/admin';
 
 export const signUpAction = async (formData: FormData) => {
     try {
@@ -59,11 +60,17 @@ export const signUpAction = async (formData: FormData) => {
                 error: profileError.message,
                 userId: user.id,
             });
-            return { success: false, error: profileError.message };
+            
+            // Check for duplicate email error
+            if (profileError.message.includes('duplicate key value violates unique constraint "profiles_email_unique"')) {
+                return { success: false, error: 'user with email is already exist, try again with another email' };
+            }
+            
+            return { success: false, error: profileError.message }
         }
         logger.info('Profile created successfully', { userId: user.id });
+        return { success: true, message: 'Profile created successfully', userId: user.id };
 
-        return { success: true, data: user };
     } catch (e) {
         const error = e as Error;
         return { success: false, error: error.message };

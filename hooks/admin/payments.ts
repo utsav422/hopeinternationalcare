@@ -60,7 +60,6 @@ export const useGetPaymentDetailsByEnrollmentId = (enrollmentId: string) => {
                 `${baseUrl}/api/admin/payments?enrollmentId=${enrollmentId}`
             );
             const result = await response.json();
-            console.log({ result })
             if (!response.ok) {
                 throw new Error('Failed to fetch payment details');
             }

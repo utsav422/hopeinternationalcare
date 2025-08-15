@@ -15,7 +15,6 @@ export default async function Signup() {
     const isAdminAvailable =
         users?.filter((user) => user.role === 'service_role').length > 0;
     if (isAdminAvailable) {
-        console.log({ isAdminAvailable })
         redirect('/admin/sign-in');
     }
     return <Suspense>

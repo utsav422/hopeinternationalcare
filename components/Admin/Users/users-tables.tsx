@@ -35,10 +35,10 @@ export default function UsersTables() {
     const { mutateAsync: deleteUser } = useDeleteUser();
 
     const handleDelete = async (id: string) => {
-        await toast.promise(deleteUser(id), {
+         toast.promise(deleteUser(id), {
             loading: 'Deleting user...',
             success: 'User deleted successfully',
-            error: 'Failed to delete user',
+            error: (error) => error instanceof Error ? error.message : 'Failed to delete user',
         });
     };
     const columns: ColumnDef<User>[] = [

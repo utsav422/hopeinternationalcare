@@ -69,10 +69,10 @@ export default function IntakesTables() {
     const historyTotal = historyIntakes?.length ?? 0;
 
     const handleDelete = async (id: string) => {
-        await toast.promise(deleteIntake(id), {
+        toast.promise(deleteIntake(id), {
             loading: 'Deleting intake...',
             success: 'Intake deleted successfully',
-            error: 'Failed to delete intake',
+            error: (error) => error instanceof Error ? error.message : 'Failed to delete intake',
         });
     };
 

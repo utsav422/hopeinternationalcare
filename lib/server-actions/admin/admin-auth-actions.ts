@@ -4,6 +4,7 @@ import { RedirectType, redirect } from 'next/navigation';
 import { createAdminSupabaseClient } from '@/utils/supabase/admin';
 import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { encodedRedirect } from '@/utils/utils';
+import { success } from 'zod';
 export const signUpAction = async (formData: FormData) => {
     const supabaseAdmin = createAdminSupabaseClient();
     const adminAuthClient = supabaseAdmin.auth.admin;
@@ -54,46 +55,46 @@ export const signUpAction = async (formData: FormData) => {
 };
 
 export const AdminSignInAction = async (formData: FormData) => {
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const supabase = await createServerSupabaseClient();
+    try {
+        const email = formData.get('email') as string;
+        const password = formData.get('password') as string;
+        const supabase = await createServerSupabaseClient();
 
-    const {
-        data: { user },
-        error,
-    } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-    });
+        const {
+            data: { user },
+            error,
+        } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+        if (error && !user) {
+            return {
+                success: false,
+                error: error?.message ?? 'Something went wrong, user not found!',
+            };
+        }
+        return { error: undefined, success: true, data: user, message: 'signin successfully' };
 
-    if (error || !user) {
-        return {
-            error: error?.message ?? 'Something went wrong, user not found!',
-        };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : 'Something went wrong, user not found!' };
     }
 
-    if (user?.role === 'service_role') {
-        return redirect('/admin');
-    }
-
-    return redirect('/');
 };
 export const signOutAction = async () => {
     try {
+
         const supabase = await createServerSupabaseClient();
         const { error } = await supabase.auth.signOut();
         if (error) {
             return { success: false, error: error.message };
         }
-        return redirect('/admin-auth/sign-in', RedirectType.replace);
+        return { success: true, error: undefined, message: 'user signout successfully' };
 
     } catch (e) {
         const error = e as Error;
         return { success: false, error: error.message };
     }
-    // const supabase = await createServerSupabaseClient();
-    // await supabase.auth.signOut();
-    // return redirect('/admin-auth/sign-in', RedirectType.replace);
+
 };
 
 export const inviteUserAction = async (formData: FormData) => {

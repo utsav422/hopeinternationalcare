@@ -76,7 +76,7 @@ export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
                 router.push('/admin/intakes');
                 return `Intake ${initialData ? 'updated' : 'created'} successfully.`;
             },
-            error: 'Failed to save intake.',
+            error: (error) => error instanceof Error ? error.message : 'Failed to save intake.',
         });
     };
 

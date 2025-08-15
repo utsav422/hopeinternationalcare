@@ -43,6 +43,8 @@ import {
 import { signOutAction } from '@/lib/server-actions/admin/admin-auth-actions';
 import { IconInnerShadowTop } from '@tabler/icons-react';
 import { ThemeSwitcher } from "@/components/theme-switcher"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 type SubNavItem = {
     title: string;
@@ -143,12 +145,6 @@ export function AdminAppSidebar({
                 <NavMain items={data.navMain} />
             </SidebarContent>
             <SidebarFooter>
-                <Button
-                    className="dark:bg-red-600  dark:hover:bg-red-700"
-                    onClick={signOutAction}
-                >
-                    Logout
-                </Button>
                 <NavUser user={data.user} />
             </SidebarFooter>
         </Sidebar>
@@ -215,7 +211,18 @@ export function NavUser({
     }
 }) {
     const { isMobile } = useSidebar()
-
+    const router = useRouter();
+    const handleApplicationSignOut = async () => {
+        const { error, message, success } = await signOutAction();
+        if (!success && error) {
+            toast.error(error)
+        } else {
+            toast.success(message);
+            router.push('/admin-auth/sign-in', {
+                scroll: false
+            })
+        }
+    }
     return (
         <SidebarMenu>
             <SidebarMenuItem>
@@ -261,21 +268,12 @@ export function NavUser({
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                             <DropdownMenuItem>
-                                {/* <IconUserCircle /> */}
                                 <ThemeSwitcher />
                             </DropdownMenuItem>
-                            {/* <DropdownMenuItem>
-                                <IconCreditCard />
-                                Billing
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <IconNotification />
-                                Notifications
-                            </DropdownMenuItem> */}
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                            onClick={signOutAction} className="text-red-600"
+                            onClick={handleApplicationSignOut} className="text-red-600"
                         >
 
                             <IconLogout className="text-red-600" />

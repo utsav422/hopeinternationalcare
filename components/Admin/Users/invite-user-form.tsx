@@ -34,7 +34,7 @@ export default function InviteUserForm() {
         validInputs?.phone && formData.append('phone', validInputs?.phone);
         validInputs.full_name &&
             formData.append('full_name', validInputs.full_name);
-        await toast.promise(inviteUserAction(formData), {
+         toast.promise(inviteUserAction(formData), {
             loading: 'Sending invite...',
             success: (result) => {
                 if (result.success && result.message) {

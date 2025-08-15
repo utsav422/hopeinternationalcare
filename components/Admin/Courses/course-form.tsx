@@ -130,7 +130,7 @@ export default function ({ slug, formTitle }: Props) {
             formData.append('image_url', initialData.image_url);
         }
 
-        await toast.promise(upsertCourse(formData), {
+         toast.promise(upsertCourse(formData), {
             loading: 'Saving course...',
             success: (res: {
                 success: boolean;

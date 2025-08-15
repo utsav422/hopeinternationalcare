@@ -50,10 +50,10 @@ export default function CourseTable() {
             return;
         }
 
-        await toast.promise(deleteCourse(id), {
+        toast.promise(deleteCourse(id), {
             loading: 'Deleting course...',
             success: 'Course deleted successfully',
-            error: 'Failed to delete course',
+            error: (error) => error instanceof Error ? error.message : 'Failed to delete course',
         });
     };
     const columns: ColumnDef<
@@ -178,12 +178,12 @@ export default function CourseTable() {
                                     onClick={async () => {
                                         const courseId = cellProps?.row.original.id;
                                         if (courseId) {
-                                            await toast.promise(
+                                            toast.promise(
                                                 generateIntakesForCourseAdvanced(courseId),
                                                 {
                                                     loading: 'Generating intakes...',
                                                     success: 'Intakes generated successfully',
-                                                    error: 'Failed to generate intakes',
+                                                    error: (error) => error instanceof Error ? error.message : 'Failed to generate intakes',
                                                 }
                                             );
                                             queryClient.invalidateQueries({

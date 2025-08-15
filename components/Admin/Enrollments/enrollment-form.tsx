@@ -92,7 +92,7 @@ export default function ({ formTitle }: Props) {
 
     const notes = form.watch('notes');
     const onSubmit = async (values: ZodEnrollmentInsertType) => {
-        await toast.promise(upsertEnrollment(values), {
+        toast.promise(upsertEnrollment(values), {
             loading: 'Saving enrollment...',
             success: () => {
                 router.push(`/admin/enrollments?status?=${values.status}`, {
@@ -100,7 +100,7 @@ export default function ({ formTitle }: Props) {
                 });
                 return values.id ? 'Enrollment updated' : 'Enrollment created';
             },
-            error: 'Failed to save enrollment',
+            error: (error) => error instanceof Error ? error.message : 'Failed to save enrollment',
         });
     };
     if (error) {

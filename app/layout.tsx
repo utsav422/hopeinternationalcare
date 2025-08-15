@@ -8,14 +8,14 @@ import { Toaster } from '@/components/ui/sonner';
 import { QueryProvider } from '@/utils/provider/query-provider';
 
 const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : 'http://localhost:3000';
+    ? `https://${process.env.VERCEL_URL}`
+    : 'http://localhost:3000';
 
 export const metadata = {
-  metadataBase: new URL(defaultUrl),
-  title: 'Hope International - Aged Care Training and Elderly Care Center',
-  description:
-    'Hope International is a leading training center in Kathmandu, Nepal, providing comprehensive caregiver training and elderly care services. We empower individuals with the skills to provide exceptional care to the elderly.',
+    metadataBase: new URL(defaultUrl),
+    title: 'Hope International - Aged Care Training and Elderly Care Center',
+    description:
+        'Hope International is a leading training center in Kathmandu, Nepal, providing comprehensive caregiver training and elderly care services. We empower individuals with the skills to provide exceptional care to the elderly.',
 };
 
 const geistSans = Geist({
@@ -28,66 +28,66 @@ const geistMono = Geist_Mono({
     subsets: ["latin"],
 });
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Hope International',
-    url: 'https://hopeinternational.com.np',
-    logo: 'https://hopeinternational.com.np/favicon.png',
-    contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: '+977-980-10813999',
-      contactType: 'Customer Service',
-    },
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: 'Durga Bhawan, Rudramati Marga, Anamnagar',
-      addressLocality: 'Kathmandu',
-      postalCode: '44600',
-      addressCountry: 'NP',
-    },
-    sameAs: [
-      'https://www.facebook.com/p/Hope-International-1000637365252 Hope-International-100063736525249/',
-    ],
-  };
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'Hope International',
+        url: 'https://hopeinternational.com.np',
+        logo: 'https://hopeinternational.com.np/favicon.png',
+        contactPoint: {
+            '@type': 'ContactPoint',
+            telephone: '+977-980-10813999',
+            contactType: 'Customer Service',
+        },
+        address: {
+            '@type': 'PostalAddress',
+            streetAddress: 'Durga Bhawan, Rudramati Marga, Anamnagar',
+            addressLocality: 'Kathmandu',
+            postalCode: '44600',
+            addressCountry: 'NP',
+        },
+        sameAs: [
+            'https://www.facebook.com/p/Hope-International-1000637365252 Hope-International-100063736525249/',
+        ],
+    };
 
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          type="application/ld+json"
-        />
-        <script
-          data-site="hopeinternationcare.org"
-          defer
-          src="https://api.nepcha.com/js/nepcha-analytics.js"
-        />
-        <link href="/favicon.png" rel="shortcut icon" type="image/png" />
-      </head>
-          <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <QueryProvider>
-          <NuqsAdapter>
-            <ThemeProvider attribute="class" defaultTheme="dark">
-              <Layout>
-                {children}
-                <Toaster />
-              </Layout>
-            </ThemeProvider>
-          </NuqsAdapter>
-        </QueryProvider>
-        <link
-          crossOrigin="anonymous"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
-          integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
-          referrerPolicy="no-referrer"
-          rel="stylesheet"
-        />
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en" suppressHydrationWarning>
+            <head>
+                <script
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                    type="application/ld+json"
+                />
+                <script
+                    data-site="hopeinternationcare.org"
+                    defer
+                    src="https://api.nepcha.com/js/nepcha-analytics.js"
+                />
+                <link href="/favicon.png" rel="shortcut icon" type="image/png" />
+            </head>
+            <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+                <QueryProvider>
+                    <NuqsAdapter>
+                        <ThemeProvider attribute="class" defaultTheme="light">
+                            <Layout>
+                                {children}
+                                <Toaster />
+                            </Layout>
+                        </ThemeProvider>
+                    </NuqsAdapter>
+                </QueryProvider>
+                <link
+                    crossOrigin="anonymous"
+                    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+                    integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
+                    referrerPolicy="no-referrer"
+                    rel="stylesheet"
+                />
+            </body>
+        </html>
+    );
 }

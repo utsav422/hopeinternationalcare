@@ -40,7 +40,7 @@ export default function CategoriesTable() {
             toast.promise(promise, {
                 loading: 'Deleting category...',
                 success: 'Category deleted successfully',
-                error: 'Failed to delete category',
+                error: (error) => error instanceof Error ? error.message : 'Failed to delete category',
             });
         },
         [router]

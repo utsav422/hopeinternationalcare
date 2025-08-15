@@ -153,10 +153,10 @@ export default function EnrollmentTables() {
             return;
         }
 
-        await toast.promise(deleteEnrollment(id), {
+        toast.promise(deleteEnrollment(id), {
             loading: 'Deleting enrollment...',
             success: 'Enrollment deleted successfully',
-            error: 'Failed to delete enrollment',
+            error: (error) => error instanceof Error ? error.message : 'Failed to delete enrollment',
         });
     };
     const columns: ColumnDef<EnrollementTableDataProps>[] = [

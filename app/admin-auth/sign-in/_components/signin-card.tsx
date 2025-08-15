@@ -24,7 +24,7 @@ const cn = (...classes: string[]) => {
 };
 
 import type { DOT, RoutePoint } from '@/lib/types/shared';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 const DotMap = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -224,7 +224,7 @@ const DotMap = () => {
 const SignInCard = () => {
     const searchParams = useSearchParams()
     const error = searchParams?.getAll('error')
-
+    const router = useRouter()
 
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -255,9 +255,14 @@ const SignInCard = () => {
             const formData = new FormData();
             formData.set('email', values.email);
             formData.set('password', values.password);
-            const result = await AdminSignInAction(formData);
-            if (result?.error) {
-                toast.error(result.error);
+            const { error, success, message, data: user } = await AdminSignInAction(formData);
+            if (error && !success) {
+                toast.error(error);
+            } else {
+                toast.success(message);
+                router.push('/admin-auth/sign-in', {
+                    scroll: true
+                })
             }
         } catch (error: unknown) {
             toast.error(

@@ -34,10 +34,10 @@ export default function PaymentsTables() {
     const { mutateAsync: deletePayment } = useDeletePayment();
 
     const handleDelete = async (id: string) => {
-        await toast.promise(deletePayment(id), {
+         toast.promise(deletePayment(id), {
             loading: 'Deleting payment...',
             success: 'Payment deleted successfully',
-            error: 'Failed to delete payment',
+             error: (error) => error instanceof Error ? error.message : 'Failed to delete payment',
         });
     };
     const columns: ColumnDef<PaymentDetailsType & { id: UniqueIdentifier }>[] = [

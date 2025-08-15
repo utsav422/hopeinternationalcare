@@ -64,7 +64,7 @@ export default function PaymentForm({ id, formTitle }: Props) {
     const { isSubmitting } = form.formState;
 
     const onSubmit = async (values: ZodInsertPaymentType) => {
-        await toast.promise(adminUpsertPayment(values), {
+        toast.promise(adminUpsertPayment(values), {
             loading: 'Saving payment...',
             success: () => {
                 router.push('/admin/payments');

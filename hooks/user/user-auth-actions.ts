@@ -16,7 +16,7 @@ export const useUserSignUp = () => {
       if (!result.success) {
         throw new Error(result.error);
       }
-      return result.data;
+      return result;
     },
   });
 };

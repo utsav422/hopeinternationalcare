@@ -67,7 +67,7 @@ export default function ({
     const handleConfirmCancellation = () => {
         if (enrollmentId && cancelledReason) {
             startTransition(async () => {
-                await toast.promise(
+                toast.promise(
                     updateEnrollmentStatus({
                         id: enrollmentId,
                         status: 'cancelled',
@@ -77,7 +77,7 @@ export default function ({
                         loading: 'Cancelling enrollment...',
                         success: async () => {
                             if (refund && paymentDetails) {
-                                await toast.promise(
+                                toast.promise(
                                     upsertRefund({
                                         payment_id: paymentDetails.id,
                                         enrollment_id: enrollmentId,
@@ -89,7 +89,7 @@ export default function ({
                                     {
                                         loading: 'Processing refund...',
                                         success: async () => {
-                                            await toast.promise(
+                                            toast.promise(
                                                 upsertPayment({
                                                     ...paymentDetails,
                                                     remarks: `payment of ${paymentDetails.amount} is refunded with partial amount ${refundAmount} return to user.`,
@@ -100,12 +100,12 @@ export default function ({
                                                 {
                                                     loading: 'Updating payment details...',
                                                     success: 'Payment details updated',
-                                                    error: 'Failed to update payment details',
+                                                    error: (error) => error instanceof Error ? error.message : 'Failed to update payment details',
                                                 }
                                             );
                                             return 'Refund processed successfully';
                                         },
-                                        error: 'Failed to process refund',
+                                        error: (error) => error instanceof Error ? error.message : 'Failed to process refund',
                                     }
                                 );
                             }
@@ -115,7 +115,7 @@ export default function ({
                             afterSubmit();
                             return 'Enrollment cancelled successfully!';
                         },
-                        error: 'Failed to cancel enrollment',
+                        error: (error) => error instanceof Error ? error.message : 'Failed to cancel enrollment',
                     }
                 );
             });

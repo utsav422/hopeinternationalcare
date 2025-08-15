@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Logo } from '@/components/Layout/logo';
@@ -26,6 +26,8 @@ const cn = (...classes: string[]) => {
 
 import type { DOT, RoutePoint } from '@/lib/types/shared';
 import { useSearchParams } from 'next/navigation';
+import { useUserSignUp } from '@/hooks/user/user-auth-actions';
+import { useRouter } from 'next/navigation';
 
 const DotMap = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -224,10 +226,11 @@ const DotMap = () => {
 
 const SignUpClientComponent = () => {
     const searchParams = useSearchParams()
+    const router = useRouter();
     const error = searchParams?.getAll('error')
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-
+    const { mutateAsync: userSignUp } = useUserSignUp()
     // Display error message from URL parameter as toast
     useEffect(() => {
         if (error && error.length > 0) {
@@ -263,7 +266,15 @@ const SignUpClientComponent = () => {
         formData.set('phone', data.phone);
         formData.set('email', data.email);
         formData.set('password', data.password);
-        await signUpAction(formData);
+        toast.promise(userSignUp(formData), {
+            loading: 'Registering user details...',
+            success: () => {
+                router.push('/admin/categories');
+                return `User registration successfully recorded.`;
+            },
+            error: (error) => error instanceof Error ? error.message : 'Failed to register users. contact to adminstrator.',
+        });
+
     });
 
     return (
