@@ -70,9 +70,9 @@ export function useGetPublicCourseById(courseId: string) {
     });
 }
 
-export function useGetPublicCourseBySlug(slug?: string) {
+export function useGetPublicCourseBySlug(slug: string) {
     return useSuspenseQuery({
-        queryKey: queryKeys.publicCourses.detail(slug || ''),
+        queryKey: queryKeys.publicCourses.detail(slug),
         queryFn: async () => {
 
 
