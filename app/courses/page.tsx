@@ -32,25 +32,25 @@ export default async function Courses() {
 
     // Prefetch initial courses data with default parameters
     await queryClient.prefetchInfiniteQuery({
-        queryKey: queryKeys.publicCourses.list({ 
-            pageSize: 9, 
-            filters: {}, 
-            sortBy: 'created_at', 
-            sortOrder: 'desc' 
+        queryKey: queryKeys.publicCourses.list({
+            pageSize: 9,
+            filters: {},
+            sortBy: 'created_at',
+            sortOrder: 'desc'
         }),
         queryFn: async ({ pageParam = 1 }) => {
-            const result = await getPublicCourses({ 
-                page: pageParam, 
+            const result = await getPublicCourses({
+                page: pageParam,
                 pageSize: 9,
                 filters: {},
                 sortBy: 'created_at',
                 sortOrder: 'desc'
             });
-            
+
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch courses');
             }
-            
+
             return result;
         },
         initialPageParam: 1,

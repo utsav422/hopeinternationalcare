@@ -48,7 +48,7 @@ function BackgroungImageCarousel() {
                 {/* Background Image Carousel */}
                 <div className="absolute inset-0 h-full w-full">
                     {carouselImages.map((src, index) => (
-                        <Image
+                        <Image unoptimized={true}
                             alt={`Background image ${index + 1}`}
                             className={`transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
                             key={src}

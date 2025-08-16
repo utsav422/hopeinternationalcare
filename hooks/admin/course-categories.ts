@@ -39,7 +39,7 @@ export const useGetCourseCategories = (params: ListParams) => {
             }
 
             return result;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -62,7 +62,7 @@ export const useGetAllCourseCategories = () => {
             }
 
             return result;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -85,7 +85,7 @@ export const useGetCourseCategoryById = (id: string) => {
             }
 
             return result;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };

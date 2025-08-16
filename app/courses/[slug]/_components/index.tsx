@@ -16,7 +16,7 @@ function CourseDetails() {
     if (error) {
         toast.error(error.message);
     }
-    const course = resultData;
+    const course = resultData.data;
     if (!course) {
         notFound();
     }
@@ -35,30 +35,27 @@ function CourseDetails() {
 
                 <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
                     <main className="lg:col-span-2">
-                        <QueryErrorWrapper>
-                            <Suspense fallback={<CourseContentSkeleton />}>
-                                <CourseContent />
-                            </Suspense>
-                        </QueryErrorWrapper>
+                        <CourseContent title={course.title} image_url={course?.image_url as string} description={course?.description as string} />
                     </main>
 
                     <aside className="space-y-8">
-                        <QueryErrorWrapper>
-                            <Suspense fallback={<CourseSidebarSkeleton />}>
-                                <CourseSidebar />
-                            </Suspense>
-                        </QueryErrorWrapper>
+                        <CourseSidebar
+                            price={course.price}
+                            duration_type={course.duration_type}
+                            duration_value={course.duration_value} />
                         <QueryErrorWrapper>
                             <Suspense fallback={<CourseIntakesSkeleton />}>
                                 <CourseIntakes courseId={course.id} />
                             </Suspense>
                         </QueryErrorWrapper>
-                        <Suspense fallback={<RelatedCoursesSkeleton />}>
-                            <RelatedCourses
-                                categoryId={course.category_id as string}
-                                courseId={course.id}
-                            />
-                        </Suspense>
+                        <QueryErrorWrapper>
+                            <Suspense fallback={<RelatedCoursesSkeleton />}>
+                                <RelatedCourses
+                                    categoryId={course.category_id as string}
+                                    courseId={course.id}
+                                />
+                            </Suspense>
+                        </QueryErrorWrapper>
                     </aside>
                 </div>
             </div>

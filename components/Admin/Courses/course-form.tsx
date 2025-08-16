@@ -476,7 +476,7 @@ export default function ({ slug, formTitle }: Props) {
                                             <div className="space-y-3">
                                                 {previewUrl ? (
                                                     <div className="mt-2">
-                                                        <Image
+                                                        <Image unoptimized={true}
                                                             alt="Preview"
                                                             className="max-h-48 rounded-md object-cover"
                                                             height={100}

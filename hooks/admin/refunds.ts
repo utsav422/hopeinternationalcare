@@ -37,7 +37,7 @@ export const useGetRefunds = (params: {
                 throw new Error(result.error || 'Failed to fetch refunds');
             }
             return result;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };

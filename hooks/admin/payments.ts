@@ -43,7 +43,7 @@ export const useGetPayments = (params: {
                 throw new Error(result.error || 'Failed to fetch payments');
             }
             return result;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -65,7 +65,7 @@ export const useGetPaymentDetailsByEnrollmentId = (enrollmentId: string) => {
                 throw new Error(result.error || 'Failed to fetch payment details');
             }
             return result.data;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -87,7 +87,7 @@ export const useGetPaymentOnlyDetailsById = (paymentId: string) => {
                 throw new Error(result.error || 'Failed to fetch payment details');
             }
             return result.data;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -109,7 +109,7 @@ export const useGetPaymentDetailsWithOthersById = (paymentId: string) => {
                 throw new Error(result.error || 'Failed to fetch payment details');
             }
             return result.data;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };

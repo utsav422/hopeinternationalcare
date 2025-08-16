@@ -83,7 +83,7 @@ export function CarouselFeatures() {
                                 </div>
                                 <div className="col-span-2 flex w-full shrink-0 justify-center md:justify-end">
                                     <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-white sm:h-40 sm:w-40 md:h-48 md:w-48">
-                                        <Image
+                                        <Image unoptimized={true}
                                             alt={`${testimonial.name} testimonial image`}
                                             className="h-full w-full object-cover"
                                             fill

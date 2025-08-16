@@ -10,7 +10,7 @@ export function FixedPlugin() {
             target="_blank"
         >
             <Button className="fixed right-4 bottom-4 flex items-center gap-1 rounded-lg border border-blue-gray-50 bg-white px-3 py-2 text-gray-900 text-sm shadow-md transition-colors ">
-                <Image
+                <Image unoptimized={true}
                     alt="Messenger"
                     className="h-5 w-5"
                     height={128}

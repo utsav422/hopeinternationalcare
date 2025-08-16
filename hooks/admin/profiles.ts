@@ -35,7 +35,7 @@ export const useGetProfiles = (params: {
                 throw new Error(result.error || 'Failed to fetch profiles');
             }
             return result;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -55,7 +55,7 @@ export const useGetAllProfiles = () => {
                 throw new Error(result.error || 'Failed to fetch all profiles');
             }
             return result.data;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };

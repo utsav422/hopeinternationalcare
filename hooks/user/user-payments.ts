@@ -49,7 +49,7 @@ export const useGetUserPaymentHistory = (page = 1, pageSize = 10) => {
                 throw new Error(result.error || 'Failed to fetch payment history');
             }
             return result.data;
-        }, staleTime: 1000 * 60 * 15, // 15 minutes
+        }, staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };

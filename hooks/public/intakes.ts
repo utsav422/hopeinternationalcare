@@ -2,30 +2,20 @@
 
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { queryKeys } from '../../lib/query-keys';
+import { getActiveIntakesByCourseId } from '@/lib/server-actions/public/intakes';
 
 export function useGetActiveIntakesByCourseId(courseId: string) {
     return useSuspenseQuery({
-        queryKey: queryKeys.intakes.detail(courseId),
-        queryFn: async () => {
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/public/intakes?courseId=${courseId}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch intakes');
-            }
-            const result = await response.json();
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to fetch intakes');
-            }
-            return result;
-        },
-        staleTime: 1000 * 60 * 15, // 15 minutes
+        queryKey: queryKeys.intakes.list({
+            filters: [{ course_id: courseId }],
+        }),
+        queryFn: async () => await getActiveIntakesByCourseId(courseId),
+        staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
-    });
-}
+    },
 
+    );
+}
 export function useGetAllIntakes() {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.all,
@@ -42,7 +32,7 @@ export function useGetAllIntakes() {
             }
             return result;
         },
-        staleTime: 1000 * 60 * 30, // 30 minutes
+        staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 }
@@ -65,7 +55,7 @@ export function useGetIntakeById(id: string) {
             }
             return result;
         },
-        staleTime: 1000 * 60 * 15, // 15 minutes
+        staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 }
@@ -88,7 +78,7 @@ export function useGetUpcomingIntakes() {
             }
             return result;
         },
-        staleTime: 1000 * 60 * 30, // 30 minutes
+        staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 }
@@ -111,7 +101,7 @@ export function useGetCourseIntakesBySlug(slug: string) {
             }
             return result;
         },
-        staleTime: 1000 * 60 * 15, // 15 minutes
+        staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 }

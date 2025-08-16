@@ -1,9 +1,6 @@
 'use client';
 import Image from 'next/image';
-import { notFound, useParams } from 'next/navigation';
-import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetPublicCourseBySlug } from '@/hooks/public/courses';
 import { CourseDescription } from './course-description';
 
 export function CourseContentSkeleton() {
@@ -19,30 +16,20 @@ export function CourseContentSkeleton() {
     );
 }
 
-export function CourseContent() {
-    const params = useParams<{ slug: string }>();
-    const slug = params.slug;
-    const { data: resultData, error } = useGetPublicCourseBySlug(slug);
-    if (error) {
-        toast.error(error.message);
-    }
-    const course = resultData;
-    if (!course) {
-        notFound();
-    }
+export function CourseContent({ image_url, title, description }: { image_url: string, title: string, description: string }) {
 
     return (
         <>
             <div className="overflow-hidden rounded-lg shadow-lg">
-                <Image
-                    alt={course.title}
+                <Image unoptimized={true}
+                    alt={title}
                     className="h-auto w-full object-cover"
                     height={500}
-                    src={course.image_url as string}
+                    src={image_url as string}
                     width={800}
                 />
             </div>
-            <CourseDescription markdown={course.description || ''} />
+            <CourseDescription markdown={description || ''} />
         </>
     );
 }

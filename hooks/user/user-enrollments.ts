@@ -38,7 +38,7 @@ export const useGetUserEnrollments = () => {
                 throw new Error(result.error || 'Failed to fetch enrollments');
             }
             return result.data;
-        }, staleTime: 1000 * 60 * 15, // 15 minutes
+        }, staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };

@@ -19,7 +19,7 @@ export const useGetDashboardSummary = () => {
                 throw new Error(result.error || 'Failed to fetch dashboard summary');
             }
             return result.data;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -40,7 +40,7 @@ export const useGetTotalUsers = () => {
                 throw new Error(result.error || 'Failed to fetch total users');
             }
             return result;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -61,7 +61,7 @@ export const useGetTotalEnrollments = () => {
                 throw new Error(result.error || 'Failed to fetch total enrollments');
             }
             return result;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -84,7 +84,7 @@ export const useGetEnrollmentsByStatus = () => {
                 );
             }
             return result;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -105,7 +105,7 @@ export const useGetTotalIncome = () => {
                 throw new Error(result.error || 'Failed to fetch total income');
             }
             return result;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -126,7 +126,7 @@ export const useGetPaymentsByStatus = () => {
                 throw new Error(result.error || 'Failed to fetch payments by status');
             }
             return result;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };

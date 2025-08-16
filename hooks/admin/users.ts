@@ -46,7 +46,7 @@ export const useGetUsers = (page?: number, pageSize?: number) => {
             }
             return result;
         },
-        staleTime: 1000 * 60 * 30, // 30 minutes
+        staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };

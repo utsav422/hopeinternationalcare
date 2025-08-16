@@ -19,7 +19,7 @@ export function FeatureCourseCard({
             <div className="transform bg-white transition duration-300 hover:scale-105 dark:rounded-lg dark:bg-gray-800 dark:shadow-xl">
                 <div className="mx-0 mt-0 mb-6 h-48 w-48">
                     <div className="relative h-full w-full">
-                        <Image
+                        <Image unoptimized={true}
                             alt={title}
                             className="h-full w-full object-cover"
                             height={768}

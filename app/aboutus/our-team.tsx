@@ -39,7 +39,7 @@ export function OurTeams() {
                             key={username}
                         >
                             <div className="relative h-48 w-48 overflow-hidden rounded-full border-4 border-teal-500">
-                                <Image
+                                <Image unoptimized={true}
                                     alt={`${username} profile`}
                                     className="h-full w-full object-cover"
                                     height={192}

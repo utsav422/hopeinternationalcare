@@ -1,8 +1,6 @@
 import { CurrencyDollarIcon, UserGroupIcon } from '@heroicons/react/24/outline';
-import { notFound, useParams } from 'next/navigation';
-import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetPublicCourseBySlug } from '@/hooks/public/courses';
+import { TypeDurationType } from '@/lib/db/schema';
 
 export function CourseSidebarSkeleton() {
     return (
@@ -22,18 +20,7 @@ export function CourseSidebarSkeleton() {
     );
 }
 
-export function CourseSidebar() {
-    const params = useParams<{ slug: string }>();
-    const slug = params.slug;
-    const { data: resultData, error } = useGetPublicCourseBySlug(slug);
-    if (error) {
-        toast.error(error.message);
-    }
-    const course = resultData;
-    if (!course) {
-        notFound();
-    }
-
+export function CourseSidebar({ price, duration_type, duration_value }: { price: number, duration_type: TypeDurationType, duration_value: number }) {
     return (
         <div className="rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
             <h2 className="mb-4 font-semibold text-2xl text-gray-800 ">
@@ -43,14 +30,14 @@ export function CourseSidebar() {
                 <li className="flex items-center">
                     <CurrencyDollarIcon className="mr-3 h-6 w-6 text-teal-500" />
                     <span>
-                        <strong>Price:</strong> ${course.price}
+                        <strong>Price:</strong> ${price}
                     </span>
                 </li>
                 <li className="flex items-center">
                     <UserGroupIcon className="mr-3 h-6 w-6 text-teal-500" />
                     <span>
-                        <strong>Duration:</strong> {course.duration_value}{' '}
-                        {course.duration_type}
+                        <strong>Duration:</strong> {duration_value}{' '}
+                        {duration_type}
                     </span>
                 </li>
             </ul>

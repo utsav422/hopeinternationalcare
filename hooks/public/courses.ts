@@ -2,6 +2,7 @@
 
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { queryKeys } from '../../lib/query-keys';
+import { getPublicCourseBySlug, getPublicCourses, getRelatedCourses } from '@/lib/server-actions/public/courses';
 
 type Filters = {
     title?: string;
@@ -18,32 +19,11 @@ export const useGetPublicCourses = (params: {
     sortOrder?: 'asc' | 'desc';
 }) => {
     return useSuspenseQuery({
-        queryKey: queryKeys.courses.list(params),
-        queryFn: async () => {
-            const searchParams = new URLSearchParams({
-                page: params.page?.toString() || '1',
-                pageSize: params.pageSize?.toString() || '10',
-                sortBy: params.sortBy || 'created_at',
-                sortOrder: params.sortOrder || 'desc',
-                filters: JSON.stringify(params.filters || {}),
-            });
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/public/courses?${searchParams}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
-            }
-            const result = await response.json();
-
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to fetch data');
-            }
-
-            return result;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        queryKey: queryKeys.publicCourses.list(params),
+        queryFn: async () => await getPublicCourses(params),
+        staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
+
     });
 };
 
@@ -65,7 +45,7 @@ export function useGetPublicCourseById(courseId: string) {
             }
             return result;
         },
-        staleTime: 1000 * 60 * 30, // 30 minutes
+        staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour,
     });
 }
@@ -73,22 +53,9 @@ export function useGetPublicCourseById(courseId: string) {
 export function useGetPublicCourseBySlug(slug: string) {
     return useSuspenseQuery({
         queryKey: queryKeys.publicCourses.detail(slug),
-        queryFn: async () => {
+        queryFn: () => getPublicCourseBySlug(slug),
 
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/public/courses?slug=${slug}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch course');
-            }
-            const result = await response.json();
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to fetch course');
-            }
-            return result;
-        },
-        staleTime: 1000 * 60 * 30, // 30 minutes
+        staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 }
@@ -108,7 +75,7 @@ export function useGetNewCourses() {
                 throw new Error(result.error || 'Failed to fetch new courses');
             }
             return result;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 }
@@ -116,26 +83,8 @@ export function useGetNewCourses() {
 export function useGetRelatedCourses(courseId: string, categoryId: string) {
     return useSuspenseQuery({
         queryKey: queryKeys.relatedCourses.detail(courseId, categoryId),
-        queryFn: async () => {
-            const searchParams = new URLSearchParams({
-                relatedTo: courseId,
-                categoryId,
-            });
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/public/courses?${searchParams}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch related courses');
-            }
-            const result = await response.json();
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to fetch related courses');
-            }
-            return result;
-        },
-        staleTime: 1000 * 60 * 30, // 30 minutes
+        queryFn: async () => await getRelatedCourses(courseId, categoryId),
+        staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 }

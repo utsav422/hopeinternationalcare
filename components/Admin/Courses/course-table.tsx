@@ -65,7 +65,7 @@ export default function CourseTable() {
                 cell: (cellProps) => {
                     return (
                         <div className="flex items-center justify-center">
-                            <Image
+                            <Image unoptimized={true}
                                 alt={cellProps.row?.original?.title ?? 'some new one'}
                                 height={100}
                                 src={

@@ -39,7 +39,7 @@ export const useGetIntakes = (params: ListParams) => {
                 throw new Error(result.error || 'Failed to fetch intakes');
             }
             return result;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -61,7 +61,7 @@ export const useGetAllActiveIntake = () => {
                 throw new Error(result.error || 'Failed to fetch active intakes');
             }
             return result.data;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -80,7 +80,7 @@ export const useGetAllIntake = () => {
                 throw new Error(result.error || 'Failed to fetch all intakes');
             }
             return result.data;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -100,7 +100,7 @@ export const useGetIntakeById = (id: string) => {
                 throw new Error(result.error || 'Failed to fetch intake');
             }
             return result.data;
-        }, staleTime: 1000 * 60 * 30, // 30 minutes
+        }, staleTime: 1000 * 60 * 5,  //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };

@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetRelatedCourses } from '@/hooks/public/courses';
+import { queryKeys } from '@/lib/query-keys';
 
 export function RelatedCoursesSkeleton() {
     return (
@@ -32,7 +33,7 @@ export function RelatedCourses({
     categoryId: string;
     courseId: string;
 }) {
-    const { data: resultData, error } = useGetRelatedCourses(
+    const { data: resultData, error, isLoading } = useGetRelatedCourses(
         courseId,
         categoryId
     );
@@ -54,17 +55,20 @@ export function RelatedCourses({
         duration_value: number;
         duration_type: 'days' | 'week' | 'month' | 'year';
     }[];
+
+    // Don't call notFound() here, just return null or a message if no data
     if (!relatedCourses) {
-        notFound();
+        return <div>No related courses found</div>;
     }
 
+    if (isLoading) return <>Loading ...</>
     return (
         <div className="rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
             <h2 className="mb-4 font-semibold text-2xl text-gray-800 ">
                 Related Courses
             </h2>
             <ul className="space-y-4">
-                {relatedCourses.map(
+                {relatedCourses?.map(
                     (relatedCourse: {
                         id: string;
                         title: string;
@@ -87,7 +91,7 @@ export function RelatedCourses({
                             >
                                 <div className="flex items-center space-x-4">
                                     <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md">
-                                        <Image
+                                        <Image unoptimized={true}
                                             alt={relatedCourse.title}
                                             className="h-full w-full object-cover"
                                             height={64}
@@ -107,7 +111,7 @@ export function RelatedCourses({
                             </Link>
                         </li>
                     )
-                )}
+                ) ?? <p>No related courses found</p>}
             </ul>
         </div>
     );
