@@ -14,12 +14,12 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from '@/components/ui/chart';
-import { useGetEnrollmentsByStatus } from '@/hooks/admin/dashboard';
+import { useAdminDashboardEnrollmentListByStatus } from '@/hooks/admin/dashboard';
 import type { TypeEnrollmentStatus } from '@/lib/db/schema';
 import { DashboardCardSkeleton } from '.';
 
 function EnrollmentOverviewCard() {
-    const { data: queryResult, error, isLoading } = useGetEnrollmentsByStatus();
+    const { data: queryResult, error, isLoading } = useAdminDashboardEnrollmentListByStatus();
     const enrollmentsByStatus = queryResult.data;
     const success = queryResult?.success;
 

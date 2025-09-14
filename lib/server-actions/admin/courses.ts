@@ -1,370 +1,323 @@
 'use server';
 
-import {
-  type AnyColumn,
-  asc,
-  desc,
-  eq,
-  gte,
-  inArray,
-  lte,
-  type SQL,
-  sql,
-} from 'drizzle-orm';
+import { type AnyColumn, asc, desc, eq, gte, inArray, lte, type SQL, sql, } from 'drizzle-orm';
 
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db/drizzle';
 import { ZodCourseInsertSchema } from '@/lib/db/drizzle-zod-schema/courses';
 import { requireAdmin } from '@/utils/auth-guard';
+import { handleCourseImage } from './course-image-utils';
 
 // import { createServerSupabaseClient } from '@/utils/supabase/server'
-
 import type { ColumnFilter } from '@tanstack/react-table';
 import { cache } from 'react';
 import type { ListParams as DataTableListParams } from '@/hooks/admin/use-data-table-query-state';
+import { affiliations } from '@/lib/db/schema/affiliations';
 import { courseCategories } from '@/lib/db/schema/course-categories';
 import { courses as coursesTable } from '@/lib/db/schema/courses';
+import { enrollments } from '@/lib/db/schema/enrollments';
+import { intakeRelations, intakes } from '@/lib/db/schema/intakes';
 import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { isValidTableColumnName } from '@/utils/utils';
 import type { ZodSelectCourseType } from '../../db/drizzle-zod-schema';
+import { buildFilterConditions, buildWhereClause, buildOrderByClause } from '@/lib/utils/query-utils';
+import { courseColumnMap, courseSelectColumns } from '@/lib/utils/courses';
 
 type ListParams = Partial<DataTableListParams>;
+
 /**
- * Get paginated list of courses
+ * Get a paginated list of courses
+ * ListParams = {
+ *      page: number
+ *      pageSize: number
+ *      sortBy: string
+ *      order: "asc" | "desc"
+ *      filters: ColumnFiltersState
+ *  }
  */
-export async function adminGetCourses({
-  page = 1,
-  pageSize = 10,
-  sortBy = 'created_at',
-  order = 'desc',
-  filters = [],
+export async function adminCourseList({
+    page = 1,
+    pageSize = 10,
+    sortBy = 'created_at',
+    order = 'desc',
+    filters = [],
 }: ListParams) {
-  try {
-    const offset = (page - 1) * pageSize;
-    const columnMap: Record<string, AnyColumn> = {
-      id: coursesTable.id,
-      title: coursesTable.title,
-      slug: coursesTable.slug,
-      description: coursesTable.description,
-      image_url: coursesTable.image_url,
-      level: coursesTable.level,
-      price: coursesTable.price,
-      category_id: coursesTable.category_id,
-      duration_type: coursesTable.duration_type,
-      duration_value: coursesTable.duration_value,
-      created_at: coursesTable.created_at,
-      category_name: courseCategories.name,
-    };
-    const selectColumn = {
-      id: coursesTable.id,
-      title: coursesTable.title,
-      slug: coursesTable.slug,
-      description: coursesTable.description,
-      image_url: coursesTable.image_url,
-      level: coursesTable.level,
-      price: coursesTable.price,
-      category_id: coursesTable.category_id,
-      duration_type: coursesTable.duration_type,
-      duration_value: coursesTable.duration_value,
-      created_at: coursesTable.created_at,
-      category_name: courseCategories.name,
-    };
-    const filterConditions = filters
-      ?.map((filter: ColumnFilter) => {
-        const col = columnMap[filter.id];
-        if (col && typeof filter.value === 'string') {
-          return sql`to_tsvector('english', ${col}) @@ to_tsquery('english', ${filter.value} || ':*')`;
-        }
-        if (
-          col &&
-          Array.isArray(filter.value) &&
-          filter.value.length > 0 &&
-          ['status', 'method', 'duration_type'].includes(filter.id)
-        ) {
-          // For array filters, create a combined tsquery
-          return inArray(col, filter.value);
-        }
-        // Handle numeric range filters [min, max]
-        if (
-          col &&
-          Array.isArray(filter.value) &&
-          filter.value.length === 2 &&
-          typeof filter.value[0] === 'number' &&
-          typeof filter.value[1] === 'number'
-        ) {
-          const [min, max] = filter.value;
-          const conditions: SQL[] = [];
-          if (min !== undefined && min !== null) {
-            conditions.push(gte(col, min));
-          }
-          if (max !== undefined && max !== null) {
-            conditions.push(lte(col, max));
-          }
-          if (conditions.length > 0) {
-            return sql.join(conditions, sql` AND `);
-          }
-        }
-        // Handle single numeric value filters (e.g., exact match)
-        if (col && typeof filter.value === 'number') {
-          return eq(col, filter.value);
-        }
-        return null;
-      })
-      .filter(Boolean);
-    const whereClause =
-      filterConditions?.length > 0
-        ? sql.join(filterConditions as SQL<unknown>[], sql` AND `)
-        : undefined;
+    try {
+        // Build filter conditions using utility function
+        const filterConditions = buildFilterConditions(filters, courseColumnMap);
+        const whereClause = buildWhereClause(filterConditions);
 
-    const sortColumn: AnyColumn = isValidTableColumnName(sortBy, coursesTable)
-      ? (coursesTable[sortBy] as AnyColumn)
-      : coursesTable.created_at;
-    const sort = order === 'asc' ? asc(sortColumn) : desc(sortColumn);
+        // Build order by clause using utility function
+        const sort = buildOrderByClause(sortBy, order, courseColumnMap);
 
-    const baseQuery = db
-      .select(selectColumn)
-      .from(coursesTable)
-      .leftJoin(
-        courseCategories,
-        eq(coursesTable.category_id, courseCategories.id)
-      )
-      .where(whereClause)
-      .orderBy(sort)
-      .limit(pageSize)
-      .offset(offset);
+        const baseQuery = db
+            .select(courseSelectColumns)
+            .from(coursesTable)
+            .leftJoin(
+                courseCategories,
+                eq(coursesTable.category_id, courseCategories.id)
+            )
+            .leftJoin(
+                affiliations,
+                eq(coursesTable.affiliation_id, affiliations.id)
+            )
+            .where(whereClause)
+        if (sort) {
+            baseQuery.orderBy(sort);
+        }
+        baseQuery.limit(pageSize)
+            .offset((page - 1) * pageSize);
 
-    const countQuery = db
-      .select({ count: sql<number>`count(*)` })
-      .from(coursesTable)
-      .where(whereClause);
-    const [data, [{ count }]] = await Promise.all([baseQuery, countQuery]);
+        const countQuery = db
+            .select({ count: sql<number>`count(*)` })
+            .from(coursesTable)
+            .leftJoin(
+                courseCategories,
+                eq(coursesTable.category_id, courseCategories.id)
+            )
+            .leftJoin(
+                affiliations,
+                eq(coursesTable.affiliation_id, affiliations.id)
+            )
+            .where(whereClause);
 
-    return {
-      success: true,
-      data,
-      total: count ?? 0,
-    };
-  } catch (_error) {
-    return { success: false, error: 'Failed to fetch courses' };
-  }
+        const [data, [{ count }]] = await Promise.all([baseQuery, countQuery]);
+
+        return {
+            success: true,
+            data,
+            total: count ?? 0,
+        };
+    } catch (error) {
+        const e = error as Error;
+        return { success: false, error: e.message || 'Failed to fetch courses' };
+    }
+}
+
+/**
+ * Alias for adminCourseList - used in the courses page
+ */
+export async function adminGetCourses(params: ListParams) {
+    return adminCourseList(params);
 }
 
 /**
  * Get All courses
  */
-export async function adminGetAllCourses() {
-  try {
-    const data = await db
-      .select({
-        id: coursesTable.id,
-        title: coursesTable.title,
-        slug: coursesTable.slug,
-        image_url: coursesTable.image_url,
-        level: coursesTable.level,
-        price: coursesTable.price,
-        category_id: coursesTable.category_id,
-        duration_type: coursesTable.duration_type,
-        duration_value: coursesTable.duration_value,
-        category_name: courseCategories.name,
-      })
-      .from(coursesTable)
-      .leftJoin(
-        courseCategories,
-        eq(coursesTable.category_id, courseCategories.id)
-      )
-      .orderBy(desc(coursesTable.created_at));
+export async function adminCourseListAll() {
+    try {
+        const data = await db
+            .select(courseSelectColumns)
+            .from(coursesTable)
+            .leftJoin(
+                courseCategories,
+                eq(coursesTable.category_id, courseCategories.id)
+            )
+            .leftJoin(
+                affiliations,
+                eq(coursesTable.affiliation_id, affiliations.id)
+            )
+            .orderBy(desc(coursesTable.created_at));
 
-    return {
-      success: true,
-      data,
-    };
-  } catch (_error) {
-    return { success: false, error: 'Failed to fetch all courses' };
-  }
+        return {
+            success: true,
+            data,
+        };
+    } catch (error) {
+        const e = error as Error;
+        return { success: false, error: e.message || 'Failed to fetch all courses' };
+    }
 }
+
 /**
- * Get single course by ID
- */
-export async function adminGetCourseById(id: string) {
-  try {
-    await requireAdmin();
+ *  * Get single course by ID
+ *  */
 
-    if (!id) {
-      return { success: false, error: 'Course ID is required' };
+export async function adminCourseDetailsById(id: string) {
+    try {
+        await requireAdmin();
+
+        if (!id) {
+            return { success: false, error: 'Course ID is required' };
+        }
+
+        const [course] = await db
+            .select(courseSelectColumns)
+            .from(coursesTable)
+            .leftJoin(
+                courseCategories,
+                eq(coursesTable.category_id, courseCategories.id)
+            )
+            .leftJoin(
+                affiliations,
+                eq(coursesTable.affiliation_id, affiliations.id)
+            )
+            .where(eq(coursesTable.id, id));
+
+        if (!course) {
+            return { success: false, error: 'Course not found' };
+        }
+
+        return { success: true, data: course };
+    } catch (error) {
+        const e = error as Error;
+        return { success: false, error: e.message };
     }
-
-    const [course] = await db
-      .select()
-      .from(coursesTable)
-      .where(eq(coursesTable.id, id));
-
-    if (!course) {
-      return { success: false, error: 'Course not found' };
-    }
-
-    return { success: true, data: course };
-  } catch (error) {
-    const e = error as Error;
-    return { success: false, error: e.message };
-  }
 }
+
 /**
  * Create or update course
  */
-export async function adminUpsertCourse(formData: FormData) {
-  try {
-    await requireAdmin();
+export async function adminCourseUpsert(formData: FormData) {
+    try {
+        await requireAdmin();
 
-    const rawFormData = Object.fromEntries(formData.entries());
-    const imageFile = formData.get('image_file') as File | null;
-    const oldImageUrl = formData.get('image_url') as string | null;
+        const rawFormData = Object.fromEntries(formData.entries());
+        const imageFile = formData.get('image_file') as File | null;
+        const oldImageUrl = formData.get('image_url') as string | null;
 
-    const validatedFields = ZodCourseInsertSchema.safeParse({
-      ...rawFormData,
-      level: Number(rawFormData.level),
-      price: Number(rawFormData.price),
-      duration_value: Number(rawFormData.duration_value),
-    });
-
-    if (!validatedFields.success) {
-      return {
-        success: false,
-        error: 'Invalid form data',
-      };
-    }
-
-    const client = await createServerSupabaseClient();
-    let imageUrl = validatedFields.data.image_url;
-
-    if (imageFile && imageFile.size > 0) {
-      if (oldImageUrl) {
-        const oldImageKey = oldImageUrl.substring(
-          oldImageUrl.lastIndexOf('media/') + 'media/'.length
-        );
-        try {
-          await client.storage.from('media').remove([oldImageKey]);
-        } catch (e) {
-          const err = e as Error;
-          return {
-            success: false,
-            error: `Failed to delete old image: ${err.message}`,
-          };
-        }
-      }
-
-      const fileName = `course_image/${Date.now()}-${imageFile.name}`;
-      const { error: uploadError } = await client.storage
-        .from('media')
-        .upload(fileName, imageFile, {
-          cacheControl: '3600',
-          upsert: false,
+        const validatedFields = ZodCourseInsertSchema.safeParse({
+            ...rawFormData,
+            level: Number(rawFormData.level),
+            price: Number(rawFormData.price),
+            duration_value: Number(rawFormData.duration_value),
         });
 
-      if (uploadError) {
-        return {
-          success: false,
-          error: `Upload failed: ${uploadError.message}`,
+        if (!validatedFields.success) {
+            return {
+                success: false,
+                error: 'Invalid form data',
+            };
+        }
+
+        const client = await createServerSupabaseClient();
+        let imageUrl = validatedFields.data.image_url;
+
+        // Handle image upload/deletion only if needed
+        if (imageFile && imageFile.size > 0) {
+            try {
+                const { publicUrl } = await handleCourseImage(imageFile, oldImageUrl);
+                if (publicUrl) {
+                    imageUrl = publicUrl;
+                }
+            } catch (error) {
+                const e = error as Error;
+                return {
+                    success: false,
+                    error: e.message,
+                };
+            }
+        }
+
+        // Generate slug from title
+        const slug = validatedFields.data.title
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_-]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+
+        const finalValues = {
+            ...validatedFields.data,
+            image_url: imageUrl,
+            slug,
         };
-      }
 
-      const {
-        data: { publicUrl },
-      } = client.storage.from('media').getPublicUrl(fileName);
-      imageUrl = publicUrl;
+        const [upsertedData] = await db
+            .insert(coursesTable)
+            .values(finalValues)
+            .onConflictDoUpdate({
+                target: coursesTable.id,
+                set: finalValues,
+            })
+            .returning();
+
+        revalidatePath('/admin/courses');
+        return {
+            success: true,
+            data: upsertedData,
+        };
+    } catch (error) {
+        const e = error as Error;
+        return {
+            success: false,
+            error: e.message,
+        };
     }
-
-    const finalValues = {
-      ...validatedFields.data,
-      image_url: imageUrl,
-      slug: validatedFields.data.title.toLowerCase().replace(/\s+/g, '-'),
-    };
-
-    const [upsertedData] = await db
-      .insert(coursesTable)
-      .values(finalValues)
-      .onConflictDoUpdate({
-        target: coursesTable.id,
-        set: finalValues,
-      })
-      .returning();
-
-    revalidatePath('/admin/courses');
-    return {
-      success: true,
-      data: upsertedData,
-    };
-  } catch (error) {
-    const e = error as Error;
-    return {
-      success: false,
-      error: e.message,
-    };
-  }
 }
 
 /**
  * Create or update course category_id of course
  */
 type CourseFormInput = ZodSelectCourseType;
-export async function adminUpdateCourseCategoryIdCol(
-  input: Partial<CourseFormInput>
+
+export async function adminCourseUpdateCategoryId(
+    input: Partial<CourseFormInput>
 ) {
-  try {
-    await requireAdmin();
-    if (!input.id) {
-      return { success: false, error: 'course is is missing' };
+    try {
+        await requireAdmin();
+        if (!input.id) {
+            return { success: false, error: 'course id is is missing' };
+        }
+        if (!input.category_id) {
+            return { success: false, error: 'category id is missing' };
+        }
+        // Use Drizzle ORM for update operation
+        const [updatedData] = await db
+            .update(coursesTable)
+            .set({
+                category_id: input.category_id,
+            })
+            .where(eq(coursesTable.id, input.id))
+            .returning();
+
+        revalidatePath('/admin/courses');
+
+        return {
+            success: true,
+            data: updatedData,
+        };
+    } catch (error) {
+        const e = error as Error;
+        return {
+            success: false,
+            error: e.message,
+        };
     }
-    if (!input.category_id) {
-      return { success: false, error: 'category id is missing' };
-    }
-    const client = await createServerSupabaseClient();
-    const { data, error } = await client
-      .from('courses')
-      .update({
-        category_id: input.category_id,
-      })
-      .eq('id', input.id)
-      .select();
-
-    if (error) {
-      return { success: false, error: error.message };
-    }
-
-    revalidatePath('/admin/courses');
-
-    return {
-      success: true,
-      data,
-    };
-  } catch (error) {
-    const e = error as Error;
-    return {
-      success: false,
-      error: e.message,
-    };
-  }
-}
-/**
- * Delete course by ID
- */
-export async function adminDeleteCourse(id: string) {
-  try {
-    const client = await createServerSupabaseClient();
-
-    const { error } = await client.from('courses').delete().eq('id', id);
-
-    if (error) {
-      return { success: false, error: error.message };
-    }
-
-    revalidatePath('/admin/courses');
-    return { success: true, data: null };
-  } catch (error) {
-    const e = error as Error;
-    return { success: false, error: e.message };
-  }
 }
 
-export const getCachedAdminGetCourses = cache(adminGetCourses);
-export const getCachedAdminAllCourses = cache(adminGetAllCourses);
-export const getCachedAdminCourseById = cache(adminGetCourseById);
+/** * Delete course by ID with constraint checking */
+export async function adminCourseDeleteById(id: string) {
+    try {
+        await requireAdmin();
+      
+        // Check if course is referenced by any intakes
+        const [{ intakeCount }] = await db
+            .select({ intakeCount: sql<number>`count(*)`})
+            .from(intakes)
+            .where(eq(intakes.course_id, id));
+
+            if (intakeCount > 0) {
+                return { 
+                    success: false, 
+                    error: `Cannot delete: referenced by ${intakeCount} intake(s). Update or remove those intakes first.` 
+                };
+            }
+
+        // Proceed with deletion
+        const [deletedData] = await db
+            .delete(coursesTable)
+            .where(eq(coursesTable.id, id))
+            .returning();
+
+        revalidatePath('/admin/courses');
+        return { success: true, data: deletedData };
+    } catch (error) {
+        const e = error as Error;
+        return { success: false, error: e.message };
+    }
+}
+
+export const cachedAdminCourseList = cache(adminCourseList);
+export const cachedAdminCourseListAll = cache(adminCourseListAll);
+export const cachedAdminCourseDetailsById = cache(adminCourseDetailsById);

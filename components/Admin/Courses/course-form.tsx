@@ -4,32 +4,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import {
-    type ControllerRenderProps,
-    type FieldValues,
-    useForm,
-} from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import CourseCategorySelect from '@/components/Custom/course-category-select';
+import AffiliationSelect from '@/components/Custom/affiliation-select';
 import FormSkeleton from '@/components/Custom/form-skeleton';
-import { ControlledMDXEditor } from '@/components/mdx/controlled-mdx-editor';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from '@/components/ui/card';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -40,65 +22,75 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useUpsertCourse } from '@/hooks/admin/courses';
-import { useGetPublicCourseBySlug } from '@/hooks/admin/public-courses';
-import {
-    ZodCourseInsertSchema,
-    type ZodInsertCourseType,
-} from '@/lib/db/drizzle-zod-schema/courses';
-import {
-    DurationType,
-    durationType as durationTypeEnum,
-    type TypeDurationType,
-} from '@/lib/db/schema/enums';
+import { useAdminCourseUpsert, useSuspenseAdminCourseById } from '@/hooks/admin/courses';
+import { ZodCourseInsertSchema, type ZodInsertCourseType, } from '@/lib/db/drizzle-zod-schema/courses';
+import { DurationType, durationType as durationTypeEnum, type TypeDurationType, } from '@/lib/db/schema/enums';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
+import dynamic from "next/dynamic";
+import { Textarea } from '@/components/ui/textarea';
+
+
 
 interface Props {
-    slug?: string;
+    id?: string;
     formTitle?: string;
 }
 
 const MAX_DURATION_LIMITS: Record<TypeDurationType, number> = {
-    days: 365, // 1 year max
-    week: 52, // 1 year max
-    month: 12, // 1 year max
+    days: 365, // 1-year max
+    week: 52, // 1-year max
+    month: 12, // 1-year max
     year: 5, // up to 5 years
 };
 
-export default function ({ slug, formTitle }: Props) {
+export default function CourseForm({ id, formTitle }: Props) {
     const router = useRouter();
     const {
         isLoading,
         error,
         data: queryResult,
-    } = useGetPublicCourseBySlug(slug ?? '');
+    } = useSuspenseAdminCourseById(id ?? '');
 
     if (error) {
         toast.error(error.message);
     }
-    const initialData = slug && slug.length > 0
-        ? queryResult
+
+    const initialData = id && id.length && queryResult?.data?.id === id
+        ? queryResult?.data
         : undefined;
+
     const [imageFile, setImageFile] = useState<File | null>(null);
     const fileRef = useRef<HTMLInputElement>(null);
 
     const [previewUrl, setPreviewUrl] = useState<string | null>(
         initialData?.image_url ?? null
     );
+
     const form = useForm<ZodInsertCourseType>({
         resolver: zodResolver(ZodCourseInsertSchema),
         defaultValues: initialData || {
             title: '',
             slug: '',
-            description: '',
             level: 1,
             duration_type: 'month',
             duration_value: 3,
             price: 0,
             image_url: '',
             category_id: '',
+            affiliation_id: '',
         },
     });
+
+    useEffect(() => {
+        if (initialData) {
+            form.reset({
+                ...initialData,
+                affiliation_id: initialData.affiliation_id ?? ''
+            });
+            setPreviewUrl(initialData.image_url ?? null);
+        }
+    }, [form, initialData]);
+
     const { isSubmitting } = form.formState;
     const durationType = form.watch('duration_type');
     const MAX_DURATION_VALUE = useMemo(
@@ -106,48 +98,53 @@ export default function ({ slug, formTitle }: Props) {
         [durationType]
     );
 
-    const { mutateAsync: upsertCourse } = useUpsertCourse();
-
-    useEffect(() => {
-        if (initialData) {
-            form.reset(initialData);
-            setPreviewUrl(initialData.image_url ?? null);
-        }
-    }, [initialData, form]);
+    const { mutateAsync: upsertCourse } = useAdminCourseUpsert();
 
     const onSubmit = async (values: ZodInsertCourseType) => {
-        const formData = new FormData();
-        for (const [key, value] of Object.entries(values)) {
-            if (value !== null && value !== undefined) {
-                formData.append(key, value as string);
-            }
-        }
+        try {
+            const formData = new FormData();
 
-        if (imageFile) {
-            formData.append('image_file', imageFile);
-        }
-        if (initialData?.image_url) {
-            formData.append('image_url', initialData.image_url);
-        }
-
-        toast.promise(upsertCourse(formData), {
-            loading: 'Saving course...',
-            success: (res: {
-                success: boolean;
-                error?: string;
-                errors?: Record<string, string[] | undefined>;
-                data?: ZodInsertCourseType;
-            }) => {
-                if (res.success) {
-                    router.push('/admin/courses');
-                    return `Course ${slug ? 'updated' : 'created'} successfully.`;
+            for (const [key, value] of Object.entries(values)) {
+                // Skip empty affiliation_id to avoid sending invalid uuid
+                if (key === 'affiliation_id' && value === '') {
+                    continue;
                 }
-                throw new Error(res.error || 'An unknown error occurred');
-            },
-            error: (err: Error) => {
-                return err.message || 'Failed to save course.';
-            },
-        });
+                
+                if (value !== null && value !== undefined) {
+                    formData.append(key, value as string);
+                }
+            }
+
+            if (imageFile) {
+                formData.append('image_file', imageFile);
+            }
+
+            if (initialData?.image_url) {
+                formData.append('image_url', initialData.image_url);
+            }
+
+            toast.promise(upsertCourse(formData), {
+                loading: 'Saving course...',
+                success: (res: {
+                    success: boolean;
+                    error?: string;
+                    errors?: Record<string, string[] | undefined>;
+                    data?: ZodInsertCourseType;
+                }) => {
+                    if (res.success) {
+                        router.push('/admin/courses');
+                        return `Course ${id ? 'updated' : 'created'} successfully.`;
+                    }
+                    throw new Error(res.error || 'An unknown error occurred');
+                },
+                error: (err: Error) => {
+                    return err.message || 'Failed to save course.';
+                },
+            });
+        } catch (error) {
+            console.error('Error during form submission:', error);
+            toast.error('Failed to save course. Please try again.');
+        }
     };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,6 +152,7 @@ export default function ({ slug, formTitle }: Props) {
         if (!file) {
             return;
         }
+
         if (file) {
             setImageFile(file);
             const reader = new FileReader();
@@ -173,28 +171,30 @@ export default function ({ slug, formTitle }: Props) {
         if (isSubmitting) {
             return 'Saving...';
         }
-        if (slug && initialData) {
+        if (id && initialData) {
             return 'Update Course';
         }
         return 'Create Course';
     };
+
     if (isLoading) {
         return <FormSkeleton />;
     }
+
     return (
         <Card >
-            <CardHeader>
-                <div className="mb-6 space-y-1">
-                    <CardTitle className="font-medium text-lg ">
+            <CardHeader >
+                <div className="mb-6 space-y-1" >
+                    <CardTitle className="font-medium text-lg " >
                         {formTitle}
                     </CardTitle>
-                    <CardDescription className="">
+                    <CardDescription className="" >
                         Fill in the information about the course.
                     </CardDescription>
                 </div>
                 <hr />
             </CardHeader>
-            <CardContent>
+            <CardContent >
                 <Form {...form}>
                     <form
                         className="w-full space-y-6"
@@ -205,14 +205,14 @@ export default function ({ slug, formTitle }: Props) {
                             control={form.control}
                             name="title"
                             render={({ field }) => (
-                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
-                                    <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="font-medium text-sm leading-none ">
+                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4" >
+                                    <div className="space-y-1 md:col-span-1" >
+                                        <FormLabel className="font-medium text-sm leading-none " >
                                             Title
                                         </FormLabel>
                                     </div>
-                                    <div className="space-y-2 md:col-span-3">
-                                        <FormControl>
+                                    <div className="space-y-2 md:col-span-3" >
+                                        <FormControl >
                                             <Input
                                                 {...field}
                                                 onChange={(e) => {
@@ -235,15 +235,15 @@ export default function ({ slug, formTitle }: Props) {
                             control={form.control}
                             name="slug"
                             render={({ field }) => (
-                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
-                                    <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="">Slug</FormLabel>
-                                        <FormDescription className="text-muted-foreground text-xs ">
-                                            It will be auto-generated from title.
+                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4" >
+                                    <div className="space-y-1 md:col-span-1" >
+                                        <FormLabel className="" > Slug </FormLabel>
+                                        <FormDescription className="text-muted-foreground text-xs " >
+                                            It will be auto - generated from title.
                                         </FormDescription>
                                     </div>
-                                    <div className="space-y-2 md:col-span-3">
-                                        <FormControl>
+                                    <div className="space-y-2 md:col-span-3" >
+                                        <FormControl >
                                             <Input
                                                 {...field}
                                                 disabled
@@ -261,9 +261,11 @@ export default function ({ slug, formTitle }: Props) {
                             render={({ field }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="">Category</FormLabel>
-                                        <FormDescription className="text-muted-foreground text-xs ">
-                                            categories data are dynamicaly fetched.
+                                        <FormLabel className="">
+                                            Category
+                                        </FormLabel>
+                                        <FormDescription className="text-muted-foreground text-xs">
+                                            categories data are dynamically fetched.
                                         </FormDescription>
                                     </div>
                                     <div className="space-y-2 md:col-span-3">
@@ -277,27 +279,55 @@ export default function ({ slug, formTitle }: Props) {
                                 </FormItem>
                             )}
                         />
+                        {/* Course Affiliation Input Field*/}
+                        <FormField
+                            control={form.control}
+                            name="affiliation_id"
+                            render={({ field }) => (
+                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                                    <div className="space-y-1 md:col-span-1">
+                                        <FormLabel className="">
+                                            Affiliation
+                                        </FormLabel>
+                                        <FormDescription className="text-muted-foreground text-xs">
+                                            Optional; affiliations are dynamically fetched.
+                                        </FormDescription>
+                                    </div>
+                                    <div className="space-y-2 md:col-span-3">
+                                        <QueryErrorWrapper>
+                                            <Suspense fallback={'loading...'}>
+                                                <AffiliationSelect field={field} />
+                                            </Suspense>
+                                        </QueryErrorWrapper>
+                                        <FormMessage className="text-xs" />
+                                    </div>
+                                </FormItem>
+                            )}
+                        />
                         {/* Course price Input Field*/}
                         <FormField
                             control={form.control}
                             name="price"
                             render={({ field }) => (
-                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
-                                    <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="">Price</FormLabel>
+                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4" >
+                                    <div className="space-y-1 md:col-span-1" >
+                                        <FormLabel className="" > Price </FormLabel>
                                     </div>
-                                    <div className="space-y-2 md:col-span-3">
-                                        <FormControl>
+                                    <div className="space-y-2 md:col-span-3" >
+                                        <FormControl >
                                             <Input
                                                 {...field}
-                                                onChange={(e) =>
-                                                    field.onChange(
-                                                        e.target.value === ''
-                                                            ? null
-                                                            : e.target.valueAsNumber
-                                                    )
-                                                }
-                                                type="number"
+                                                onChange={(e) => {
+                                                    const rawValue = e.target.value;
+                                                    if (rawValue === "" || /^\d+$/.test(rawValue)) {
+                                                        form.setValue('price', Number(rawValue), { shouldValidate: true });
+                                                        // field.onChange(e);
+                                                    }
+                                                }}
+                                                value={field?.value?.toString() ?? ""}
+                                                type="text"
+                                                inputMode="decimal"
+                                                placeholder="Enter the course price amount"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -308,33 +338,22 @@ export default function ({ slug, formTitle }: Props) {
                         {/* Markdown Description Input Field */}
                         <FormField
                             control={form.control}
-                            name="description"
-                            render={({ field, fieldState }) => (
-                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
-                                    <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="font-medium text-sm leading-none ">
+                            name="courseHighlights"
+                            render={({ field }) => (
+                                <FormItem className="grid items-start gap-4" >
+                                    <div className="space-y-1" >
+                                        <FormLabel className="font-medium text-sm leading-none " >
                                             Course Description
                                         </FormLabel>
-                                        <FormDescription className="text-muted-foreground text-xs ">
+                                        <FormDescription className="text-muted-foreground text-xs " >
                                             Describe your course in details
                                         </FormDescription>
                                     </div>
-                                    <div className="space-y-2 md:col-span-3">
-                                        <FormControl>
-                                            <ControlledMDXEditor
-                                                field={
-                                                    field as unknown as ControllerRenderProps<
-                                                        FieldValues,
-                                                        string
-                                                    >
-                                                }
-                                                status={{
-                                                    isDirty: fieldState.isDirty,
-                                                    invalid: !!fieldState.error,
-                                                }}
-                                            />
+                                    <div className='space-y-1 border-2 rounded-md border-input' >
+                                        <FormControl >
+                                            <Textarea />
                                         </FormControl>
-                                        <FormDescription className="text-muted-foreground text-xs ">
+                                        <FormDescription className="text-muted-foreground text-xs " >
                                             Supports Markdown formatting
                                         </FormDescription>
                                         <FormMessage className="text-xs" />
@@ -347,28 +366,35 @@ export default function ({ slug, formTitle }: Props) {
                             control={form.control}
                             name="level"
                             render={({ field }) => (
-                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
-                                    <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="">Level</FormLabel>
-                                        <FormDescription className="text-muted-foreground text-xs ">
+                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4" >
+                                    <div className="space-y-1 md:col-span-1" >
+                                        <FormLabel className="" > Level </FormLabel>
+                                        <FormDescription className="text-muted-foreground text-xs " >
                                             Education Level
                                         </FormDescription>
                                     </div>
-                                    <div className="space-y-2 md:col-span-3">
-                                        <FormControl>
+                                    <div className="space-y-2 md:col-span-3" >
+                                        <FormControl >
                                             <Input
                                                 {...field}
-                                                max={5}
-                                                onChange={(e) =>
-                                                    field.onChange(
-                                                        e.target.value === ''
-                                                            ? null
-                                                            : e.target.valueAsNumber
-                                                    )
-                                                }
-                                                placeholder="enter the course level"
-                                                type="number"
+                                                onChange={(e) => {
+                                                    const rawValue = e.target.value;
+                                                    if (rawValue === "" || /^\d+$/.test(rawValue)) {
+                                                        if (Number(rawValue) > 5) {
+                                                            toast.warning('Level cannot be more than 5');
+                                                            return;
+                                                        }
+                                                        form.setValue('level', Number(rawValue), { shouldValidate: true });
+
+                                                        // field.onChange(e);
+                                                    }
+                                                }}
+                                                value={field?.value?.toString() ?? ""}
+                                                type="text"
+                                                inputMode="decimal"
+                                                placeholder="Enter the course level number from 1 to 5"
                                             />
+
                                         </FormControl>
                                         <FormMessage className="text-xs" />
                                     </div>
@@ -380,38 +406,40 @@ export default function ({ slug, formTitle }: Props) {
                             control={form.control}
                             name="duration_type"
                             render={({ field }) => (
-                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
-                                    <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="">
+                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4" >
+                                    <div className="space-y-1 md:col-span-1" >
+                                        <FormLabel className="" >
                                             Duration Type
                                         </FormLabel>
-                                        <FormDescription className="text-muted-foreground text-xs ">
-                                            Select Duration Type days/weeks/months/years
+                                        <FormDescription className="text-muted-foreground text-xs " >
+                                            Select Duration Type days / weeks / months / years
                                         </FormDescription>
                                     </div>
-                                    <div className="space-y-2 md:col-span-3">
-                                        <FormControl>
+                                    <div className="space-y-2 md:col-span-3" >
+                                        <FormControl >
                                             <Select
                                                 onValueChange={field.onChange}
                                                 value={field.value}
                                             >
-                                                <SelectTrigger className="w-full ">
+                                                <SelectTrigger className="w-full " >
                                                     <SelectValue placeholder="Select a duration type" />
                                                 </SelectTrigger>
                                                 <SelectContent >
-                                                    <SelectGroup>
-                                                        <SelectLabel>Duration Type</SelectLabel>
-                                                        {durationTypeEnum.enumValues.map((item) => {
-                                                            return (
-                                                                <SelectItem
-                                                                    className="capitalize"
-                                                                    key={item}
-                                                                    value={item}
-                                                                >
-                                                                    {item}
-                                                                </SelectItem>
-                                                            );
-                                                        })}
+                                                    <SelectGroup >
+                                                        <SelectLabel >Duration Type </SelectLabel>
+                                                        {
+                                                            durationTypeEnum.enumValues.map((item) => {
+                                                                return (
+                                                                    <SelectItem
+                                                                        className="capitalize"
+                                                                        key={item}
+                                                                        value={item}
+                                                                    >
+                                                                        {item}
+                                                                    </SelectItem>
+                                                                );
+                                                            })
+                                                        }
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>
@@ -426,30 +454,30 @@ export default function ({ slug, formTitle }: Props) {
                             control={form.control}
                             name="duration_value"
                             render={({ field }) => (
-                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
-                                    <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="">
+                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4" >
+                                    <div className="space-y-1 md:col-span-1" >
+                                        <FormLabel className="" >
                                             Duration Value
                                         </FormLabel>
-                                        <FormDescription className="text-muted-foreground text-xs ">
+                                        <FormDescription className="text-muted-foreground text-xs " >
                                             Enter selected duration type value
                                         </FormDescription>
                                     </div>
-                                    <div className="space-y-2 md:col-span-3">
-                                        <FormControl>
+                                    <div className="space-y-2 md:col-span-3" >
+                                        <FormControl >
                                             <Input
-                                                type="number"
                                                 {...field}
-                                                className="w-all "
-                                                max={MAX_DURATION_VALUE}
-                                                onChange={(e) =>
-                                                    field.onChange(
-                                                        e.target.value === ''
-                                                            ? null
-                                                            : e.target.valueAsNumber
-                                                    )
-                                                }
-                                                placeholder="Enter the duration value"
+                                                onChange={(e) => {
+                                                    const rawValue = e.target.value;
+                                                    if (rawValue === "" || /^\d+$/.test(rawValue)) {
+                                                        form.setValue('duration_value', Number(rawValue), { shouldValidate: true });
+                                                        // field.onChange(e);
+                                                    }
+                                                }}
+                                                value={field?.value?.toString() ?? ""}
+                                                type="text"
+                                                inputMode="decimal"
+                                                placeholder={"Enter the course duration value for selected duration type i.e " + durationType}
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -462,29 +490,31 @@ export default function ({ slug, formTitle }: Props) {
                             control={form.control}
                             name="image_url"
                             render={({ field }) => (
-                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
-                                    <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="font-medium text-sm leading-none ">
+                                <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4" >
+                                    <div className="space-y-1 md:col-span-1" >
+                                        <FormLabel className="font-medium text-sm leading-none " >
                                             Cover Image
                                         </FormLabel>
-                                        <FormDescription className="text-muted-foreground text-xs ">
-                                            JPG, PNG or GIF (max 2MB)
+                                        <FormDescription className="text-muted-foreground text-xs " >
+                                            JPG, PNG or GIF(max 2MB)
                                         </FormDescription>
                                     </div>
-                                    <div className="space-y-2 md:col-span-3">
-                                        <FormControl>
-                                            <div className="space-y-3">
-                                                {previewUrl ? (
-                                                    <div className="mt-2">
-                                                        <Image unoptimized={true}
-                                                            alt="Preview"
-                                                            className="max-h-48 rounded-md object-cover"
-                                                            height={100}
-                                                            src={previewUrl.trim()}
-                                                            width={100}
-                                                        />
-                                                    </div>
-                                                ) : null}
+                                    <div className="space-y-2 md:col-span-3" >
+                                        <FormControl >
+                                            <div className="space-y-3" >
+                                                {
+                                                    previewUrl ? (
+                                                        <div className="mt-2" >
+                                                            <Image unoptimized={true}
+                                                                alt="Preview"
+                                                                className="max-h-48 rounded-md object-cover"
+                                                                height={100}
+                                                                src={previewUrl.trim()}
+                                                                width={100}
+                                                            />
+                                                        </div>
+                                                    ) : null
+                                                }
 
                                                 <Input
                                                     accept="image/*"
@@ -501,17 +531,14 @@ export default function ({ slug, formTitle }: Props) {
                                                     onClick={() => fileRef.current?.click()}
                                                     type="button"
                                                 >
-                                                    <div className="text-center">
-                                                        <p className="font-medium text-sm ">
+                                                    <div className="text-center" >
+                                                        <p className="font-medium text-sm " >
                                                             Upload a file
                                                         </p>
-                                                        <p className="mt-1 text-muted-foreground text-xs ">
+                                                        <p className="mt-1 text-muted-foreground text-xs " >
                                                             Drag & drop or click to browse
                                                         </p>
                                                     </div>
-                                                    {/* <p className="text-muted-foreground text-xs">
-                            {field.value || 'No file selected'}
-                            </p> */}
                                                 </button>
 
                                             </div>
@@ -521,45 +548,46 @@ export default function ({ slug, formTitle }: Props) {
                                 </FormItem>
                             )}
                         />
-                        <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
-                            <div className="space-y-1 md:col-span-1">
-                                <FormLabel className="font-medium text-sm leading-none ">
+                        <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4" >
+                            <div className="space-y-1 md:col-span-1" >
+                                <FormLabel className="font-medium text-sm leading-none " >
                                     Action{' '}
                                 </FormLabel>{' '}
-                                <FormDescription className="text-muted-foreground text-xs ">
+                                <FormDescription className="text-muted-foreground text-xs " >
                                     Submit Action Button For{' '}
                                     {initialData ? 'Updating' : 'Creating'} Course
                                 </FormDescription>
                             </div>
                             <div >
                                 <Button
-
                                     disabled={isSubmitting}
                                     type="submit"
                                 >
-                                    {isSubmitting && (
-                                        <svg
-                                            className="mr-2 h-4 w-4 animate-spin"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <title>Loading</title>
-                                            <circle
-                                                className="opacity-25"
-                                                cx="12"
-                                                cy="12"
-                                                r="10"
-                                                stroke="currentColor"
-                                                strokeWidth="4"
-                                            />
-                                            <path
-                                                className="opacity-75"
-                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                                fill="currentColor"
-                                            />
-                                        </svg>
-                                    )}
+                                    {
+                                        isSubmitting && (
+                                            <svg
+                                                className="mr-2 h-4 w-4 animate-spin"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                                <title > Loading </title>
+                                                <circle
+                                                    className="opacity-25"
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="10"
+                                                    stroke="currentColor"
+                                                    strokeWidth="4"
+                                                />
+                                                <path
+                                                    className="opacity-75"
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                    fill="currentColor"
+                                                />
+                                            </svg>
+                                        )
+                                    }
                                     {getButtonText()}
                                 </Button>
                             </div>

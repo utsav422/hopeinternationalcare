@@ -1,6 +1,6 @@
 // API Key Validation for Enhanced Security
 import { NextRequest } from 'next/server';
-import { createHash } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 
 // API Key configuration
 interface ApiKeyConfig {
@@ -163,8 +163,8 @@ export function hasPermission(request: NextRequest, permission: string): boolean
 // Generate new API key
 export function generateApiKey(): string {
   const prefix = 'hic'; // Hope International Care
-  const randomBytes = crypto.getRandomValues(new Uint8Array(32));
-  const randomString = Array.from(randomBytes, byte => byte.toString(16).padStart(2, '0')).join('');
+  const randomBytesBuffer = randomBytes(32);
+  const randomString = randomBytesBuffer.toString('hex');
   return `${prefix}_${randomString}`;
 }
 
@@ -240,11 +240,12 @@ export const PERMISSIONS = {
 } as const;
 
 // Validate API key and check permission in one function
-export function validateApiKeyWithPermission(
+export async function validateApiKeyWithPermission(
   request: NextRequest,
   permission: string
-): boolean {
-  return validateApiKey(request) && hasPermission(request, permission);
+): Promise<boolean> {
+  const isValidKey = await validateApiKey(request);
+  return isValidKey && hasPermission(request, permission);
 }
 
 // Get rate limit configuration for API key

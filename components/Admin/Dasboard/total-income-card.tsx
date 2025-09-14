@@ -2,11 +2,11 @@
 import { DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGetTotalIncome } from '@/hooks/admin/dashboard';
+import { useAdminDashboardTotalIncome } from '@/hooks/admin/dashboard';
 import { DashboardCardSkeleton } from '.';
 
 function TotalIncomeCard() {
-    const { data: queryResult, error, isLoading } = useGetTotalIncome();
+    const { data: queryResult, error, isLoading } = useAdminDashboardTotalIncome();
     const totalIncome = queryResult.data;
     if (error) {
         toast.error(error.message);

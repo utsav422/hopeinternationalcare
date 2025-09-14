@@ -48,7 +48,7 @@ export const CreateCustomerContactReplySchema = z.object({
   reply_to_name: z.string().min(1, 'Name is required').max(255, 'Name too long'),
   resend_email_id: z.string().optional(),
   email_status: z.enum(['sent', 'delivered', 'bounced', 'failed', 'opened', 'clicked']).default('sent'),
-  resend_response: z.record(z.any()).optional(),
+  resend_response: z.record(z.any(), z.any()).optional(),
   error_message: z.string().optional(),
   batch_id: z.string().optional(),
   is_batch_reply: z.enum(['true', 'false']).default('false'),

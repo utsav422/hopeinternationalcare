@@ -6,7 +6,7 @@ import { notFound, useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGetEnrollmentById } from '@/hooks/admin/enrollments';
+import { useAdminEnrollmentDetailsById } from '@/hooks/admin/enrollments';
 
 // import {
 //   Table,
@@ -20,7 +20,7 @@ import { useGetEnrollmentById } from '@/hooks/admin/enrollments';
 function EnrollmentDetailsCard() {
     const params = useParams<{ id: string }>();
     const { id } = params;
-    const { data: enrollment, error, isLoading } = useGetEnrollmentById(id);
+    const { data: enrollment, error, isLoading } = useAdminEnrollmentDetailsById(id);
 
     if (isLoading) {
         return <Loader />;
@@ -131,10 +131,10 @@ function EnrollmentDetailsCard() {
                     </div>
                     <div>
                         <p className="font-medium text-muted-foreground text-sm ">
-                            Description
+                            Course Highlight
                         </p>
                         <p className="font-semibold text-base dark:text-gray-300">
-                            {enrollment?.courseDescription || 'N/A'}
+                            {enrollment?.course_highlight || 'N/A'}
                         </p>
                     </div>
                     <div>

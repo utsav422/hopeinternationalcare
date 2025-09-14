@@ -1,21 +1,27 @@
 'use client';
 
-import Image from 'next/image';
+import Image from "next/image";
 import { useParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { toast } from 'sonner';
 import { CourseCategoryBadge } from '@/components/Custom/course-category-badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetPublicCourseBySlug } from '@/hooks/admin/public-courses';
 import type { ZodInsertCourseCategoryType } from '@/lib/db/drizzle-zod-schema/course-categories';
-import type { ZodSelectCourseType } from '@/lib/db/drizzle-zod-schema/courses';
-import { adminUpdateCourseCategoryIdCol } from '@/lib/server-actions/admin/courses';
-import { adminUpsertCourseCategories } from '@/lib/server-actions/admin/courses-categories';
+import type { ZodSelectCourseType, ZodSelectCourseWithRelationsType } from '@/lib/db/drizzle-zod-schema/courses';
+import { adminCourseUpdateCategoryId } from '@/lib/server-actions/admin/courses';
+import { adminCourseCategoryUpsert } from '@/lib/server-actions/admin/course-categories';
 import CourseCategoryFormModal from './course-category-form-modal';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
-import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useSuspenseAdminCourseById } from '@/hooks/admin/courses';
+import { useAdminIntakesByCourseAndYear, useGenerateIntakesForCourseAdvanced } from '@/hooks/admin/intakes';
+import IntakesByCourseYear from '@/components/Admin/Intakes/intakes-by-course-year';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
+import { BookOpen } from 'lucide-react';
+import { User } from "@supabase/supabase-js";
 
 
 const CourseThumbnail = ({ src, alt }: { src: string; alt: string }) => (
@@ -37,6 +43,7 @@ const CourseInfo = ({
     slug,
     durationValue,
     durationType,
+    affiliationName,
     onCategoryAction,
 }: {
     title: string;
@@ -45,6 +52,7 @@ const CourseInfo = ({
     slug: string;
     durationValue: number;
     durationType: string;
+    affiliationName?: string | null;
     onCategoryAction: (action: 'add' | 'update') => void;
 }) => (
     <Card>
@@ -90,6 +98,12 @@ const CourseInfo = ({
                 </div>
                 <div>
                     <p className="font-medium text-gray-500 text-sm ">
+                        Affiliation
+                    </p>
+                    <p className="dark:text-gray-300">{affiliationName ?? 'N/A'}</p>
+                </div>
+                <div>
+                    <p className="font-medium text-gray-500 text-sm ">
                         Slug
                     </p>
                     <p className="dark:text-gray-300">{slug}</p>
@@ -123,54 +137,190 @@ const CoursePrice = ({ price }: { price: number }) => (
     </Card>
 );
 
-const CourseIntakes = () => (
-    <Card>
-        <CardHeader>
-            <CardTitle>
-                Intakes
-            </CardTitle>
-        </CardHeader>
-        <CardContent>
+const CourseIntakesOverview = () => {
+    const { id } = useParams<{ id: string }>();
+    const currentYear = new Date().getFullYear().toString();
+    const { data: result, isLoading, error, refetch } = useAdminIntakesByCourseAndYear(id, currentYear);
+    const { mutateAsync: generateIntakes, isPending: isGenerating } = useGenerateIntakesForCourseAdvanced();
 
-            <table className="w-full text-left">
-                <thead>
-                    <tr>
-                        <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
-                            Name
-                        </th>
-                        <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
-                            Start Date
-                        </th>
-                        <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
-                            End Date
-                        </th>
-                        <th className="border-b p-2 dark:border-gray-600 dark:text-gray-300">
-                            Status
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td
-                            className="p-4 text-center text-gray-500 "
-                            colSpan={4}
+    const handleGenerateIntakes = async () => {
+        try {
+            const result = await generateIntakes(id);
+            if (result.success) {
+                toast.success(result.message || 'Intakes generated successfully');
+                refetch(); // Refresh the data
+            } else {
+                toast.error(result.error || 'Failed to generate intakes');
+            }
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Failed to generate intakes');
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Current Year Intakes ({currentYear})</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    if (error) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Current Year Intakes ({currentYear})</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-red-600">Error loading intakes: {error.message}</p>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    if (!result?.success) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Current Year Intakes ({currentYear})</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-red-600">Error: {result?.error}</p>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    const { data: intakes, metadata } = result;
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                    <span>Current Year Intakes ({currentYear})</span>
+                    {metadata && (
+                        <Badge variant="secondary">
+                            {metadata.totalIntakes} intake{metadata.totalIntakes !== 1 ? 's' : ''}
+                        </Badge>
+                    )}
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                {metadata && (
+                    <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="text-center">
+                            <div className="text-lg font-semibold">{metadata.totalIntakes}</div>
+                            <div className="text-sm text-muted-foreground">Total</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-lg font-semibold text-green-600">{metadata.openIntakes}</div>
+                            <div className="text-sm text-muted-foreground">Open</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-lg font-semibold">{metadata.totalRegistered}</div>
+                            <div className="text-sm text-muted-foreground">Registered</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-lg font-semibold">{metadata.utilizationRate}%</div>
+                            <div className="text-sm text-muted-foreground">Utilization</div>
+                        </div>
+                    </div>
+                )}
+
+                {intakes && intakes.length > 0 ? (
+                    <div className="space-y-3">
+                        {intakes.slice(0, 3).map((intake) => (
+                            <div key={intake.id} className="flex justify-between items-center p-3 border rounded-lg">
+                                <div>
+                                    <div className="font-medium">
+                                        {format(new Date(intake.start_date), 'MMM dd, yyyy')} - {format(new Date(intake.end_date), 'MMM dd, yyyy')}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">
+                                        {intake.total_registered}/{intake.capacity} registered
+                                    </div>
+                                </div>
+                                <Badge variant={intake.is_open ? 'default' : 'secondary'}>
+                                    {intake.is_open ? 'Open' : 'Closed'}
+                                </Badge>
+                            </div>
+                        ))}
+                        {intakes.length > 3 && (
+                            <p className="text-sm text-muted-foreground text-center">
+                                And {intakes.length - 3} more intake{intakes.length - 3 !== 1 ? 's' : ''}...
+                            </p>
+                        )}
+                    </div>
+                ) : (
+                    <div className="text-center py-4">
+                        <p className="text-muted-foreground mb-4">
+                            No intakes available for {currentYear}
+                        </p>
+                        <Button
+                            onClick={handleGenerateIntakes}
+                            disabled={isGenerating}
+                            variant="outline"
                         >
-                            No intakes available.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </CardContent>
-        <CardFooter>
+                            {isGenerating ? 'Generating...' : 'Generate Intakes'}
+                        </Button>
+                    </div>
+                )}
+            </CardContent>
+            {intakes && intakes.length > 0 && (
+                <div className="px-6 pb-6">
+                    <Button
+                        onClick={handleGenerateIntakes}
+                        disabled={isGenerating}
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                    >
+                        {isGenerating ? 'Generating...' : 'Generate More Intakes'}
+                    </Button>
+                </div>
+            )}
+        </Card>
+    );
+};
 
-            <div className="mt-4 flex justify-end">
-                <Button>
-                    Generate Intakes
-                </Button>
-            </div>
-        </CardFooter>
-    </Card>
-);
+const CourseIntakesDetailed = () => {
+    const { id } = useParams<{ id: string }>();
+    const currentYear = new Date().getFullYear().toString();
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Intake Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Tabs defaultValue="overview" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="overview">Overview</TabsTrigger>
+                        <TabsTrigger value="detailed">Detailed Search</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="overview" className="mt-4">
+                        <CourseIntakesOverview />
+                    </TabsContent>
+                    <TabsContent value="detailed" className="mt-4">
+                        <IntakesByCourseYear
+                            initialCourseId={id}
+                            initialYear={currentYear}
+                        />
+                    </TabsContent>
+                </Tabs>
+            </CardContent>
+        </Card>
+    );
+};
+
 
 const CourseDetailsSkeleton = () => (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -216,15 +366,19 @@ const CourseDetailsSkeleton = () => (
 );
 
 export default function CourseDetailsCard() {
-    const params = useParams<{ slug: string }>();
-    const { slug: slug_from_url } = params;
+    const params = useParams<{ id: string }>();
+    const { id: id_from_url } = params;
+    const { id } = useParams<{ id: string }>();
     const {
         isLoading,
-        data: queryResult,
         error,
-    } = useGetPublicCourseBySlug(slug_from_url);
+        data: queryResult,
+    } = useSuspenseAdminCourseById(id ?? '');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const course = queryResult as ZodSelectCourseType | undefined;
+    // @ts-ignore - affiliation_name is added by the query but not in the type
+    const course = queryResult?.data;
+    // @ts-ignore - affiliation_name is added by the query but not in the type
+    const { affiliation_name } = course || {};
 
     if (isLoading) {
         return <CourseDetailsSkeleton />;
@@ -252,14 +406,14 @@ export default function CourseDetailsCard() {
     };
 
     const handleFormSubmit = (data: ZodInsertCourseCategoryType) => {
-        toast.promise(adminUpsertCourseCategories(data), {
+        toast.promise(adminCourseCategoryUpsert(data), {
             loading: 'Saving category...',
             success: (response) => {
                 if (response.success && response.data) {
-                    adminUpdateCourseCategoryIdCol({
-                        category_id: response.data.id,
+                    adminCourseUpdateCategoryId({
+                        category_id: (response?.data as never as User)?.id,
                         id: course.id,
-                    });
+                    }).catch(console.log)
                     setIsModalOpen(false);
                     return 'Category saved successfully.';
                 }
@@ -273,7 +427,7 @@ export default function CourseDetailsCard() {
 
     const handleCategorySelect = (categoryId: string) => {
         toast.promise(
-            adminUpdateCourseCategoryIdCol({
+            adminCourseUpdateCategoryId({
                 category_id: categoryId,
                 id: course.id,
             }),
@@ -290,6 +444,8 @@ export default function CourseDetailsCard() {
     const {
         image_url,
         title,
+        courseHighlights,
+        courseOverview,
         level,
         category_id,
         slug,
@@ -306,6 +462,7 @@ export default function CourseDetailsCard() {
                 </div>
                 <div className="space-y-6 lg:col-span-2">
                     <CourseInfo
+                        affiliationName={affiliation_name ?? null}
                         categoryId={category_id}
                         durationType={duration_type}
                         durationValue={duration_value}
@@ -316,7 +473,45 @@ export default function CourseDetailsCard() {
                     />
                     <CoursePrice price={price} />
 
-                    <CourseIntakes />
+                </div>
+                <div className="col-span-12">
+                    <Card>
+                        <CardHeader>
+                            <div className="flex items-center justify-between">
+                                <CardTitle className="flex items-center gap-2">
+                                    <BookOpen className="h-5 w-5" />
+                                    Course Description
+                                </CardTitle>
+                                <div className="flex items-center gap-2">
+                                    <Badge variant="outline" className="text-xs">
+                                        Admin View
+                                    </Badge>
+                                    <Badge variant="secondary" className="text-xs">
+                                        Read-only
+                                    </Badge>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div>
+                                    <h3 className="font-medium text-lg">Course Highlights</h3>
+                                    <p className="whitespace-pre-wrap">{courseHighlights || 'No highlights provided.'}</p>
+                                </div>
+                                <div>
+                                    <h3 className="font-medium text-lg">Course Overview</h3>
+                                    <p className="whitespace-pre-wrap">{courseOverview || 'No overview provided.'}</p>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="col-span-12">
+                    <QueryErrorWrapper>
+                        <Suspense>
+                            <CourseIntakesDetailed />
+                        </Suspense>
+                    </QueryErrorWrapper>
                 </div>
             </div>
             <QueryErrorWrapper>

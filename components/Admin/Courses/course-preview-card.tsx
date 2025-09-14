@@ -5,8 +5,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MDXRendererCompact } from '@/components/mdx/mdx-renderer';
-import { Clock, BookOpen, DollarSign, Users, Edit, Eye } from 'lucide-react';
+import { BookOpen, Clock, DollarSign, Edit, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ZodSelectCourseType } from '@/lib/db/drizzle-zod-schema/courses';
 
@@ -28,7 +27,8 @@ export function CoursePreviewCard({
     const {
         id,
         title,
-        description,
+        courseHighlights,
+        courseOverview,
         image_url,
         price,
         level,
@@ -76,11 +76,9 @@ export function CoursePreviewCard({
                                 )}
                             </div>
 
-                            <MDXRendererCompact
-                                content={description || ''}
-                                maxLines={2}
-                                className="text-sm"
-                            />
+                            <pre>{JSON.stringify(courseHighlights, null, 2)}</pre>
+                            <pre>{JSON.stringify(courseOverview, null, 2)}</pre>
+
 
                             <div className="flex items-center gap-3 text-sm text-muted-foreground">
                                 {level && (
@@ -163,11 +161,7 @@ export function CoursePreviewCard({
 
             <CardContent className="pt-0 space-y-4">
                 {/* Description */}
-                <MDXRendererCompact
-                    content={description || ''}
-                    maxLines={3}
-                    className="text-sm"
-                />
+                <pre>{JSON.stringify(courseHighlights, null, 2)}</pre>
 
                 {/* Metadata */}
                 <div className="flex flex-wrap gap-2">
@@ -303,10 +297,16 @@ export function AdminFeaturedCourse({
                             )}
                         </div>
 
-                        <MDXRendererCompact
-                            content={course.description || ''}
-                            maxLines={4}
-                        />
+                        <div className="space-y-2">
+                            <div>
+                                <h4 className="font-medium">Course Highlights:</h4>
+                                <p className="whitespace-pre-wrap">{course.courseHighlights || 'No highlights provided.'}</p>
+                            </div>
+                            <div>
+                                <h4 className="font-medium">Course Overview:</h4>
+                                <p className="whitespace-pre-wrap">{course.courseOverview || 'No overview provided.'}</p>
+                            </div>
+                        </div>
 
                         <div className="flex flex-wrap gap-2">
                             {course.level && (

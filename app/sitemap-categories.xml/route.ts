@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getCachedPublicAllCategories } from '@/lib/server-actions/public/courses-categories';
+import { getCachedPublicAllCategories } from '@/lib/server-actions/public/course-categories';
 
 // Next.js 15 Dynamic Categories Sitemap
 export async function GET() {

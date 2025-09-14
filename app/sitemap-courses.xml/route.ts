@@ -32,7 +32,7 @@ export async function GET() {
     <image:image>
       <image:loc>${imageUrl}</image:loc>
       <image:title>${course.title}</image:title>
-      <image:caption>${course.description || course.title}</image:caption>
+      <image:caption>${course.course_overview || course.title}</image:caption>
     </image:image>
     <mobile:mobile/>
   </url>`;

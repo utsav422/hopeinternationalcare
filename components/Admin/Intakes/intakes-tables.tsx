@@ -11,7 +11,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useDeleteIntake, useGetIntakes } from '@/hooks/admin/intakes';
+import { useAdminIntakeDelete, useAdminIntakeList } from '@/hooks/admin/intakes';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
 import type { IntakeWithCourse } from '@/lib/server-actions/admin/intakes';
 import { DataTable } from '../../Custom/data-table';
@@ -45,7 +45,7 @@ export default function IntakesTables() {
     const tab = searchParams.get('tab');
     const queryState = useDataTableQueryState();
 
-    const { data: queryResult, error } = useGetIntakes({ ...queryState });
+    const { data: queryResult, error } = useAdminIntakeList({ ...queryState });
     if (error) {
         toast.error('Error fetching intakes', {
             description: error.message,
@@ -56,14 +56,14 @@ export default function IntakesTables() {
         courseTitle: intake.course?.title,
         coursePrice: intake.course?.price,
     }));
-    const { mutateAsync: deleteIntake } = useDeleteIntake();
+    const { mutateAsync: deleteIntake } = useAdminIntakeDelete();
 
     const currentYear = new Date().getFullYear();
-    const currentIntakes = data?.filter((intake: IntakeWithCourse) => {
+    const currentIntakes = data?.filter((intake) => {
         return new Date(intake?.start_date).getFullYear() === currentYear;
     });
     const currentTotal = currentIntakes?.length ?? 0;
-    const historyIntakes = data?.filter((intake: IntakeWithCourse) => {
+    const historyIntakes = data?.filter((intake) => {
         return new Date(intake?.start_date).getFullYear() !== currentYear;
     });
     const historyTotal = historyIntakes?.length ?? 0;

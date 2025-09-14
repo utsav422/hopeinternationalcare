@@ -1,7 +1,9 @@
 'use client';
-import Image from 'next/image';
+import Image from "next/image";
 import { Skeleton } from '@/components/ui/skeleton';
-import { CourseDescription } from './course-description';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { BookOpen, Clock } from 'lucide-react';
 
 export function CourseContentSkeleton() {
     return (
@@ -16,20 +18,90 @@ export function CourseContentSkeleton() {
     );
 }
 
-export function CourseContent({ image_url, title, description }: { image_url: string, title: string, description: string }) {
+interface CourseContentProps {
+    image_url: string;
+    title: string;
+    overview: string;
+    highlights: string
+    level?: number;
+    duration_value?: number;
+    duration_type?: string;
+    category?: string;
+}
 
+export function CourseContent({
+    image_url,
+    title,
+    overview,
+    highlights,
+    level,
+    duration_value,
+    duration_type,
+    category
+}: CourseContentProps) {
     return (
-        <>
+        <div className="space-y-8">
+            {/* Course Image */}
             <div className="overflow-hidden rounded-lg shadow-lg">
-                <Image unoptimized={true}
+                <Image
+                    unoptimized={true}
                     alt={title}
                     className="h-auto w-full object-cover"
                     height={500}
-                    src={image_url as string}
+                    src={image_url}
                     width={800}
                 />
             </div>
-            <CourseDescription markdown={description || ''} />
-        </>
+
+            {/* Course Metadata */}
+            {(level || duration_value || category) && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <BookOpen className="h-5 w-5" />
+                            Course Information
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex flex-wrap gap-3">
+                            {category && (
+                                <Badge variant="secondary" className="text-sm">
+                                    {category}
+                                </Badge>
+                            )}
+                            {level && (
+                                <Badge variant="outline" className="text-sm">
+                                    Level {level}
+                                </Badge>
+                            )}
+                            {duration_value && duration_type && (
+                                <Badge variant="outline" className="text-sm flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    {duration_value} {duration_type}
+                                </Badge>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* Course Overview */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Overview of  tis Course</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {overview}
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Highlights of  tis Course</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {highlights}
+                </CardContent>
+            </Card>
+        </div>
     );
 }

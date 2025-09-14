@@ -1,19 +1,15 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {toast} from 'sonner';
 import {
-    softDeleteUserAction,
-    restoreUserAction,
+    cancelScheduledDeletionAction,
     getDeletedUsersAction,
     getUserDeletionHistoryAction,
-    cancelScheduledDeletionAction
+    restoreUserAction,
+    softDeleteUserAction
 } from '@/lib/server-actions/admin/user-deletion';
-import type {
-    ZodDeletedUsersQueryType,
-    ZodUserDeletionType,
-    ZodUserRestorationType
-} from '@/lib/db/drizzle-zod-schema';
+import type {ZodDeletedUsersQueryType, ZodUserDeletionType, ZodUserRestorationType} from '@/lib/db/drizzle-zod-schema';
 
 // Query keys for consistent cache management
 export const userDeletionKeys = {
@@ -48,10 +44,10 @@ export function useDeleteUser() {
 
             return result;
         },
-        onSuccess:async (data) => {
+        onSuccess: async (data) => {
             // Invalidate and refetch relevant queries
-            await queryClient.invalidateQueries({ queryKey: userDeletionKeys.all });
-            await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+            await queryClient.invalidateQueries({queryKey: userDeletionKeys.all});
+            await queryClient.invalidateQueries({queryKey: ['admin-users']});
 
             toast.success(data.message || 'User deleted successfully');
         },
@@ -79,10 +75,10 @@ export function useRestoreUser() {
 
             return result;
         },
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
             // Invalidate and refetch relevant queries
-            queryClient.invalidateQueries({ queryKey: userDeletionKeys.all });
-            queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+            await queryClient.invalidateQueries({queryKey: userDeletionKeys.all});
+            await queryClient.invalidateQueries({queryKey: ['admin-users']});
 
             toast.success(data.message || 'User restored successfully');
         },
@@ -101,7 +97,7 @@ export function useDeletedUsers(params: ZodDeletedUsersQueryType) {
 
             // Add all parameters to search params
             Object.entries(params).forEach(([key, value]) => {
-                if (value !== undefined && value !== null && value !== '') {
+                if (value !== undefined && value !== null && value.toString() !== '') {
                     searchParams.append(key, value.toString());
                 }
             });
@@ -155,10 +151,10 @@ export function useCancelScheduledDeletion() {
 
             return result;
         },
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
             // Invalidate and refetch relevant queries
-            queryClient.invalidateQueries({ queryKey: userDeletionKeys.all });
-            queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+            await queryClient.invalidateQueries({queryKey: userDeletionKeys.all});
+            await queryClient.invalidateQueries({queryKey: ['admin-users']});
 
             toast.success(data.message || 'Scheduled deletion cancelled successfully');
         },
@@ -196,12 +192,12 @@ export function useBulkDeleteUsers() {
                 throw new Error(`${failed} out of ${results.length} deletions failed`);
             }
 
-            return { successful, failed, total: results.length };
+            return {successful, failed, total: results.length};
         },
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
             // Invalidate and refetch relevant queries
-            queryClient.invalidateQueries({ queryKey: userDeletionKeys.all });
-            queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+            await queryClient.invalidateQueries({queryKey: userDeletionKeys.all});
+            await queryClient.invalidateQueries({queryKey: ['admin-users']});
 
             toast.success(`Successfully deleted ${data.successful} users`);
         },
@@ -217,7 +213,7 @@ export function useDeletionStatistics() {
         queryKey: [...userDeletionKeys.all, 'statistics'],
         queryFn: async () => {
             // Get basic statistics from deleted users
-            const result = await getDeletedUsersAction(new URLSearchParams({ page: '1', pageSize: '1' }));
+            const result = await getDeletedUsersAction(new URLSearchParams({page: '1', pageSize: '1'}));
 
             if (!result.success) {
                 throw new Error(result.message || 'Failed to fetch statistics');
@@ -280,12 +276,12 @@ export function useUserDeletionStatus(userId: string) {
             }));
 
             if (!result.success) {
-                return { isDeleted: false, isScheduled: false };
+                return {isDeleted: false, isScheduled: false};
             }
 
             const user = result.data?.users.find(u => u.id === userId);
             if (!user) {
-                return { isDeleted: false, isScheduled: false };
+                return {isDeleted: false, isScheduled: false};
             }
 
             return {
@@ -348,14 +344,14 @@ export function useOptimisticUserDeletion() {
             };
         });
 
-        // This would typically add back to active users list
+        // This would typically add back to the active users list
         // Implementation depends on the structure of the active users query
     };
 
-    const rollbackOptimisticUpdate = () => {
+    const rollbackOptimisticUpdate = async () => {
         // Invalidate all related queries to refetch fresh data
-        queryClient.invalidateQueries({ queryKey: userDeletionKeys.all });
-        queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+        await queryClient.invalidateQueries({queryKey: userDeletionKeys.all});
+        await queryClient.invalidateQueries({queryKey: ['admin-users']});
     };
 
     return {

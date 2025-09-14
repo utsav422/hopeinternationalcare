@@ -1,40 +1,27 @@
 'use client';
 
+import {useMutation, useQueryClient, useSuspenseQuery,} from '@tanstack/react-query';
+import type {ZodInsertIntakeType} from '@/lib/db/drizzle-zod-schema/intakes';
+import {queryKeys} from '@/lib/query-keys';
 import {
-    useMutation,
-    useQueryClient,
-    useSuspenseQuery,
-} from '@tanstack/react-query';
-import type { intakes as intakesTable } from '@/lib/db/schema/intakes';
-import { queryKeys } from '@/lib/query-keys';
-import {
-    adminDeleteIntake,
-    adminUpsertIntake,
-    generateIntakesForCourse,
-    generateIntakesForCourseAdvanced,
+    adminIntakeDeleteById,
+    adminIntakeDetailsById,
+    adminIntakeGenerateForCourse,
+    adminIntakeGenerateForCourseAdvanced,
+    adminIntakeList,
+    adminIntakeListAll,
+    adminIntakeListAllActive,
+    adminIntakesByCourseAndYear,
+    adminIntakeUpsert,
+    type IntakeGenerationResult,
 } from '@/lib/server-actions/admin/intakes';
-import type { ListParams } from './use-data-table-query-state';
+import type {ListParams} from './use-data-table-query-state';
 
-export const useGetIntakes = (params: ListParams) => {
+export const useAdminIntakeList = (params: ListParams) => {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.list(params),
         queryFn: async () => {
-            const searchParams = new URLSearchParams({
-                page: params.page?.toString() || '1',
-                pageSize: params.pageSize?.toString() || '10',
-                sortBy: params.sortBy || 'created_at',
-                order: params.order || 'desc',
-                filters: JSON.stringify(params.filters || []),
-            });
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/intakes?${searchParams}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch intakes');
-            }
-            const result = await response.json();
+            const result = await adminIntakeList(params);
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch intakes');
             }
@@ -44,19 +31,11 @@ export const useGetIntakes = (params: ListParams) => {
     });
 };
 
-export const useGetAllActiveIntake = () => {
+export const useAdminIntakeListAllActive = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.activeIntakes,
         queryFn: async () => {
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/intakes?getAllActive=true`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch active intakes');
-            }
-            const result = await response.json();
+            const result = await adminIntakeListAllActive();
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch active intakes');
             }
@@ -66,16 +45,11 @@ export const useGetAllActiveIntake = () => {
     });
 };
 
-export const useGetAllIntake = () => {
+export const useAdminIntakeListAll = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.all,
         queryFn: async () => {
-
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/intakes?getAll=true`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch all intakes');
-            }
-            const result = await response.json();
+            const result = await adminIntakeListAll();
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch all intakes');
             }
@@ -85,17 +59,11 @@ export const useGetAllIntake = () => {
     });
 };
 
-export const useGetIntakeById = (id: string) => {
+export const useAdminIntakeDetailsById = (id: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.detail(id),
         queryFn: async () => {
-
-
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/intakes?id=${id}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch intake');
-            }
-            const result = await response.json();
+            const result = await adminIntakeDetailsById(id);
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch intake');
             }
@@ -105,23 +73,23 @@ export const useGetIntakeById = (id: string) => {
     });
 };
 
-export const useUpsertIntake = () => {
+export const useAdminIntakeUpsert = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (data: typeof intakesTable.$inferInsert) =>
-            adminUpsertIntake(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.intakes.all });
+        mutationFn: (data: ZodInsertIntakeType) =>
+            adminIntakeUpsert(data),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({queryKey: queryKeys.intakes.all});
         },
     });
 };
 
-export const useDeleteIntake = () => {
+export const useAdminIntakeDelete = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id: string) => adminDeleteIntake(id),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.intakes.all });
+        mutationFn: (id: string) => adminIntakeDeleteById(id),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({queryKey: queryKeys.intakes.all});
         },
     });
 };
@@ -129,20 +97,43 @@ export const useDeleteIntake = () => {
 export const useGenerateIntakesForCourse = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (courseId: string) => generateIntakesForCourse(courseId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.intakes.all });
+        mutationFn: (courseId: string) => adminIntakeGenerateForCourse(courseId),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({queryKey: queryKeys.intakes.all});
         },
     });
 };
 
 export const useGenerateIntakesForCourseAdvanced = () => {
     const queryClient = useQueryClient();
-    return useMutation({
+    return useMutation<IntakeGenerationResult, Error, string>({
         mutationFn: (courseId: string) =>
-            generateIntakesForCourseAdvanced(courseId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.intakes.all });
+            adminIntakeGenerateForCourseAdvanced(courseId),
+        onSuccess: async (result) => {
+            // Only invalidate queries if the operation was successful
+            if (result.success) {
+                await queryClient.invalidateQueries({queryKey: queryKeys.intakes.all});
+                await queryClient.invalidateQueries({queryKey: queryKeys.courses.all});
+            }
         },
+        onError: (error) => {
+            console.error('Failed to generate intakes:', error);
+        },
+    });
+};
+
+/**
+ * Hook to fetch intakes for a specific course and year
+ */
+export const useAdminIntakesByCourseAndYear = (courseId: string, year?: string) => {
+    return useSuspenseQuery({
+        queryKey: queryKeys.intakes.list({
+            filters: [{course_id: courseId, year}]
+        }),
+        queryFn: () => adminIntakesByCourseAndYear(courseId, year),
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        gcTime: 1000 * 60 * 30, // 30 minutes
+        // Only run a query if both courseId and year are provided
+        // enabled: Boolean(courseId && year),
     });
 };

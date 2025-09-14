@@ -1,38 +1,34 @@
 'use client';
 
-import {
-    useMutation,
-    useQueryClient,
-    useSuspenseQuery,
-} from '@tanstack/react-query';
-import { queryKeys } from '@/lib/query-keys';
-import { adminUpsertRefund } from '@/lib/server-actions/admin/refunds';
-import type { TablesInsert } from '@/utils/supabase/database.types';
+import {useMutation, useQueryClient, useSuspenseQuery,} from '@tanstack/react-query';
+import {queryKeys} from '@/lib/query-keys';
+import {adminRefundList, adminRefundUpsert} from '@/lib/server-actions/admin/refunds';
+import {ZodAdminRefundQueryType, ZodInsertRefundType} from '@/lib/db/drizzle-zod-schema/refunds';
 
-export const useGetRefunds = (params: {
-    page?: number;
-    pageSize?: number;
-    search?: string;
-    status?: string;
-}) => {
+export const useAdminRefundList = ({
+                                       page,
+                                       pageSize,
+                                       sortBy,
+                                       order,
+                                       filters,
+
+                                   }: ZodAdminRefundQueryType) => {
     return useSuspenseQuery({
-        queryKey: queryKeys.refunds.list(params),
+        queryKey: queryKeys.refunds.list({
+            page: Number(page),
+            pageSize: Number(pageSize),
+            sortBy,
+            order,
+            filters,
+        }),
         queryFn: async () => {
-            const searchParams = new URLSearchParams({
-                page: params.page?.toString() || '1',
-                pageSize: params.pageSize?.toString() || '10',
-                search: params.search || '',
-                ...(params.status && { status: params.status }),
+            const result = await adminRefundList({
+                page: Number(page),
+                pageSize: Number(pageSize),
+                sortBy,
+                order,
+                filters,
             });
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/refunds?${searchParams}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch refunds');
-            }
-            const result = await response.json();
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch refunds');
             }
@@ -42,12 +38,12 @@ export const useGetRefunds = (params: {
     });
 };
 
-export const useUpsertRefund = () => {
+export const useAdminRefundUpsert = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (data: TablesInsert<'refunds'>) => adminUpsertRefund(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.refunds.all });
+        mutationFn: (data: ZodInsertRefundType) => adminRefundUpsert(data),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({queryKey: queryKeys.refunds.all});
         },
     });
 };

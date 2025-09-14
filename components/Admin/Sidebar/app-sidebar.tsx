@@ -1,12 +1,9 @@
 "use client"
 
-import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
+import {  type Icon, IconChevronRight } from "@tabler/icons-react"
 import {
-    IconCreditCard,
     IconDotsVertical,
-    IconLogout,
-    IconNotification,
-    IconUserCircle,
+    IconLogout
 } from "@tabler/icons-react"
 
 import {
@@ -26,8 +23,7 @@ import {
 import {
     useSidebar,
 } from "@/components/ui/sidebar"
-import { SidebarFooter } from "@/components/ui/sidebar"
-import { Button } from '@/components/ui/button';
+import { SidebarFooter } from "@/components/ui/sidebar";
 import {
     Sidebar,
     SidebarContent,
@@ -38,13 +34,18 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
     SidebarRail,
 } from '@/components/ui/sidebar';
 import { signOutAction } from '@/lib/server-actions/admin/admin-auth-actions';
 import { IconInnerShadowTop } from '@tabler/icons-react';
 import { ThemeSwitcher } from "@/components/theme-switcher"
-import { useRouter } from "next/navigation"
+import {usePathname, useRouter} from "next/navigation"
 import { toast } from "sonner"
+import { useState } from "react"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
 type SubNavItem = {
     title: string;
@@ -61,8 +62,8 @@ type NavMainItem = {
 };
 
 export function AdminAppSidebar({
-    ...props
-}: React.ComponentProps<typeof Sidebar>) {
+                                    ...props
+                                }: React.ComponentProps<typeof Sidebar>) {
     const data = {
         user: {
             name: "Aaasha Bhattarai",
@@ -87,10 +88,31 @@ export function AdminAppSidebar({
                         url: '/admin/users',
                         icon: undefined,
                         isActive: false,
+                        // for now disable delete user features
+                        // sub_items: [
+                        //     {
+                        //         title: 'Active Users',
+                        //         url: '/admin/users',
+                        //         icon: undefined,
+                        //         isActive: false,
+                        //     },
+                        //     {
+                        //         title: 'Deleted Users',
+                        //         url: '/admin/users/deleted',
+                        //         icon: undefined,
+                        //         isActive: false,
+                        //     },
+                        // ],
                     },
                     {
                         title: 'Categories',
                         url: '/admin/categories',
+                        icon: undefined,
+                        isActive: false,
+                    },
+                    {
+                        title: 'Affiliations',
+                        url: '/admin/affiliations',
                         icon: undefined,
                         isActive: false,
                     },
@@ -152,23 +174,43 @@ export function AdminAppSidebar({
 }
 
 
-function NavMain({
-    items,
-}: {
+function NavMain({items}: {
     items: {
         title: string
         url: string
         icon?: Icon
         isActive: boolean
         sub_items?: {
-
             title: string
             url: string
             icon?: Icon
             isActive: boolean
+            sub_items?: {
+                title: string
+                url: string
+                icon?: Icon
+                isActive: boolean
+            }[]
         }[]
     }[]
 }) {
+    const [openItems, setOpenItems] = useState<string[]>([]);
+    const pathname = usePathname();
+
+    const toggleItem = (itemTitle: string) => {
+        setOpenItems(prev =>
+            prev.includes(itemTitle)
+                ? prev.filter(title => title !== itemTitle)
+                : [...prev, itemTitle]
+        );
+    };
+
+    const isActiveUrl = (url?: string) => {
+        if (!url) return false;
+        if (!pathname) return false;
+        return pathname === url
+    };
+
     return (<>
         {items.map((item) => (
             <SidebarGroup key={item.title}>
@@ -177,33 +219,74 @@ function NavMain({
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                     <SidebarMenu>
-                        {item.sub_items?.map((subNavItem) => (
-                            <SidebarMenuItem key={subNavItem.title}>
-                                <SidebarMenuButton
-                                    asChild
-                                    isActive={subNavItem.isActive}
-                                >
-                                    <a className="capitalize" href={subNavItem.url}>
-                                        {subNavItem.title}
-                                    </a>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        ))}
+                        {item.sub_items?.map((subNavItem) => {
+                            const hasChildren = !!(subNavItem.sub_items && subNavItem.sub_items.length > 0);
+                            const selfActive = isActiveUrl(subNavItem.url);
+                            const childActive = hasChildren ? subNavItem.sub_items!.some((n) => isActiveUrl(n.url)) : false;
+                            const parentActive = selfActive || childActive;
+                            const isOpen = parentActive || openItems.includes(subNavItem.title);
+
+                            return (
+                                <SidebarMenuItem key={subNavItem.title}>
+                                    {hasChildren ? (
+                                        <Collapsible
+                                            open={isOpen}
+                                            onOpenChange={() => toggleItem(subNavItem.title)}
+                                        >
+                                            <CollapsibleTrigger asChild>
+                                                <SidebarMenuButton className="capitalize" isActive={parentActive}>
+                                                    {subNavItem.title}
+                                                    <IconChevronRight
+                                                        className={`ml-auto h-4 w-4 transition-transform ${isOpen ? 'rotate-90' : ''}`}
+                                                    />
+                                                </SidebarMenuButton>
+                                            </CollapsibleTrigger>
+                                            <CollapsibleContent>
+                                                <SidebarMenuSub>
+                                                    {subNavItem.sub_items!.map((nestedItem) => {
+                                                        const nestedActive = isActiveUrl(nestedItem.url);
+                                                        return (
+                                                            <SidebarMenuSubItem key={nestedItem.title}>
+                                                                <SidebarMenuSubButton
+                                                                    asChild
+                                                                    isActive={nestedActive}
+                                                                >
+                                                                    <a className="capitalize" href={nestedItem.url}>
+                                                                        {nestedItem.title}
+                                                                    </a>
+                                                                </SidebarMenuSubButton>
+                                                            </SidebarMenuSubItem>
+                                                        );
+                                                    })}
+                                                </SidebarMenuSub>
+                                            </CollapsibleContent>
+                                        </Collapsible>
+                                    ) : (
+                                        <SidebarMenuButton
+                                            asChild
+                                            isActive={selfActive}
+                                        >
+                                            <a className="capitalize" href={subNavItem.url}>
+                                                {subNavItem.title}
+                                            </a>
+                                        </SidebarMenuButton>
+                                    )}
+                                </SidebarMenuItem>
+                            );
+                        })}
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
         ))}
-    </>
-
-    )
+    </>)
 }
 
 
 
 
 export function NavUser({
-    user,
-}: {
+                            user,
+                        }: {
     user: {
         name: string
         email: string

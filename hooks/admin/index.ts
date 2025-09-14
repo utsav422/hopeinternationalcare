@@ -1,41 +1,22 @@
-// Export all user deletion related hooks
-export * from './user-deletion';
-export * from './use-user-deletion-forms';
-export * from './use-user-deletion-notifications';
+// Re-export admin user deletion hooks in a curated manner to avoid duplicate identifiers
 
-// Re-export commonly used hooks for convenience
+// Core deletion hooks and utilities
 export {
-    // Core deletion hooks
     useDeleteUser,
     useRestoreUser,
     useDeletedUsers,
     useUserDeletionHistory,
     useCancelScheduledDeletion,
-    
-    // Form management hooks
-    useUserDeletionForm,
-    useUserRestorationForm,
-    useScheduledDeletionCancellation,
-    useBulkDeletionForm,
-    useDeletionFilters,
-    
-    // Notification and monitoring hooks
-    useUserDeletionNotifications,
-    useScheduledDeletionMonitor,
-    useUserDeletionAudit,
-    useUserDeletionAnalytics,
-    useUserDeletionPermissions,
-    
-    // Utility hooks
+    useBulkDeleteUsers,
+    useDeletionStatistics,
     useCanRestoreUser,
     useUserDeletionStatus,
     useOptimisticUserDeletion,
     usePrefetchUserDeletionHistory,
-    
-    // Query keys for cache management
     userDeletionKeys,
 } from './user-deletion';
 
+// Form management hooks
 export {
     useUserDeletionForm,
     useUserRestorationForm,
@@ -44,6 +25,7 @@ export {
     useDeletionFilters,
 } from './use-user-deletion-forms';
 
+// Notification and monitoring hooks
 export {
     useUserDeletionNotifications,
     useScheduledDeletionMonitor,

@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetIntakeById } from '@/hooks/admin/intakes';
+import { useAdminIntakeDetailsById } from '@/hooks/admin/intakes';
 
 function IntakeDetailsSkeleton() {
     return (
@@ -41,7 +41,7 @@ function IntakeDetailsSkeleton() {
 
 function IntakeDetails() {
     const { id } = useParams<{ id: string }>();
-    const { data: intake, error, isLoading } = useGetIntakeById(id);
+    const { data: intake, error, isLoading } = useAdminIntakeDetailsById(id);
 
     if (isLoading) {
         return <IntakeDetailsSkeleton />;

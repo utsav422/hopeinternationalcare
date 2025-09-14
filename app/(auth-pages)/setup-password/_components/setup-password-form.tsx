@@ -1,4 +1,5 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, Loader } from 'lucide-react';
 import Link from 'next/link';
@@ -25,11 +26,33 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { setupPasswordAction } from '@/lib/server-actions/user/user-auth-actions';
+import { toast } from 'sonner';
+import { User } from '@supabase/supabase-js';
 
 export default function SetupPasswordComponent() {
+    const router = useRouter();
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+    // Extract auth params from URL state once on render (no useState)
+    // Note: Supabase returns auth values in the URL hash (after #),
+    // while our app passes full_name and phone via query/search params.
     const searchParams = useSearchParams();
-    const setupPasswordError = searchParams.get('error');
+    const fragmentParams = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.hash.replace(/^#/, ''))
+        : new URLSearchParams('');
+
+    const oauthParams = {
+        // From hash fragment
+        access_token: fragmentParams.get('access_token'),
+        refresh_token: fragmentParams.get('refresh_token'),
+        expires_at: fragmentParams.get('expires_at'),
+        expires_in: fragmentParams.get('expires_in'),
+        token_type: fragmentParams.get('token_type'),
+        type: fragmentParams.get('type'),
+        // From search/query string
+        full_name: searchParams.get('full_name'),
+        phone: searchParams.get('phone'),
+    } as const;
     const formSchema = z
         .object({
             password: z.string().min(6, 'Password must be at least 6 characters.'),
@@ -54,7 +77,24 @@ export default function SetupPasswordComponent() {
         const formData = new FormData();
         formData.set('password', values.password);
         formData.set('confirmPassword', values.confirmPassword);
-        await setupPasswordAction(formData);
+        // Include refresh token from URL params for server action
+        if (oauthParams.refresh_token) {
+            formData.set('refresh_token', oauthParams.refresh_token);
+        }
+
+        toast.promise(setupPasswordAction(formData), {
+            loading: 'Setting up password ...',
+            success: (result: { success: boolean; message: string, data?: { user: User } }) => {
+                if (result?.success && result?.message && result?.data?.user) {
+                    router.replace('/users/profile');
+                    return result?.message
+                }
+                return result?.message??'Failed to setup password'
+            },
+            error: (error: Error) => {
+                return error.message || 'Failed to setup password';
+            },
+        });
     }
 
     return (
@@ -68,11 +108,6 @@ export default function SetupPasswordComponent() {
                         Create a new password for your account.
                     </CardDescription>
                 </CardHeader>
-                {setupPasswordError && (
-                    <p className="mt-4 text-center text-red-500">
-                        * {setupPasswordError}
-                    </p>
-                )}
                 <Form {...form}>
                     <form
                         className="mt-6 space-y-6"

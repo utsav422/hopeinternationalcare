@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetPaymentDetailsWithOthersById } from '@/hooks/admin/payments';
+import { useAdminPaymentDetailsWithAllById } from '@/hooks/admin/payments';
 import type { PaymentDetailsType } from '@/lib/db/drizzle-zod-schema/payments';
 
 interface PaymentDetailsCardProps {
@@ -293,7 +293,7 @@ export default function PaymentDetailsCard() {
         data: payment,
         error,
         isLoading,
-    } = useGetPaymentDetailsWithOthersById(params.id);
+    } = useAdminPaymentDetailsWithAllById(params.id);
     if (error || !payment) {
         toast.error(
             error?.message ??

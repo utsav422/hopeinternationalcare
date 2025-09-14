@@ -1,16 +1,4 @@
-import { Metadata } from 'next';
 
-export const metadata: Metadata = {
-    title: {
-        template: '%s | User Management | Admin Dashboard | Hope International',
-        default: 'User Management | Admin Dashboard | Hope International',
-    },
-    description: 'Manage users, view deletion history, and handle user operations in the Hope International admin dashboard.',
-    robots: {
-        index: false,
-        follow: false,
-    },
-};
 
 export default function UsersLayout({
     children,

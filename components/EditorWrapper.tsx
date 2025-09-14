@@ -1,28 +1,31 @@
-"use client";
+'use client';
 
-import {MDXEditor, MDXEditorMethods,} from "@mdxeditor/editor";
-import "@mdxeditor/editor/style.css";
-import React, {Ref} from "react";
+import { MDXEditor, MDXEditorMethods } from '@mdxeditor/editor';
+import { FC, forwardRef } from 'react';
 
 interface EditorWrapperProps {
-    markdown: string;
-    onChange: (markdown: string) => void;
-    editorRef?: Ref<MDXEditorMethods> | null;
+  markdown: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
 }
 
-export default function EditorWrapper({
-                                          markdown,
-                                          onChange,
-                                          editorRef,
-                                      }: EditorWrapperProps) {
-    return (
-        <MDXEditor
-            ref={editorRef}
-            markdown={markdown}
-            onChange={onChange}
-            plugins={[
-                // ... (configure plugins)
-            ]}
-        />
-    );
-}
+const EditorWrapper: FC<EditorWrapperProps> = forwardRef<
+  MDXEditorMethods,
+  EditorWrapperProps
+>((props, ref) => {
+  const { markdown, onChange, placeholder } = props;
+
+  return (
+    <MDXEditor
+      ref={ref}
+      markdown={markdown}
+      onChange={onChange}
+      placeholder={placeholder}
+      plugins={[]}
+    />
+  );
+});
+
+EditorWrapper.displayName = 'EditorWrapper';
+
+export default EditorWrapper;

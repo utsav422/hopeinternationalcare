@@ -180,7 +180,8 @@ export const seoConfigs = {
 // Helper function for course pages
 export function generateCourseMetadata(course: {
     title: string;
-    description?: string | null;
+    course_highlights?: string | null,
+    course_overview?: string | null;
     slug: string;
     image_url?: string | null;
     created_at: string;
@@ -200,7 +201,7 @@ export function generateCourseMetadata(course: {
 
     return generateMetadata({
         title: course.title,
-        description: course.description || `Learn ${course.title} at Hope International. Professional caregiver training course designed to provide comprehensive skills for elderly care.`,
+        description: course?.course_overview ??  course.course_highlights?? `Learn ${course.title} at Hope International. Professional caregiver training course designed to provide comprehensive skills for elderly care.`,
         keywords,
         canonical: `/courses/${course.slug}`,
         image: course.image_url || undefined,

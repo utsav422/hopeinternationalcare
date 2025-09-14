@@ -14,12 +14,12 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from '@/components/ui/chart';
-import { useGetPaymentsByStatus } from '@/hooks/admin/dashboard';
+import { useAdminDashboardPaymentListByStatus } from '@/hooks/admin/dashboard';
 import type { TypePaymentStatus } from '@/lib/db/schema';
 import { DashboardCardSkeleton } from '.';
 
 function PaymentOverviewCard() {
-    const { data: queryResult, error, isLoading } = useGetPaymentsByStatus();
+    const { data: queryResult, error, isLoading } = useAdminDashboardPaymentListByStatus();
     const success = queryResult?.success;
     const queryDataError = queryResult?.error;
     const paymentsByStatus = queryResult?.data;

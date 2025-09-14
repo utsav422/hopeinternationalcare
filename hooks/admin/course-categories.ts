@@ -1,116 +1,86 @@
 'use client';
-import {
-    useMutation,
-    useQueryClient,
-    useSuspenseQuery,
-} from '@tanstack/react-query';
-import type { ListParams as DataTableListParams } from '@/hooks/admin/use-data-table-query-state';
+
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import type { ColumnFiltersState } from '@tanstack/react-table';
 import { queryKeys } from '@/lib/query-keys';
 import {
-    adminDeleteCourseCategories,
-    adminUpsertCourseCategories,
-} from '@/lib/server-actions/admin/courses-categories';
-import type { TablesInsert } from '@/utils/supabase/database.types';
 
-type ListParams = Partial<DataTableListParams>;
+    adminCourseCategoryDeleteById,
+    adminCourseCategoryListAll,
+    adminCourseCategoryList,
+    adminCourseCategoryDetailsById,
+    adminCourseCategoryUpsert
+} from '@/lib/server-actions/admin/course-categories';
+import { ZodInsertCourseCategoryType } from '@/lib/db/drizzle-zod-schema';
 
-export const useGetCourseCategories = (params: ListParams) => {
-    return useSuspenseQuery({
+// Types
+export type CourseCategoryQueryParams = {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    filters?: ColumnFiltersState;
+};
+
+// Hooks for course categories
+export const useAdminCourseCategoryList = (params: CourseCategoryQueryParams = {}) => {
+    return useQuery({
         queryKey: queryKeys.courseCategories.list(params),
-        queryFn: async () => {
-            const searchParams = new URLSearchParams({
-                page: params.page?.toString() || '1',
-                pageSize: params.pageSize?.toString() || '10',
-                sortBy: params.sortBy || 'created_at',
-                order: params.order || 'desc',
-                filters: JSON.stringify(params.filters || []),
-            });
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/courses-categories?${searchParams}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
-            }
-            const result = await response.json();
-
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to fetch data');
-            }
-
-            return result;
-        }, staleTime: 1000 * 60 * 5,  //5minutes
+        queryFn: async () => adminCourseCategoryList(params),
+        staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
 
-export const useGetAllCourseCategories = () => {
-    return useSuspenseQuery({
+export const useAdminCourseCategoryDetailsById = (id: string) => {
+    return useQuery({
+        queryKey: queryKeys.courseCategories.detail(id),
+        queryFn: async () => adminCourseCategoryDetailsById(id),
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        gcTime: 1000 * 60 * 60, // 1 hour
+        enabled: !!id,
+    });
+};
+
+export const useAdminCourseCategoryListAll = () => {
+    return useQuery({
         queryKey: queryKeys.courseCategories.lists(),
-        queryFn: async () => {
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/courses-categories?getAll=true`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
-            }
-            const result = await response.json();
-
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to fetch data');
-            }
-
-            return result;
-        }, staleTime: 1000 * 60 * 5,  //5minutes
+        queryFn: async () => adminCourseCategoryListAll(),
+        staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
 
-export const useGetCourseCategoryById = (id: string) => {
+export const useAdminCourseCategoryUpsert = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: ZodInsertCourseCategoryType) => adminCourseCategoryUpsert(data),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: queryKeys.courseCategories.all,
+            });
+        },
+    });
+};
+
+export const useAdminCourseCategoryDeleteById = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => adminCourseCategoryDeleteById(id),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: queryKeys.courseCategories.all,
+            });
+        },
+    });
+};
+
+export const useSuspenseAdminCourseCategoryDetailsById = (id: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.courseCategories.detail(id),
-        queryFn: async () => {
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/courses-categories?id=${id}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
-            }
-            const result = await response.json();
-
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to fetch data');
-            }
-
-            return result;
-        }, staleTime: 1000 * 60 * 5,  //5minutes
+        queryFn: async () => adminCourseCategoryDetailsById(id),
+        staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
-    });
-};
-
-export const useUpsertCourseCategory = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (data: TablesInsert<'course_categories'>) =>
-            adminUpsertCourseCategories(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: queryKeys.courseCategories.all,
-            });
-        },
-    });
-};
-
-export const useDeleteCourseCategory = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (id: string) => adminDeleteCourseCategories(id),
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: queryKeys.courseCategories.all,
-            });
-        },
     });
 };

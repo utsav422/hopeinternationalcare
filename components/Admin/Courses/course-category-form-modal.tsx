@@ -31,7 +31,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useGetAllCourseCategories } from '@/hooks/admin/course-categories';
+import { useAdminCourseCategoryListAll } from '@/hooks/admin/course-categories';
 import {
     ZodCourseCategoryInsertSchema,
     type ZodInsertCourseCategoryType,
@@ -56,7 +56,7 @@ export default function CourseCategoryFormModal({
         data: queryResult,
         isLoading: isLoadingCategories,
         error,
-    } = useGetAllCourseCategories();
+    } = useAdminCourseCategoryListAll();
     const categories =
         (queryResult?.data as {
             id: string;

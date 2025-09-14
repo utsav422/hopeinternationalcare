@@ -1,20 +1,20 @@
 'use client';
 
+import {useMutation, useQueryClient, useSuspenseQuery,} from '@tanstack/react-query';
+import type {TypePaymentStatus} from '@/lib/db/schema/enums';
+import {queryKeys} from '@/lib/query-keys';
 import {
-    useMutation,
-    useQueryClient,
-    useSuspenseQuery,
-} from '@tanstack/react-query';
-import type { TypePaymentStatus } from '@/lib/db/schema/enums';
-import { queryKeys } from '@/lib/query-keys';
-import {
-    adminDeletePayment,
-    adminUpdatePaymentStatus,
-    adminUpsertPayment,
+    adminPaymentDeleteById,
+    adminPaymentDetailsByEnrollmentId,
+    adminPaymentDetailsById,
+    adminPaymentDetailsWithRelationsById,
+    adminPaymentList,
+    adminPaymentUpdateStatusById,
+    adminPaymentUpsert,
 } from '@/lib/server-actions/admin/payments';
-import type { TablesInsert } from '@/utils/supabase/database.types';
+import type {ZodInsertPaymentType} from '@/lib/db/drizzle-zod-schema/payments';
 
-export const useGetPayments = (params: {
+export const useAdminPaymentList = (params: {
     page?: number;
     pageSize?: number;
     search?: string;
@@ -24,21 +24,7 @@ export const useGetPayments = (params: {
     return useSuspenseQuery({
         queryKey: queryKeys.payments.list(params),
         queryFn: async () => {
-            const searchParams = new URLSearchParams({
-                page: params.page?.toString() || '1',
-                pageSize: params.pageSize?.toString() || '10',
-                search: params.search || '',
-                ...(params.status && { status: params.status }),
-            });
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/payments?${searchParams}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch payments');
-            }
-            const result = await response.json();
+            const result = await adminPaymentList(params);
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch payments');
             }
@@ -48,19 +34,11 @@ export const useGetPayments = (params: {
     });
 };
 
-export const useGetPaymentDetailsByEnrollmentId = (enrollmentId: string) => {
+export const useAdminPaymentDetailsByEnrollmentId = (enrollmentId: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.payments.detailByEnrollment(enrollmentId),
         queryFn: async () => {
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/payments?enrollmentId=${enrollmentId}`
-            );
-            const result = await response.json();
-            if (!response.ok) {
-                throw new Error('Failed to fetch payment details');
-            }
+            const result = await adminPaymentDetailsByEnrollmentId(enrollmentId);
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch payment details');
             }
@@ -70,19 +48,11 @@ export const useGetPaymentDetailsByEnrollmentId = (enrollmentId: string) => {
     });
 };
 
-export const useGetPaymentOnlyDetailsById = (paymentId: string) => {
+export const useAdminPaymentDetailsById = (paymentId: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.payments.detail(paymentId),
         queryFn: async () => {
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/payments?id=${paymentId}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch payment details');
-            }
-            const result = await response.json();
+            const result = await adminPaymentDetailsById(paymentId);
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch payment details');
             }
@@ -92,19 +62,11 @@ export const useGetPaymentOnlyDetailsById = (paymentId: string) => {
     });
 };
 
-export const useGetPaymentDetailsWithOthersById = (paymentId: string) => {
+export const useAdminPaymentDetailsWithAllById = (paymentId: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.payments.detail(paymentId),
         queryFn: async () => {
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/payments?id=${paymentId}&withOthers=true`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch payment details');
-            }
-            const result = await response.json();
+            const result = await adminPaymentDetailsWithRelationsById(paymentId);
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch payment details');
             }
@@ -114,40 +76,40 @@ export const useGetPaymentDetailsWithOthersById = (paymentId: string) => {
     });
 };
 
-export const useUpsertPayment = () => {
+export const useAdminPaymentUpsert = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (data: TablesInsert<'payments'>) => adminUpsertPayment(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.payments.all });
+        mutationFn: (data: ZodInsertPaymentType) => adminPaymentUpsert(data),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({queryKey: queryKeys.payments.all});
         },
     });
 };
 
-export const useUpdatePaymentStatus = () => {
+export const useAdminPaymentUpdateStatus = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: ({
-            id,
-            status,
-            remarks,
-        }: {
+                         id,
+                         status,
+                         remarks,
+                     }: {
             id: string;
             status: TypePaymentStatus;
             remarks?: string;
-        }) => adminUpdatePaymentStatus(id, status, remarks),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.payments.all });
+        }) => adminPaymentUpdateStatusById(id, status, remarks),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({queryKey: queryKeys.payments.all});
         },
     });
 };
 
-export const useDeletePayment = () => {
+export const useAdminPaymentDelete = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id: string) => adminDeletePayment(id),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.payments.all });
+        mutationFn: (id: string) => adminPaymentDeleteById(id),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({queryKey: queryKeys.payments.all});
         },
     });
 };

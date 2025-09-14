@@ -9,7 +9,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useGetAllEnrollments } from '@/hooks/admin/enrollments';
+import { useAdminEnrollmentListAll } from '@/hooks/admin/enrollments';
 import type { EnrollmentWithDetails } from '@/lib/db/drizzle-zod-schema/enrollments';
 import type { ZodInsertPaymentType } from '@/lib/db/drizzle-zod-schema/payments';
 import { Skeleton } from '../ui/skeleton';
@@ -29,7 +29,7 @@ export default function EnrollmentSelect({
         data: enrollmentsWithDetails,
         error,
         isLoading,
-    } = useGetAllEnrollments();
+    } = useAdminEnrollmentListAll();
 
     if (error || !enrollmentsWithDetails) {
         toast.error(

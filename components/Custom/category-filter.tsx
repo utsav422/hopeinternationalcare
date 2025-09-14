@@ -8,16 +8,12 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { useGetAllCourseCategories } from '@/hooks/public/course-categories';
+import type { ZodSelectCourseCategoryType } from '@/lib/db/drizzle-zod-schema/course-categories';
 
 interface CategoryFilterProps {
     value: string;
     onChange: (value: string) => void;
 }
-
-type Category = {
-    id: string;
-    name: string;
-};
 
 export default function CategoryFilter({
     value,
@@ -37,7 +33,7 @@ export default function CategoryFilter({
                         Loading...
                     </SelectItem>
                 ) : (
-                    categories.map((category: Category) => (
+                    categories.map((category) => (
                         <SelectItem
                             className="dark:hover:bg-gray-700"
                             key={category.id}

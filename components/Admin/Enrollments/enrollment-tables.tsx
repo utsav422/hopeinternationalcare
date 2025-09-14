@@ -28,11 +28,11 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import {
-    useDeleteEnrollment,
-    useGetEnrollments,
-    useUpdateEnrollmentStatus,
+    useAdminEnrollmentDelete,
+useAdminEnrollmentList,
+useAdminEnrollmentUpdateStatus,
 } from '@/hooks/admin/enrollments';
-import { useUpsertPayment } from '@/hooks/admin/payments';
+import { useAdminPaymentUpsert } from '@/hooks/admin/payments';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
 
 import type { ZodEnrollmentSelectType } from '@/lib/db/drizzle-zod-schema/enrollments';
@@ -55,15 +55,15 @@ type EnrollementTableDataProps = {
 export default function EnrollmentTables() {
     const router = useRouter();
     const queryState = useDataTableQueryState();
-    const { data: queryResult, error } = useGetEnrollments({ ...queryState });
+    const { data: queryResult, error } = useAdminEnrollmentList({ ...queryState });
     if (error) {
         toast.error('Error fetching categories', {
             description: error.message,
         });
     }
-    const { mutateAsync: deleteEnrollment } = useDeleteEnrollment();
-    const updateEnrollmentStatusMutation = useUpdateEnrollmentStatus();
-    const upsertPaymentMutation = useUpsertPayment();
+    const { mutateAsync: deleteEnrollment } = useAdminEnrollmentDelete();
+    const updateEnrollmentStatusMutation = useAdminEnrollmentUpdateStatus();
+    const upsertPaymentMutation = useAdminPaymentUpsert();
     const data = queryResult?.data as EnrollementTableDataProps[];
     const total = queryResult?.total ?? 0;
     const [isPending, startTransition] = useTransition();
@@ -304,14 +304,14 @@ export default function EnrollmentTables() {
                 {(selectedEnrollmentAndUserId.enrollmentId && selectedEnrollmentAndUserId.userId)
                     && (selectedEnrollmentAndUserId.enrollmentId + selectedEnrollmentAndUserId.userId).trim().length > 0
                     && <CancelEnrollmentForm
-                        afterSubmit={() => {
+                        afterSubmitAction={() => {
                             setSelectedEnrollmentAndUserId({
                                 enrollmentId: null,
                                 userId: null,
                             });
                         }}
                         selectedEnrollmentAndUserId={selectedEnrollmentAndUserId}
-                        setShowCancelModal={setShowCancelModal}
+                        setShowCancelModalAction={setShowCancelModal}
                         showCancelModal={showCancelModal}
                     />}
             </CardContent>

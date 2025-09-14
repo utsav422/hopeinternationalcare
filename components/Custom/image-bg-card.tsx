@@ -1,5 +1,5 @@
 'use client';
-import Image from 'next/image';
+import Image from "next/image";
 import type React from 'react';
 
 interface ImageBackgroundCardProps {
@@ -19,12 +19,13 @@ export function ImageBackgroundCard({
                         className="relative h-32 w-32 transform overflow-hidden rounded-xl shadow-lg transition duration-300 hover:scale-105 hover:shadow-xl md:h-40 md:w-40 lg:h-48 lg:w-48"
                         key={src}
                     >
-                        <Image unoptimized={true}
+                        <Image
                             alt={`Gallery image ${index + 1}`}
-                            className="rounded-xl border-4 border-white dark:border-gray-700"
-                            layout="fill"
-                            objectFit="cover"
+                            className="absolute inset-0 h-full w-full rounded-xl border-4 border-white object-cover dark:border-gray-700"
+                            width={192}
+                            height={192}
                             src={src}
+                            unoptimized={true}
                         />
                     </div>
                 ))}

@@ -1,6 +1,6 @@
 import { pgTable, uuid, varchar, text, timestamp, jsonb, pgPolicy } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-import { serviceRole } from './auth';
+import {serviceRole} from "drizzle-orm/supabase";
 
 export const emailLogs = pgTable(
   'email_logs',

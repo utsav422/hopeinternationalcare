@@ -10,10 +10,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useGetAllCourseCategories } from '@/hooks/admin/course-categories';
-import type { ZodInsertCourseCategoryType } from '@/lib/db/drizzle-zod-schema/course-categories';
+import { useAdminCourseCategoryListAll } from '@/hooks/admin/course-categories';
+import type { ZodInsertCourseCategoryType, ZodSelectCourseCategoryType } from '@/lib/db/drizzle-zod-schema/course-categories';
 import type { ZodInsertCourseType } from '@/lib/db/drizzle-zod-schema/courses';
-import { adminUpsertCourseCategories } from '@/lib/server-actions/admin/courses-categories';
+import { adminCourseCategoryUpsert } from '@/lib/server-actions/admin/course-categories';
 import CourseCategoryFormModal from '../Admin/Courses/course-category-form-modal';
 import { Button } from '../ui/button';
 import { FormControl } from '../ui/form';
@@ -25,10 +25,7 @@ interface CourseCategorySelectProps {
     disabled?: boolean;
 }
 
-type Category = {
-    id: string;
-    name: string;
-};
+type Category = ZodSelectCourseCategoryType;
 
 export default function CourseCategorySelect({
     field,
@@ -40,7 +37,7 @@ export default function CourseCategorySelect({
         isLoading,
         error: queryError,
         refetch,
-    } = useGetAllCourseCategories();
+    } = useAdminCourseCategoryListAll();
     if (queryError) {
         toast.error('Something went wrong while fetching categories', {
             description: queryError.message,
@@ -50,7 +47,7 @@ export default function CourseCategorySelect({
 
     const handleCreateCategory = async (data: ZodInsertCourseCategoryType) => {
         try {
-            const result = await adminUpsertCourseCategories(data);
+            const result = await adminCourseCategoryUpsert(data);
             if (result.success) {
                 toast.success('Category created successfully');
                 refetch();
@@ -110,7 +107,7 @@ export default function CourseCategorySelect({
                     <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent className="">
-                    {categories.map((category: Category) => (
+                    {categories.map((category) => (
                         <SelectItem
                             key={category.id}
                             value={category.id}

@@ -13,20 +13,20 @@ import { success } from 'zod';
  * @returns Formatted URL string
  */
 function buildSetupPasswordUrl(fullName?: string, phone?: string): string {
-  // Use environment variable for base URL or default to localhost for dev
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  const url = new URL('/setup-password', baseUrl);
-  
-  // Add query parameters if they exist
-  if (fullName) {
-    url.searchParams.set('full_name', fullName);
-  }
-  
-  if (phone) {
-    url.searchParams.set('phone', phone);
-  }
-  
-  return url.toString();
+    // Use environment variable for base URL or default to localhost for dev
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const url = new URL('/setup-password', baseUrl);
+
+    // Add query parameters if they exist
+    if (fullName) {
+        url.searchParams.set('full_name', fullName);
+    }
+
+    if (phone) {
+        url.searchParams.set('phone', phone);
+    }
+
+    return url.toString();
 }
 export const signUpAction = async (formData: FormData) => {
     const supabaseAdmin = createAdminSupabaseClient();
@@ -148,7 +148,10 @@ export const inviteUserAction = async (formData: FormData) => {
     });
 
     if (error) {
-        return encodedRedirect('error', '/admin/users', error.message);
+        return {
+            success: false,
+            message: error.message,
+        };
     }
     const { error: profileError } = await supabaseAdmin.from('profiles').insert([
         {
@@ -161,7 +164,10 @@ export const inviteUserAction = async (formData: FormData) => {
         },
     ]);
     if (profileError) {
-        return encodedRedirect('error', '/admin/users', profileError?.message);
+        return {
+            success: false,
+            message: profileError.message,
+        };
     }
     return {
         success: true,

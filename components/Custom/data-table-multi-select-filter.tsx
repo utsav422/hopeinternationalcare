@@ -30,7 +30,7 @@ interface MultiSelectFilterProps {
         icon?: React.ComponentType<{ className?: string }> | null;
     }[];
     selectedValues: Set<string>;
-    onClearCallback: () => void
+    onClearCallback: () => void;
     onValueChange: (values: string[]) => void;
 }
 

@@ -7,38 +7,42 @@ import { logger } from '@/utils/logger';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db/drizzle';
 import { customerContactRequests } from '@/lib/db/schema/customer-contact-requests';
-import { eq } from 'drizzle-orm';
+import { customerContactReplies } from '@/lib/db/schema/customer-contact-replies';
+import { eq, desc, and, sql, count } from 'drizzle-orm';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 
-// Schema for single reply
-export const CustomerContactReplySchema = z.object({
-  contactRequestId: z.string().uuid('Invalid contact request ID'),
-  subject: z.string().min(1, 'Subject is required'),
-  message: z.string().min(1, 'Message is required'),
-  replyToEmail: z.string().email('Invalid email address'),
-  replyToName: z.string().min(1, 'Name is required'),
-});
-
-// Schema for batch reply
-export const CustomerContactBatchReplySchema = z.object({
-  contactRequestIds: z.array(z.string().uuid()).min(1, 'At least one contact request is required').max(100, 'Maximum 100 recipients allowed'),
-  subject: z.string().min(1, 'Subject is required'),
-  message: z.string().min(1, 'Message is required'),
-});
-
-export type CustomerContactReplyType = z.infer<typeof CustomerContactReplySchema>;
-export type CustomerContactBatchReplyType = z.infer<typeof CustomerContactBatchReplySchema>;
+// Import schemas from Drizzle schema file
+import {
+  CustomerContactReplySchema,
+  CustomerContactBatchReplySchema,
+  CreateCustomerContactReplySchema,
+  type CustomerContactReplyType,
+  type CustomerContactBatchReplyType,
+  type CreateCustomerContactReplyType,
+} from '@/lib/db/drizzle-zod-schema/customer-contact-replies';
 
 // Send single reply email
 export async function sendCustomerContactReply(data: CustomerContactReplyType) {
   try {
     await requireAdmin();
 
+    // Get current admin user
+    const supabase = await createServerSupabaseClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return {
+        success: false,
+        error: 'Admin authentication required',
+      };
+    }
+
     // Validate input
     const parsed = CustomerContactReplySchema.safeParse(data);
     if (!parsed.success) {
       return {
         success: false,
-        error: parsed.error.errors.map(e => e.message).join(', '),
+        error: parsed.error.message,
       };
     }
 
@@ -129,10 +133,31 @@ Email: info@hopeinternational.com.np
       };
     }
 
+    // Save reply to database
+    const replyData: CreateCustomerContactReplyType = {
+      contact_request_id: contactRequestId,
+      subject: `Re: ${subject}`,
+      message,
+      reply_to_email: replyToEmail,
+      reply_to_name: replyToName,
+      resend_email_id: emailResult.data?.id,
+      email_status: 'sent',
+      resend_response: {...(emailResult?.data) ??{}
+        },
+      is_batch_reply: 'false',
+      admin_id: user.id,
+      admin_email: user.email || undefined,
+    };
+
+    const savedReply = await db
+      .insert(customerContactReplies)
+      .values(replyData)
+      .returning();
+
     // Update contact request status to 'resolved'
     await db
       .update(customerContactRequests)
-      .set({ 
+      .set({
         status: 'resolved',
         updated_at: new Date().toISOString(),
       })
@@ -142,6 +167,7 @@ Email: info@hopeinternational.com.np
       contactRequestId,
       recipientEmail: contactRequest.email,
       subject,
+      replyId: savedReply[0]?.id,
     });
 
     revalidatePath('/admin/customer-contact-requests');
@@ -149,9 +175,11 @@ Email: info@hopeinternational.com.np
     return {
       success: true,
       data: {
+        replyId: savedReply[0]?.id,
         emailId: emailResult.data?.id,
         recipientEmail: contactRequest.email,
         subject: `Re: ${subject}`,
+        savedReply: savedReply[0],
       },
     };
   } catch (error) {
@@ -172,12 +200,23 @@ export async function sendCustomerContactBatchReply(data: CustomerContactBatchRe
   try {
     await requireAdmin();
 
+    // Get current admin user
+    const supabase = await createServerSupabaseClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return {
+        success: false,
+        error: 'Admin authentication required',
+      };
+    }
+
     // Validate input
     const parsed = CustomerContactBatchReplySchema.safeParse(data);
     if (!parsed.success) {
       return {
         success: false,
-        error: parsed.error.errors.map(e => e.message).join(', '),
+        error: parsed.error.message,
       };
     }
 
@@ -198,6 +237,7 @@ export async function sendCustomerContactBatchReply(data: CustomerContactBatchRe
 
     const results = [];
     const errors = [];
+    const batchId = `batch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // Send emails to each contact request
     for (const contactRequest of contactRequests) {
@@ -239,17 +279,40 @@ export async function sendCustomerContactBatchReply(data: CustomerContactBatchRe
         });
 
         if (emailResult.success) {
+          // Save reply to database
+          const replyData: CreateCustomerContactReplyType = {
+            contact_request_id: contactRequest.id,
+            subject: `Re: ${subject}`,
+            message,
+            reply_to_email: contactRequest.email,
+            reply_to_name: contactRequest.name,
+            resend_email_id: emailResult.data?.id,
+            email_status: 'sent',
+            resend_response: {...(emailResult.data ?? {})
+            },
+            batch_id: batchId,
+            is_batch_reply: 'true',
+            admin_id: user.id,
+            admin_email: user.email || undefined,
+          };
+
+          const savedReply = await db
+            .insert(customerContactReplies)
+            .values(replyData)
+            .returning();
+
           results.push({
             contactRequestId: contactRequest.id,
             email: contactRequest.email,
             emailId: emailResult.data?.id,
+            replyId: savedReply[0]?.id,
             success: true,
           });
 
           // Update status to resolved
           await db
             .update(customerContactRequests)
-            .set({ 
+            .set({
               status: 'resolved',
               updated_at: new Date().toISOString(),
             })
@@ -283,6 +346,7 @@ export async function sendCustomerContactBatchReply(data: CustomerContactBatchRe
     return {
       success: true,
       data: {
+        batchId,
         successful: results,
         failed: errors,
         totalSent: results.length,
@@ -298,6 +362,174 @@ export async function sendCustomerContactBatchReply(data: CustomerContactBatchRe
     return {
       success: false,
       error: `Failed to send batch reply: ${errorMessage}`,
+    };
+  }
+}
+
+// Get customer contact replies with pagination
+export async function adminCustomerContactRepliesList({
+  page = 1,
+  pageSize = 10,
+  search,
+  contactRequestId,
+  batchId,
+}: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  contactRequestId?: string;
+  batchId?: string;
+} = {}) {
+  try {
+    await requireAdmin();
+
+    const offset = (page - 1) * pageSize;
+
+    // Build where conditions
+    const whereConditions = [];
+
+    if (search) {
+      whereConditions.push(
+        sql`(${customerContactReplies.subject} ILIKE ${`%${search}%`} OR
+            ${customerContactReplies.reply_to_email} ILIKE ${`%${search}%`} OR
+            ${customerContactReplies.reply_to_name} ILIKE ${`%${search}%`})`
+      );
+    }
+
+    if (contactRequestId) {
+      whereConditions.push(eq(customerContactReplies.contact_request_id, contactRequestId));
+    }
+
+    if (batchId) {
+      whereConditions.push(eq(customerContactReplies.batch_id, batchId));
+    }
+
+    const whereClause = whereConditions.length > 0 ? and(...whereConditions) : undefined;
+
+    // Get total count
+    const totalResult = await db
+      .select({ count: count() })
+      .from(customerContactReplies)
+      .where(whereClause);
+
+    const total = totalResult[0]?.count || 0;
+
+    // Get paginated results with contact request details
+    const replies = await db
+      .select({
+        reply: customerContactReplies,
+        contactRequest: customerContactRequests,
+      })
+      .from(customerContactReplies)
+      .leftJoin(
+        customerContactRequests,
+        eq(customerContactReplies.contact_request_id, customerContactRequests.id)
+      )
+      .where(whereClause)
+      .orderBy(desc(customerContactReplies.created_at))
+      .limit(pageSize)
+      .offset(offset);
+
+    return {
+      success: true,
+      data: replies,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logger.error('Failed to fetch customer contact replies:', {
+      error: errorMessage,
+      page,
+      pageSize,
+    });
+    return {
+      success: false,
+      error: `Failed to fetch customer contact replies: ${errorMessage}`,
+    };
+  }
+}
+
+// Get customer contact reply by ID
+export async function adminCustomerContactReplyById(id: string) {
+  try {
+    await requireAdmin();
+
+    const reply = await db
+      .select({
+        reply: customerContactReplies,
+        contactRequest: customerContactRequests,
+      })
+      .from(customerContactReplies)
+      .leftJoin(
+        customerContactRequests,
+        eq(customerContactReplies.contact_request_id, customerContactRequests.id)
+      )
+      .where(eq(customerContactReplies.id, id))
+      .limit(1);
+
+    if (reply.length === 0) {
+      return {
+        success: false,
+        error: 'Customer contact reply not found',
+      };
+    }
+
+    return {
+      success: true,
+      data: reply[0],
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logger.error('Failed to fetch customer contact reply:', {
+      error: errorMessage,
+      replyId: id,
+    });
+    return {
+      success: false,
+      error: `Failed to fetch customer contact reply: ${errorMessage}`,
+    };
+  }
+}
+
+// Delete customer contact reply
+export async function adminCustomerContactReplyDeleteById(id: string) {
+  try {
+    await requireAdmin();
+
+    const result = await db
+      .delete(customerContactReplies)
+      .where(eq(customerContactReplies.id, id))
+      .returning();
+
+    if (result.length === 0) {
+      return {
+        success: false,
+        error: 'Customer contact reply not found',
+      };
+    }
+
+    logger.info('Customer contact reply deleted:', {
+      replyId: id,
+    });
+
+    revalidatePath('/admin/customer-contact-requests');
+
+    return {
+      success: true,
+      data: result[0],
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logger.error('Failed to delete customer contact reply:', {
+      error: errorMessage,
+      replyId: id,
+    });
+    return {
+      success: false,
+      error: `Failed to delete customer contact reply: ${errorMessage}`,
     };
   }
 }

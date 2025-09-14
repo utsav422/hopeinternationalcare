@@ -11,7 +11,7 @@ import SortingSelect from '@/components/Custom/sorting-select';
 import { UpcomingIntakesBanner } from '@/components/Custom/upcoming-intakes-banner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useGetPublicCourses } from '@/hooks/admin/public-courses';
+import { useGetPublicCourses } from '@/hooks/public/courses';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 
 export function AllCourses() {
@@ -92,7 +92,8 @@ export function AllCourses() {
                         <CourseCard
                             available_seats={course?.available_seats ?? null}
                             categoryName={course?.categoryName ?? null}
-                            desc={course?.description || ''}
+                            overview={course?.course_overview || ''}
+                            highlights={course?.course_highlights || ''}
                             image_url={course?.image_url || ''}
                             id={course?.id ?? ''}
                             key={course?.id}

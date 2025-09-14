@@ -25,33 +25,33 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
-import { useUpdateEnrollmentStatus } from '@/hooks/admin/enrollments';
+import { useAdminEnrollmentUpdateStatus } from '@/hooks/admin/enrollments';
 import {
-    useGetPaymentDetailsByEnrollmentId,
-    useUpsertPayment,
+    useAdminPaymentDetailsByEnrollmentId,
+    useAdminPaymentUpsert,
 } from '@/hooks/admin/payments';
-import { useUpsertRefund } from '@/hooks/admin/refunds';
+import { useAdminRefundUpsert } from '@/hooks/admin/refunds';
 
-export default function ({
-    setShowCancelModal,
+export default function CancelEnrollmentFormModal ({
+    setShowCancelModalAction,
     showCancelModal,
     selectedEnrollmentAndUserId: { enrollmentId, userId },
-    afterSubmit,
+    afterSubmitAction,
 }: {
-    setShowCancelModal: Dispatch<SetStateAction<boolean>>;
+    setShowCancelModalAction: Dispatch<SetStateAction<boolean>>;
     showCancelModal: boolean;
     selectedEnrollmentAndUserId: {
         enrollmentId: string | null;
         userId: string | null;
     };
-    afterSubmit: () => void;
+    afterSubmitAction: () => void;
 }) {
     const router = useRouter();
     const { data: paymentDetails, isPending: isPaymentDetailFetchPending } =
-        useGetPaymentDetailsByEnrollmentId(enrollmentId as string);
-    const { mutateAsync: updateEnrollmentStatus } = useUpdateEnrollmentStatus();
-    const { mutateAsync: upsertRefund } = useUpsertRefund();
-    const { mutateAsync: upsertPayment } = useUpsertPayment();
+        useAdminPaymentDetailsByEnrollmentId(enrollmentId as string);
+    const { mutateAsync: updateEnrollmentStatus } = useAdminEnrollmentUpdateStatus();
+    const { mutateAsync: upsertRefund } = useAdminRefundUpsert();
+    const { mutateAsync: upsertPayment } = useAdminPaymentUpsert();
 
     const [cancelledReason, setCancelledReason] = useState('');
     const [refund, setRefund] = useState<CheckedState>(false);
@@ -110,9 +110,9 @@ export default function ({
                                 );
                             }
                             router.refresh();
-                            setShowCancelModal(false);
+                            setShowCancelModalAction(false);
                             setCancelledReason('');
-                            afterSubmit();
+                            afterSubmitAction();
                             return 'Enrollment cancelled successfully!';
                         },
                         error: (error) => error instanceof Error ? error.message : 'Failed to cancel enrollment',
@@ -126,7 +126,7 @@ export default function ({
 
     return (
         <div>
-            <AlertDialog onOpenChange={setShowCancelModal} open={showCancelModal}>
+            <AlertDialog onOpenChange={setShowCancelModalAction} open={showCancelModal}>
                 <AlertDialogContent className="">
                     <AlertDialogHeader>
                         <AlertDialogTitle className="">

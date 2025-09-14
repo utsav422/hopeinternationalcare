@@ -5,57 +5,22 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1751355079487,
-      "tag": "0000_naive_rumiko_fujikawa",
+      "when": 1755767685877,
+      "tag": "0000_glorious_fabian_cortez",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1751443706288,
-      "tag": "0001_sturdy_madame_masque",
+      "when": 1756047644835,
+      "tag": "0001_goofy_viper",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
-      "when": 1751460466429,
-      "tag": "0002_curious_scarecrow",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1751981194193,
-      "tag": "0003_panoramic_micromax",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1752144331730,
-      "tag": "0004_acoustic_reptil",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1754035052178,
-      "tag": "0005_bent_purple_man",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1754239483846,
-      "tag": "0006_regular_the_hunter",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1755062749791,
-      "tag": "0007_jittery_randall_flagg",
+      "when": 1757862470875,
+      "tag": "0002_nebulous_cyclops",
       "breakpoints": true
     }
   ]

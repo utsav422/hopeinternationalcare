@@ -1,13 +1,15 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 import { queryKeys } from '@/lib/query-keys';
-import { getCachedPublicCourseBySlug, getCachedRelatedCourses, getPublicCourseBySlug, getRelatedCourses } from '@/lib/server-actions/public/courses';
+import { getCachedPublicCourseBySlug, getCachedRelatedCourses } from '@/lib/server-actions/public/courses';
 import { getQueryClient } from '@/utils/get-query-client';
 import CourseDetails from './_components';
 import { Suspense } from 'react';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
-import { getActiveIntakesByCourseId, getCachedCourseActiveIntakes } from '@/lib/server-actions/public/intakes';
+import { getCachedCourseActiveIntakes } from '@/lib/server-actions/public/intakes';
 import { notFound } from 'next/navigation';
+import { generateCourseMetadata } from '@/lib/seo/metadata';
+import { CourseStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
 
 interface CourseDetailPageProps {
     params: Promise<{ slug: string }>;
@@ -23,23 +25,8 @@ export async function generateMetadata(
     if (!courseData?.data) {
         return {};
     }
-    const course = courseData.data;
-    return {
-        title: `${course.title} | Hope International`,
-        description: course.description,
-        openGraph: {
-            title: `${course.title} | Hope International`,
-            description: course.description || '',
-            url: `https://hopeinternational.com.np/courses/${course.slug}`,
-            images: [
-                {
-                    url: course.image_url || '/opengraph-image.png',
-                    width: 1200,
-                    height: 630,
-                },
-            ],
-        },
-    };
+
+    return generateCourseMetadata(courseData.data);
 }
 
 export default async function CourseDetailPage({
@@ -74,13 +61,25 @@ export default async function CourseDetailPage({
             queryFn: async () => await getCachedRelatedCourses(id, category_id),
         }),
     ]);
+
+    // Breadcrumb data
+    const breadcrumbs = [
+        { name: 'Home', url: 'https://hopeinternational.com.np' },
+        { name: 'Courses', url: 'https://hopeinternational.com.np/courses' },
+        { name: courseResponse.data.title, url: `https://hopeinternational.com.np/courses/${slug}` },
+    ];
+
     return (
-        <HydrationBoundary state={dehydrate(queryClient)}>
-            <QueryErrorWrapper>
-                <Suspense fallback={<>Loading ...</>}>
-                    <CourseDetails />
-                </Suspense>
-            </QueryErrorWrapper>
-        </HydrationBoundary>
+        <>
+            <CourseStructuredData course={courseResponse.data} />
+            <BreadcrumbStructuredData items={breadcrumbs} />
+            <HydrationBoundary state={dehydrate(queryClient)}>
+                <QueryErrorWrapper>
+                    <Suspense fallback={<>Loading ...</>}>
+                        <CourseDetails />
+                    </Suspense>
+                </QueryErrorWrapper>
+            </HydrationBoundary>
+        </>
     );
 }

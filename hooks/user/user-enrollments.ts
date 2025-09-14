@@ -1,11 +1,7 @@
 'use client';
-import {
-    useMutation,
-    useQueryClient,
-    useSuspenseQuery,
-} from '@tanstack/react-query';
-import { createEnrollment } from '@/lib/server-actions/user/enrollments';
-import { queryKeys } from '../../lib/query-keys';
+import {useMutation, useQueryClient, useSuspenseQuery,} from '@tanstack/react-query';
+import {createEnrollment, getUserEnrollments} from '@/lib/server-actions/user/enrollments';
+import {queryKeys} from '../../lib/query-keys';
 
 export const useCreateEnrollment = () => {
     const queryClient = useQueryClient();
@@ -17,8 +13,8 @@ export const useCreateEnrollment = () => {
             }
             return result.data;
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.enrollments.all });
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({queryKey: queryKeys.enrollments.all});
         },
     });
 };
@@ -27,13 +23,7 @@ export const useGetUserEnrollments = () => {
     return useSuspenseQuery({
         queryKey: [queryKeys.enrollments.all],
         queryFn: async () => {
-
-
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user/enrollments`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch enrollments');
-            }
-            const result = await response.json();
+            const result = await getUserEnrollments();
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch enrollments');
             }

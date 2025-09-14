@@ -2,32 +2,21 @@ import type { Metadata } from 'next';
 import { ContactUs } from './contactus';
 import { ContactUsCard } from './contactus-card';
 import { ContactUsForm } from './contactus-form';
+import { generateMetadata as generateSEOMetadata, seoConfigs } from '@/lib/seo/metadata';
+import { ContactPageStructuredData } from '@/components/SEO/StructuredData';
 
-export const metadata: Metadata = {
-  title: 'Contact Us | Hope International',
-  description:
-    'Get in touch with Hope International. We are always available for your queries and feedbacks. Find our contact details and location here.',
-  openGraph: {
-    title: 'Contact Us | Hope International',
-    description:
-      'Get in touch with Hope International. We are always available for your queries and feedbacks. Find our contact details and location here.',
-    url: 'https://hopeinternational.com.np/contactus',
-    images: [
-      {
-        url: '/opengraph-image.png',
-        width: 1200,
-        height: 630,
-      },
-    ],
-  },
-};
+export const metadata: Metadata = generateSEOMetadata({
+    ...seoConfigs.contact,
+    canonical: 'https://hopeinternational.com.np/contactus',
+});
 
 export default function Contact() {
-  return (
-    <>
-      <ContactUs />
-      <ContactUsCard />
-      <ContactUsForm />
-    </>
-  );
+    return (
+        <>
+            <ContactPageStructuredData />
+            <ContactUs />
+            <ContactUsCard />
+            <ContactUsForm />
+        </>
+    );
 }

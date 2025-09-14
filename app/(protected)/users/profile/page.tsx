@@ -1,46 +1,35 @@
-'use client';
+import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
+import {Suspense} from 'react';
+import {queryKeys} from '@/lib/query-keys';
+import {requireUser} from '@/utils/auth-guard';
+import {getQueryClient} from '@/utils/get-query-client';
+import {QueryErrorWrapper} from '@/components/Custom/query-error-wrapper';
+import UserProfileComponent from './_components/user-profile';
+import {logger} from "@/utils/logger";
+import {redirect} from "next/navigation";
 
-import type { User } from '@supabase/supabase-js';
-import { useRouter } from 'next/navigation';
-import React from 'react';
-import { supabase } from '@/utils/supabase/client'; // Assuming this path for supabase client
+export default async function ProfilePage() {
+    const queryClient = getQueryClient();
 
-function ProfilePage() {
-  const router = useRouter();
-  const [user, setUser] = React.useState<User | null>(null);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        setUser(user);
-        setLoading(false);
-      } else {
-        router.push('/sign-in'); // Redirect to sign-in if not authenticated
-      }
-    };
-
-    checkUser();
-  }, [router]);
-
-  if (loading) {
-    return <div>Loading profile...</div>; // Or a more sophisticated loading spinner
-  }
-
-  if (!user) {
-    return null; // Should not happen due to redirect, but as a fallback
-  }
-
-  return (
-    <div className="my-16 ">
-      <h1>User Profile</h1>
-      <p>Welcome, {user.email}!</p>
-      {/* Add more profile details here */}
-    </div>
-  );
+    try {
+        const user = await requireUser();
+        await queryClient.prefetchQuery({
+            queryKey: queryKeys.users.session,
+            queryFn: () => Promise.resolve(user),
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            gcTime: 1000 * 60 * 60, // 1 hour
+        });
+    } catch (e) {
+        logger.error(e instanceof Error ? e?.message : 'Unknown error');
+        redirect('/sign-in?redirect=/users/enrollments');
+    }
+    return (
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <QueryErrorWrapper>
+                <Suspense fallback={<div>Loading profile...</div>}>
+                    <UserProfileComponent/>
+                </Suspense>
+            </QueryErrorWrapper>
+        </HydrationBoundary>
+    );
 }
-
-export default ProfilePage;

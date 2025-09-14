@@ -2,31 +2,31 @@
 
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { queryKeys } from '../../lib/query-keys';
-import { getActiveIntakesByCourseId } from '@/lib/server-actions/public/intakes';
+import {
+    getCachedCourseActiveIntakes,
+    getCachedAllIntakes,
+    getCachedUpcomingIntakes,
+    getCachedCourseIntakesBySlug,
+    getCachedIntakeById
+} from '@/lib/server-actions/public/intakes';
 
 export function useGetActiveIntakesByCourseId(courseId: string) {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.list({
             filters: [{ course_id: courseId }],
         }),
-        queryFn: async () => await getActiveIntakesByCourseId(courseId),
+        queryFn: async () => await getCachedCourseActiveIntakes(courseId),
         staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     },
 
     );
 }
-export function useGetAllIntakes() {
+export function useAdminIntakeListAll() {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.all,
         queryFn: async () => {
-
-
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/public/intakes?all=true`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch intakes');
-            }
-            const result = await response.json();
+            const result = await getCachedAllIntakes();
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch intakes');
             }
@@ -37,19 +37,11 @@ export function useGetAllIntakes() {
     });
 }
 
-export function useGetIntakeById(id: string) {
+export function useAdminIntakeDetailsById(id: string) {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.detail(id),
         queryFn: async () => {
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/public/intakes?intakeId=${id}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch intake');
-            }
-            const result = await response.json();
+            const result = await getCachedIntakeById(id);
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch intake');
             }
@@ -64,15 +56,7 @@ export function useGetUpcomingIntakes() {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.upCommingIntakes,
         queryFn: async () => {
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/public/intakes?upcoming=true`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch upcoming intakes');
-            }
-            const result = await response.json();
+            const result = await getCachedUpcomingIntakes();
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch upcoming intakes');
             }
@@ -87,15 +71,7 @@ export function useGetCourseIntakesBySlug(slug: string) {
     return useSuspenseQuery({
         queryKey: queryKeys.intakes.detail(slug),
         queryFn: async () => {
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/public/intakes?slug=${slug}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch intakes');
-            }
-            const result = await response.json();
+            const result = await getCachedCourseIntakesBySlug(slug);
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch intakes');
             }

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Image from 'next/image';
+import Image from "next/image";
 import Link from 'next/link';
 import { useInView } from 'react-intersection-observer';
 
@@ -94,12 +94,14 @@ export function OurCoursesOverview() {
                             variants={itemVariants}
                         >
                             <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-teal-500 shadow-lg transition-transform duration-300 group-hover:scale-110 sm:h-32 sm:w-32 md:h-40 md:w-40 dark:border-teal-400">
-                                <Image unoptimized={true}
+                                <Image
                                     alt={`${title} course image`}
-                                    fill
-                                    objectFit="cover"
+                                    className="absolute inset-0 h-full w-full object-cover"
+                                    width={160}
+                                    height={160}
                                     sizes="(max-width: 640px) 96px, (max-width: 768px) 128px, (max-width: 1024px) 160px, 160px"
                                     src={image}
+                                    unoptimized={true}
                                 />
                             </div>
                             <h3 className="mt-3 font-bold text-xs text-gray-800 transition-colors duration-300 group-hover:text-teal-600 sm:mt-4 sm:text-sm md:text-base dark:text-gray-200 dark:group-hover:text-teal-400">

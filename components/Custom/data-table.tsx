@@ -39,6 +39,7 @@ import {
 import { Button } from '../ui/button';
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar } from './data-table-toolbar';
+import { safeJsonParse } from '@/lib/utils';
 
 /**
  * Base properties for the DataTable component.
@@ -118,15 +119,7 @@ export function DataTable<TData, TValue>({
         defaultValue: 'desc', // Default sort order
     });
     const [queryFilters, setQueryFilters] = useQueryState('filters', {
-        parse: (value) => {
-            try {
-                return JSON.parse(value); // Parse filters from JSON string
-            } catch {
-                // Log error for debugging, but avoid console.error in production
-                // console.error('Failed to parse filters from URL:', error);
-                return []; // Return empty array on parsing error
-            }
-        },
+        parse: safeJsonParse,
         serialize: (value) => JSON.stringify(value), // Serialize filters to JSON string
     });
 
@@ -167,9 +160,7 @@ export function DataTable<TData, TValue>({
         const newPagination =
             typeof updater === 'function' ? updater(pagination) : updater;
         setQueryPage(newPagination.pageIndex + 1); // Convert to 1-indexed for URL
-        setQueryPageSize(newPagination.pageSize, {
-            shallow: false,
-        });
+        setQueryPageSize(newPagination.pageSize);
     };
 
     const onSortingChange = (updater: Updater<SortingState>) => {
@@ -177,14 +168,10 @@ export function DataTable<TData, TValue>({
             typeof updater === 'function' ? updater(sorting) : updater;
         if (newSorting.length > 0) {
             setQuerySortBy(newSorting[0].id);
-            setQueryOrder(newSorting[0].desc ? 'desc' : 'asc', {
-                shallow: false,
-            });
+            setQueryOrder(newSorting[0].desc ? 'desc' : 'asc');
         } else {
             setQuerySortBy('created_at'); // Default sort column
-            setQueryOrder('desc', {
-                shallow: false,
-            }); // Default sort order
+            setQueryOrder('desc'); // Default sort order
         }
     };
 
@@ -192,19 +179,13 @@ export function DataTable<TData, TValue>({
         const newFilters =
             typeof updater === 'function' ? updater(columnFilters) : updater;
         if (newFilters.length > 0) {
-            setQueryFilters(newFilters, {
-                shallow: false,
-            });
+            setQueryFilters(newFilters);
         } else {
-            setQueryFilters(null, {
-                shallow: false,
-            }); // Clear filters if no filters are active
+            setQueryFilters(null); // Clear filters if no filters are active
         }
         // Clear the old 'search' query parameter if filters are now being used
         if (queryFilterSearch) {
-            setQueryFilterSearch(null, {
-                shallow: false,
-            });
+            setQueryFilterSearch(null);
         }
     };
 
@@ -347,14 +328,14 @@ export function DataTable<TData, TValue>({
                             ))
                         ) : (
                             // Display "No results." if no data
-                            <TableRow>
+                            (<TableRow>
                                 <TableCell
                                     className="h-24 text-center"
                                     colSpan={columns.length}
                                 >
                                     No results.
                                 </TableCell>
-                            </TableRow>
+                            </TableRow>)
                         )}
                     </TableBody>
                 </Table>

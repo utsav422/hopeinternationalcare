@@ -189,9 +189,7 @@ export function DataTableToolbar<TData>({
                             onValueChange={(values) => {
                                 table?.getColumn('status')?.setFilterValue(values);
                             }} onClearCallback={() => {
-                                _setQueryFilterSearch(null, {
-                                    shallow: false,
-                                });
+                                _setQueryFilterSearch(null);
                                 table?.resetColumnFilters();
                             }}
                             options={status}
@@ -210,9 +208,7 @@ export function DataTableToolbar<TData>({
                                 table?.getColumn('method')?.setFilterValue(values);
                             }}
                             onClearCallback={() => {
-                                _setQueryFilterSearch(null, {
-                                    shallow: false,
-                                });
+                                _setQueryFilterSearch(null);
                                 table?.resetColumnFilters();
                             }}
                             options={methods}
@@ -227,9 +223,7 @@ export function DataTableToolbar<TData>({
                 {availableColumnIds.includes('duration_type') &&
                     table?.getColumn('duration_type') && (
                         <MultiSelectFilter onClearCallback={() => {
-                            _setQueryFilterSearch(null, {
-                                shallow: false,
-                            });
+                            _setQueryFilterSearch(null);
                             table?.resetColumnFilters();
                         }}
                             onValueChange={(values) => {
@@ -250,9 +244,7 @@ export function DataTableToolbar<TData>({
                     <Button
                         className="h-8 px-2 lg:px-3"
                         onClick={() => {
-                            _setQueryFilterSearch(null, {
-                                shallow: false,
-                            });
+                            _setQueryFilterSearch(null);
                             table?.resetColumnFilters();
                         }}
                         variant="ghost"

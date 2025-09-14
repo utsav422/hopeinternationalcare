@@ -7,7 +7,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useGetAllIntakes } from '@/hooks/public/intakes';
+import { useAdminIntakeListAll } from '@/hooks/public/intakes';
 
 interface Intake {
     id: string;
@@ -27,7 +27,7 @@ interface IntakeFilterProps {
 }
 
 export default function IntakeFilter({ value, onChange }: IntakeFilterProps) {
-    const { data: queryResult } = useGetAllIntakes();
+    const { data: queryResult } = useAdminIntakeListAll();
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Set to start of today for comparison
     const intakes = queryResult?.data;

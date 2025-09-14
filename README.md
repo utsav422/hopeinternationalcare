@@ -1,104 +1,131 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
+<a href="https://hopeinternational.com.np/">
+  <img alt="Hope International - Aged Care Training Center" src="/opengraph-image.png">
+  <h1 align="center">Hope International Website</h1>
 </a>
 
 <p align="center">
- The fastest way to build apps with Next.js and Supabase
+  Educational institution website for Hope International in Nepal
 </p>
 
 <p align="center">
   <a href="#features"><strong>Features</strong></a> ·
   <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
+  <a href="#setup"><strong>Setup</strong></a> ·
+  <a href="#development"><strong>Development</strong></a> ·
+  <a href="#deployment"><strong>Deployment</strong></a>
 </p>
 <br/>
 
 ## Features
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+- Next.js 15 with App Router
+- Supabase Auth with cookie-based session management
+- Supabase (PostgreSQL) with Drizzle ORM for migrations
+- Tailwind CSS with shadcn/ui components
+- React Query (TanStack Query) for server state management
+- React Hook Form with Zod validation
+- SEO optimization with structured data
+- Responsive design for all device sizes
+
+### Key Functionality
+
+1. **Public Website**:
+   - Homepage with hero section, services, courses overview
+   - Course catalog with detailed pages
+   - Contact forms and request handling
+   - SEO optimization with structured data
+
+2. **Authentication System**:
+   - Separate authentication flows for users and administrators
+   - Role-based access control (authenticated users vs service_role admins)
+   - Password reset and setup functionality
+
+3. **Admin Panel**:
+   - Course management (categories, courses, affiliations, intakes)
+   - Enrollment and payment tracking
+   - Customer contact request management
+   - User profile management
+   - Affiliation management system
+
+4. **User Portal**:
+   - Profile management
+   - Enrollment tracking
+   - Payment history
 
 ## Demo
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+You can view a fully working demo at [hopeinternational.com.np](https://hopeinternational.com.np/).
 
-## Deploy to Vercel
-
-Vercel deployment will guide you through creating a Supabase account and project.
-
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
-
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
-
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
-
-## Clone and run locally
+## Setup
 
 1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
 
-2. Create a Next.js app using the Supabase Starter template npx command
+2. Clone the repository:
 
    ```bash
-   npx create-next-app --example with-supabase with-supabase-app
+   git clone <repository-url>
+   cd hope-international
    ```
+
+3. Run the initialization script:
 
    ```bash
-   yarn create next-app --example with-supabase with-supabase-app
+   ./init
    ```
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+   This script will:
+   - Install all dependencies
+   - Set up environment variables
+   - Generate Supabase types
+   - Run database migrations
+   - Seed the database
+   - Run type checking and linting
 
-3. Use `cd` to change into the app's directory
+4. Update `.env.local` with your configuration values
 
-   ```bash
-   cd with-supabase-app
-   ```
+## Development
 
-4. Rename `.env.example` to `.env.local` and update the following:
+To run the development server:
 
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
-   ```
+```bash
+npm run dev
+```
 
-   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` can be found in [your Supabase project's API settings](https://app.supabase.com/project/_/settings/api)
+The application will be running on [localhost:3000](http://localhost:3000/).
 
-5. You can now run the Next.js local development server:
+### Development Commands
 
-   ```bash
-   npm run dev
-   ```
+```bash
+# Install dependencies
+npm install
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+# Run development server
+npm run dev
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+# Build for production
+npm run build
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+# Run linting
+npm run lint
 
-## Feedback and issues
+# Generate Supabase types
+npm run generate-types
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+# Seed database
+npm run db:seed
 
-## More Supabase examples
+# Run type checking
+npx tsc --noEmit
+```
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+## Deployment
+
+The application is designed for deployment on Vercel with Supabase integration. The Vercel deployment automatically configures environment variables from the Supabase project.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsaugatdev%2Fhope-international&project-name=hope-international&repository-name=hope-international)
+
+## More Information
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Supabase Documentation](https://supabase.com/docs)
+- [Drizzle ORM Documentation](https://orm.drizzle.team/docs/overview)

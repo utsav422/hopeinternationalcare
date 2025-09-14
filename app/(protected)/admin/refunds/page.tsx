@@ -1,64 +1,68 @@
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { Suspense } from 'react';
+import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
+import {Suspense} from 'react';
 import RefundsTable from '@/components/Admin/Refunds/refunds-table';
-import { queryKeys } from '@/lib/query-keys';
-import { adminGetRefunds } from '@/lib/server-actions/admin/refunds';
-import { requireAdmin } from '@/utils/auth-guard';
-import { getQueryClient } from '@/utils/get-query-client';
-import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
+import {queryKeys} from '@/lib/query-keys';
+import {adminRefundList} from '@/lib/server-actions/admin/refunds';
+import {requireAdmin} from '@/utils/auth-guard';
+import {getQueryClient} from '@/utils/get-query-client';
+import {QueryErrorWrapper} from '@/components/Custom/query-error-wrapper';
+import {ZodAdminCourseCategoryQuerySchema, ZodAdminRefundQueryType} from '@/lib/db/drizzle-zod-schema';
+import {normalizeProps} from "@/lib/normalizeProps";
+import {redirect} from "next/navigation";
+import {IdParams, IdParamsSchema} from "@/lib/types/shared";
 
-type Params = Promise<{ id: string }>;
-type SearchParams = Promise<{
-    page?: string;
-    pageSize?: string;
-    sortBy?: string;
-    order?: string;
-    filters?: string;
-    [key: string]: string | string[] | undefined;
-}>;
-
-export default async function RefundsPage(props: {
-    params: Params;
-    searchParams: SearchParams;
+export default async function RefundsPage({params: promisedParams, searchParams: promisedSearchParams}: {
+    params: Promise<IdParams>
+    searchParams: Promise<ZodAdminRefundQueryType>
 }) {
-    await requireAdmin();
-    const searchParams = await props.searchParams;
-
-    const page =
-        typeof searchParams.page === 'string' ? Number(searchParams.page) : 1;
-    const pageSize =
-        typeof searchParams.pageSize === 'string'
-            ? Number(searchParams.pageSize)
-            : 10;
-    const search =
-        typeof searchParams.search === 'string' ? searchParams.search : undefined;
-    const status =
-        typeof searchParams.status === 'string' ? searchParams.status : undefined;
+    // Await the promised params and searchParams
+    const _params = await promisedParams;
+    const searchParams = await promisedSearchParams;
+    // Validate and normalize the props
+    const {
+        params: validatedParams,
+        searchParams: validatedSearchParams
+    } = await normalizeProps(IdParamsSchema, ZodAdminCourseCategoryQuerySchema, _params, searchParams);
 
     const queryClient = getQueryClient();
-    await queryClient.prefetchQuery({
-        queryKey: queryKeys.refunds.list({
+    try {
+        await requireAdmin();
+        const {
             page,
             pageSize,
-            search,
-            status,
-        }),
-        queryFn: async () =>
-            await adminGetRefunds({
+            sortBy,
+            order,
+            filters,
+        } = validatedSearchParams;
+        await queryClient.prefetchQuery({
+            queryKey: queryKeys.refunds.list({
                 page,
                 pageSize,
-                search,
-                status,
+                sortBy,
+                order,
+                filters,
             }),
-    });
+            queryFn: async () =>
+                await adminRefundList({
+                    page: Number(page),
+                    pageSize: Number(pageSize),
+                    sortBy,
+                    order,
+                    filters,
+                }),
+        });
+    } catch (error) {
+        redirect('/admin-auth/sign-in?redirect=/admin/categories')
+    }
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
             <QueryErrorWrapper>
                 <Suspense fallback="Loading...">
-                    <RefundsTable />
+                    <RefundsTable/>
                 </Suspense>
             </QueryErrorWrapper>
         </HydrationBoundary>
     );
 }
+

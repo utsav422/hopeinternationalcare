@@ -1,19 +1,13 @@
 'use client';
 import type { User } from '@supabase/supabase-js';
 import type { ColumnDef, Row } from '@tanstack/react-table';
-import { MoreHorizontal, X } from 'lucide-react';
+import { MoreHorizontal, Trash2, UserX, X } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import Link from 'next/link';
 // import { useSearchParams } from 'next/navigation';
 import { DataTable } from '@/components/Custom/data-table';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogContent,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
@@ -23,41 +17,87 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
-import { useDeleteUser, useGetUsers } from '@/hooks/admin/users';
+import { useAdminUserList } from '@/hooks/admin/users';
 import InviteUserForm from './invite-user-form';
+import DeleteUserModal from './delete-user-modal';
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTrigger } from '@/components/ui/dialog';
+import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
+import { useDeleteUser } from '@/hooks/admin/user-deletion';
+import type { ZodUserDeletionType } from '@/lib/db/drizzle-zod-schema';
+import {profiles} from "@/lib/db/schema";
+import {ResetIcon} from "@radix-ui/react-icons";
 
+// Create a form-specific type that makes send_email_notification required
+type FormUserDeletionType = Omit<ZodUserDeletionType, 'send_email_notification'> & {
+    send_email_notification: boolean;
+};
+interface UserListProps extends User{
+    id: string,
+    full_name: string,
+    email: string,
+    phone: string,
+    role: string,
+    created_at: string,
+    updated_at: string,
+}
 export default function UsersTables() {
     const { page, pageSize, filters } = useDataTableQueryState();
-    const [inviteUserAlert, setInviteUserAlert] = useState(false);
-    const { data: queryResult } = useGetUsers(page, pageSize);
+
+    const [inviteUserDialog, setInviteUserDialog] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<{ id: string; full_name: string; email: string } | null>(null);
+    const { data: queryResult } = useAdminUserList(page, pageSize);
     const data = queryResult?.data?.users;
     const total = queryResult?.data?.total ?? 0;
-    const { mutateAsync: deleteUser } = useDeleteUser();
+    const {mutateAsync: deleteUserAsync} = useDeleteUser()
+    const handleSoftDelete = async (data: FormUserDeletionType) => {
+        try {
+            toast.promise(deleteUserAsync(data),{
+                loading: 'Processing Delete Action',
+                success: async ( result)=>{
+                    if (result.success) {
+                        return (result.message);
+                    } else {
+                        throw new Error(result.message || 'Failed to delete user');
+                    }
+                },
+                error:(error: Error) => {
+                    return error.message || 'Failed to delete user';
+                },
 
-    const handleDelete = async (id: string) => {
-         toast.promise(deleteUser(id), {
-            loading: 'Deleting user...',
-            success: 'User deleted successfully',
-            error: (error) => error instanceof Error ? error.message : 'Failed to delete user',
-        });
+            });
+
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Failed to delete user');
+        }
     };
-    const columns: ColumnDef<User>[] = [
+    const handleDeleteClick = (user: UserListProps) => {
+        setSelectedUser({
+            id: user.id,
+            full_name: user.user_metadata?.full_name || user.email || 'Unknown User',
+            email: user.email || '',
+        });
+        setShowDeleteModal(true);
+    };
+    const columns: ColumnDef<UserListProps>[] = [
         {
             accessorKey: 'id',
             header: () => <div className="">User ID</div>,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: Row<UserListProps> }) => (
                 <div className="dark:text-gray-300">{row.getValue('id')}</div>
             ),
+            enableColumnFilter:false,
+            enableSorting:false,
+            size:12,
             enableHiding: true,
         },
         {
             accessorKey: 'fullName',
             header: () => <div className="">Full name</div>,
-            cell: (props) => {
+            cell: ({ row }: { row: Row<UserListProps> }) => {
                 return (
                     <div className="dark:text-gray-300">
-                        {props.row.original.user_metadata?.display_name ??
-                            props.row.original.user_metadata?.full_name}
+                        {row.original.full_name}
                     </div>
                 );
             },
@@ -65,26 +105,35 @@ export default function UsersTables() {
         {
             accessorKey: 'email',
             header: () => <div className="">Email</div>,
-            cell: (props) => {
+            cell: ({ row }: { row: Row<UserListProps> }) => {
                 return (
-                    <div className="dark:text-gray-300">{props.row.original.email}</div>
+                    <div className="dark:text-gray-300">{row.original.email}</div>
                 );
             },
         },
         {
             accessorKey: 'phone',
             header: () => <div className="">Phone</div>,
-            cell: (props) => {
+            cell: ({ row }: { row: Row<UserListProps> }) => {
                 return (
-                    <div className="dark:text-gray-300">{props.row.original.phone}</div>
+                    <div className="dark:text-gray-300">{row.original.phone}</div>
                 );
             },
         },
-
+        {
+            accessorKey: 'Email Confirmed',
+            header: () => <div className="">Email Confirmed At</div>,
+            cell: ({ row }: { row: Row<UserListProps> }) => {
+                const date = row.original.email_confirmed_at ? new Date(row.original.email_confirmed_at): 'Not Confirmed';
+                return (
+                    <div className="dark:text-gray-300">{date === 'Not Confirmed' ? date: date.toLocaleDateString()}</div>
+                );
+            },
+        },
         {
             accessorKey: 'created_at',
             header: () => <div className="">Created At</div>,
-            cell: ({ row }: { row: Row<User> }) => {
+            cell: ({ row }: { row: Row<UserListProps> }) => {
                 const date = new Date(row.getValue('created_at'));
                 return (
                     <div className="dark:text-gray-300">{date.toLocaleDateString()}</div>
@@ -94,7 +143,7 @@ export default function UsersTables() {
         {
             accessorKey: 'action',
             header: () => <div className="">Action</div>,
-            cell({ row }: { row: Row<User> }) {
+            cell({ row }: { row: Row<UserListProps> }) {
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -105,29 +154,36 @@ export default function UsersTables() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className=""
                         >
-                            <DropdownMenuItem
-                                className="dark:text-red-500 dark:hover:bg-gray-700"
-                                onClick={() => handleDelete(row.original.id)}
+                            {/*<DropdownMenuItem*/}
+                            {/*    className="text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"*/}
+                            {/*    onClick={() => handleDeleteClick(row.original)}*/}
+                            {/*>*/}
+                            {/*    <Trash2 className="h-4 w-4 mr-2" />*/}
+                            {/*    Delete User*/}
+                            {/*</DropdownMenuItem>*/}
+
+                            {!row.original.email_confirmed_at ? <DropdownMenuItem
+                                onClick={() => handleDeleteClick(row.original)}
                             >
-                                Delete
-                            </DropdownMenuItem>
+                                <ResetIcon className="h-4 w-4 mr-2"/>
+                                Resend the Invite Link
+                            </DropdownMenuItem>:'No Action Available'}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 );
             },
         },
     ];
-    let filtersUserData: User[] = [];
+    let filtersUserData: any[] = [];
     if (data && total > 0) {
         filtersUserData =
             data?.filter(
-                (user: User) => user.role?.toLocaleLowerCase() === 'authenticated'
+                (user: any) => user.role?.toLocaleLowerCase() === 'authenticated'
             ) ?? [];
     }
     if (data && filters && filters.length > 0) {
-        filtersUserData = data?.filter((user: User) => {
+        filtersUserData = data?.filter((user: any) => {
             for (const filter of filters) {
                 if (filter.id === 'email') {
                     const filterValue = String(filter.value).toLowerCase();
@@ -143,45 +199,72 @@ export default function UsersTables() {
         <Card >
             <CardHeader />
             <CardContent>
-                <DataTable<User, unknown>
+                <DataTable<any, unknown>
                     columns={columns}
                     data={filtersUserData ?? []}
                     headerActionNode={
-                        <AlertDialog
-                            onOpenChange={setInviteUserAlert}
-                            open={inviteUserAlert}
-                        >
-                            <AlertDialogTrigger asChild>
-                                <AlertDialogAction
-
-                                    onClick={() => setInviteUserAlert(true)}
-                                >
-                                    Invite A User
-                                </AlertDialogAction>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent
-
-                                onCloseAutoFocus={() => setInviteUserAlert(false)}
+                        <div className="flex gap-2">
+                            {/*<Link href="/admin/users/deleted">*/}
+                            {/*    <Button variant="outline" className="flex items-center gap-2">*/}
+                            {/*        <UserX className="h-4 w-4" />*/}
+                            {/*        View Deleted Users*/}
+                            {/*    </Button>*/}
+                            {/*</Link>*/}
+                            <Dialog
+                                onOpenChange={setInviteUserDialog}
+                                open={inviteUserDialog}
                             >
-                                <AlertDialogHeader className="flex flex-row items-center justify-between">
-                                    <AlertDialogTitle className="">
-                                        Invite a user with email
-                                    </AlertDialogTitle>
-                                    <AlertDialogAction
-                                        className="size-8 bg-background "
-                                        onClick={() => setInviteUserAlert(false)}
-                                        title="close this invite form"
+                                <DialogTrigger asChild>
+                                    <Button
+                                        className="bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-700"
+                                        onClick={() => setInviteUserDialog(true)}
                                     >
-                                        <X />
-                                    </AlertDialogAction>
-                                </AlertDialogHeader>
-                                <InviteUserForm />
-                            </AlertDialogContent>
-                        </AlertDialog>
+                                        Invite A User
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent
+                                    showCloseButton={false}
+                                    onCloseAutoFocus={() => setInviteUserDialog(false)}
+                                >
+                                    <DialogHeader className="flex flex-row items-start justify-between">
+                                        <div className="flex flex-col gap-2">
+                                            <DialogTitle className="">
+                                                Invite New User Dialog
+                                            </DialogTitle>
+                                            <DialogDescription className='text-sm text-muted-foreground'>
+                                                Send an invitation email to a new user to join the Hope International platform. They will receive an email with instructions to set up their account.
+                                            </DialogDescription>
+                                        </div>
+                                        <DialogClose
+                                            className="size-8 hover:bg-destructive/90 px-1 transition-colors hover:text-shadow-white text-center align-middle"
+                                            onClick={() => setInviteUserDialog(false)}
+                                            title="close this invite form"
+                                        >
+                                            <X />
+                                        </DialogClose>
+                                    </DialogHeader>
+                                    <hr />
+                                    <InviteUserForm onFinishCallback={()=> {
+                                        setInviteUserDialog(false)
+                                    }}/>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
                     }
                     title="User Management"
                     total={total}
                 />
+
+                {/* Delete User Modal */}
+                {/*<DeleteUserModal*/}
+                {/*    isOpen={showDeleteModal}*/}
+                {/*    onClose={() => {*/}
+                {/*        setShowDeleteModal(false);*/}
+                {/*        setSelectedUser(null);*/}
+                {/*    }}*/}
+                {/*    user={selectedUser}*/}
+                {/*    onDelete={handleSoftDelete}*/}
+                {/*/>*/}
             </CardContent>
         </Card>
     );

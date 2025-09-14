@@ -19,11 +19,7 @@ export const userDeletionHistory = pgTable(
             .notNull()
             .references(() => authUsers.id),
         deleted_at: timestamp('deleted_at', { mode: 'string', withTimezone: true }).notNull(),
-        deleted_by: uuid('deleted_by')
-            .notNull()
-            .references(() => authUsers.id),
         restored_at: timestamp('restored_at', { mode: 'string', withTimezone: true }),
-        restored_by: uuid('restored_by').references(() => authUsers.id),
         deletion_reason: text('deletion_reason').notNull(),
         scheduled_deletion_date: timestamp('scheduled_deletion_date', { mode: 'string', withTimezone: true }),
         email_notification_sent: boolean('email_notification_sent').notNull().default(false),
@@ -50,13 +46,5 @@ export const userDeletionHistoryRelations = relations(userDeletionHistory, ({ on
     user: one(authUsers, {
         fields: [userDeletionHistory.user_id],
         references: [authUsers.id],
-    }),
-    deletedBy: one(authUsers, {
-        fields: [userDeletionHistory.deleted_by],
-        references: [authUsers.id],
-    }),
-    restoredBy: one(authUsers, {
-        fields: [userDeletionHistory.restored_by],
-        references: [authUsers.id],
-    }),
+    })
 }));

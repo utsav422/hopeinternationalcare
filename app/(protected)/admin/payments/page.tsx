@@ -1,58 +1,70 @@
 'use server';
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { Suspense } from 'react';
+import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
+import {Suspense} from 'react';
 import PaymentsTables from '@/components/Admin/Payments/payments-tables';
-import type { TypePaymentStatus } from '@/lib/db/schema/enums';
-import { queryKeys } from '@/lib/query-keys';
-import { getCachedAdminPayments } from '@/lib/server-actions/admin/payments';
-import { requireAdmin } from '@/utils/auth-guard';
-import { getQueryClient } from '@/utils/get-query-client';
-import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
+import {queryKeys} from '@/lib/query-keys';
+import {cachedAdminPaymentList} from '@/lib/server-actions/admin/payments';
+import {requireAdmin} from '@/utils/auth-guard';
+import {getQueryClient} from '@/utils/get-query-client';
+import {QueryErrorWrapper} from '@/components/Custom/query-error-wrapper';
+import {ZodAdminPaymentQuerySchema, ZodAdminPaymentQueryType} from '@/lib/db/drizzle-zod-schema';
+import {normalizeProps} from "@/lib/normalizeProps";
+import {redirect} from "next/navigation";
+import {IdParamsSchema} from "@/lib/types/shared";
 
-type Params = Promise<{ id: string }>;
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
-
-export default async function (props: {
-    params: Params;
-    searchParams: SearchParams;
+export default async function PaymentsPage({params: promisedParams, searchParams: promisedSearchParams}: {
+    params: Promise<{}>;
+    searchParams: Promise<ZodAdminPaymentQueryType>
 }) {
-    await requireAdmin();
-    const searchParams = await props.searchParams;
-    const page =
-        typeof searchParams.page === 'string' ? Number(searchParams.page) : 1;
-    const pageSize =
-        typeof searchParams.pageSize === 'string'
-            ? Number(searchParams.pageSize)
-            : 10;
-    const search =
-        typeof searchParams.search === 'string' ? searchParams.search : undefined;
-    const status =
-        typeof searchParams.status === 'string' ? searchParams.status : undefined;
+// Await the promised params and searchParams
+    const _params = await promisedParams;
+    const searchParams = await promisedSearchParams;
+    // Validate and normalize the props
+    const {
+        params: validatedParams,
+        searchParams: validatedSearchParams
+    } = await normalizeProps(IdParamsSchema, ZodAdminPaymentQuerySchema, _params, searchParams);
 
     const queryClient = getQueryClient();
-    queryClient.prefetchQuery({
-        queryKey: queryKeys.payments.list({
+    try {
+        await requireAdmin();
+        const {
             page,
             pageSize,
-            search,
-            status: status as TypePaymentStatus | undefined,
-        }),
-        queryFn: async () =>
-            await getCachedAdminPayments({
+            sortBy,
+            order,
+            filters,
+        } = validatedSearchParams;
+
+        await queryClient.prefetchQuery({
+            queryKey: queryKeys.payments.list({
                 page,
                 pageSize,
-                search,
-                status: status as TypePaymentStatus | undefined,
+                sortBy,
+                order,
+                filters,
             }),
-    });
+            queryFn: async () =>
+                await cachedAdminPaymentList({
+                    page: Number(page),
+                    pageSize: Number(pageSize),
+                    sortBy,
+                    order,
+                    filters,
+                }),
+        });
+    } catch (error) {
+        redirect('/admin-auth/sign-in?redirect=/admin/categories')
+    }
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
             <QueryErrorWrapper>
                 <Suspense fallback="Loading...">
-                    <PaymentsTables />
+                    <PaymentsTables/>
                 </Suspense>
             </QueryErrorWrapper>
         </HydrationBoundary>
     );
 }
+

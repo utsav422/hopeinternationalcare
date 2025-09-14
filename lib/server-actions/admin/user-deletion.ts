@@ -1,20 +1,23 @@
 'use server';
 
-import { and, desc, eq, gte, ilike, isNull, lte, or, sql } from 'drizzle-orm';
-import { revalidatePath } from 'next/cache';
-import { db } from '@/lib/db/drizzle';
-import { profiles, userDeletionHistory } from '@/lib/db/schema';
+import {and, desc, eq, ilike, isNull, or, sql} from 'drizzle-orm';
+import {revalidatePath} from 'next/cache';
+import {db} from '@/lib/db/drizzle';
+import {profiles, userDeletionHistory} from '@/lib/db/schema';
 import {
     ZodCancelScheduledDeletionSchema,
     ZodDeletedUsersQuerySchema,
     ZodUserDeletionHistoryQuerySchema,
     ZodUserDeletionSchema,
     ZodUserRestorationSchema,
-    type ZodDeletedUsersQueryType,
 } from '@/lib/db/drizzle-zod-schema';
-import { sendUserDeletionNotification, sendScheduledDeletionWarning, sendRestorationConfirmation } from '@/lib/email/resend';
-import { requireAdmin } from '@/utils/auth-guard';
-import { logger } from '@/utils/logger';
+import {
+    sendRestorationConfirmation,
+    sendScheduledDeletionWarning,
+    sendUserDeletionNotification
+} from '@/lib/email/resend';
+import {requireAdmin} from '@/utils/auth-guard';
+import {logger} from '@/utils/logger';
 
 const MAX_USER_RESTORATIONS = parseInt(process.env.MAX_USER_RESTORATIONS || '3');
 
@@ -38,7 +41,7 @@ export async function softDeleteUserAction(formData: FormData) {
             };
         }
 
-        const { user_id, deletion_reason, scheduled_deletion_date, send_email_notification } = parsed.data;
+        const {user_id, deletion_reason, scheduled_deletion_date, send_email_notification} = parsed.data;
 
         // Prevent self-deletion
         if (user_id === adminUser.user.id) {
@@ -48,7 +51,7 @@ export async function softDeleteUserAction(formData: FormData) {
             };
         }
 
-        // Check if user exists and is not already deleted
+        // Check if a user exists and is not yet deleted
         const existingUser = await db
             .select()
             .from(profiles)
@@ -66,10 +69,17 @@ export async function softDeleteUserAction(formData: FormData) {
         const now = new Date().toISOString();
         const deletionDate = scheduled_deletion_date || now;
         const isScheduled = scheduled_deletion_date && new Date(scheduled_deletion_date) > new Date();
+        // Extract function: consistent Nepal time formatting
+        const toNepalTime = (iso: string) =>
+            new Date(iso).toLocaleString('en-US', {timeZone: 'Asia/Kathmandu'});
+
+        // Introduce constant: clarify increment intent for deletion_count
+        const incrementDeletionCount = sql`${profiles.deletion_count}
+        + 1`;
 
         // Start transaction
         await db.transaction(async (tx) => {
-            // Update user profile with deletion info
+            // Update a user profile with deletion info
             if (isScheduled) {
                 await tx
                     .update(profiles)
@@ -83,7 +93,7 @@ export async function softDeleteUserAction(formData: FormData) {
                     .update(profiles)
                     .set({
                         deleted_at: now,
-                        deletion_count: sql`${profiles.deletion_count} + 1`,
+                        deletion_count: incrementDeletionCount,
                         updated_at: now,
                     })
                     .where(eq(profiles.id, user_id));
@@ -93,7 +103,6 @@ export async function softDeleteUserAction(formData: FormData) {
             await tx.insert(userDeletionHistory).values({
                 user_id,
                 deleted_at: now,
-                deleted_by: adminUser.user.id,
                 deletion_reason,
                 scheduled_deletion_date: isScheduled ? deletionDate : null,
                 email_notification_sent: false,
@@ -106,14 +115,14 @@ export async function softDeleteUserAction(formData: FormData) {
                 if (isScheduled) {
                     await sendScheduledDeletionWarning(user.email, {
                         userName: user.full_name,
-                        scheduledDate: new Date(deletionDate).toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' }),
+                        scheduledDate: toNepalTime(deletionDate),
                         reason: deletion_reason,
                         contactEmail: 'info@hopeinternational.com.np',
                     });
                 } else {
                     await sendUserDeletionNotification(user.email, {
                         userName: user.full_name,
-                        deletionDate: new Date(now).toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' }),
+                        deletionDate: toNepalTime(now),
                         reason: deletion_reason,
                         contactEmail: 'info@hopeinternational.com.np',
                     });
@@ -122,13 +131,12 @@ export async function softDeleteUserAction(formData: FormData) {
                 // Update email notification status
                 await db
                     .update(userDeletionHistory)
-                    .set({ email_notification_sent: true })
-                    .where(and(
+                    .set({email_notification_sent: true})
+                    .where(
                         eq(userDeletionHistory.user_id, user_id),
-                        eq(userDeletionHistory.deleted_by, adminUser.user.id)
-                    ));
+                    );
             } catch (emailError) {
-                logger.error('Failed to send deletion notification email', { error: emailError, user_id });
+                logger.error('Failed to send deletion notification email', {error: emailError, user_id});
             }
         }
 
@@ -138,12 +146,12 @@ export async function softDeleteUserAction(formData: FormData) {
         return {
             success: true,
             message: isScheduled
-                ? `User deletion scheduled for ${new Date(deletionDate).toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' })}`
+                ? `User deletion scheduled for ${new Date(deletionDate).toLocaleString('en-US', {timeZone: 'Asia/Kathmandu'})}`
                 : 'User deleted successfully',
-            data: { user_id, isScheduled },
+            data: {user_id, isScheduled},
         };
     } catch (error) {
-        logger.error('Error in softDeleteUserAction', { error });
+        logger.error('Error in softDeleteUserAction', {error});
         return {
             success: false,
             message: 'Failed to delete user. Please try again.',
@@ -169,7 +177,7 @@ export async function restoreUserAction(formData: FormData) {
             };
         }
 
-        const { user_id, restoration_reason } = parsed.data;
+        const {user_id, restoration_reason} = parsed.data;
 
         // Check if user exists and is deleted
         const existingUser = await db
@@ -221,8 +229,8 @@ export async function restoreUserAction(formData: FormData) {
                 .update(userDeletionHistory)
                 .set({
                     restored_at: now,
-                    restored_by: adminUser.user.id,
-                    restoration_count: sql`${userDeletionHistory.restoration_count} + 1`,
+                    restoration_count: sql`${userDeletionHistory.restoration_count}
+                    + 1`,
                     updated_at: now,
                 })
                 .where(and(
@@ -235,11 +243,11 @@ export async function restoreUserAction(formData: FormData) {
         try {
             await sendRestorationConfirmation(user.email, {
                 userName: user.full_name,
-                restorationDate: new Date(now).toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' }),
+                restorationDate: new Date(now).toLocaleString('en-US', {timeZone: 'Asia/Kathmandu'}),
                 contactEmail: 'info@hopeinternational.com.np',
             });
         } catch (emailError) {
-            logger.error('Failed to send restoration confirmation email', { error: emailError, user_id });
+            logger.error('Failed to send restoration confirmation email', {error: emailError, user_id});
         }
 
         revalidatePath('/admin/users');
@@ -248,10 +256,10 @@ export async function restoreUserAction(formData: FormData) {
         return {
             success: true,
             message: 'User restored successfully',
-            data: { user_id },
+            data: {user_id},
         };
     } catch (error) {
-        logger.error('Error in restoreUserAction', { error });
+        logger.error('Error in restoreUserAction', {error});
         return {
             success: false,
             message: 'Failed to restore user. Please try again.',
@@ -296,12 +304,13 @@ export async function getDeletedUsersAction(searchParams: SearchParamsInput) {
             };
         }
 
-        const { page, pageSize, sortBy, order, search, deleted_by, date_from, date_to } = parsed.data;
+        const {page, pageSize, sortBy, order, filters} = parsed.data;
         const offset = (page - 1) * pageSize;
 
         // Build where conditions
-        const whereConditions = [sql`${profiles.deleted_at} IS NOT NULL`];
-
+        const whereConditions = [sql`${profiles.deleted_at}
+        IS NOT NULL`];
+        const search = filters.find(item => item.id === 'search' && item.value !== '')
         if (search) {
             whereConditions.push(
                 or(
@@ -311,17 +320,6 @@ export async function getDeletedUsersAction(searchParams: SearchParamsInput) {
             );
         }
 
-        if (date_from) {
-            whereConditions.push(gte(profiles.deleted_at, date_from));
-        }
-
-        if (date_to) {
-            whereConditions.push(lte(profiles.deleted_at, date_to));
-        }
-
-        if (deleted_by) {
-            whereConditions.push(eq(userDeletionHistory.deleted_by, deleted_by));
-        }
 
         // Get deleted users with deletion history
         const deletedUsers = await db
@@ -336,7 +334,6 @@ export async function getDeletedUsersAction(searchParams: SearchParamsInput) {
                 deletion_count: profiles.deletion_count,
                 created_at: profiles.created_at,
                 deletion_reason: userDeletionHistory.deletion_reason,
-                deleted_by: userDeletionHistory.deleted_by,
                 email_notification_sent: userDeletionHistory.email_notification_sent,
             })
             .from(profiles)
@@ -354,7 +351,7 @@ export async function getDeletedUsersAction(searchParams: SearchParamsInput) {
 
         // Get total count
         const totalResult = await db
-            .select({ count: sql<number>`count(*)` })
+            .select({count: sql<number>`count(*)`})
             .from(profiles)
             .where(and(...whereConditions));
 
@@ -374,7 +371,7 @@ export async function getDeletedUsersAction(searchParams: SearchParamsInput) {
             },
         };
     } catch (error) {
-        logger.error('Error in getDeletedUsersAction', { error });
+        logger.error('Error in getDeletedUsersAction', {error});
         return {
             success: false,
             message: 'Failed to retrieve deleted users',
@@ -386,7 +383,7 @@ export async function getUserDeletionHistoryAction(userId: string) {
     try {
         await requireAdmin();
 
-        const parsed = ZodUserDeletionHistoryQuerySchema.safeParse({ user_id: userId });
+        const parsed = ZodUserDeletionHistoryQuerySchema.safeParse({user_id: userId});
         if (!parsed.success) {
             return {
                 success: false,
@@ -399,9 +396,7 @@ export async function getUserDeletionHistoryAction(userId: string) {
             .select({
                 id: userDeletionHistory.id,
                 deleted_at: userDeletionHistory.deleted_at,
-                deleted_by: userDeletionHistory.deleted_by,
                 restored_at: userDeletionHistory.restored_at,
-                restored_by: userDeletionHistory.restored_by,
                 deletion_reason: userDeletionHistory.deletion_reason,
                 scheduled_deletion_date: userDeletionHistory.scheduled_deletion_date,
                 email_notification_sent: userDeletionHistory.email_notification_sent,
@@ -415,10 +410,10 @@ export async function getUserDeletionHistoryAction(userId: string) {
         return {
             success: true,
             message: 'User deletion history retrieved successfully',
-            data: { history },
+            data: {history},
         };
     } catch (error) {
-        logger.error('Error in getUserDeletionHistoryAction', { error });
+        logger.error('Error in getUserDeletionHistoryAction', {error});
         return {
             success: false,
             message: 'Failed to retrieve user deletion history',
@@ -443,7 +438,7 @@ export async function cancelScheduledDeletionAction(formData: FormData) {
             };
         }
 
-        const { user_id } = parsed.data;
+        const {user_id} = parsed.data;
 
         // Check if user has scheduled deletion
         const user = await db
@@ -452,7 +447,8 @@ export async function cancelScheduledDeletionAction(formData: FormData) {
             .where(and(
                 eq(profiles.id, user_id),
                 isNull(profiles.deleted_at),
-                sql`${profiles.deletion_scheduled_for} IS NOT NULL`
+                sql`${profiles.deletion_scheduled_for}
+                IS NOT NULL`
             ))
             .limit(1);
 
@@ -480,10 +476,10 @@ export async function cancelScheduledDeletionAction(formData: FormData) {
         return {
             success: true,
             message: 'Scheduled deletion cancelled successfully',
-            data: { user_id },
+            data: {user_id},
         };
     } catch (error) {
-        logger.error('Error in cancelScheduledDeletionAction', { error });
+        logger.error('Error in cancelScheduledDeletionAction', {error});
         return {
             success: false,
             message: 'Failed to cancel scheduled deletion',

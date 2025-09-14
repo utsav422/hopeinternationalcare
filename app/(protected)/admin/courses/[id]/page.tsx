@@ -7,7 +7,7 @@ import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 import { cachedAdminCourseDetailsById } from '@/lib/server-actions/admin/courses';
-import { adminCourseCategoryDetailsById, adminCourseCategoryList, adminCourseCategoryListAll } from '@/lib/server-actions/admin/courses-categories';
+import { adminCourseCategoryDetailsById, adminCourseCategoryList, adminCourseCategoryListAll } from '@/lib/server-actions/admin/course-categories';
 import { notFound } from 'next/navigation';
 import { adminIntakesByCourseAndYear } from '@/lib/server-actions/admin/intakes';
 

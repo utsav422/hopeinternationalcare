@@ -1,6 +1,6 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Image from 'next/image';
+import Image from "next/image";
 import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -23,7 +23,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useCreateCustomerContactRequest } from '@/hooks/admin/customer-contact-requests';
 import { useAuthSession } from '@/hooks/use-auth-session';
 import {
     CustomerContactFormSchema,
@@ -31,12 +30,14 @@ import {
 } from '@/lib/db/drizzle-zod-schema/customer-contact-requests';
 import { createEnrollment } from '@/lib/server-actions/user/enrollments';
 import { Badge } from '../ui/badge';
+import { usePublicCustomerContactRequestCreate } from '@/hooks/public/customer-contact-requests';
 
 interface CourseCardProps {
     image_url: string;
     slug: string;
     title: string;
-    desc: string;
+    highlights: string;
+    overview: string;
     price: number;
     next_intake_date: string | null;
     available_seats: number | null;
@@ -49,7 +50,7 @@ export function CourseCard({
     image_url,
     slug,
     title,
-    desc,
+    highlights, overview,
     price,
     next_intake_date,
     available_seats,
@@ -61,7 +62,7 @@ export function CourseCard({
     const [isEnrollmentDialogOpen, setIsEnrollmentDialogOpen] = useState(false);
     const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
 
-    const createContactRequestMutation = useCreateCustomerContactRequest();
+    const createContactRequestMutation = usePublicCustomerContactRequestCreate();
 
     const contactForm = useForm<CustomerContactFormType>({
         resolver: zodResolver(CustomerContactFormSchema),
@@ -110,8 +111,8 @@ export function CourseCard({
                 setIsContactDialogOpen(false);
                 contactForm.reset();
             },
-            onError: (error) => {
-                toast.error(`Failed to send inquiry: ${error.message}`);
+            onError: (error: unknown) => {
+                toast.error(`Failed to send inquiry: ${error instanceof Error ? error.message : "Something went wrong contac to adminstratiion"}`);
             },
         });
     };
@@ -120,12 +121,14 @@ export function CourseCard({
         <div className="group flex h-full flex-col rounded-lg bg-card p-5 shadow-lg transition duration-300 hover:scale-105">
             <div className="mb-4 h-48 w-full overflow-hidden rounded-md">
                 <div className="relative h-full w-full">
-                    <Image unoptimized={true}
+                    <Image
                         alt={title}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                        fill
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        width={400}
+                        height={300}
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         src={image_url}
+                        unoptimized={true}
                     />
                 </div>
             </div>
@@ -145,8 +148,14 @@ export function CourseCard({
                         </h3>
                     </Link>
                 </div>
+                <h2>Overview</h2>
                 <p className="line-clamp-3 min-h-[72px] font-normal text-base">
-                    {desc}
+                    {overview}
+                </p>
+                <h2>Highlights</h2>
+
+                <p className="line-clamp-3 min-h-[72px] font-normal text-base">
+                    {highlights}
                 </p>
                 <div className="flex items-center justify-between pt-2">
                     <span className="font-bold text-lg">

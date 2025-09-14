@@ -23,7 +23,8 @@ export interface Organization {
 export interface Course {
     id: string;
     title: string;
-    description: string | null;
+    course_highlights: string|null,
+    course_overview: string|null,
     slug: string;
     image_url?: string | null;
     price?: number;
@@ -106,7 +107,8 @@ export function generateCourseSchema(course: Course, organizationName: string) {
         '@context': 'https://schema.org',
         '@type': 'Course',
         name: course.title,
-        description: course.description,
+        highlights: course.course_highlights,
+        overview: course.course_overview,
         url: `${baseUrl}/courses/${course.slug}`,
         image: course.image_url ? `${baseUrl}${course.image_url}` : `${baseUrl}/opengraph-image.png`,
         provider: {

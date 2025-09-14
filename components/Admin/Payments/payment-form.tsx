@@ -27,14 +27,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useGetPaymentOnlyDetailsById } from '@/hooks/admin/payments';
+import { useAdminPaymentDetailsById, useAdminPaymentUpsert } from '@/hooks/admin/payments';
 import type { EnrollmentWithDetails } from '@/lib/db/drizzle-zod-schema/enrollments';
 import {
     type ZodInsertPaymentType,
     ZodPaymentInsertSchema,
 } from '@/lib/db/drizzle-zod-schema/payments';
 import { PaymentMethod, PaymentStatus } from '@/lib/db/schema/enums';
-import { adminUpsertPayment } from '@/lib/server-actions/admin/payments';
+import { adminPaymentUpsert } from '@/lib/server-actions/admin/payments';
 import { Key } from 'react';
 
 interface Props {
@@ -48,7 +48,9 @@ export default function PaymentForm({ id, formTitle }: Props) {
         data: initialData,
         isLoading,
         error,
-    } = useGetPaymentOnlyDetailsById(id ?? '');
+    } = useAdminPaymentDetailsById(id ?? '');
+    const { mutateAsync: upsertPayment } = useAdminPaymentUpsert();
+
     const form = useForm<ZodInsertPaymentType>({
         resolver: zodResolver(ZodPaymentInsertSchema),
         defaultValues: initialData || {
@@ -64,11 +66,11 @@ export default function PaymentForm({ id, formTitle }: Props) {
     const { isSubmitting } = form.formState;
 
     const onSubmit = async (values: ZodInsertPaymentType) => {
-        toast.promise(adminUpsertPayment(values), {
+        toast.promise(upsertPayment(values), {
             loading: 'Saving payment...',
             success: () => {
                 router.push('/admin/payments');
-                return `Payment ${initialData ? 'updated' : 'created'} successfully.`;
+                return `Payment ${id ? 'updated' : 'created'} successfully.`;
             },
             error: (err) => err.message || 'Failed to save payment.',
         });

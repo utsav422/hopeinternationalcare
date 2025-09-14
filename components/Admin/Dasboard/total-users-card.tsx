@@ -2,11 +2,11 @@
 import { Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGetTotalUsers } from '@/hooks/admin/dashboard';
+import { useAdminDashboardTotalUsers } from '@/hooks/admin/dashboard';
 import { DashboardCardSkeleton } from '.';
 
 function TotalUserCard() {
-    const { data: queryResult, error, isLoading } = useGetTotalUsers();
+    const { data: queryResult, error, isLoading } = useAdminDashboardTotalUsers();
     const totalUsers = queryResult.data;
     if (error) {
         toast.error(error.message);

@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# Hope International Website - Initialization Script
+# This script sets up the development environment for the Hope International website
+
+echo "🚀 Initializing Hope International Website Development Environment"
+
+# Check if we're in the correct directory
+if [ ! -f "package.json" ]; then
+    echo "❌ Error: package.json not found. Please run this script from the project root directory."
+    exit 1
+fi
+
+echo "✅ Found project root directory"
+
+# Install dependencies
+echo "📦 Installing dependencies..."
+npm ci
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Failed to install dependencies"
+    exit 1
+fi
+
+echo "✅ Dependencies installed successfully"
+
+# Check if environment file exists
+if [ ! -f ".env.local" ]; then
+    echo "⚠️  .env.local not found. Copying .env.example to .env.local"
+    cp .env.example .env.local
+    echo "✅ .env.local created. Please update the environment variables with your configuration."
+else
+    echo "✅ Environment file found"
+fi
+
+# Generate Supabase types
+echo "🔄 Generating Supabase types..."
+npm run generate-types
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Failed to generate Supabase types"
+    exit 1
+fi
+
+echo "✅ Supabase types generated successfully"
+
+# Run database migrations
+echo "🔄 Running database migrations..."
+npx drizzle-kit push
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Failed to run database migrations"
+    exit 1
+fi
+
+echo "✅ Database migrations completed successfully"
+
+# Seed database
+# echo "🌱 Seeding database..."
+# npm run db:seed
+# if [ $? -ne 0 ]; then
+#     echo "❌ Error: Failed to seed database"
+#     exit 1
+# fi
+
+# echo "✅ Database seeded successfully"
+
+# Run type checking
+echo "🔍 Running type checking..."
+npx tsc --noEmit
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Type checking failed"
+    exit 1
+fi
+
+echo "✅ Type checking passed"
+
+# Run linting
+echo "🔍 Running linting..."
+npm run lint
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Linting failed"
+    exit 1
+fi
+
+echo "✅ Linting passed"
+
+echo ""
+echo "🎉 Initialization complete!"
+echo ""
+echo "Next steps:"
+echo "1. Update .env.local with your configuration values"
+echo "2. Run 'npm run dev' to start the development server"
+echo "3. Visit http://localhost:3000 to view the application"
+echo ""
+echo "📚 Admin Panel Access:"
+echo "   - Visit http://localhost:3000/admin to access the admin panel"
+echo "   - You'll need to sign in with an admin account"
+echo ""
+echo "✨ New Features Included:"
+echo "   - Affiliation Management System for admin users"
+echo "   - Enhanced Course Management System with improved type safety"
+echo "   - Better error handling and constraint checking"
+echo "   - Optimized image handling for course uploads"
+echo ""

@@ -1,39 +1,34 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useAdminUserList } from './users';
-import { 
-    useDeletedUsers, 
-    useUserDeletionHistory, 
-    useUserDeletionStatus,
-    userDeletionKeys 
-} from './user-deletion';
-import type { ZodDeletedUsersQueryType } from '@/lib/db/drizzle-zod-schema';
+import {useCallback, useMemo} from 'react';
+import {useQueryClient} from '@tanstack/react-query';
+import {useAdminUserList} from './users';
+import {useDeletedUsers, userDeletionKeys} from './user-deletion';
+import type {ZodDeletedUsersQueryType} from '@/lib/db/drizzle-zod-schema';
 
 // Hook for integrating soft delete functionality with existing user management
 export function useIntegratedUserManagement() {
     const queryClient = useQueryClient();
 
     // Get active users (existing functionality)
-    const { 
-        data: activeUsersResult, 
+    const {
+        data: activeUsersResult,
         isLoading: isLoadingActiveUsers,
-        error: activeUsersError 
+        error: activeUsersError
     } = useAdminUserList(1, 50);
 
     // Get deleted users
-    const deletedUsersParams= {
+    const deletedUsersParams = {
         page: 1,
         pageSize: 50,
         sortBy: 'deleted_at',
         order: 'desc',
     } as ZodDeletedUsersQueryType
 
-    const { 
-        data: deletedUsersResult, 
+    const {
+        data: deletedUsersResult,
         isLoading: isLoadingDeletedUsers,
-        error: deletedUsersError 
+        error: deletedUsersError
     } = useDeletedUsers(deletedUsersParams);
 
     // Combine and process user data
@@ -61,7 +56,7 @@ export function useIntegratedUserManagement() {
 
     // Search across both active and deleted users
     const searchUsers = useCallback((searchTerm: string) => {
-        const { activeUsers, deletedUsers } = combinedUserData;
+        const {activeUsers, deletedUsers} = combinedUserData;
         const allUsers = [...activeUsers, ...deletedUsers];
 
         if (!searchTerm.trim()) {
@@ -69,7 +64,7 @@ export function useIntegratedUserManagement() {
         }
 
         const term = searchTerm.toLowerCase();
-        return allUsers.filter(user => 
+        return allUsers.filter(user =>
             user.full_name?.toLowerCase().includes(term) ||
             user.email?.toLowerCase().includes(term) ||
             user.phone?.toLowerCase().includes(term)
@@ -78,15 +73,15 @@ export function useIntegratedUserManagement() {
 
     // Get user by ID from either active or deleted users
     const getUserById = useCallback((userId: string) => {
-        const { activeUsers, deletedUsers } = combinedUserData;
+        const {activeUsers, deletedUsers} = combinedUserData;
         const allUsers = [...activeUsers, ...deletedUsers];
         return allUsers.find(user => user.id === userId);
     }, [combinedUserData]);
 
     // Get users by status
     const getUsersByStatus = useCallback((status: 'active' | 'deleted' | 'scheduled') => {
-        const { activeUsers, deletedUsers } = combinedUserData;
-        
+        const {activeUsers, deletedUsers} = combinedUserData;
+
         switch (status) {
             case 'active':
                 return activeUsers;
@@ -100,14 +95,14 @@ export function useIntegratedUserManagement() {
     }, [combinedUserData]);
 
     // Refresh all user data
-    const refreshUserData = useCallback(() => {
-        queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-        queryClient.invalidateQueries({ queryKey: userDeletionKeys.all });
+    const refreshUserData = useCallback(async () => {
+        await queryClient.invalidateQueries({queryKey: ['admin-users']});
+        await queryClient.invalidateQueries({queryKey: userDeletionKeys.all});
     }, [queryClient]);
 
     // Get comprehensive user statistics
     const getUserStatistics = useCallback(() => {
-        const { totalActive, totalDeleted, deletedUsers } = combinedUserData;
+        const {totalActive, totalDeleted, deletedUsers} = combinedUserData;
         const scheduledCount = deletedUsers.filter(user => user.status === 'scheduled').length;
         const immediatelyDeletedCount = totalDeleted - scheduledCount;
 
@@ -126,20 +121,20 @@ export function useIntegratedUserManagement() {
         activeUsers: combinedUserData.activeUsers,
         deletedUsers: combinedUserData.deletedUsers,
         allUsers: [...combinedUserData.activeUsers, ...combinedUserData.deletedUsers],
-        
+
         // Statistics
         statistics: getUserStatistics(),
-        
+
         // Loading states
         isLoading: isLoadingActiveUsers || isLoadingDeletedUsers,
         isLoadingActiveUsers,
         isLoadingDeletedUsers,
-        
+
         // Errors
         error: activeUsersError || deletedUsersError,
         activeUsersError,
         deletedUsersError,
-        
+
         // Utility functions
         searchUsers,
         getUserById,
@@ -154,19 +149,19 @@ export function useUserStatusTransitions() {
     const queryClient = useQueryClient();
 
     // Track user status changes
-    const trackStatusChange = useCallback((
-        userId: string, 
+    const trackStatusChange = useCallback(async (
+        userId: string,
         fromStatus: 'active' | 'deleted' | 'scheduled',
         toStatus: 'active' | 'deleted' | 'scheduled',
         reason?: string
     ) => {
         // Log the status change
-        console.log(`User ${userId} status changed from ${fromStatus} to ${toStatus}`, { reason });
-        
+        console.log(`User ${userId} status changed from ${fromStatus} to ${toStatus}`, {reason});
+
         // Update relevant caches
-        queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-        queryClient.invalidateQueries({ queryKey: userDeletionKeys.all });
-        
+        await queryClient.invalidateQueries({queryKey: ['admin-users']});
+        await queryClient.invalidateQueries({queryKey: userDeletionKeys.all});
+
         // Could also trigger analytics updates here
     }, [queryClient]);
 
@@ -204,21 +199,21 @@ export function useUserStatusTransitions() {
 export function useUserDeletionWorkflow() {
     // Define workflow steps
     const workflowSteps = [
-        { id: 'select', name: 'Select User', description: 'Choose user to delete' },
-        { id: 'reason', name: 'Provide Reason', description: 'Enter deletion reason' },
-        { id: 'schedule', name: 'Schedule (Optional)', description: 'Set deletion date/time' },
-        { id: 'confirm', name: 'Confirm', description: 'Review and confirm deletion' },
-        { id: 'execute', name: 'Execute', description: 'Perform deletion' },
-        { id: 'notify', name: 'Notify', description: 'Send notifications' },
+        {id: 'select', name: 'Select User', description: 'Choose user to delete'},
+        {id: 'reason', name: 'Provide Reason', description: 'Enter deletion reason'},
+        {id: 'schedule', name: 'Schedule (Optional)', description: 'Set deletion date/time'},
+        {id: 'confirm', name: 'Confirm', description: 'Review and confirm deletion'},
+        {id: 'execute', name: 'Execute', description: 'Perform deletion'},
+        {id: 'notify', name: 'Notify', description: 'Send notifications'},
     ];
 
     const restorationSteps = [
-        { id: 'select', name: 'Select User', description: 'Choose user to restore' },
-        { id: 'verify', name: 'Verify Eligibility', description: 'Check restoration limits' },
-        { id: 'reason', name: 'Provide Reason', description: 'Enter restoration reason' },
-        { id: 'confirm', name: 'Confirm', description: 'Review and confirm restoration' },
-        { id: 'execute', name: 'Execute', description: 'Perform restoration' },
-        { id: 'notify', name: 'Notify', description: 'Send notifications' },
+        {id: 'select', name: 'Select User', description: 'Choose user to restore'},
+        {id: 'verify', name: 'Verify Eligibility', description: 'Check restoration limits'},
+        {id: 'reason', name: 'Provide Reason', description: 'Enter restoration reason'},
+        {id: 'confirm', name: 'Confirm', description: 'Review and confirm restoration'},
+        {id: 'execute', name: 'Execute', description: 'Perform restoration'},
+        {id: 'notify', name: 'Notify', description: 'Send notifications'},
     ];
 
     // Get workflow progress

@@ -12,12 +12,12 @@ import {
 
 type CategoriesTableActionsProps = {
     id: string;
-    onDelete: (id: string) => void;
+    onDeleteAction: (id: string) => void;
 };
 
 export function CategoriesTableActions({
     id,
-    onDelete,
+    onDeleteAction,
 }: CategoriesTableActionsProps) {
     return (
         <DropdownMenu>
@@ -47,7 +47,7 @@ export function CategoriesTableActions({
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                    onClick={() => onDelete(id)}
+                    onClick={() => onDeleteAction(id)}
                 >
                     Delete
                 </DropdownMenuItem>

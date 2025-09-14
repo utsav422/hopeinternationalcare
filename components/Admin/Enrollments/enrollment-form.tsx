@@ -36,8 +36,8 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    useGetEnrollmentById,
-    useUpsertEnrollment,
+    useAdminEnrollmentDetailsById,
+    useAdminEnrollmentUpsert,
 } from '@/hooks/admin/enrollments';
 import {
     ZodEnrollmentInsertSchema,
@@ -66,10 +66,10 @@ export default function ({ formTitle }: Props) {
         isLoading,
         error,
         data: queryResult,
-    } = useGetEnrollmentById(id ?? '');
-    const { mutateAsync: upsertEnrollment } = useUpsertEnrollment();
-    const initialData = id && id.length > 0 && queryResult?.success
-        ? queryResult.data
+    } = useAdminEnrollmentDetailsById(id ?? '');
+    const { mutateAsync: upsertEnrollment } = useAdminEnrollmentUpsert();
+    const initialData = id && id.length > 0 && queryResult
+        ? queryResult
         : undefined;    //   courseData && courseData.price;
     const form = useForm<ZodEnrollmentInsertType>({
         resolver: zodResolver(ZodEnrollmentInsertSchema),
@@ -260,7 +260,7 @@ export default function ({ formTitle }: Props) {
                                                 field={field}
                                                 getItemOnValueChanges={(
                                                     selectedIntakes: IntakeWithCourse
-                                                ) => setSelectedPrice(selectedIntakes.coursePrice)}
+                                                ) => setSelectedPrice(selectedIntakes.coursePrice || null)}
                                             />
                                         </FormControl>
                                         <FormMessage />

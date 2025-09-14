@@ -28,6 +28,7 @@ import type { DOT, RoutePoint } from '@/lib/types/shared';
 import { useSearchParams } from 'next/navigation';
 import { useUserSignUp } from '@/hooks/user/user-auth-actions';
 import { useRouter } from 'next/navigation';
+import { User } from '@supabase/supabase-js';
 
 const DotMap = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -230,7 +231,7 @@ const SignUpClientComponent = () => {
     const error = searchParams?.getAll('error')
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-    const { mutateAsync: userSignUp } = useUserSignUp()
+    const { mutateAsync: userSignUpAsync } = useUserSignUp()
     // Display error message from URL parameter as toast
     useEffect(() => {
         if (error && error.length > 0) {
@@ -266,13 +267,16 @@ const SignUpClientComponent = () => {
         formData.set('phone', data.phone);
         formData.set('email', data.email);
         formData.set('password', data.password);
-        toast.promise(userSignUp(formData), {
+        toast.promise(userSignUpAsync(formData), {
             loading: 'Registering user details...',
-            success: () => {
-                router.push('/admin/categories');
-                return `User registration successfully recorded.`;
+            success: (results: { success: boolean; message: string, data?: { user: User } }) => {
+                if (results?.success && results?.message && results?.data?.user) {
+                    router.push('/users/profile');
+                    return results?.message;
+                }
+                return 'Failed to register user'
             },
-            error: (error) => error instanceof Error ? error.message : 'Failed to register users. contact to adminstrator.',
+            error: (error: Error) => { return error.message || 'Failed to register user' },
         });
 
     });

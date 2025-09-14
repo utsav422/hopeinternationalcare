@@ -1,5 +1,5 @@
 'use client';
-import Image from 'next/image';
+import Image from "next/image";
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { toast } from 'sonner';
@@ -40,25 +40,25 @@ export function RelatedCourses({
     if (error) {
         toast.error(error.message);
     }
-    const relatedCourses = resultData?.data as {
-        id: string;
-        title: string;
-        slug: string;
-        description: string | null;
-        image_url: string | null;
-        price: number;
-        next_intake_date: string;
-        next_intake_id: string | null;
-        available_seats: number;
-        categoryName: string | null;
-        level: number;
-        duration_value: number;
-        duration_type: 'days' | 'week' | 'month' | 'year';
-    }[];
+    const relatedCourses = resultData?.data;
+
+    // Remove duplicates based on course ID to prevent React key conflicts
+    const uniqueRelatedCourses = relatedCourses?.filter((course, index, self) =>
+        index === self.findIndex(c => c.id === course.id)
+    );
 
     // Don't call notFound() here, just return null or a message if no data
-    if (!relatedCourses) {
-        return <div>No related courses found</div>;
+    if (!uniqueRelatedCourses || uniqueRelatedCourses.length === 0) {
+        return (
+            <div className="rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+                <h2 className="mb-4 font-semibold text-2xl text-gray-800">
+                    Related Courses
+                </h2>
+                <p className="text-gray-500 text-sm">
+                    No related courses available at the moment.
+                </p>
+            </div>
+        );
     }
 
     if (isLoading) return <>Loading ...</>
@@ -68,22 +68,8 @@ export function RelatedCourses({
                 Related Courses
             </h2>
             <ul className="space-y-4">
-                {relatedCourses?.map(
-                    (relatedCourse: {
-                        id: string;
-                        title: string;
-                        slug: string;
-                        description: string | null;
-                        image_url: string | null;
-                        price: number;
-                        next_intake_date: string;
-                        next_intake_id: string | null;
-                        available_seats: number;
-                        categoryName: string | null;
-                        level: number;
-                        duration_value: number;
-                        duration_type: 'days' | 'week' | 'month' | 'year';
-                    }) => (
+                {uniqueRelatedCourses?.map(
+                    (relatedCourse) => (
                         <li key={relatedCourse.id}>
                             <Link
                                 className="group block"

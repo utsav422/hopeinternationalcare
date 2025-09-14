@@ -1,11 +1,11 @@
 import { BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGetTotalEnrollments } from '@/hooks/admin/dashboard';
+import { useAdminDashboardTotalEnrollments } from '@/hooks/admin/dashboard';
 import { DashboardCardSkeleton } from '.';
 
 function TotalEnrollmentsCard() {
-    const { data: queryResult, error, isLoading } = useGetTotalEnrollments();
+    const { data: queryResult, error, isLoading } = useAdminDashboardTotalEnrollments();
     const totalEnrollments = queryResult.data;
 
     if (error) {

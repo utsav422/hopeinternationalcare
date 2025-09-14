@@ -9,7 +9,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useGetAllCourses } from '@/hooks/admin/courses';
+import { useAdminCoursesAll } from '@/hooks/admin/courses';
 import type { ZodSelectCourseType } from '@/lib/db/drizzle-zod-schema/courses';
 import type { ZodInsertIntakeType } from '@/lib/db/drizzle-zod-schema/intakes';
 import { Skeleton } from '../ui/skeleton';
@@ -27,7 +27,7 @@ interface CourseSelectProps {
 }
 
 export default function CourseSelect({ field, disabled }: CourseSelectProps) {
-    const { isLoading, error, data: queryResult } = useGetAllCourses();
+    const { isLoading, error, data: queryResult } = useAdminCoursesAll();
     const courses = queryResult?.data as CourseForSelect[] | undefined;
 
     if (error) {

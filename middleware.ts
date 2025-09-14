@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { updateSession } from '@/utils/supabase/middleware';
+import {type NextRequest, NextResponse} from 'next/server';
+import {updateSession} from '@/utils/supabase/middleware';
 
 export async function middleware(request: NextRequest) {
     // Step 1: Handle CORS
@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest) {
             return response;
         }
     }
-
+    console.log('Middleware executed for URL:', request.nextUrl.pathname);
     // Step 2: Handle Supabase session updates
     return await updateSession(request);
 }

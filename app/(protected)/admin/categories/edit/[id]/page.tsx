@@ -1,36 +1,58 @@
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { Suspense } from 'react';
+import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
+import {Suspense} from 'react';
 import CategoryForm from '@/components/Admin/categories/category-form';
-import { queryKeys } from '@/lib/query-keys';
-import { getCachedAdminCourseCategoriesById } from '@/lib/server-actions/admin/courses-categories';
-import { requireAdmin } from '@/utils/auth-guard';
-import { getQueryClient } from '@/utils/get-query-client';
-import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
+import {queryKeys} from '@/lib/query-keys';
+import {cachedAdminCourseCategoryDetailsById} from '@/lib/server-actions/admin/course-categories';
+import {requireAdmin} from '@/utils/auth-guard';
+import {getQueryClient} from '@/utils/get-query-client';
+import {QueryErrorWrapper} from '@/components/Custom/query-error-wrapper';
 
-type Params = Promise<{ id: string }>;
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+import {notFound, redirect} from 'next/navigation';
+import {normalizeProps} from "@/lib/normalizeProps";
+import {ZodAdminCourseCategoryQuerySchema, ZodAdminCourseCategoryQueryType} from "@/lib/db/drizzle-zod-schema";
 
-export default async function EditCategoryPage(props: {
-    params: Params;
-    searchParams: SearchParams;
+import {IdParams, IdParamsSchema} from "@/lib/types/shared";
+
+export default async function EditCategoryPage({params: promisedParams, searchParams: promisedSearchParams}: {
+    params: Promise<IdParams>,
+    searchParams: Promise<ZodAdminCourseCategoryQueryType>
 }) {
-    await requireAdmin();
-    const params = await props.params;
-    const id = params.id;
+    // Await the promised params and searchParams
+    const params = await promisedParams;
+    const searchParams = await promisedSearchParams;
 
+    // Validate and normalize the props
+    const {
+        params: validatedParams, searchParams: validatedSearchParams
+    } = await normalizeProps(IdParamsSchema, ZodAdminCourseCategoryQuerySchema, params, searchParams);
+    if (!validatedParams.id) {
+        notFound();
+    }
     const queryClient = getQueryClient();
-    await queryClient.prefetchQuery({
-        queryKey: queryKeys.courseCategories.detail(id),
-        queryFn: () => getCachedAdminCourseCategoriesById(id),
-    });
+    try {
+        await requireAdmin();
+        await queryClient.prefetchQuery({
+            queryKey: queryKeys.courseCategories.detail(validatedParams.id),
+            queryFn: () => response,
+        });
+        const response = await cachedAdminCourseCategoryDetailsById(validatedParams.id);
+        if (!response.success) {
+            notFound()
+        }
+
+    } catch (error) {
+        redirect('/admin-auth/sign-in?redirect=/admin/categories')
+    }
+
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
             <QueryErrorWrapper>
                 <Suspense fallback="Loading...">
-                    <CategoryForm formTitle="Course Edit form " id={id} />
+                    <CategoryForm formTitle="Course Edit form " id={validatedParams.id}/>
                 </Suspense>
             </QueryErrorWrapper>
         </HydrationBoundary>
     );
 }
+

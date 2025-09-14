@@ -1,69 +1,39 @@
 'use client';
 
+import {useMutation, useQueryClient, useSuspenseQuery,} from '@tanstack/react-query';
 import {
-    useMutation,
-    useQueryClient,
-    useSuspenseQuery,
-} from '@tanstack/react-query';
-import {
-    deleteCustomerContactRequest,
-    updateCustomerContactRequestStatus,
+    adminCustomerContactRequestDeleteById,
+    adminCustomerContactRequestList,
+    adminCustomerContactRequestUpdateStatusById,
 } from '@/lib/server-actions/admin/customer-contact-requests';
-import { createCustomerContactRequest } from '@/lib/server-actions/user/customer-contact-requests';
-import { queryKeys } from '../../lib/query-keys';
+import {queryKeys} from '../../lib/query-keys';
+import type {ListParams as DataTableListParams} from "@/hooks/admin/use-data-table-query-state";
 
-export function useCreateCustomerContactRequest() {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async (formData: FormData) => {
-            const result = await createCustomerContactRequest(formData);
-            if (!result.success || result?.error) {
-                throw new Error(JSON.stringify(result?.error));
-            }
-            return result.data;
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: queryKeys.customerContactRequests.all,
-            });
-        },
-    });
-}
+type ListParams = Partial<DataTableListParams>;
 
-export function useGetCustomerContactRequests({
-    page = 1,
-    pageSize = 10,
-    search,
-    status,
-}: {
-    page?: number;
-    pageSize?: number;
-    search?: string;
-    status?: string;
-} = {}) {
+export function useAdminCustomerContactRequestList({
+                                                       page = 1,
+                                                       pageSize = 10,
+                                                       sortBy,
+                                                       order,
+                                                       filters
+                                                   }: ListParams) {
     return useSuspenseQuery({
         queryKey: queryKeys.customerContactRequests.list({
             page,
             pageSize,
-            search,
-            status,
+            sortBy,
+            order,
+            filters
         }),
         queryFn: async () => {
-            const searchParams = new URLSearchParams({
-                page: page.toString(),
-                pageSize: pageSize.toString(),
-                ...(search && { search }),
-                ...(status && { status }),
+            const result = await adminCustomerContactRequestList({
+                page,
+                pageSize,
+                sortBy,
+                order,
+                filters
             });
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/customer-contact-requests?${searchParams}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
-            }
-            const result = await response.json();
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch data');
             }
@@ -73,25 +43,25 @@ export function useGetCustomerContactRequests({
     });
 }
 
-export function useUpdateCustomerContactRequestStatus() {
+export function useAdminCustomerContactRequestUpdateStatusById() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, status }: { id: string; status: string }) =>
-            updateCustomerContactRequestStatus(id, status),
-        onSuccess: () => {
-            queryClient.invalidateQueries({
+        mutationFn: ({id, status}: { id: string; status: string }) =>
+            adminCustomerContactRequestUpdateStatusById(id, status),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
                 queryKey: queryKeys.customerContactRequests.all,
             });
         },
     });
 }
 
-export function useDeleteCustomerContactRequest() {
+export function useAdminCustomerContactRequestDeleteById() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id: string) => deleteCustomerContactRequest(id),
-        onSuccess: () => {
-            queryClient.invalidateQueries({
+        mutationFn: (id: string) => adminCustomerContactRequestDeleteById(id),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
                 queryKey: queryKeys.customerContactRequests.all,
             });
         },

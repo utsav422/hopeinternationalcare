@@ -1,119 +1,103 @@
 'use client';
-import {
-    useMutation,
-    useQueryClient,
-    useSuspenseQuery,
-} from '@tanstack/react-query';
+
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import type { ColumnFiltersState } from '@tanstack/react-table';
 import type { ListParams as DataTableListParams } from '@/hooks/admin/use-data-table-query-state';
 import {
-    adminDeleteCourse,
-    adminUpdateCourseCategoryIdCol,
-    adminUpsertCourse,
+    adminCourseDeleteById,
+    adminCourseDetailsById,
+    adminCourseList,
+    adminCourseListAll,
+    adminCourseUpdateCategoryId,
+    adminCourseUpsert,
 } from '@/lib/server-actions/admin/courses';
-import type { TablesInsert } from '@/utils/supabase/database.types';
+import type { ZodInsertCourseType } from '@/lib/db/drizzle-zod-schema/courses';
 import { queryKeys } from '../../lib/query-keys';
 
-type ListParams = Partial<DataTableListParams>;
+// Types
+type ListParams = {
+    page?: number;
+    pageSize?: number;
+    sortBy?: string;
+    order?: 'asc' | 'desc';
+    filters?: ColumnFiltersState;
+};
 
-export const useGetCourses = (params: ListParams) => {
-    return useSuspenseQuery({
+// Course list hooks
+export const useAdminCourses = (params: ListParams) => {
+    return useQuery({
         queryKey: queryKeys.courses.list(params),
-        queryFn: async () => {
-            const searchParams = new URLSearchParams({
-                page: params.page?.toString() || '1',
-                pageSize: params.pageSize?.toString() || '10',
-                sortBy: params.sortBy || 'created_at',
-                order: params.order || 'desc',
-                filters: JSON.stringify(params.filters || []),
-            });
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/courses?${searchParams}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
-            }
-            const result = await response.json();
-
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to fetch data');
-            }
-
-            return result;
-        }, staleTime: 1000 * 60 * 5,  //5minutes
+        queryFn: async () => adminCourseList(params),
+        staleTime: 1000 * 60 * 5,  // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
 
-export const useGetAllCourses = () => {
-    return useSuspenseQuery({
+export const useAdminCoursesAll = () => {
+    return useQuery({
         queryKey: queryKeys.courses.lists(),
-        queryFn: async () => {
-
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/courses?getAll=true`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
-            }
-            const result = await response.json();
-
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to fetch data');
-            }
-
-            return result;
-        }, staleTime: 1000 * 60 * 5,  //5minutes
+        queryFn: async () => await adminCourseListAll(),
+        staleTime: 1000 * 60 * 5,  // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
 
-export const useGetCourseById = (id: string) => {
+// Course detail hooks
+export const useAdminCourseById = (id: string) => {
+    return useQuery({
+        queryKey: queryKeys.courses.detail(id),
+        queryFn: async () => adminCourseDetailsById(id),
+        staleTime: 1000 * 60 * 5,  // 5 minutes
+        gcTime: 1000 * 60 * 60, // 1 hour
+        enabled: !!id,
+    });
+};
+
+export const useSuspenseAdminCourseById = (id: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.courses.detail(id),
-        queryFn: async () => {
-
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/courses?id=${id}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
-            }
-            const result = await response.json();
-
-            if (!result.success) {
-                throw new Error(result.error || 'Failed to fetch data');
-            }
-
-            return result;
-        }, staleTime: 1000 * 60 * 5,  //5minutes
+        queryFn: async () => adminCourseDetailsById(id),
+        staleTime: 1000 * 60 * 5,  // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
 
-export const useUpsertCourse = () => {
+// Course mutation hooks
+export const useAdminCourseUpsert = () => {
     const queryClient = useQueryClient();
+    
     return useMutation({
-        mutationFn: (data: FormData) => adminUpsertCourse(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
+        mutationFn: (data: FormData) => adminCourseUpsert(data),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: queryKeys.courses.all,
+            });
         },
     });
 };
 
-export const useUpdateCourseCategoryId = () => {
+export const useAdminCourseUpdateCategoryId = () => {
     const queryClient = useQueryClient();
+    
     return useMutation({
-        mutationFn: (data: Partial<TablesInsert<'courses'>>) =>
-            adminUpdateCourseCategoryIdCol(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
+        mutationFn: (data: Partial<ZodInsertCourseType>) => adminCourseUpdateCategoryId(data),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: queryKeys.courses.all,
+            });
         },
     });
 };
 
-export const useDeleteCourse = () => {
+export const useAdminCourseDelete = () => {
     const queryClient = useQueryClient();
+    
     return useMutation({
-        mutationFn: (id: string) => adminDeleteCourse(id),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
+        mutationFn: (id: string) => adminCourseDeleteById(id),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: queryKeys.courses.all,
+            });
         },
     });
 };

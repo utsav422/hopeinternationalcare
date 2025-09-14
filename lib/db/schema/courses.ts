@@ -10,6 +10,7 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 import { serviceRole } from 'drizzle-orm/supabase';
+import { affiliations } from './affiliations';
 import { courseCategories } from './course-categories';
 import { durationType } from './enums';
 import { intakes } from './intakes';
@@ -19,9 +20,11 @@ export const courses = pgTable(
   {
     id: uuid('id').defaultRandom().primaryKey(),
     category_id: uuid('category_id').references(() => courseCategories.id),
+    affiliation_id: uuid('affiliation_id').references(() => affiliations.id),
     title: varchar('title', { length: 255 }).notNull(),
     slug: varchar('slug', { length: 255 }).notNull().unique(),
-    description: text('description'),
+    courseHighlights: text('course_highlights'),
+    courseOverview: text('course_overview'),
     image_url: varchar('image_url'),
     level: integer('level').notNull().default(1),
     duration_type: durationType('duration_type').notNull().default('month'),
@@ -55,6 +58,10 @@ export const courseRelations = relations(courses, ({ one, many }) => ({
   category: one(courseCategories, {
     fields: [courses.category_id],
     references: [courseCategories.id],
+  }),
+  affiliation: one(affiliations, {
+    fields: [courses.affiliation_id],
+    references: [affiliations.id],
   }),
   intakes: many(intakes),
 }));

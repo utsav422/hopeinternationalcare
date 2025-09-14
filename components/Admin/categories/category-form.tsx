@@ -1,31 +1,19 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import {
-    useGetCourseCategoryById,
-    useUpsertCourseCategory,
-} from '@/hooks/admin/course-categories';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {useRouter} from 'next/navigation';
+import {useEffect} from 'react';
+import {useForm} from 'react-hook-form';
+import {toast} from 'sonner';
+import {Button} from '@/components/ui/button';
+import {Card, CardContent, CardHeader} from '@/components/ui/card';
+import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage,} from '@/components/ui/form';
+import {Input} from '@/components/ui/input';
+import {Textarea} from '@/components/ui/textarea';
+import {useAdminCourseCategoryDetailsById, useAdminCourseCategoryUpsert,} from '@/hooks/admin/course-categories';
 import {
     ZodCourseCategoryInsertSchema,
     type ZodInsertCourseCategoryType,
-    //   type ZTSelectCourseCategories,
 } from '@/lib/db/drizzle-zod-schema/course-categories';
 
 interface Props {
@@ -34,9 +22,9 @@ interface Props {
     formTitle: string;
 }
 
-export default function CategoryForm({ id, formTitle }: Props) {
+export default function CategoryForm({id = 'new', formTitle}: Props) {
     const router = useRouter();
-    const { data: initialDataResult, error } = useGetCourseCategoryById(id ?? '');
+    const {data: initialDataResult, error} = useAdminCourseCategoryDetailsById(id);
 
     const initialData = id && id.length > 0 && initialDataResult?.success
         ? initialDataResult.data
@@ -61,8 +49,8 @@ export default function CategoryForm({ id, formTitle }: Props) {
             description: '',
         },
     });
-    const { isSubmitting } = form.formState;
-    const { mutateAsync: upsertCategory } = useUpsertCourseCategory();
+    const {isSubmitting, isLoading} = form.formState;
+    const {mutateAsync: upsertCategory} = useAdminCourseCategoryUpsert();
 
     useEffect(() => {
         if (initialData) {
@@ -71,9 +59,9 @@ export default function CategoryForm({ id, formTitle }: Props) {
     }, [initialData, form]);
 
     const onSubmit = async (values: ZodInsertCourseCategoryType) => {
-        toast.promise(upsertCategory(values), {
+        return toast.promise(upsertCategory(values), {
             loading: 'Saving category...',
-            success: ({ success, error }: {
+            success: ({success, error}: {
                 success: boolean,
                 error?: string,
             }) => {
@@ -86,6 +74,7 @@ export default function CategoryForm({ id, formTitle }: Props) {
             },
             error: (error) => error instanceof Error ? error.message : 'Failed to save category.',
         });
+
     };
 
     const getButtonText = () => {
@@ -109,7 +98,7 @@ export default function CategoryForm({ id, formTitle }: Props) {
                         Fill in the information about the category.
                     </p>
                 </div>
-                <hr />
+                <hr/>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
@@ -120,7 +109,7 @@ export default function CategoryForm({ id, formTitle }: Props) {
                         <FormField
                             control={form.control}
                             name="name"
-                            render={({ field }) => (
+                            render={({field}) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
                                         <FormLabel className="">Name</FormLabel>
@@ -135,7 +124,7 @@ export default function CategoryForm({ id, formTitle }: Props) {
                                                 placeholder="e.g. Web Development"
                                             />
                                         </FormControl>
-                                        <FormMessage />
+                                        <FormMessage/>
                                     </div>
                                 </FormItem>
                             )}
@@ -143,7 +132,7 @@ export default function CategoryForm({ id, formTitle }: Props) {
                         <FormField
                             control={form.control}
                             name="description"
-                            render={({ field }) => (
+                            render={({field}) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
                                         <FormLabel className="">
@@ -161,7 +150,7 @@ export default function CategoryForm({ id, formTitle }: Props) {
                                                 value={field.value ?? ''}
                                             />
                                         </FormControl>
-                                        <FormMessage />
+                                        <FormMessage/>
                                     </div>
                                 </FormItem>
                             )}
@@ -177,10 +166,10 @@ export default function CategoryForm({ id, formTitle }: Props) {
                             </div>
                             <div className="space-y-2 md:col-span-3">
                                 <Button
-                                    disabled={isSubmitting}
+                                    disabled={isLoading}
                                     type="submit"
                                 >
-                                    {isSubmitting && (
+                                    {isLoading && (
                                         <svg
                                             className="mr-2 h-4 w-4 animate-spin"
                                             fill="none"

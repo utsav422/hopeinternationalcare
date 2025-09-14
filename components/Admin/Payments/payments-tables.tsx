@@ -14,14 +14,14 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useDeletePayment, useGetPayments } from '@/hooks/admin/payments';
+import { useAdminPaymentDelete, useAdminPaymentList } from '@/hooks/admin/payments';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
 import type { PaymentDetailsType } from '@/lib/db/drizzle-zod-schema/payments';
 
 export default function PaymentsTables() {
     const searchParams = useSearchParams();
     const queryState = useDataTableQueryState();
-    const { data: queryResult, error } = useGetPayments({ ...queryState });
+    const { data: queryResult, error } = useAdminPaymentList({ ...queryState });
     if (error) {
         toast.error('Error fetching categories', {
             description: error.message,
@@ -29,15 +29,14 @@ export default function PaymentsTables() {
     }
     const data = queryResult?.data as PaymentDetailsType[];
     const total = queryResult?.total ?? 0;
-    const _router = useRouter();
     const status = searchParams.get('status');
-    const { mutateAsync: deletePayment } = useDeletePayment();
+    const { mutateAsync: deletePayment } = useAdminPaymentDelete();
 
     const handleDelete = async (id: string) => {
-         toast.promise(deletePayment(id), {
+        toast.promise(deletePayment(id), {
             loading: 'Deleting payment...',
             success: 'Payment deleted successfully',
-             error: (error) => error instanceof Error ? error.message : 'Failed to delete payment',
+            error: (error) => error instanceof Error ? error.message : 'Failed to delete payment',
         });
     };
     const columns: ColumnDef<PaymentDetailsType & { id: UniqueIdentifier }>[] = [

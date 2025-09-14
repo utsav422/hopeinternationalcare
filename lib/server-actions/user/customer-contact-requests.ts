@@ -3,7 +3,9 @@
 import { db } from '@/lib/db/drizzle';
 import { CustomerContactFormSchema } from '@/lib/db/drizzle-zod-schema/customer-contact-requests';
 import { customerContactRequests } from '@/lib/db/schema/customer-contact-requests';
-import z from 'zod';
+import { sendContactFormEmail } from '@/lib/email/resend';
+import { logger } from '@/utils/logger';
+import { z } from 'zod';
 
 export async function createCustomerContactRequest(formData: FormData) {
     try {
@@ -23,10 +25,31 @@ export async function createCustomerContactRequest(formData: FormData) {
             };
         }
 
+        // Save to database
         const result = await db
             .insert(customerContactRequests)
             .values(parsed.data)
             .returning();
+
+        // Send email notification to admin using Resend
+        try {
+            const {error, success} = await sendContactFormEmail({
+                name: parsed.data.name,
+                email: parsed.data.email,
+                phone: parsed.data.phone || undefined,
+                message: parsed.data.message,
+            });
+
+            if (!success && error) {
+                logger.error('Failed to send contact form email:', {description: error ?? 'unknown error'
+            });
+                // Don't fail the contact request if email fails, just log the error
+            }
+        } catch (emailError) {
+            logger.error('Error sending contact form email:', {description: emailError});
+            // Don't fail the contact request if email fails, just log the error
+        }
+
         return {
             success: true,
             data: result[0],

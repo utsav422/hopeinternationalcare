@@ -17,7 +17,7 @@ type ListParams = Partial<DataTableListParams> & {
 /**
  * Get list of all users
  */
-export async function adminGetProfiles({
+export async function adminProfileList({
   page = 1,
   pageSize = 10,
   search = '',
@@ -50,7 +50,7 @@ export async function adminGetProfiles({
 /**
  * Get all users profiles
  */
-export async function adminGetAllProfiles() {
+export async function adminProfileListAll() {
   try {
     const data = await db
       .select()
@@ -68,7 +68,7 @@ export async function adminGetAllProfiles() {
 /**
  * Get profile by ID
  */
-export async function adminGetProfileById(id: string) {
+export async function adminProfileDetailsById(id: string) {
   try {
     const [data] = await db
       .select()
@@ -89,7 +89,7 @@ export async function adminGetProfileById(id: string) {
 /**
  * Update user role or profile info
  */
-export async function adminUpdateProfile(
+export async function adminProfileUpdateById(
   id: string,
   updates: Partial<ZodSelectProfileType>
 ) {
@@ -108,6 +108,6 @@ export async function adminUpdateProfile(
     return { success: false, error: e.message };
   }
 }
-export const getCachedAdminProfiles = cache(adminGetProfiles);
-export const getCachedAdminAllProfiles = cache(adminGetAllProfiles);
-export const getCachedAdminProfileById = cache(adminGetProfileById);
+export const cachedAdminProfileList = cache(adminProfileList);
+export const cachedAdminProfileListAll = cache(adminProfileListAll);
+export const cachedAdminProfileDetailsById = cache(adminProfileDetailsById);

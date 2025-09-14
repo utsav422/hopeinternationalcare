@@ -14,6 +14,8 @@ import {
 } from 'drizzle-orm';
 import { cache } from 'react';
 import { db } from '@/lib/db/drizzle';
+import { buildFilterConditions, buildWhereClause } from '@/lib/utils/query-utils';
+
 import { courseCategories } from '@/lib/db/schema/course-categories';
 import { courses } from '@/lib/db/schema/courses';
 import { intakes } from '@/lib/db/schema/intakes';
@@ -23,6 +25,18 @@ type Filters = {
     category?: string;
     duration?: number;
     intake_date?: string;
+};
+
+// Column map for query utils
+const publicCourseColumnMap = {
+    id: courses.id,
+    title: courses.title,
+    created_at: courses.created_at,
+    price: courses.price,
+    duration_type: courses.duration_type,
+    duration_value: courses.duration_value,
+    level: courses.level,
+    category: courseCategories.name,
 };
 /**
  * Get course by params
@@ -44,6 +58,7 @@ export async function getPublicCourses({
         const offset = (page - 1) * pageSize;
         const whereConditions: SQL[] = [];
 
+        // Build custom filter conditions for public courses
         if (filters.title) {
             whereConditions.push(ilike(courses.title, `%${filters.title}%`));
         }
@@ -118,7 +133,8 @@ export async function getPublicCourses({
         const data = await db
             .select({
                 id: courses.id,
-                description: courses.description,
+                course_highlights: courses.courseHighlights,
+                course_overview: courses.courseOverview,
                 duration_type: courses.duration_type,
                 duration_value: courses.duration_value,
                 price: courses.price,
@@ -140,7 +156,6 @@ export async function getPublicCourses({
             .orderBy(sortOrder === 'asc' ? sql`${orderBy} asc` : sql`${orderBy} desc`)
             .groupBy(
                 courses.id,
-                courses.description,
                 courses.duration_type,
                 courses.duration_value,
                 courses.price,
@@ -200,7 +215,8 @@ export async function getPublicCourseBySlug(slug?: string) {
             .select({
                 id: courses.id,
                 title: courses.title,
-                description: courses.description,
+                course_highlights: courses.courseHighlights,
+                course_overview: courses.courseOverview,
                 duration_value: courses.duration_value,
                 duration_type: courses.duration_type,
                 price: courses.price,
@@ -243,17 +259,18 @@ export async function getPublicCourseBySlug(slug?: string) {
     }
 }
 
+
 /**
- * Fetches related courses based on category, excluding the specified course.
- * Returns up to 3 randomly selected courses from the same category.
- * 
- * @param courseId - The ID of the course to exclude from results
+ * Fetches related courses from the same category, excluding the specified course.
+ * Returns up to 3 randomly selected courses with basic course information.
+ *
+ * @param courseId - The ID of the current course to exclude
  * @param categoryId - The category ID to filter related courses by
- * @returns Promise containing success status and related courses data or error message
- * 
+ * @returns Promise containing success status and related courses data
+ *
  * Performance considerations:
+ * - Simple query with minimal WHERE conditions for better performance
  * - Ensure indexes exist on courses.category_id and courses.id
- * - Consider indexing intakes.course_id and intakes.start_date for better performance
  */
 export async function getRelatedCourses(courseId: string, categoryId: string) {
     // Input validation
@@ -265,48 +282,33 @@ export async function getRelatedCourses(courseId: string, categoryId: string) {
     }
 
     try {
-        // SQL expressions for cleaner query building
-        const nextIntakeDateExpr = sql<string>`min(case when ${intakes.start_date} > now() then ${intakes.start_date} else null end)`;
-        const availableSeatsExpr = sql<number>`coalesce(${intakes.capacity}, 0) - coalesce(${intakes.total_registered}, 0)`;
-
+        // Simple, fast query - get related courses from same category
         const relatedCourses = await db
             .select({
                 id: courses.id,
                 title: courses.title,
                 slug: courses.slug,
-                description: courses.description,
+                course_overview: courses.courseOverview,
+                course_highlights: courses.courseHighlights,
                 image_url: courses.image_url,
                 price: courses.price,
-                next_intake_date: nextIntakeDateExpr.as('next_intake_date'),
-                next_intake_id: intakes.id,
-                available_seats: availableSeatsExpr,
                 categoryName: courseCategories.name,
+                level: courses.level,
+                duration_value: courses.duration_value,
+                duration_type: courses.duration_type,
             })
             .from(courses)
             .leftJoin(courseCategories, eq(courses.category_id, courseCategories.id))
-            .leftJoin(intakes, eq(courses.id, intakes.course_id))
             .where(and(
                 eq(courses.category_id, categoryId),
                 ne(courses.id, courseId)
             ))
-            .groupBy(
-                courses.id,
-                courses.title,
-                courses.slug,
-                courses.description,
-                courses.image_url,
-                courses.price,
-                courseCategories.name,
-                intakes.id,
-                intakes.capacity,
-                intakes.total_registered
-            )
             .orderBy(sql`random()`)
             .limit(3);
 
-        return { 
-            success: true, 
-            data: relatedCourses 
+        return {
+            success: true,
+            data: relatedCourses
         };
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -323,7 +325,11 @@ export async function getNewCourses() {
                 id: courses.id,
                 title: courses.title,
                 slug: courses.slug,
-                description: courses.description,
+                course_overview: courses.courseOverview,
+                course_highlights: courses.courseHighlights,
+                level: courses.level,
+                duration_value: courses.duration_value,
+                duration_type: courses.duration_type,
                 image_url: courses.image_url,
                 price: courses.price,
                 next_intake_date:
@@ -358,6 +364,7 @@ export async function getNewCourses() {
     }
 }
 
+// Cached versions using React cache
 export const getCachedNewCourses = cache(getNewCourses);
 export const getCachedRelatedCourses = cache(getRelatedCourses);
 export const getCachedPublicCourses = cache(getPublicCourses);

@@ -35,7 +35,16 @@ function CourseDetails() {
 
                 <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
                     <main className="lg:col-span-2">
-                        <CourseContent title={course.title} image_url={course?.image_url as string} description={course?.description as string} />
+                        <CourseContent
+                            title={course.title}
+                            image_url={course?.image_url as string}
+                            overview={course?.course_overview as string}
+                            highlights={course?.course_highlights as string}
+                            level={course.level}
+                            duration_value={course.duration_value}
+                            duration_type={course.duration_type}
+                            category={course.category?.name}
+                        />
                     </main>
 
                     <aside className="space-y-8">

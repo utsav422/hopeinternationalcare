@@ -3,7 +3,7 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { useGetCourseCategoryById } from '@/hooks/admin/course-categories';
+import { useSuspenseAdminCourseCategoryDetailsById } from '@/hooks/admin/course-categories';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '../ui/skeleton';
 
@@ -58,7 +58,7 @@ const CourseCategoryBadge = ({
         data: queryResult,
         error,
         isLoading,
-    } = useGetCourseCategoryById(categoryId);
+    } = useSuspenseAdminCourseCategoryDetailsById(categoryId);
     const category = queryResult?.data;
     //   useEffect(() => {
     //     if (!categoryId) {

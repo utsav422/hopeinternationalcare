@@ -1,40 +1,57 @@
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
+import {notFound, redirect} from 'next/navigation';
 import PaymentForm from '@/components/Admin/Payments/payment-form';
-import { queryKeys } from '@/lib/query-keys';
-import { getCachedAdminPaymentOnlyDetailsById } from '@/lib/server-actions/admin/payments';
-import { requireAdmin } from '@/utils/auth-guard';
-import { getQueryClient } from '@/utils/get-query-client';
-import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
-import { Suspense } from 'react';
+import {queryKeys} from '@/lib/query-keys';
+import {cachedAdminPaymentDetailsById} from '@/lib/server-actions/admin/payments';
+import {requireAdmin} from '@/utils/auth-guard';
+import {getQueryClient} from '@/utils/get-query-client';
+import {QueryErrorWrapper} from '@/components/Custom/query-error-wrapper';
+import {Suspense} from 'react';
+import {ZodAdminPaymentQuerySchema, ZodAdminPaymentQueryType} from "@/lib/db/drizzle-zod-schema";
+import {normalizeProps} from "@/lib/normalizeProps";
 
-type Params = Promise<{ id: string }>;
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
-export default async function EditPaymentPage(props: {
-    params: Params;
-    searchParams: SearchParams;
+import {IdParams, IdParamsSchema} from "@/lib/types/shared";
+
+export default async function EditPaymentPage({params: promisedParams, searchParams: promisedSearchParams}: {
+    params: Promise<IdParams>,
+    searchParams: Promise<ZodAdminPaymentQueryType>;
 }) {
-    await requireAdmin();
-    const params = await props.params;
-    const { id } = params;
+    // Await the promised params and searchParams
+    const params = await promisedParams;
+    const searchParams = await promisedSearchParams;
 
+    // Validate and normalize the props
+    const {
+        params: validatedParams,
+        searchParams: validatedSearchParams
+    } = await normalizeProps(IdParamsSchema, ZodAdminPaymentQuerySchema, params, searchParams);
+    if (!validatedParams.id) {
+        notFound();
+    }
     const queryClient = getQueryClient();
-    await queryClient.prefetchQuery({
-        queryKey: queryKeys.payments.detail(id),
-        queryFn: () => getCachedAdminPaymentOnlyDetailsById(id),
-    });
+    try {
+        const response = await cachedAdminPaymentDetailsById(validatedParams.id);
+        if (!response.success) {
+            notFound();
+        }
 
-    //   const { data: payment } = await adminGetPaymentOnlyDetailsById(id);
-    //   if (!payment) {
-    //     notFound();
-    //   }
+        await queryClient.prefetchQuery({
+            queryKey: queryKeys.payments.detail(validatedParams.id),
+            queryFn: () => response,
+        });
+        await requireAdmin();
+    } catch (error) {
+        redirect('/admin-auth/sign-in?redirect=/admin/categories')
+    }
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
             <QueryErrorWrapper>
                 <Suspense>
-                    <PaymentForm formTitle="Edit Payment Form" id={id} />
+                    <PaymentForm formTitle="Edit Payment Form" id={validatedParams.id}/>
                 </Suspense>
             </QueryErrorWrapper>
         </HydrationBoundary>
     );
 }
+

@@ -8,8 +8,8 @@ import { toast } from 'sonner';
 import { DataTable } from '@/components/Custom/data-table';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
-    useDeleteCourseCategory,
-    useGetCourseCategories,
+    useAdminCourseCategoryDeleteById,
+    useAdminCourseCategoryList,
 } from '@/hooks/admin/course-categories';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
 import type { ZodSelectCourseCategoryType } from '@/lib/db/drizzle-zod-schema/course-categories';
@@ -18,13 +18,13 @@ import { CategoriesTableActions } from './categories-table-actions';
 export default function CategoriesTable() {
     const router = useRouter();
     const queryState = useDataTableQueryState();
-    const _queryClient = useQueryClient();
-
-    const { data: queryResult, error } = useGetCourseCategories({
+    console.log({ queryState })
+    const { data: queryResult, error } = useAdminCourseCategoryList({
         ...queryState,
+        filters: queryState?.filters ?? []
     });
 
-    const { mutateAsync: deleteCategory } = useDeleteCourseCategory();
+    const { mutateAsync: deleteCategory } = useAdminCourseCategoryDeleteById();
 
     const data = queryResult?.data;
     const total = queryResult?.total;
@@ -69,7 +69,7 @@ export default function CategoriesTable() {
                 cell: ({ row }) => (
                     <CategoriesTableActions
                         id={row.original.id}
-                        onDelete={handleDelete}
+                        onDeleteAction={handleDelete}
                     />
                 ),
             },

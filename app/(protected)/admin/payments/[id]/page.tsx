@@ -1,36 +1,52 @@
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
 import PaymentDetailsCard from '@/components/Admin/Payments/payment-details-card';
-import { queryKeys } from '@/lib/query-keys';
-import { getCachedAdminPaymentDetailsWithOthersById } from '@/lib/server-actions/admin/payments';
-import { requireAdmin } from '@/utils/auth-guard';
-import { getQueryClient } from '@/utils/get-query-client';
-import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
-import { Suspense } from 'react';
+import {queryKeys} from '@/lib/query-keys';
+import {cachedAdminPaymentDetailsWithRelationsById} from '@/lib/server-actions/admin/payments';
+import {requireAdmin} from '@/utils/auth-guard';
+import {getQueryClient} from '@/utils/get-query-client';
+import {QueryErrorWrapper} from '@/components/Custom/query-error-wrapper';
+import {Suspense} from 'react';
+import {ZodAdminPaymentQuerySchema, ZodAdminPaymentQueryType} from "@/lib/db/drizzle-zod-schema";
+import {normalizeProps} from "@/lib/normalizeProps";
+import {notFound, redirect} from "next/navigation";
+import {IdParams, IdParamsSchema} from "@/lib/types/shared";
 
-type Params = Promise<{ id: string }>;
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
-export default async function PaymentDetailsPage(props: {
-    params: Params;
-    searchParams: SearchParams;
+export default async function PaymentDetailsPage({params: promisedParams, searchParams: promisedSearchParams}: {
+    params: Promise<IdParams>,
+    searchParams: Promise<ZodAdminPaymentQueryType>;
 }) {
-    await requireAdmin();
-    const params = await props.params;
-    const id = params.id;
+    // Await the promised params and searchParams
+    const params = await promisedParams;
+    const searchParams = await promisedSearchParams;
 
+    // Validate and normalize the props
+    const {
+        params: validatedParams,
+        searchParams: validatedSearchParams
+    } = await normalizeProps(IdParamsSchema, ZodAdminPaymentQuerySchema, params, searchParams);
+    if (!validatedParams.id) {
+        notFound();
+    }
     const queryClient = getQueryClient();
-    await queryClient.prefetchQuery({
-        queryKey: queryKeys.payments.detail(id),
-        queryFn: () => getCachedAdminPaymentDetailsWithOthersById(id),
-    });
+    try {
+        await queryClient.prefetchQuery({
+            queryKey: queryKeys.payments.detail(validatedParams.id as string),
+            queryFn: () => cachedAdminPaymentDetailsWithRelationsById(validatedParams.id as string),
+        });
+        await requireAdmin();
+    } catch (error) {
+        redirect('/admin-auth/sign-in?redirect=/admin/categories')
+    }
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
             <QueryErrorWrapper>
                 <Suspense>
-                    <PaymentDetailsCard />
+                    <PaymentDetailsCard/>
                 </Suspense>
             </QueryErrorWrapper>
         </HydrationBoundary>
     );
 }
+

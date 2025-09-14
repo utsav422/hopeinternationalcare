@@ -1,64 +1,69 @@
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { Suspense } from 'react';
+import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
+import {Suspense} from 'react';
 import CustomerContactRequestsTable from '@/components/Admin/CustomerContactRequests/customer-contact-requests-table';
-import { queryKeys } from '@/lib/query-keys';
-import { adminGetCustomerContactRequests } from '@/lib/server-actions/admin/customer-contact-requests';
-import { requireAdmin } from '@/utils/auth-guard';
-import { getQueryClient } from '@/utils/get-query-client';
-import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
+import {queryKeys} from '@/lib/query-keys';
+import {adminCustomerContactRequestList} from '@/lib/server-actions/admin/customer-contact-requests';
+import {requireAdmin} from '@/utils/auth-guard';
+import {getQueryClient} from '@/utils/get-query-client';
+import {QueryErrorWrapper} from '@/components/Custom/query-error-wrapper';
+import {ZodContactRequestQuerySchema, ZodContactRequestQueryType} from '@/lib/db/drizzle-zod-schema';
+import {normalizeProps} from "@/lib/normalizeProps";
+import {redirect} from "next/navigation";
+import {IdParamsSchema} from "@/lib/types/shared";
 
-type Params = Promise<{ id: string }>;
-type SearchParams = Promise<{
-    page?: string;
-    pageSize?: string;
-    sortBy?: string;
-    order?: string;
-    filters?: string;
-    [key: string]: string | string[] | undefined;
-}>;
-
-export default async function CustomerContactRequestsPage(props: {
-    params: Params;
-    searchParams: SearchParams;
+export default async function CustomerContactRequestsPage({
+                                                              params: promisedParams, searchParams: promisedSearchParams
+                                                          }: {
+    params: Promise<{}>;
+    searchParams: Promise<ZodContactRequestQueryType>
 }) {
-    await requireAdmin();
-    const searchParams = await props.searchParams;
+    // Await the promised params and searchParams
+    const params = await promisedParams;
+    const searchParams = await promisedSearchParams;
+    // Validate and normalize the props
+    const {
+        params: validatedParams,
+        searchParams: validatedSearchParams
+    } = await normalizeProps(IdParamsSchema, ZodContactRequestQuerySchema, params, searchParams);
 
-    const page =
-        typeof searchParams.page === 'string' ? Number(searchParams.page) : 1;
-    const pageSize =
-        typeof searchParams.pageSize === 'string'
-            ? Number(searchParams.pageSize)
-            : 10;
-    const search =
-        typeof searchParams.search === 'string' ? searchParams.search : undefined;
-    const status =
-        typeof searchParams.status === 'string' ? searchParams.status : undefined;
+    const {
+        page,
+        pageSize,
+        sortBy,
+        order,
+        filters,
+    } = validatedSearchParams;
 
     const queryClient = getQueryClient();
-    await queryClient.prefetchQuery({
-        queryKey: queryKeys.customerContactRequests.list({
-            page,
-            pageSize,
-            search,
-            status,
-        }),
-        queryFn: async () =>
-            await adminGetCustomerContactRequests({
+    try {
+        await requireAdmin();
+        await queryClient.prefetchQuery({
+            queryKey: queryKeys.customerContactRequests.list({
                 page,
                 pageSize,
-                search,
-                status,
+
             }),
-    });
+            queryFn: async () =>
+                await adminCustomerContactRequestList({
+                    page: Number(page),
+                    pageSize: Number(pageSize),
+                    sortBy,
+                    order,
+                    filters,
+                }),
+        });
+    } catch (error) {
+        redirect('/admin-auth/sign-in?redirect=/admin/categories')
+    }
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
             <QueryErrorWrapper>
                 <Suspense fallback="Loading...">
-                    <CustomerContactRequestsTable />
+                    <CustomerContactRequestsTable/>
                 </Suspense>
             </QueryErrorWrapper>
         </HydrationBoundary>
     );
 }
+

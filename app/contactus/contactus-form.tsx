@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
     Form,
@@ -15,31 +14,12 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { sendEmail } from '@/utils/send-email';
-
-const contactFormSchema = z.object({
-    name: z
-        .string()
-        .min(2, 'Name must be at least 2 characters.')
-        .max(50, 'Name must not exceed 50 characters.'),
-    phone: z
-        .string()
-        .min(10, 'Phone number must be at least 10 digits.')
-        .max(15, 'Phone number must not exceed 15 digits.')
-        .optional()
-        .or(z.literal('')),
-    email: z.string().email('Invalid email address.'),
-    message: z
-        .string()
-        .min(10, 'Message must be at least 10 characters.')
-        .max(500, 'Message must not exceed 500 characters.'),
-});
-
-type ContactFormValues = z.infer<typeof contactFormSchema>;
+import { createCustomerContactRequest } from '@/lib/server-actions/user/customer-contact-requests';
+import { CustomerContactFormSchema, type CustomerContactFormType } from '@/lib/db/drizzle-zod-schema/customer-contact-requests';
 
 export function ContactUsForm() {
-    const form = useForm<ContactFormValues>({
-        resolver: zodResolver(contactFormSchema),
+    const form = useForm<CustomerContactFormType>({
+        resolver: zodResolver(CustomerContactFormSchema),
         defaultValues: {
             name: '',
             phone: '',
@@ -48,16 +28,25 @@ export function ContactUsForm() {
         },
     });
 
-    function onSubmit(data: ContactFormValues) {
+    async function onSubmit(data: CustomerContactFormType) {
         try {
             const formData = new FormData();
             formData.set('name', data.name);
             formData.set('message', data.message);
             formData.set('email', data.email);
             formData.set('phone', data.phone ?? '');
-            sendEmail(formData);
-            toast.success('Your message has been sent successfully!');
-            form.reset();
+
+            const result = await createCustomerContactRequest(formData);
+
+            if (result.success) {
+                toast.success('Your message has been sent successfully!');
+                form.reset();
+            } else {
+                const errorMessage = typeof result.error === 'string'
+                    ? result.error
+                    : 'Failed to send your message. Please try again later.';
+                toast.error(errorMessage);
+            }
         } catch (error: unknown) {
             toast.error(
                 error instanceof Error

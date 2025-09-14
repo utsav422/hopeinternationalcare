@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import type React from 'react';
 import { useInView } from 'react-intersection-observer';
 import ImageBackgroundCard from '@/components/Custom/image-bg-card';
-import Image from 'next/image';
+import Image from "next/image";
 
 interface OptionProps {
     icon: React.ElementType;

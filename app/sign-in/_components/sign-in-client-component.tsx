@@ -7,24 +7,17 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { Logo } from '@/components/Layout/logo';
-import { Button } from '@/components/ui/button';
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { signInAction } from '@/lib/server-actions/user/user-auth-actions';
+import type { DOT, RoutePoint } from '@/lib/types/shared';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { User, WeakPassword } from '@supabase/supabase-js';
+import { useUserSignIn } from "@/hooks/user/user-auth-actions";
+import { SubmitButton } from '@/components/submit-button';
 
 const cn = (...classes: string[]) => {
     return classes.filter(Boolean).join(' ');
 };
-
-import type { DOT, RoutePoint } from '@/lib/types/shared';
-import { useSearchParams } from 'next/navigation';
 
 const DotMap = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -226,7 +219,8 @@ function SignInClientComponent() {
     const error = searchParams?.getAll('error')
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-
+    const router = useRouter();
+    const { mutateAsync: userSignIn, isPending } = useUserSignIn()
     // Display error message from URL parameter as toast
     useEffect(() => {
         if (error && error.length > 0) {
@@ -238,7 +232,7 @@ function SignInClientComponent() {
     }, [error]);
 
     const formSchema = z.object({
-        email: z.string().email('Invalid email address'),
+        email: z.email('Invalid email address'),
         password: z.string().min(1, 'Password is required'),
     });
 
@@ -255,10 +249,26 @@ function SignInClientComponent() {
             const formData = new FormData();
             formData.set('email', values.email);
             formData.set('password', values.password);
-            const result = await signInAction(formData);
-            if (result?.error) {
-                toast.error(result.error);
-            }
+
+            toast.promise(userSignIn(formData), {
+                loading: 'Signing in...',
+                success: (result: {
+                    success: boolean;
+                    message: string,
+                    data?: { user: User, weakPassword?: WeakPassword }
+                }) => {
+                    if (result?.success && result?.message && result?.data?.user) {
+                        // Redirect to the profile page after successful login
+                        router.push('/users/profile');
+                        return result?.message
+                    }
+                    return 'Failed to sign in'
+                },
+                error: (error: Error) => {
+                    console.error('Error signing in:', error);
+                    return error.message || 'Failed to sign in';
+                },
+            });
         } catch (error: unknown) {
             toast.error(
                 error instanceof Error
@@ -267,6 +277,7 @@ function SignInClientComponent() {
             );
         }
     }
+
     return (
         <div className="flex min-h-screen w-full items-center justify-center bg-gray-100 p-4 dark:bg-gray-900">
             <motion.div
@@ -275,17 +286,21 @@ function SignInClientComponent() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.5 }}
             >
-                <div className="relative hidden h-[600px] w-1/2 overflow-hidden border-gray-200 border-r md:block dark:border-gray-700">
-                    <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-blue-100 dark:from-teal-900/50 dark:to-blue-900/50">
+                <div
+                    className="relative hidden h-[600px] w-1/2 overflow-hidden border-gray-200 border-r md:block dark:border-gray-700">
+                    <div
+                        className="absolute inset-0 bg-gradient-to-br from-teal-50 to-blue-100 dark:from-teal-900/50 dark:to-blue-900/50">
                         <DotMap />
-                        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-8 text-center">
+                        <div
+                            className="absolute inset-0 z-10 flex flex-col items-center justify-center p-8 text-center">
                             <motion.div
                                 animate={{ opacity: 1, y: 0 }}
                                 className="mb-6"
                                 initial={{ opacity: 0, y: -20 }}
                                 transition={{ delay: 0.6, duration: 0.5 }}
                             >
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-indigo-600 shadow-blue-200 shadow-lg dark:shadow-blue-800">
+                                <div
+                                    className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-indigo-600 shadow-blue-200 shadow-lg dark:shadow-blue-800">
                                     <ArrowRight className="h-6 w-6 text-white" />
                                 </div>
                             </motion.div>
@@ -319,7 +334,8 @@ function SignInClientComponent() {
                     </div>
                 </div>
 
-                <div className="relative flex w-full flex-col justify-center space-y-8 bg-white px-8 py-10 md:w-1/2 md:px-10 dark:bg-gray-800">
+                <div
+                    className="relative flex w-full flex-col justify-center space-y-8 bg-white px-8 py-10 md:w-1/2 md:px-10 dark:bg-gray-800">
                     <div className="flex w-full items-center justify-center">
                         <Logo className="h-20" />
                     </div>
@@ -402,18 +418,12 @@ function SignInClientComponent() {
                                     whileHover={{ scale: 1.01 }}
                                     whileTap={{ scale: 0.98 }}
                                 >
-                                    <Button
-                                        className={cn(
-                                            'relative w-full overflow-hidden rounded-lg bg-gradient-to-r from-teal-500 to-indigo-600 py-3 text-white transition-all duration-300 hover:from-teal-600 hover:to-indigo-700',
-                                            isHovered
-                                                ? 'shadow-blue-300 shadow-lg dark:shadow-blue-800'
-                                                : ''
-                                        )}
-                                        disabled={form.formState.isSubmitting}
+                                    <SubmitButton
+                                        className="relative w-full overflow-hidden rounded-lg bg-gradient-to-r from-teal-500 to-indigo-600 py-3 text-white transition-all duration-300 hover:from-teal-600 hover:to-indigo-700"
                                         type="submit"
                                     >
                                         <span className="flex items-center justify-center">
-                                            {form.formState.isSubmitting ? (
+                                            {isPending ? (
                                                 'Signing in...'
                                             ) : (
                                                 <>
@@ -431,7 +441,37 @@ function SignInClientComponent() {
                                                 transition={{ duration: 1, ease: 'easeInOut' }}
                                             />
                                         )}
-                                    </Button>
+                                    </SubmitButton>
+                                    {/*<Button*/}
+                                    {/*    className={cn(*/}
+                                    {/*        'relative w-full overflow-hidden rounded-lg bg-gradient-to-r from-teal-500 to-indigo-600 py-3 text-white transition-all duration-300 hover:from-teal-600 hover:to-indigo-700',*/}
+                                    {/*        isHovered*/}
+                                    {/*            ? 'shadow-blue-300 shadow-lg dark:shadow-blue-800'*/}
+                                    {/*            : ''*/}
+                                    {/*    )}*/}
+                                    {/*    disabled={form.formState.isSubmitting}*/}
+                                    {/*    type="submit"*/}
+                                    {/*>*/}
+                                    {/*    <span className="flex items-center justify-center">*/}
+                                    {/*        {form.formState.isSubmitting ? (*/}
+                                    {/*            'Signing in...'*/}
+                                    {/*        ) : (*/}
+                                    {/*            <>*/}
+                                    {/*                Sign in*/}
+                                    {/*                <ArrowRight className="ml-2 h-4 w-4" />*/}
+                                    {/*            </>*/}
+                                    {/*        )}*/}
+                                    {/*    </span>*/}
+                                    {/*    {isHovered && (*/}
+                                    {/*        <motion.span*/}
+                                    {/*            animate={{ left: '100%' }}*/}
+                                    {/*            className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-transparent via-white/30 to-transparent"*/}
+                                    {/*            initial={{ left: '-100%' }}*/}
+                                    {/*            style={{ filter: 'blur(8px)' }}*/}
+                                    {/*            transition={{ duration: 1, ease: 'easeInOut' }}*/}
+                                    {/*        />*/}
+                                    {/*    )}*/}
+                                    {/*</Button>*/}
                                 </motion.div>
                             </form>
                         </Form>

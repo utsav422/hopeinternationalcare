@@ -3,11 +3,11 @@ import { Suspense } from 'react';
 import Dashboard from '@/components/Admin/Dasboard';
 import { queryKeys } from '@/lib/query-keys';
 import {
-    getEnrollmentsByStatus,
-    getPaymentsByStatus,
-    getTotalEnrollments,
-    getTotalIncome,
-    getTotalUsers,
+    adminDashboardEnrollmentsByStatus,
+    adminDashboardPaymentsByStatus,
+    adminDashboardTotalEnrollments,
+    adminDashboardTotalIncome,
+    adminDashboardTotalUsers,
 } from '@/lib/server-actions/admin/dashboard';
 import { getQueryClient } from '@/utils/get-query-client';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
@@ -17,23 +17,23 @@ export default async function AdminDashboard() {
 
     await queryClient.prefetchQuery({
         queryKey: queryKeys.dashboard.totalIncome,
-        queryFn: getTotalIncome,
+        queryFn: adminDashboardTotalIncome,
     });
     await queryClient.prefetchQuery({
         queryKey: queryKeys.dashboard.totalUsers,
-        queryFn: getTotalUsers,
+        queryFn: adminDashboardTotalUsers,
     });
     await queryClient.prefetchQuery({
         queryKey: queryKeys.dashboard.totalEnrollment,
-        queryFn: getTotalEnrollments,
+        queryFn: adminDashboardTotalEnrollments,
     });
     await queryClient.prefetchQuery({
         queryKey: queryKeys.dashboard.paymentByStatus,
-        queryFn: getPaymentsByStatus,
+        queryFn: adminDashboardPaymentsByStatus,
     });
     await queryClient.prefetchQuery({
         queryKey: queryKeys.dashboard.enrollmentByStatus,
-        queryFn: getEnrollmentsByStatus,
+        queryFn: adminDashboardEnrollmentsByStatus,
     });
 
     const dehydratedState = dehydrate(queryClient);

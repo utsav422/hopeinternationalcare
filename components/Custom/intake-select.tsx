@@ -10,7 +10,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useGetAllActiveIntake } from '@/hooks/admin/intakes';
+import { useAdminIntakeListAllActive } from '@/hooks/admin/intakes';
 import type { ZodEnrollmentInsertType } from '@/lib/db/drizzle-zod-schema/enrollments';
 import type { IntakeWithCourse } from '@/lib/server-actions/admin/intakes';
 import { Skeleton } from '../ui/skeleton';
@@ -26,7 +26,7 @@ export default function IntakeSelect({
     disabled,
     getItemOnValueChanges,
 }: IntakeSelectProps) {
-    const { data: intakes, error, isLoading } = useGetAllActiveIntake();
+    const { data: intakes, error, isLoading } = useAdminIntakeListAllActive();
 
     if (isLoading) {
         return (

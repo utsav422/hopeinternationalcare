@@ -1,21 +1,24 @@
 'use client';
 
+import {useMutation, useQueryClient, useSuspenseQuery,} from '@tanstack/react-query';
+import type {ColumnFiltersState} from '@tanstack/react-table';
+import type {ZodEnrollmentInsertType} from '@/lib/db/drizzle-zod-schema/enrollments';
+import type {TypeEnrollmentStatus} from '@/lib/db/schema/enums';
+import {queryKeys} from '@/lib/query-keys';
 import {
-    useMutation,
-    useQueryClient,
-    useSuspenseQuery,
-} from '@tanstack/react-query';
-import type { ColumnFiltersState } from '@tanstack/react-table';
-import type { ZodEnrollmentInsertType } from '@/lib/db/drizzle-zod-schema/enrollments';
-import type { TypeEnrollmentStatus } from '@/lib/db/schema/enums';
-import { queryKeys } from '@/lib/query-keys';
-import {
-    adminDeleteEnrollment,
-    adminUpdateEnrollmentStatus,
-    adminUpsertEnrollment,
+    adminEnrollmentDeleteById,
+    adminEnrollmentDetailsById,
+    adminEnrollmentDetailsWithJoinsById,
+    adminEnrollmentDetailsWithPaymentById,
+    adminEnrollmentList,
+    adminEnrollmentListAll,
+    adminEnrollmentListAllByStatus,
+    adminEnrollmentListByUserId,
+    adminEnrollmentUpdateStatusById,
+    adminEnrollmentUpsert,
 } from '@/lib/server-actions/admin/enrollments';
 
-export const useGetEnrollments = (params: {
+export const useAdminEnrollmentList = (params: {
     page?: number;
     pageSize?: number;
     filters?: ColumnFiltersState;
@@ -23,20 +26,7 @@ export const useGetEnrollments = (params: {
     return useSuspenseQuery({
         queryKey: queryKeys.enrollments.list(params),
         queryFn: async () => {
-            const searchParams = new URLSearchParams({
-                page: params.page?.toString() || '1',
-                pageSize: params.pageSize?.toString() || '10',
-                filters: JSON.stringify(params.filters || []),
-            });
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/enrollments?${searchParams}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch enrollments');
-            }
-            const result = await response.json();
+            const result = await adminEnrollmentList(params);
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch enrollments');
             }
@@ -46,17 +36,11 @@ export const useGetEnrollments = (params: {
     });
 };
 
-export const useGetEnrollmentById = (id: string) => {
+export const useAdminEnrollmentDetailsById = (id: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.enrollments.detail(id),
         queryFn: async () => {
-
-
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/enrollments?id=${id}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch enrollment');
-            }
-            const result = await response.json();
+            const result = await adminEnrollmentDetailsById(id);
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch enrollment');
             }
@@ -66,19 +50,11 @@ export const useGetEnrollmentById = (id: string) => {
     });
 };
 
-export const useGetEnrollmentWithDetails = (id: string) => {
+export const useAdminEnrollmentDetailsWithAllById = (id: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.enrollments.detail(id),
         queryFn: async () => {
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/enrollments?id=${id}&withDetails=true`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch enrollment details');
-            }
-            const result = await response.json();
+            const result = await adminEnrollmentDetailsWithJoinsById(id);
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch enrollment details');
             }
@@ -88,19 +64,11 @@ export const useGetEnrollmentWithDetails = (id: string) => {
     });
 };
 
-export const useGetEnrollmentsByUserId = (userId: string) => {
+export const useAdminEnrollmentListByUserId = (userId: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.enrollments.detailByUserId(userId),
         queryFn: async () => {
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/enrollments?userId=${userId}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch enrollments');
-            }
-            const result = await response.json();
+            const result = await adminEnrollmentListByUserId(userId);
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch enrollments');
             }
@@ -110,19 +78,11 @@ export const useGetEnrollmentsByUserId = (userId: string) => {
     });
 };
 
-export const useGetEnrollmentWithPayment = (id: string) => {
+export const useAdminEnrollmentDetailsWithPaymentById = (id: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.enrollments.detailByPaymentId(id),
         queryFn: async () => {
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/enrollments?id=${id}&withPayment=true`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch enrollment with payment');
-            }
-            const result = await response.json();
+            const result = await adminEnrollmentDetailsWithPaymentById(id);
             if (!result.success) {
                 throw new Error(
                     result.error || 'Failed to fetch enrollment with payment'
@@ -134,18 +94,11 @@ export const useGetEnrollmentWithPayment = (id: string) => {
     });
 };
 
-export const useGetAllEnrollments = () => {
+export const useAdminEnrollmentListAll = () => {
     return useSuspenseQuery({
         queryKey: queryKeys.enrollments.all,
         queryFn: async () => {
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/enrollments?getAll=true`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch all enrollments');
-            }
-            const result = await response.json();
+            const result = await adminEnrollmentListAll();
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch all enrollments');
             }
@@ -155,19 +108,11 @@ export const useGetAllEnrollments = () => {
     });
 };
 
-export const useGetAllEnrollmentsByStatus = (status: TypeEnrollmentStatus) => {
+export const useAdminEnrollmentListAllByStatus = (status: TypeEnrollmentStatus) => {
     return useSuspenseQuery({
-        queryKey: queryKeys.enrollments.list({ status }),
+        queryKey: queryKeys.enrollments.list({status}),
         queryFn: async () => {
-
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/enrollments?getAll=true&status=${status}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch enrollments by status');
-            }
-            const result = await response.json();
+            const result = await adminEnrollmentListAllByStatus(status);
             if (!result.success) {
                 throw new Error(
                     result.error || 'Failed to fetch enrollments by status'
@@ -179,40 +124,40 @@ export const useGetAllEnrollmentsByStatus = (status: TypeEnrollmentStatus) => {
     });
 };
 
-export const useUpsertEnrollment = () => {
+export const useAdminEnrollmentUpsert = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (data: ZodEnrollmentInsertType) => adminUpsertEnrollment(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.enrollments.all });
+        mutationFn: (data: ZodEnrollmentInsertType) => adminEnrollmentUpsert(data),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({queryKey: queryKeys.enrollments.all});
         },
     });
 };
 
-export const useUpdateEnrollmentStatus = () => {
+export const useAdminEnrollmentUpdateStatus = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: ({
-            id,
-            status,
-            cancelled_reason,
-        }: {
+                         id,
+                         status,
+                         cancelled_reason,
+                     }: {
             id: string;
             status: TypeEnrollmentStatus;
             cancelled_reason?: string;
-        }) => adminUpdateEnrollmentStatus(id, status, cancelled_reason),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.enrollments.all });
+        }) => adminEnrollmentUpdateStatusById(id, status, cancelled_reason),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({queryKey: queryKeys.enrollments.all});
         },
     });
 };
 
-export const useDeleteEnrollment = () => {
+export const useAdminEnrollmentDelete = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id: string) => adminDeleteEnrollment(id),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.enrollments.all });
+        mutationFn: (id: string) => adminEnrollmentDeleteById(id),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({queryKey: queryKeys.enrollments.all});
         },
     });
 };

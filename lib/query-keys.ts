@@ -1,4 +1,11 @@
 export const queryKeys = {
+    affiliations: {
+        all: ['affiliations'] as const,
+        lists: () => [...queryKeys.affiliations.all, 'list'] as const,
+        list: (params: object) => [...queryKeys.affiliations.lists(), params] as const,
+        details: () => [...queryKeys.affiliations.all, 'detail'] as const,
+        detail: (id: string) => [...queryKeys.affiliations.details(), id] as const,
+    },
     courseCategories: {
         all: ['course-categories'] as const,
         lists: () => [...queryKeys.courseCategories.all, 'list'] as const,
@@ -86,6 +93,9 @@ export const queryKeys = {
     },
     users: {
         all: ['users'] as const,
+        list: (params: object) =>
+            [...queryKeys.users.all, 'list', params] as const,
+        detail: (id: string) => [...queryKeys.users.all, 'detail', id] as const,
         session: ['session'] as const,
     },
     publicCourses: {

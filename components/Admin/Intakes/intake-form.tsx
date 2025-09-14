@@ -34,7 +34,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
-import { useGetIntakeById, useUpsertIntake } from '@/hooks/admin/intakes';
+import { useAdminIntakeDetailsById, useAdminIntakeUpsert } from '@/hooks/admin/intakes';
 import {
     type ZodInsertIntakeType,
     ZodIntakeInsertSchema,
@@ -48,14 +48,14 @@ interface IntakeFormProps {
 
 export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
     const router = useRouter();
-    const { data: queryResult, error } = useGetIntakeById(id ?? '');
+    const { data: queryResult, error } = useAdminIntakeDetailsById(id ?? '');
     if (error) {
         toast.error('Error fetching intake details', {
             description: error.message,
         });
     }
     const initialData = queryResult;
-    const { mutateAsync: upsertIntake } = useUpsertIntake();
+    const { mutateAsync: upsertIntake } = useAdminIntakeUpsert();
 
     const form = useForm<ZodInsertIntakeType>({
         resolver: zodResolver(ZodIntakeInsertSchema),

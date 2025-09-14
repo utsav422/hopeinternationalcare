@@ -1,12 +1,12 @@
 import { CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGetEnrollmentsByStatus } from '@/hooks/admin/dashboard';
+import { useAdminDashboardEnrollmentListByStatus } from '@/hooks/admin/dashboard';
 import type { TypeEnrollmentStatus } from '@/lib/db/schema';
 import { DashboardCardSkeleton } from '.';
 
 function TotalCompletedEnrollmentsCard() {
-    const { data: queryResult, isLoading, error } = useGetEnrollmentsByStatus();
+    const { data: queryResult, isLoading, error } = useAdminDashboardEnrollmentListByStatus();
     const success = queryResult?.success;
     const queryDataError = queryResult?.error;
     const enrollmentsByStatus = queryResult?.data;
