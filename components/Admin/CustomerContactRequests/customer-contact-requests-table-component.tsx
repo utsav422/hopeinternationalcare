@@ -16,6 +16,49 @@ import { useAdminCustomerContactRequestUpdateStatusById } from '@/hooks/admin/cu
 import { CustomerContactReplyModal } from './customer-contact-reply-modal';
 import type { ZodCustomerContactRequestSelectType } from '@/lib/db/drizzle-zod-schema/customer-contact-requests';
 
+const ActionsCell = ({ request }: { request: ZodCustomerContactRequestSelectType }) => {
+    const updateStatusMutation = useAdminCustomerContactRequestUpdateStatusById();
+
+    const handleStatusChange = (status: string) => {
+        updateStatusMutation.mutate({ id: request.id, status });
+    };
+
+    return (
+        <div className="flex items-center gap-2">
+            <CustomerContactReplyModal
+                contactRequest={request}
+                mode="single"
+                trigger={
+                    <Button variant="outline" size="sm">
+                        <Mail className="mr-2 h-4 w-4" />
+                        Reply
+                    </Button>
+                }
+            />
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button className="h-8 w-8 p-0" variant="ghost">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => handleStatusChange('pending')}>
+                        Mark as Pending
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleStatusChange('resolved')}>
+                        Mark as Resolved
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleStatusChange('closed')}>
+                        Mark as Closed
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
+    );
+};
+
 const columns: ColumnDef<ZodCustomerContactRequestSelectType>[] = [
     {
         accessorKey: 'name',
@@ -53,46 +96,7 @@ const columns: ColumnDef<ZodCustomerContactRequestSelectType>[] = [
         id: 'actions',
         cell: ({ row }) => {
             const request = row.original;
-            const updateStatusMutation = useAdminCustomerContactRequestUpdateStatusById();
-
-            const handleStatusChange = (status: string) => {
-                updateStatusMutation.mutate({ id: request.id, status });
-            };
-
-            return (
-                <div className="flex items-center gap-2">
-                    <CustomerContactReplyModal
-                        contactRequest={request}
-                        mode="single"
-                        trigger={
-                            <Button variant="outline" size="sm">
-                                <Mail className="mr-2 h-4 w-4" />
-                                Reply
-                            </Button>
-                        }
-                    />
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button className="h-8 w-8 p-0" variant="ghost">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleStatusChange('pending')}>
-                                Mark as Pending
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleStatusChange('resolved')}>
-                                Mark as Resolved
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleStatusChange('closed')}>
-                                Mark as Closed
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            );
+            return <ActionsCell request={request} />;
         },
     },
 ];

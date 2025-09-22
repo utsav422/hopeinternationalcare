@@ -52,7 +52,7 @@ export async function adminEnrollmentList(params: EnrollmentQueryParams): Promis
     try {
         // Validate query parameters
         const validatedParams = validateEnrollmentQueryParams(params);
-        const { page = 1, pageSize = 10, filters = [] } = validatedParams;
+        const { page = 1, pageSize = 10, filters = [], all = false } = validatedParams;
         const offset = (page - 1) * pageSize;
 
         // Define column mappings for filtering
@@ -75,7 +75,7 @@ export async function adminEnrollmentList(params: EnrollmentQueryParams): Promis
         const whereClause = buildWhereClause(filterConditions);
 
         // Fetch enrollment list with all required joins
-        const data = await db
+        const query = db
             .select({
                 id: enrollmentSchema.id,
                 notes: enrollmentSchema.notes,
@@ -96,9 +96,14 @@ export async function adminEnrollmentList(params: EnrollmentQueryParams): Promis
             .leftJoin(paymentSchema, eq(paymentSchema.enrollment_id, enrollmentSchema.id))
             .leftJoin(profileSchema, eq(enrollmentSchema.user_id, profileSchema.id))
             .leftJoin(intakeSchema, eq(enrollmentSchema.intake_id, intakeSchema.id))
-            .leftJoin(courseSchema, eq(intakeSchema.course_id, courseSchema.id))
-            .offset(offset)
-            .limit(pageSize);
+            .leftJoin(courseSchema, eq(intakeSchema.course_id, courseSchema.id));
+
+        if (!all) {
+            query.offset(offset).limit(pageSize);
+        }
+
+        const data = await query;
+
 
         // Transform to EnrollmentListItem format
         const enrollmentList: EnrollmentListItem[] = data.map(item => ({

@@ -2,7 +2,7 @@ import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
 import {notFound, redirect} from 'next/navigation';
 import PaymentForm from '@/components/Admin/Payments/payment-form';
 import {queryKeys} from '@/lib/query-keys';
-import {cachedAdminPaymentDetailsById} from '@/lib/server-actions/admin/payments';
+import {adminPaymentDetails} from '@/lib/server-actions/admin/payments-optimized';
 import {requireAdmin} from '@/utils/auth-guard';
 import {getQueryClient} from '@/utils/get-query-client';
 import {QueryErrorWrapper} from '@/components/Custom/query-error-wrapper';
@@ -30,14 +30,9 @@ export default async function EditPaymentPage({params: promisedParams, searchPar
     }
     const queryClient = getQueryClient();
     try {
-        const response = await cachedAdminPaymentDetailsById(validatedParams.id);
-        if (!response.success) {
-            notFound();
-        }
-
         await queryClient.prefetchQuery({
-            queryKey: queryKeys.payments.detail(validatedParams.id),
-            queryFn: () => response,
+            queryKey: queryKeys.payments.detail(validatedParams.id!),
+            queryFn: () => adminPaymentDetails(validatedParams.id!),
         });
         await requireAdmin();
     } catch (error) {

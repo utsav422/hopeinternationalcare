@@ -165,7 +165,12 @@ export async function adminPaymentDetails(id: string): Promise<ApiResponse<Payme
             with: {
                 enrollment: {
                     with: {
-                        user: true
+                        user: true,
+                        intake: {
+                            with: {
+                                course: true
+                            }
+                        }
                     }
                 }
             }
@@ -177,17 +182,61 @@ export async function adminPaymentDetails(id: string): Promise<ApiResponse<Payme
 
         const { enrollment, ...payment } = paymentData;
         const user = enrollment?.user || null;
+        const course = enrollment?.intake?.course || null;
 
         return {
             success: true,
             data: {
                 payment,
                 enrollment: enrollment || null,
-                user
+                user,
+                course
             }
         };
     } catch (error) {
         return handlePaymentError(error, 'details');
+    }
+}
+
+export async function adminPaymentDetailsByEnrollmentId(enrollmentId: string): Promise<ApiResponse<PaymentWithDetails>> {
+    try {
+        await requireAdmin();
+
+        const paymentData = await db.query.payments.findFirst({
+            where: eq(payments.enrollment_id, enrollmentId),
+            with: {
+                enrollment: {
+                    with: {
+                        user: true,
+                        intake: {
+                            with: {
+                                course: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (!paymentData) {
+            return { success: false, error: 'Payment not found', code: 'NOT_FOUND' };
+        }
+
+        const { enrollment, ...payment } = paymentData;
+        const user = enrollment?.user || null;
+        const course = enrollment?.intake?.course || null;
+
+        return {
+            success: true,
+            data: {
+                payment,
+                enrollment: enrollment || null,
+                user,
+                course
+            }
+        };
+    } catch (error) {
+        return handlePaymentError(error, 'details-by-enrollment-id');
     }
 }
 

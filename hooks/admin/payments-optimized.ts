@@ -10,7 +10,8 @@ import {
   adminPaymentDelete, 
   adminPaymentCheckConstraints,
   adminPaymentUpdateStatus,
-  adminPaymentRefund
+  adminPaymentRefund,
+  adminPaymentDetailsByEnrollmentId
 } from '@/lib/server-actions/admin/payments-optimized';
 import type { 
   PaymentQueryParams, 
@@ -83,6 +84,16 @@ export function useAdminPaymentDetails(id: string) {
   });
 }
 
+export function useAdminPaymentDetailsByEnrollmentId(enrollmentId: string) {
+    return useQuery({
+        queryKey: ['payments', 'detail', 'by-enrollment', enrollmentId],
+        queryFn: async () => adminPaymentDetailsByEnrollmentId(enrollmentId),
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        gcTime: 1000 * 60 * 60, // 1 hour
+        enabled: !!enrollmentId,
+    });
+}
+
 // Mutation operations
 export function useAdminPaymentCreate() {
   const queryClient = useQueryClient();
@@ -136,11 +147,11 @@ export function useAdminPaymentDelete() {
   });
 }
 
-export function useAdminPaymentConstraintCheck() {
+export function useAdminPaymentConstraintCheck(id: string) {
   return useQuery({
-    queryKey: [...paymentQueryKeys.all, 'constraint-check'],
-    queryFn: async (id: string) => adminPaymentCheckConstraints(id),
-    enabled: false, // Only run when explicitly called
+    queryKey: [...paymentQueryKeys.all, 'constraint-check', id],
+    queryFn: async () => adminPaymentCheckConstraints(id),
+    enabled: !!id,
   });
 }
 

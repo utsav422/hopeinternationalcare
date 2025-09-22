@@ -62,6 +62,7 @@ export interface EnrollmentQueryParams {
     filters?: ColumnFiltersState;
     status?: TypeEnrollmentStatus;
     userId?: string;
+    all?: boolean;
 }
 
 // Business operation types

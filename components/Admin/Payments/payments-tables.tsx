@@ -14,20 +14,22 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAdminPaymentDelete, useAdminPaymentList } from '@/hooks/admin/payments';
+import { useAdminPaymentDelete, useAdminPaymentList } from '@/hooks/admin/payments-optimized';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
-import type { PaymentDetailsType } from '@/lib/db/drizzle-zod-schema/payments';
+import type { PaymentListItem } from '@/lib/types/payments';
 
 export default function PaymentsTables() {
     const searchParams = useSearchParams();
     const queryState = useDataTableQueryState();
     const { data: queryResult, error } = useAdminPaymentList({ ...queryState });
+
     if (error) {
-        toast.error('Error fetching categories', {
+        toast.error('Error fetching payments', {
             description: error.message,
         });
     }
-    const data = queryResult?.data as PaymentDetailsType[];
+
+    const data = queryResult?.data;
     const total = queryResult?.total ?? 0;
     const status = searchParams.get('status');
     const { mutateAsync: deletePayment } = useAdminPaymentDelete();
@@ -39,7 +41,8 @@ export default function PaymentsTables() {
             error: (error) => error instanceof Error ? error.message : 'Failed to delete payment',
         });
     };
-    const columns: ColumnDef<PaymentDetailsType & { id: UniqueIdentifier }>[] = [
+
+    const columns: ColumnDef<PaymentListItem>[] = [
         {
             accessorKey: 'id',
             header: () => <div className="">Payment ID</div>,
@@ -48,33 +51,32 @@ export default function PaymentsTables() {
             ),
         },
         {
-            accessorKey: 'userEmail',
             header: () => <div className="">Email</div>,
-            cell: (props) => {
+            cell: ({ row }) => {
+                const user = row.original.user;
                 return (
                     <div className="dark:text-gray-300">
-                        {props.row.original.userEmail}
+                        {user?.email}
                     </div>
                 );
             },
         },
         {
-            accessorKey: 'courseTitle',
             header: () => <div className="">Course</div>,
-            cell: (props) => {
+            cell: ({ row }) => {
+                const enrollment = row.original.enrollment;
                 return (
                     <div className="dark:text-gray-300">
-                        {props.row.original.courseTitle}
+                        {enrollment?.course_title}
                     </div>
                 );
             },
         },
         {
-            accessorKey: 'enrolled_at',
+            accessorKey: 'created_at',
             header: () => <div className="">Enrolled Date</div>,
-            cell: (props) => {
-                const date = new Date(props.row.original.enrolled_at ?? '');
-
+            cell: ({ row }) => {
+                const date = new Date(row.original.created_at ?? '');
                 return (
                     <div className="dark:text-gray-300">{date.toLocaleDateString()}</div>
                 );
@@ -83,8 +85,8 @@ export default function PaymentsTables() {
         {
             accessorKey: 'status',
             header: () => <div className="">Status</div>,
-            cell: (props) => {
-                const status = props.row.original.status;
+            cell: ({ row }) => {
+                const status = row.original.status;
                 return <div className="dark:text-gray-300">{status}</div>;
             },
         },
@@ -140,7 +142,7 @@ export default function PaymentsTables() {
             <Card className="">
                 <CardHeader />
                 <CardContent>
-                    <DataTable<PaymentDetailsType, unknown>
+                    <DataTable<PaymentListItem, unknown>
                         columns={columns}
                         data={data ?? []}
                         headerActionUrl="/admin/payment/new"

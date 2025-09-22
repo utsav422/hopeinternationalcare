@@ -1,6 +1,6 @@
 'use client';
 
-import {useGetUserPaymentHistory} from '@/hooks/user/user-payments';
+import {useGetUserPaymentHistory} from '@/hooks/user/user-payments-optimized';
 import {PaymentHistoryTable} from './payment-history-table-component';
 
 export default function PaymentHistoryTableContainer({
@@ -12,7 +12,7 @@ export default function PaymentHistoryTableContainer({
     pageSize?: number;
     userId: string;
 }) {
-    const {data, isLoading, error} = useGetUserPaymentHistory(page, pageSize, userId);
+    const {data: queryResult, isLoading, error} = useGetUserPaymentHistory(page, pageSize, userId);
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -22,5 +22,8 @@ export default function PaymentHistoryTableContainer({
         return <div>Error: {error.message}</div>;
     }
 
-    return <PaymentHistoryTable data={data || []}/>;
+    const data = queryResult?.data || [];
+    const total = queryResult?.total || 0;
+
+    return <PaymentHistoryTable data={data} total={total} />;
 }

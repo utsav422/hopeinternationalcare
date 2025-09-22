@@ -9,15 +9,15 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useAdminEnrollmentListAll } from '@/hooks/admin/enrollments';
-import type { EnrollmentWithDetails } from '@/lib/db/drizzle-zod-schema/enrollments';
+import { useAdminEnrollmentList } from '@/hooks/admin/enrollments';
+import type { EnrollmentListItem } from '@/lib/types/enrollments';
 import type { ZodInsertPaymentType } from '@/lib/db/drizzle-zod-schema/payments';
 import { Skeleton } from '../ui/skeleton';
 
 interface EnrollmentSelectProps {
     field: ControllerRenderProps<ZodInsertPaymentType, 'enrollment_id'>;
     disabled?: boolean;
-    getItemOnValueChanges?: (item: EnrollmentWithDetails) => void;
+    getItemOnValueChanges?: (item: EnrollmentListItem) => void;
 }
 
 export default function EnrollmentSelect({
@@ -26,18 +26,20 @@ export default function EnrollmentSelect({
     getItemOnValueChanges,
 }: EnrollmentSelectProps) {
     const {
-        data: enrollmentsWithDetails,
+        data: queryResult,
         error,
         isLoading,
-    } = useAdminEnrollmentListAll();
+    } = useAdminEnrollmentList({ all: true });
 
-    if (error || !enrollmentsWithDetails) {
+    if (error) {
         toast.error(
             error?.message ?? 'Data couldnt found. please contact to adminstrator'
         );
     }
 
-    if (enrollmentsWithDetails && enrollmentsWithDetails.length === 0) {
+    const enrollments = queryResult?.data;
+
+    if (enrollments && enrollments.length === 0) {
         return (
             <span className="">
                 No intake found for course enrollments
@@ -56,13 +58,15 @@ export default function EnrollmentSelect({
         <Select
             disabled={disabled || isLoading}
             onValueChange={(value) => {
-                const selectedEnrollmentWIthDetails = enrollmentsWithDetails?.find(
-                    (itemWithDetails: EnrollmentWithDetails) =>
-                        itemWithDetails.enrollment.id === value
+                const selectedEnrollment = enrollments?.find(
+                    (item: EnrollmentListItem) =>
+                        item.id === value
                 );
-                if (selectedEnrollmentWIthDetails) {
+                if (selectedEnrollment) {
                     field.onChange(value);
-                    getItemOnValueChanges?.(selectedEnrollmentWIthDetails);
+                    if (getItemOnValueChanges) {
+                        getItemOnValueChanges(selectedEnrollment);
+                    }
                 }
             }}
             value={field.value ?? undefined}
@@ -71,22 +75,22 @@ export default function EnrollmentSelect({
                 <SelectValue placeholder="Select a Enrollments" />
             </SelectTrigger>
             <SelectContent className="">
-                {enrollmentsWithDetails?.map(
-                    (itemWithDetails: EnrollmentWithDetails) => (
+                {enrollments?.map(
+                    (item: EnrollmentListItem) => (
                         <SelectItem
-                            key={itemWithDetails.enrollment.id}
-                            value={itemWithDetails.enrollment.id}
+                            key={item.id}
+                            value={item.id}
                         >
                             <div className="flex items-center gap-2">
                                 <span className="font-bold ">
-                                    Enrolled Date: {itemWithDetails.enrollment.enrollment_date}
+                                    Enrolled Date: {item.created_at}
                                 </span>
                                 <span className="text-gray-500 text-sm ">
-                                    (user: {itemWithDetails.user?.full_name})
+                                    (user: {item.user?.fullName})
                                 </span>
                                 <span className="text-gray-700 text-sm dark:text-gray-300">
                                     {new Date(
-                                        itemWithDetails.enrollment.enrollment_date as string
+                                        item.created_at as string
                                     ).toLocaleDateString('en-GB', {
                                         day: '2-digit',
                                         month: 'short',

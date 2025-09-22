@@ -27,15 +27,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useAdminPaymentDetailsById, useAdminPaymentUpsert } from '@/hooks/admin/payments';
-import type { EnrollmentWithDetails } from '@/lib/db/drizzle-zod-schema/enrollments';
+import { useAdminPaymentDetails, useAdminPaymentCreate, useAdminPaymentUpdate } from '@/hooks/admin/payments-optimized';
+import type { EnrollmentListItem } from '@/lib/types/enrollments';
 import {
-    type ZodInsertPaymentType,
     ZodPaymentInsertSchema,
+    type ZodInsertPaymentType
 } from '@/lib/db/drizzle-zod-schema/payments';
 import { PaymentMethod, PaymentStatus } from '@/lib/db/schema/enums';
-import { adminPaymentUpsert } from '@/lib/server-actions/admin/payments';
-import { Key } from 'react';
+import { useEffect } from 'react';
 
 interface Props {
     id?: string;
@@ -45,42 +44,64 @@ interface Props {
 export default function PaymentForm({ id, formTitle }: Props) {
     const router = useRouter();
     const {
-        data: initialData,
+        data: queryResult,
         isLoading,
         error,
-    } = useAdminPaymentDetailsById(id ?? '');
-    const { mutateAsync: upsertPayment } = useAdminPaymentUpsert();
+    } = useAdminPaymentDetails(id ?? '');
+
+    const initialData = queryResult?.data;
+
+    const createPaymentMutation = useAdminPaymentCreate();
+    const updatePaymentMutation = useAdminPaymentUpdate();
 
     const form = useForm<ZodInsertPaymentType>({
         resolver: zodResolver(ZodPaymentInsertSchema),
-        defaultValues: initialData || {
+        defaultValues: {
             enrollment_id: '',
             amount: 0,
             method: PaymentMethod.cash,
             status: PaymentStatus.pending,
-            remarks: null,
-            paid_at: new Date().toISOString(),
-            is_refunded: false,
+            remarks: '',
+            paid_at: new Date().toISOString().substring(0, 10),
         },
     });
+
+    useEffect(() => {
+        if (initialData?.payment) {
+            form.reset({
+                ...initialData.payment,
+                paid_at: initialData.payment.paid_at ? new Date(initialData.payment.paid_at).toISOString().substring(0, 10) : '',
+            });
+        }
+    }, [initialData, form]);
+
+
     const { isSubmitting } = form.formState;
 
     const onSubmit = async (values: ZodInsertPaymentType) => {
-        toast.promise(upsertPayment(values), {
-            loading: 'Saving payment...',
-            success: () => {
-                router.push('/admin/payments');
-                return `Payment ${id ? 'updated' : 'created'} successfully.`;
-            },
-            error: (err) => err.message || 'Failed to save payment.',
-        });
+        try {
+            const mutation = id
+                ? updatePaymentMutation.mutateAsync({ ...values, id })
+                : createPaymentMutation.mutateAsync(values);
+
+            await toast.promise(mutation, {
+                loading: 'Saving payment...',
+                success: () => {
+                    router.push('/admin/payments');
+                    return `Payment ${id ? 'updated' : 'created'} successfully.`;
+                },
+                error: 'Failed to save payment.',
+            });
+        } catch (err) {
+            toast.error((err as Error).message || 'An unexpected error occurred.');
+        }
     };
 
     const getButtonText = () => {
         if (isSubmitting) {
             return 'Saving...';
         }
-        if (initialData) {
+        if (id) {
             return 'Update Payment';
         }
         return 'Create Payment';
@@ -127,15 +148,8 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                         <FormControl>
                                             <EnrollmentSelect
                                                 field={field}
-                                                getItemOnValueChanges={(
-                                                    enrollmentSelect: EnrollmentWithDetails
-                                                ) => {
-                                                    if (enrollmentSelect.course?.price) {
-                                                        form.setValue(
-                                                            'amount',
-                                                            enrollmentSelect.course?.price
-                                                        );
-                                                    }
+                                                getItemOnValueChanges={(item: EnrollmentListItem) => {
+                                                    form.setValue('amount', item.course.price);
                                                 }}
                                             />
                                         </FormControl>
@@ -188,7 +202,7 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                         <FormControl>
                                             <Select
                                                 onValueChange={field.onChange}
-                                                value={field.value}
+                                                value={field.value ?? undefined}
                                             >
                                                 <SelectTrigger className='w-full'>
                                                     <SelectValue placeholder="Select a payment method" />
@@ -198,8 +212,8 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                                         <SelectLabel>Payment Method</SelectLabel>
                                                         {Object.values(PaymentMethod).map((method: string) => (
                                                             <SelectItem
-                                                                key={method as string}
-                                                                value={method as string}
+                                                                key={method}
+                                                                value={method}
                                                             >
                                                                 {method}
                                                             </SelectItem>
@@ -227,7 +241,7 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                         <FormControl>
                                             <Select
                                                 onValueChange={field.onChange}
-                                                value={field.value}
+                                                value={field.value ?? undefined}
                                             >
                                                 <SelectTrigger className='w-full'>
                                                     <SelectValue placeholder="Select a payment status" />

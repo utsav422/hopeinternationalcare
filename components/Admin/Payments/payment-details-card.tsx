@@ -6,12 +6,13 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAdminPaymentDetailsWithAllById } from '@/hooks/admin/payments';
-import type { PaymentDetailsType } from '@/lib/db/drizzle-zod-schema/payments';
+import { useAdminPaymentDetails } from '@/hooks/admin/payments-optimized';
+import type { PaymentWithDetails } from '@/lib/types/payments';
 
 interface PaymentDetailsCardProps {
-    payment: PaymentDetailsType;
+    paymentDetails: PaymentWithDetails;
 }
+
 const InfoGridSkeleton = ({ rows = 3 }) => (
     <div className="grid grid-cols-2 gap-4">
         {Array.from({ length: rows }).map((_, i) => (
@@ -95,7 +96,9 @@ function PaymentDetailsCardSkeleton() {
         </div>
     );
 }
-const PaymentInfo = ({ payment }: PaymentDetailsCardProps) => {
+const PaymentInfo = ({ paymentDetails }: PaymentDetailsCardProps) => {
+    const { payment } = paymentDetails;
+    if (!payment) return null;
     return (
         <div className="grid grid-cols-2 gap-4">
             <div>
@@ -168,141 +171,155 @@ const PaymentInfo = ({ payment }: PaymentDetailsCardProps) => {
     );
 };
 
-const EnrollmentInfo = ({ payment }: PaymentDetailsCardProps) => (
-    <div className="grid grid-cols-2 gap-4">
-        <div>
-            <Label className="" htmlFor="enrollmentId">
-                Enrollment ID
-            </Label>
-            <p
-                className="font-medium text-sm leading-none dark:text-gray-300"
-                id="enrollmentId"
-            >
-                {payment.enrollment_id || 'N/A'}
-            </p>
+const EnrollmentInfo = ({ paymentDetails }: PaymentDetailsCardProps) => {
+    const { enrollment } = paymentDetails;
+    if (!enrollment) return null;
+    return (
+        <div className="grid grid-cols-2 gap-4">
+            <div>
+                <Label className="" htmlFor="enrollmentId">
+                    Enrollment ID
+                </Label>
+                <p
+                    className="font-medium text-sm leading-none dark:text-gray-300"
+                    id="enrollmentId"
+                >
+                    {enrollment.id || 'N/A'}
+                </p>
+            </div>
+            <div>
+                <Label className="" htmlFor="enrolledAt">
+                    Enrolled At
+                </Label>
+                <p
+                    className="font-medium text-sm leading-none dark:text-gray-300"
+                    id="enrolledAt"
+                >
+                    {enrollment.created_at
+                        ? format(new Date(enrollment.created_at), 'PPP p')
+                        : 'N/A'}
+                </p>
+            </div>
+            <div>
+                <Label className="" htmlFor="enrollmentStatus">
+                    Enrollment Status
+                </Label>
+                <p
+                    className="font-medium text-sm leading-none dark:text-gray-300"
+                    id="enrollmentStatus"
+                >
+                    {enrollment.status || 'N/A'}
+                </p>
+            </div>
         </div>
-        <div>
-            <Label className="" htmlFor="enrolledAt">
-                Enrolled At
-            </Label>
-            <p
-                className="font-medium text-sm leading-none dark:text-gray-300"
-                id="enrolledAt"
-            >
-                {payment.enrolled_at
-                    ? format(new Date(payment.enrolled_at), 'PPP p')
-                    : 'N/A'}
-            </p>
-        </div>
-        <div>
-            <Label className="" htmlFor="enrollmentStatus">
-                Enrollment Status
-            </Label>
-            <p
-                className="font-medium text-sm leading-none dark:text-gray-300"
-                id="enrollmentStatus"
-            >
-                {payment.enrollment_status || 'N/A'}
-            </p>
-        </div>
-    </div>
-);
+    );
+};
 
-const UserInfo = ({ payment }: PaymentDetailsCardProps) => (
-    <div className="grid grid-cols-2 gap-4">
-        <div>
-            <Label className="" htmlFor="userId">
-                User ID
-            </Label>
-            <p
-                className="font-medium text-sm leading-none dark:text-gray-300"
-                id="userId"
-            >
-                {payment.user_id || 'N/A'}
-            </p>
+const UserInfo = ({ paymentDetails }: PaymentDetailsCardProps) => {
+    const { user } = paymentDetails;
+    if (!user) return null;
+    return (
+        <div className="grid grid-cols-2 gap-4">
+            <div>
+                <Label className="" htmlFor="userId">
+                    User ID
+                </Label>
+                <p
+                    className="font-medium text-sm leading-none dark:text-gray-300"
+                    id="userId"
+                >
+                    {user.id || 'N/A'}
+                </p>
+            </div>
+            <div>
+                <Label className="" htmlFor="userEmail">
+                    User Email
+                </Label>
+                <p
+                    className="font-medium text-sm leading-none dark:text-gray-300"
+                    id="userEmail"
+                >
+                    {user.email || 'N/A'}
+                </p>
+            </div>
+            <div>
+                <Label className="" htmlFor="userName">
+                    User Name
+                </Label>
+                <p
+                    className="font-medium text-sm leading-none dark:text-gray-300"
+                    id="userName"
+                >
+                    {user.full_name || 'N/A'}
+                </p>
+            </div>
         </div>
-        <div>
-            <Label className="" htmlFor="userEmail">
-                User Email
-            </Label>
-            <p
-                className="font-medium text-sm leading-none dark:text-gray-300"
-                id="userEmail"
-            >
-                {payment.userEmail || 'N/A'}
-            </p>
-        </div>
-        <div>
-            <Label className="" htmlFor="userName">
-                User Name
-            </Label>
-            <p
-                className="font-medium text-sm leading-none dark:text-gray-300"
-                id="userName"
-            >
-                {payment.userName || 'N/A'}
-            </p>
-        </div>
-    </div>
-);
+    );
+};
 
-const CourseInfo = ({ payment }: PaymentDetailsCardProps) => (
-    <div className="grid grid-cols-2 gap-4">
-        <div>
-            <Label className="" htmlFor="courseId">
-                Course ID
-            </Label>
-            <p
-                className="font-medium text-sm leading-none dark:text-gray-300"
-                id="courseId"
-            >
-                {payment.courseId || 'N/A'}
-            </p>
+const CourseInfo = ({ paymentDetails }: PaymentDetailsCardProps) => {
+    const { course } = paymentDetails;
+    if (!course) return null;
+    return (
+        <div className="grid grid-cols-2 gap-4">
+            <div>
+                <Label className="" htmlFor="courseTitle">
+                    Course Title
+                </Label>
+                <p
+                    className="font-medium text-sm leading-none dark:text-gray-300"
+                    id="courseTitle"
+                >
+                    {course.title || 'N/A'}
+                </p>
+            </div>
         </div>
-        <div>
-            <Label className="" htmlFor="courseTitle">
-                Course Title
-            </Label>
-            <p
-                className="font-medium text-sm leading-none dark:text-gray-300"
-                id="courseTitle"
-            >
-                {payment.courseTitle || 'N/A'}
-            </p>
-        </div>
-    </div>
-);
+    );
+};
 
-const RemarksInfo = ({ payment }: PaymentDetailsCardProps) => (
-    <div>
-        <Label className="" htmlFor="remarks">
-            Remarks
-        </Label>
-        <p
-            className="font-medium text-sm leading-none dark:text-gray-300"
-            id="remarks"
-        >
-            {payment.remarks || 'N/A'}
-        </p>
-    </div>
-);
+const RemarksInfo = ({ paymentDetails }: PaymentDetailsCardProps) => {
+    const { payment } = paymentDetails;
+    if (!payment) return null;
+    return (
+        <div>
+            <Label className="" htmlFor="remarks">
+                Remarks
+            </Label>
+            <p
+                className="font-medium text-sm leading-none dark:text-gray-300"
+                id="remarks"
+            >
+                {payment.remarks || 'N/A'}
+            </p>
+        </div>
+    );
+};
 
 export default function PaymentDetailsCard() {
     const params = useParams<{ id: string }>();
     const {
-        data: payment,
+        data: queryResult,
         error,
         isLoading,
-    } = useAdminPaymentDetailsWithAllById(params.id);
-    if (error || !payment) {
+    } = useAdminPaymentDetails(params.id);
+
+    if (error) {
         toast.error(
             error?.message ??
-            'Somthing went wrong try again later, or contact to adminstrator'
+            'Something went wrong try again later, or contact to administrator'
         );
     }
+
     if (isLoading) {
         return <PaymentDetailsCardSkeleton />;
     }
+
+    const paymentDetails = queryResult?.data;
+
+    if (!paymentDetails) {
+        return <div>Payment not found.</div>;
+    }
+
     return (
         <div className="flex flex-wrap gap-4">
             <Card className="w-full max-w-3xl ">
@@ -310,7 +327,7 @@ export default function PaymentDetailsCard() {
                     <CardTitle className="">Payment Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <PaymentInfo payment={payment as PaymentDetailsType} />
+                    <PaymentInfo paymentDetails={paymentDetails} />
                 </CardContent>
             </Card>
             <Card className="w-full max-w-3xl ">
@@ -318,7 +335,7 @@ export default function PaymentDetailsCard() {
                     <CardTitle className="">Enrollments Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <EnrollmentInfo payment={payment as PaymentDetailsType} />
+                    <EnrollmentInfo paymentDetails={paymentDetails} />
                 </CardContent>
             </Card>
             <Card className="w-full max-w-3xl ">
@@ -326,7 +343,7 @@ export default function PaymentDetailsCard() {
                     <CardTitle className="">User Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <UserInfo payment={payment as PaymentDetailsType} />
+                    <UserInfo paymentDetails={paymentDetails} />
                 </CardContent>
             </Card>
             <Card className="w-full max-w-3xl ">
@@ -334,8 +351,8 @@ export default function PaymentDetailsCard() {
                     <CardTitle className="">Course Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <CourseInfo payment={payment as PaymentDetailsType} />
-                    <RemarksInfo payment={payment as PaymentDetailsType} />
+                    <CourseInfo paymentDetails={paymentDetails} />
+                    <RemarksInfo paymentDetails={paymentDetails} />
                 </CardContent>
             </Card>
             <Card className="w-full max-w-3xl ">
@@ -343,7 +360,7 @@ export default function PaymentDetailsCard() {
                     <CardTitle className="">Remarks Info</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <RemarksInfo payment={payment as PaymentDetailsType} />
+                    <RemarksInfo paymentDetails={paymentDetails} />
                 </CardContent>
             </Card>
         </div>

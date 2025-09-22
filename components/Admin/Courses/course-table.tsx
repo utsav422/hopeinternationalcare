@@ -15,10 +15,7 @@ import { useAdminCourseDelete, useAdminCourses } from '@/hooks/admin/courses';
 import {useDataTableQueryState} from '@/hooks/admin/use-data-table-query-state';
 // import { Input } from '@/components/ui/input';
 // import useDebounce from '@/hooks/use-debounce';
-import type { ZodSelectCourseType, ZodSelectCourseWithRelationsType } from '@/lib/db/drizzle-zod-schema/courses';
-
-// Use the centralized extended type
-type ExtendedCourseType = ZodSelectCourseWithRelationsType;
+import type { CourseListItem } from '@/lib/types/courses';
 import {queryKeys} from '@/lib/query-keys';
 import {adminIntakeGenerateForCourseAdvanced} from '@/lib/server-actions/admin/intakes';
 
@@ -32,8 +29,8 @@ export default function CourseTable() {
     const queryClient = useQueryClient();
     const {data: queryResult, error} = useAdminCourses({...queryState});
 
-    const data = queryResult?.data as ExtendedCourseType[];
-    const total = queryResult?.total ?? 0;
+    const data = queryResult?.data?.data as CourseListItem[];
+    const total = queryResult?.data?.total ?? 0;
 
     const {mutateAsync: deleteCourse} = useAdminCourseDelete();
 
@@ -48,7 +45,7 @@ export default function CourseTable() {
             error: (error) => error instanceof Error ? error.message : 'Failed to delete course',
         });
     };
-    const columns: ColumnDef<ExtendedCourseType>[] = [
+    const columns: ColumnDef<CourseListItem>[] = [
         {
             accessorKey: 'image_url',
             header: () => <div className="">Image</div>,
@@ -210,7 +207,7 @@ export default function CourseTable() {
         <Card>
             <CardHeader/>
             <CardContent>
-                <DataTable<ExtendedCourseType, unknown>
+                <DataTable<CourseListItem, unknown>
                     columns={columns}
                     data={data ?? []}
                     headerActionUrl="/admin/courses/new"

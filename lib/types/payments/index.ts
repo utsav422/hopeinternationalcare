@@ -1,6 +1,6 @@
 import type { InferSelectModel } from 'drizzle-orm';
 import type { payments } from '@/lib/db/schema/payments';
-import type { EnrollmentBase, ProfileBase } from '@/lib/types';
+import type { EnrollmentBase, ProfileBase, CourseBase } from '@/lib/types';
 import type { TypePaymentMethod, TypePaymentStatus } from '@/lib/db/schema/enums';
 import type { ColumnFiltersState } from '@tanstack/react-table';
 
@@ -13,6 +13,7 @@ export interface PaymentWithDetails {
     payment: PaymentBase;
     enrollment: EnrollmentBase | null;
     user: ProfileBase | null;
+    course: CourseBase | null;
 }
 
 // List view optimized type
@@ -51,7 +52,7 @@ export type PaymentCreateData = Pick<
     'enrollment_id' | 'amount' | 'status' | 'method' | 'remarks' | 'paid_at'
 >;
 
-export type PaymentUpdateData = Partial<Pick<PaymentInsert, 'status' | 'method' | 'remarks' | 'paid_at'>> & {
+export type PaymentUpdateData = Partial<Pick<PaymentInsert, 'status' | 'method' | 'remarks' | 'paid_at' | 'is_refunded' | 'refunded_at' | 'refunded_amount'>> & {
     id: string;
 };
 
