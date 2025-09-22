@@ -11,7 +11,7 @@ import {DataTable} from '@/components/Custom/data-table';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardHeader} from '@/components/ui/card';
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from '@/components/ui/dropdown-menu';
-import { useAdminCourseDelete, useAdminCourses } from '@/hooks/admin/courses';
+import { useAdminCourseDelete, useAdminCourses } from '@/lib/hooks/admin/courses-optimized';
 import {useDataTableQueryState} from '@/hooks/admin/use-data-table-query-state';
 // import { Input } from '@/components/ui/input';
 // import useDebounce from '@/hooks/use-debounce';

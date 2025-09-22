@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetRelatedCourses } from '@/hooks/public/courses';
+import { useGetRelatedCourses } from '@/lib/hooks/public/courses-optimized';
 import { queryKeys } from '@/lib/query-keys';
 
 export function RelatedCoursesSkeleton() {

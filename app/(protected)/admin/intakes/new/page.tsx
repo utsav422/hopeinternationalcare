@@ -4,7 +4,7 @@ import { requireAdmin } from '@/utils/auth-guard';
 import IntakeForm from '../../../../../components/Admin/Intakes/intake-form';
 import FormSkeleton from '@/components/Custom/form-skeleton';
 import { queryKeys } from '@/lib/query-keys';
-import { cachedAdminCourseListAll } from '@/lib/server-actions/admin/courses';
+import { cachedAdminCourseListAll } from '@/lib/server-actions/admin/courses-optimized';
 import { getQueryClient } from '@/utils/get-query-client';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 

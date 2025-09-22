@@ -3,7 +3,7 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import CourseTable from '@/components/Admin/Courses/course-table';
 import { queryKeys } from '@/lib/query-keys';
-import { adminGetCourses } from '@/lib/server-actions/admin/courses';
+import { adminCourseList } from '@/lib/server-actions/admin/courses-optimized';
 import { getQueryClient } from '@/utils/get-query-client';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 
@@ -33,7 +33,7 @@ export default async function Courses(props: {
             filters: [],
         }),
         queryFn: async () =>
-            adminGetCourses({
+            adminCourseList({
                 page: 1,
                 pageSize: 10,
                 sortBy: 'created_at',

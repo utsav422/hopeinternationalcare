@@ -2,11 +2,10 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import CourseDetailsCard from '@/components/Admin/Courses/course-details-card';
 import { queryKeys } from '@/lib/query-keys';
-import { getCachedPublicCourseBySlug } from '@/lib/server-actions/public/courses';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
-import { cachedAdminCourseDetailsById } from '@/lib/server-actions/admin/courses';
+import { cachedAdminCourseDetails } from '@/lib/server-actions/admin/courses-optimized';
 import { adminCourseCategoryDetailsById, adminCourseCategoryList, adminCourseCategoryListAll } from '@/lib/server-actions/admin/course-categories';
 import { notFound } from 'next/navigation';
 import { adminIntakesByCourseAndYear } from '@/lib/server-actions/admin/intakes';
@@ -24,7 +23,7 @@ export default async function Courses(props: {
     const id = params.id;
 
     const queryClient = getQueryClient();
-    const response = await cachedAdminCourseDetailsById(id)
+    const response = await cachedAdminCourseDetails(id)
     if (!response.success) {
         notFound()
     }

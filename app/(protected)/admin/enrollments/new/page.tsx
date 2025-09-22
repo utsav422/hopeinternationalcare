@@ -4,7 +4,7 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import EnrollmentFormModal from '@/components/Admin/Enrollments/enrollment-form';
 import { queryKeys } from '@/lib/query-keys';
-import { adminCourseListAll } from '@/lib/server-actions/admin/courses';
+import { adminCourseListAll } from '@/lib/server-actions/admin/courses-optimized';
 import { adminUserList } from '@/lib/server-actions/admin/users';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';

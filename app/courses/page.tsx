@@ -2,7 +2,7 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { queryKeys } from '@/lib/query-keys';
-import { getCachedPublicCourses } from '@/lib/server-actions/public/courses';
+import { getCachedPublicCourses } from '@/lib/server-actions/public/courses-optimized';
 import { getCachedPublicAllCategories } from '@/lib/server-actions/public/course-categories';
 import { getCachedAllIntakes } from '@/lib/server-actions/public/intakes';
 import { getQueryClient } from '@/utils/get-query-client';

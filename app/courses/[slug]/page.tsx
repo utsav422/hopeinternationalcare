@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 import { queryKeys } from '@/lib/query-keys';
-import { getCachedPublicCourseBySlug, getCachedRelatedCourses } from '@/lib/server-actions/public/courses';
+import { getCachedPublicCourseBySlug, getCachedRelatedCourses } from '@/lib/server-actions/public/courses-optimized';
 import { getQueryClient } from '@/utils/get-query-client';
 import CourseDetails from './_components';
 import { Suspense } from 'react';

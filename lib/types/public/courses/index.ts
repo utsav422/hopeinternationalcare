@@ -2,6 +2,7 @@ import type { InferSelectModel } from 'drizzle-orm';
 import type { courseCategories } from '@/lib/db/schema/course-categories';
 import type { intakes } from '@/lib/db/schema/intakes';
 import type { CourseBase } from '@/lib/types/courses';
+import type { TypeDurationType } from '@/lib/db/schema/enums';
 
 // Base types
 export type CourseCategoryBase = InferSelectModel<typeof courseCategories>;
@@ -14,7 +15,7 @@ export interface PublicCourseListItem {
   slug: string;
   price: number;
   level: number;
-  duration_type: string;
+  duration_type: TypeDurationType;
   duration_value: number;
   created_at: string;
   updated_at: string;
@@ -34,7 +35,7 @@ export interface PublicCourseDetail {
   slug: string;
   price: number;
   level: number;
-  duration_type: string;
+  duration_type: TypeDurationType;
   duration_value: number;
   created_at: string;
   course_highlights: string | null;
@@ -95,7 +96,7 @@ export interface RelatedCourse {
   categoryName: string | null;
   level: number;
   duration_value: number;
-  duration_type: string;
+  duration_type: TypeDurationType;
 }
 
 // New courses
@@ -107,7 +108,7 @@ export interface NewCourse {
   course_highlights: string | null;
   level: number;
   duration_value: number;
-  duration_type: string;
+  duration_type: TypeDurationType;
   image_url: string | null;
   price: number;
   next_intake_date: string | null;

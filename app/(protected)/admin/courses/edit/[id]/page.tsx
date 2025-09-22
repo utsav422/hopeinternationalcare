@@ -3,7 +3,7 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import CourseFormModal from '@/components/Admin/Courses/course-form';
 import { queryKeys } from '@/lib/query-keys';
-import { cachedAdminCourseDetailsById } from '@/lib/server-actions/admin/courses';
+import { cachedAdminCourseDetails } from '@/lib/server-actions/admin/courses-optimized';
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
@@ -25,7 +25,7 @@ export default async function EditCourse(props: {
     const queryClient = getQueryClient();
     await queryClient.prefetchQuery({
         queryKey: queryKeys.courses.detail(id),
-        queryFn: () => cachedAdminCourseDetailsById(id),
+        queryFn: () => cachedAdminCourseDetails(id),
     });
     await queryClient.prefetchQuery({
         queryKey: queryKeys.courseCategories.lists(),

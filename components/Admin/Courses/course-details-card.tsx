@@ -9,12 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { ZodInsertCourseCategoryType } from '@/lib/db/drizzle-zod-schema/course-categories';
 import type { ZodSelectCourseType, ZodSelectCourseWithRelationsType } from '@/lib/db/drizzle-zod-schema/courses';
-import { adminCourseUpdateCategoryId } from '@/lib/server-actions/admin/courses';
+import { adminCourseUpdateCategoryId } from '@/lib/server-actions/admin/courses-optimized';
 import { adminCourseCategoryUpsert } from '@/lib/server-actions/admin/course-categories';
 import CourseCategoryFormModal from './course-category-form-modal';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSuspenseAdminCourseById } from '@/hooks/admin/courses';
+import { useSuspenseAdminCourseById } from '@/lib/hooks/admin/courses-optimized';
 import { useAdminIntakesByCourseAndYear, useGenerateIntakesForCourseAdvanced } from '@/hooks/admin/intakes';
 import IntakesByCourseYear from '@/components/Admin/Intakes/intakes-by-course-year';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -410,10 +410,10 @@ export default function CourseDetailsCard() {
             loading: 'Saving category...',
             success: (response) => {
                 if (response.success && response.data) {
-                    adminCourseUpdateCategoryId({
-                        category_id: (response?.data as never as User)?.id,
-                        id: course.id,
-                    }).catch(console.log)
+                    adminCourseUpdateCategoryId(
+                        course.id,
+                        (response?.data as never as User)?.id,
+                    ).catch(console.log)
                     setIsModalOpen(false);
                     return 'Category saved successfully.';
                 }
@@ -427,10 +427,7 @@ export default function CourseDetailsCard() {
 
     const handleCategorySelect = (categoryId: string) => {
         toast.promise(
-            adminCourseUpdateCategoryId({
-                category_id: categoryId,
-                id: course.id,
-            }),
+            adminCourseUpdateCategoryId(course.id, categoryId),
             {
                 loading: 'Updating category...',
                 success: 'Course category updated successfully.',
