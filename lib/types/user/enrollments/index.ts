@@ -25,6 +25,8 @@ export interface UserEnrollmentListItem {
   notes: string | null;
 }
 
+export type { ApiResponse } from '../..';
+
 // Enrollment creation data
 export interface CreateEnrollmentData {
   courseId: string;

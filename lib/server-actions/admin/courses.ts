@@ -19,9 +19,10 @@ import { enrollments } from '@/lib/db/schema/enrollments';
 import { intakeRelations, intakes } from '@/lib/db/schema/intakes';
 import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { isValidTableColumnName } from '@/utils/utils';
-import type { ZodSelectCourseType } from '../../db/drizzle-zod-schema';
+import type { ZodSelectCourseType, ZodInsertCourseType } from '../../db/drizzle-zod-schema';
 import { buildFilterConditions, buildWhereClause, buildOrderByClause } from '@/lib/utils/query-utils';
 import { courseColumnMap, courseSelectColumns } from '@/lib/utils/courses';
+import { ApiResponse } from '@/lib/types';
 
 type ListParams = Partial<DataTableListParams>;
 
@@ -168,7 +169,7 @@ export async function adminCourseDetailsById(id: string) {
 /**
  * Create or update course
  */
-export async function adminCourseUpsert(formData: FormData) {
+export async function adminCourseUpsert(formData: FormData): Promise<ApiResponse<ZodInsertCourseType>> {
     try {
         await requireAdmin();
 

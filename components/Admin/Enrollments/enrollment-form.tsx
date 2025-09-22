@@ -57,7 +57,7 @@ interface Props {
     formTitle?: string;
 }
 
-export default function ({ formTitle }: Props) {
+export default function EnrollmentForm({ formTitle }: Props) {
     const params = useParams<{ id: string }>();
     const id = params.id;
     const router = useRouter();

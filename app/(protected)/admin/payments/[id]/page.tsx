@@ -1,7 +1,7 @@
 import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
 import PaymentDetailsCard from '@/components/Admin/Payments/payment-details-card';
 import {queryKeys} from '@/lib/query-keys';
-import {cachedAdminPaymentDetailsWithRelationsById} from '@/lib/server-actions/admin/payments';
+import {adminPaymentDetails} from '@/lib/server-actions/admin/payments-optimized';
 import {requireAdmin} from '@/utils/auth-guard';
 import {getQueryClient} from '@/utils/get-query-client';
 import {QueryErrorWrapper} from '@/components/Custom/query-error-wrapper';
@@ -32,7 +32,7 @@ export default async function PaymentDetailsPage({params: promisedParams, search
     try {
         await queryClient.prefetchQuery({
             queryKey: queryKeys.payments.detail(validatedParams.id as string),
-            queryFn: () => cachedAdminPaymentDetailsWithRelationsById(validatedParams.id as string),
+            queryFn: () => adminPaymentDetails(validatedParams.id as string),
         });
         await requireAdmin();
     } catch (error) {

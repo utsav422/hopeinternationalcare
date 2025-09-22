@@ -18,6 +18,8 @@ export interface UserPaymentListItem {
   courseName: string | null;
 }
 
+export type { ApiResponse } from '../..';
+
 // Payment creation data
 export interface CreatePaymentData {
   enrollment_id: string;

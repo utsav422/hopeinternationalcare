@@ -32,10 +32,10 @@ import {
 useAdminEnrollmentList,
 useAdminEnrollmentUpdateStatus,
 } from '@/hooks/admin/enrollments';
-import { useAdminPaymentUpsert } from '@/hooks/admin/payments';
+import { useAdminPaymentCreate, useAdminPaymentUpdate } from '@/hooks/admin/payments-optimized';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
 
-import type { ZodEnrollmentSelectType } from '@/lib/db/drizzle-zod-schema/enrollments';
+import type { EnrollmentListItem } from '@/lib/types/enrollments';
 import {
     PaymentMethod,
     type TypeEnrollmentStatus,
@@ -43,27 +43,21 @@ import {
 } from '@/lib/db/schema/enums';
 import CancelEnrollmentForm from './enrollment-cancel-form-modal';
 
-type EnrollementTableDataProps = {
-    payment_id: string;
-    price: number | null;
-    fullName: string | null;
-    email: string | null;
-    courseTitle: string | null;
-    start_date: string | null;
-} & Partial<ZodEnrollmentSelectType>;
+type EnrollementTableDataProps = EnrollmentListItem;
 
 export default function EnrollmentTables() {
     const router = useRouter();
     const queryState = useDataTableQueryState();
     const { data: queryResult, error } = useAdminEnrollmentList({ ...queryState });
     if (error) {
-        toast.error('Error fetching categories', {
+        toast.error('Error fetching enrollments', {
             description: error.message,
         });
     }
     const { mutateAsync: deleteEnrollment } = useAdminEnrollmentDelete();
     const updateEnrollmentStatusMutation = useAdminEnrollmentUpdateStatus();
-    const upsertPaymentMutation = useAdminPaymentUpsert();
+    const createPaymentMutation = useAdminPaymentCreate();
+    const updatePaymentMutation = useAdminPaymentUpdate();
     const data = queryResult?.data as EnrollementTableDataProps[];
     const total = queryResult?.total ?? 0;
     const [isPending, startTransition] = useTransition();
@@ -99,30 +93,30 @@ export default function EnrollmentTables() {
                             }
                             if (newStatus === 'enrolled') {
                                 if (price) {
-                                    upsertPaymentMutation.mutate(
-                                        {
-                                            id: paymentId as string,
-                                            remarks: 'payment has been complete',
-                                            enrollment_id: enrollmentId,
-                                            amount: price,
-                                            method: PaymentMethod.cash, // Default method, can be made dynamic
-                                            status: 'completed' as TypePaymentStatus, // Use 'completed' as per enum
+                                    const paymentData = {
+                                        remarks: 'payment has been complete',
+                                        enrollment_id: enrollmentId,
+                                        amount: price,
+                                        method: PaymentMethod.cash, // Default method, can be made dynamic
+                                        status: 'completed' as TypePaymentStatus, // Use 'completed' as per enum
+                                        paid_at: new Date().toISOString(),
+                                    };
+
+                                    const mutation = paymentId
+                                        ? updatePaymentMutation.mutateAsync({ ...paymentData, id: paymentId })
+                                        : createPaymentMutation.mutateAsync(paymentData);
+
+                                    toast.promise(mutation, {
+                                        loading: 'Processing payment...',
+                                        success: (data) => {
+                                            return paymentId
+                                                ? 'Payment details updated successfully!'
+                                                : 'Payment details created successfully!';
                                         },
-                                        {
-                                            onSuccess: () => {
-                                                toast.success(
-                                                    paymentId
-                                                        ? 'Payment details updated successfully!'
-                                                        : 'Payment details created successfully!'
-                                                );
-                                            },
-                                            onError: (error) => {
-                                                toast.error(
-                                                    error?.message || 'Failed to upsert payment details.'
-                                                );
-                                            },
-                                        }
-                                    );
+                                        error: (error) => {
+                                            return error?.message || 'Failed to upsert payment details.';
+                                        },
+                                    });
                                 } else {
                                     toast.error('Failed to retrieve course price for payment.');
                                 }
@@ -193,10 +187,10 @@ export default function EnrollmentTables() {
             },
         },
         {
-            accessorKey: 'payment_id',
+            accessorKey: 'payment.id',
             header: () => <div className="">Payment</div>,
             cell: ({ row }) => (
-                <div className="dark:text-gray-300">{row.getValue('payment_id')}</div>
+                <div className="dark:text-gray-300">{row.original.payment?.id}</div>
             ),
         },
         {
@@ -205,8 +199,8 @@ export default function EnrollmentTables() {
             cell: ({ row }: { row: Row<EnrollementTableDataProps> }) => {
                 const status: TypeEnrollmentStatus = row.getValue('status');
                 const enrollmentId = row.original.id;
-                const payment_id = row.original.payment_id;
-                const price = row.original.price;
+                const payment_id = row.original.payment?.id;
+                const price = row.original.course?.price;
                 if (['enrolled', 'cancelled'].includes(status)) {
                     return (
                         <Badge className=" ">

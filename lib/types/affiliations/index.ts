@@ -45,3 +45,5 @@ export interface AffiliationConstraintCheck {
     canDelete: boolean;
     courseCount: number;
 }
+
+export type { ApiResponse } from '..';

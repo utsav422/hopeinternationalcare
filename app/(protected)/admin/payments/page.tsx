@@ -3,7 +3,7 @@ import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
 import {Suspense} from 'react';
 import PaymentsTables from '@/components/Admin/Payments/payments-tables';
 import {queryKeys} from '@/lib/query-keys';
-import {cachedAdminPaymentList} from '@/lib/server-actions/admin/payments';
+import {adminPaymentList} from '@/lib/server-actions/admin/payments-optimized';
 import {requireAdmin} from '@/utils/auth-guard';
 import {getQueryClient} from '@/utils/get-query-client';
 import {QueryErrorWrapper} from '@/components/Custom/query-error-wrapper';
@@ -45,7 +45,7 @@ export default async function PaymentsPage({params: promisedParams, searchParams
                 filters,
             }),
             queryFn: async () =>
-                await cachedAdminPaymentList({
+                await adminPaymentList({
                     page: Number(page),
                     pageSize: Number(pageSize),
                     sortBy,

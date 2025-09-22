@@ -28,9 +28,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAdminEnrollmentUpdateStatus } from '@/hooks/admin/enrollments';
 import {
     useAdminPaymentDetailsByEnrollmentId,
-    useAdminPaymentUpsert,
-} from '@/hooks/admin/payments';
+    useAdminPaymentUpdate,
+} from '@/hooks/admin/payments-optimized';
 import { useAdminRefundUpsert } from '@/hooks/admin/refunds';
+import { ZodInsertPaymentType } from '@/lib/db/drizzle-zod-schema/payments';
 
 export default function CancelEnrollmentFormModal ({
     setShowCancelModalAction,
@@ -47,11 +48,12 @@ export default function CancelEnrollmentFormModal ({
     afterSubmitAction: () => void;
 }) {
     const router = useRouter();
-    const { data: paymentDetails, isPending: isPaymentDetailFetchPending } =
+    const { data: queryResult, isPending: isPaymentDetailFetchPending } =
         useAdminPaymentDetailsByEnrollmentId(enrollmentId as string);
+    const paymentDetails = queryResult?.data;
     const { mutateAsync: updateEnrollmentStatus } = useAdminEnrollmentUpdateStatus();
     const { mutateAsync: upsertRefund } = useAdminRefundUpsert();
-    const { mutateAsync: upsertPayment } = useAdminPaymentUpsert();
+    const { mutateAsync: updatePayment } = useAdminPaymentUpdate();
 
     const [cancelledReason, setCancelledReason] = useState('');
     const [refund, setRefund] = useState<CheckedState>(false);
@@ -60,7 +62,7 @@ export default function CancelEnrollmentFormModal ({
 
     useEffect(() => {
         if (paymentDetails) {
-            setRefundAmount(paymentDetails.amount);
+            setRefundAmount(paymentDetails.payment.amount);
         }
     }, [paymentDetails]);
 
@@ -79,7 +81,7 @@ export default function CancelEnrollmentFormModal ({
                             if (refund && paymentDetails) {
                                 toast.promise(
                                     upsertRefund({
-                                        payment_id: paymentDetails.id,
+                                        payment_id: paymentDetails.payment.id,
                                         enrollment_id: enrollmentId,
                                         user_id: userId,
                                         reason: cancelledReason,
@@ -89,14 +91,15 @@ export default function CancelEnrollmentFormModal ({
                                     {
                                         loading: 'Processing refund...',
                                         success: async () => {
+                                            const paymentUpdateData: Partial<ZodInsertPaymentType> & { id: string } = {
+                                                id: paymentDetails.payment.id,
+                                                remarks: `payment of ${paymentDetails.payment.amount} is refunded with partial amount ${refundAmount} return to user.`,
+                                                is_refunded: true,
+                                                refunded_at: new Date().toISOString(),
+                                                refunded_amount: refundAmount,
+                                            };
                                             toast.promise(
-                                                upsertPayment({
-                                                    ...paymentDetails,
-                                                    remarks: `payment of ${paymentDetails.amount} is refunded with partial amount ${refundAmount} return to user.`,
-                                                    is_refunded: true,
-                                                    refunded_at: new Date().toISOString(),
-                                                    refunded_amount: refundAmount,
-                                                }),
+                                                updatePayment(paymentUpdateData),
                                                 {
                                                     loading: 'Updating payment details...',
                                                     success: 'Payment details updated',
@@ -158,7 +161,7 @@ export default function CancelEnrollmentFormModal ({
                                 </div>
                             </div>
                         )}
-                        {paymentDetails?.amount && (
+                        {paymentDetails?.payment.amount && (
                             <div className="grid gap-2">
                                 <Label className="">Payment Info</Label>
                                 <p
@@ -168,18 +171,18 @@ export default function CancelEnrollmentFormModal ({
                                     This enrollment has an payment record, where
                                     <span className="block">
                                         Status:{' '}
-                                        {paymentDetails?.status ?? (
+                                        {paymentDetails?.payment.status ?? (
                                             <Skeleton className="h-4 w-[200px]" />
                                         )}
                                     </span>
                                     <span className="block">
-                                        Amount: {paymentDetails?.amount}
+                                        Amount: {paymentDetails?.payment.amount}
                                     </span>
                                     <span className="block">
-                                        Created At: {paymentDetails?.method}
+                                        Created At: {paymentDetails?.payment.method}
                                     </span>
                                     <span className="block">
-                                        Method: {paymentDetails?.created_at}
+                                        Method: {paymentDetails?.payment.created_at}
                                     </span>
                                 </p>
                                 <Card className="space-x-2 p-3 ">
@@ -196,15 +199,15 @@ export default function CancelEnrollmentFormModal ({
                                                 Refund Amount
                                             </Label>
                                             <Input
-                                                max={paymentDetails.amount}
+                                                max={paymentDetails.payment.amount}
                                                 name="amount"
                                                 onChange={(e) => {
-                                                    if (Number(e.target.value) <= paymentDetails.amount) {
+                                                    if (Number(e.target.value) <= paymentDetails.payment.amount) {
                                                         setRefundAmount(Number(e.target.value));
                                                         return;
                                                     }
                                                     toast.error(
-                                                        `Refund Amount cannot be greater than paid amount i.e: ${paymentDetails.amount}`
+                                                        `Refund Amount cannot be greater than paid amount i.e: ${paymentDetails.payment.amount}`
                                                     );
                                                 }}
                                                 pattern="\d{1,5}"

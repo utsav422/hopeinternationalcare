@@ -3,19 +3,9 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { DataTable } from '@/components/Custom/data-table';
+import type { UserPaymentHistory } from '@/lib/types/user/payments';
 
-type PaymentHistory = {
-  paymentId: string;
-  amount: number;
-  status: string;
-  paid_at: string | null;
-  created_at: string;
-  intake_id: string | null;
-  courseId: string | null;
-  courseName: string | null;
-};
-
-const columns: ColumnDef<PaymentHistory>[] = [
+const columns: ColumnDef<UserPaymentHistory>[] = [
   {
     accessorKey: 'courseName',
     header: 'Course',
@@ -57,13 +47,13 @@ const columns: ColumnDef<PaymentHistory>[] = [
   },
 ];
 
-export function PaymentHistoryTable({ data }: { data: PaymentHistory[] }) {
+export function PaymentHistoryTable({ data, total }: { data: UserPaymentHistory[], total: number }) {
   return (
     <DataTable
       columns={columns}
       data={data}
       title="Payment History"
-      total={data.length}
+      total={total}
     />
   );
 }

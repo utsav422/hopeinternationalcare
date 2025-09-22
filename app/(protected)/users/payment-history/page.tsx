@@ -2,7 +2,7 @@ import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
 import {Suspense} from 'react';
 import PaymentHistoryTable from '@/components/User/PaymentHistory/payment-history-table';
 import {queryKeys} from '@/lib/query-keys';
-import {getCachedUserPaymentHistory} from '@/lib/server-actions/user/payments';
+import {getUserPaymentHistory} from '@/lib/server-actions/user/payments-optimized';
 import {requireUser} from '@/utils/auth-guard';
 import {getQueryClient} from '@/utils/get-query-client';
 import {SearchParams} from "nuqs";
@@ -17,7 +17,7 @@ export default async function PaymentHistoryPage(props: { searchParams: Promise<
         const user = await requireUser();
         await queryClient.prefetchQuery({
             queryKey: [...queryKeys.userPaymentHistory.all, Number(page), Number(pageSize), user.id],
-            queryFn: async () => await getCachedUserPaymentHistory(Number(page), Number(pageSize), user.id),
+            queryFn: async () => await getUserPaymentHistory(Number(page), Number(pageSize), user.id),
         });
         userId = user.id;
     } catch (e) {
