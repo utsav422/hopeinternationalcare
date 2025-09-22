@@ -18,7 +18,7 @@ export const refunds = pgTable(
   'refunds',
   {
     id: uuid('id').defaultRandom().primaryKey(),
-    payment_id: uuid('payment_id').references(() => payments.id),
+    payment_id: uuid('payment_id').notNull().references(() => payments.id),
     enrollment_id: uuid('enrollment_id').references(() => enrollments.id),
     user_id: uuid('user_id').references(() => profiles.id),
     reason: varchar('reason').notNull(),

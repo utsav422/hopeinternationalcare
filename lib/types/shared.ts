@@ -84,3 +84,11 @@ export const DefaultSearchParamsSchema = z.object({
 export type IdParams = z.infer<typeof IdParamsSchema>;
 export type SlugParams = z.infer<typeof SlugParamsSchema>;
 export type DefaultSearchParams = z.infer<typeof DefaultSearchParamsSchema>;
+// API response type
+export interface ApiResponse<T> {
+    success: boolean;
+    data?: T;
+    error?: string;
+    code?: string;
+    details?: Record<string, any>;
+}

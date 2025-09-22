@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import {
   pgPolicy,
   pgTable,
@@ -7,6 +7,7 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 import { serviceRole } from 'drizzle-orm/supabase';
+import { customerContactReplies } from './customer-contact-replies';
 
 export const customerContactRequests = pgTable(
   'customer_contact_requests',
@@ -52,3 +53,7 @@ export const customerContactRequests = pgTable(
     }),
   ]
 );
+
+export const customerContactRequestRelations = relations(customerContactRequests, ({ many }) => ({
+    replies: many(customerContactReplies),
+}));

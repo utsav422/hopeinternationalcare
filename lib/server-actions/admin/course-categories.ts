@@ -1,7 +1,7 @@
 'use server';
 
 // import type { InferSelectModel } from 'drizzle-orm';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db/drizzle';
 import { requireAdmin } from '@/utils/auth-guard';
@@ -10,7 +10,7 @@ import { ZodCourseCategoryInsertSchema } from '../../db/drizzle-zod-schema/cours
 import { cache } from 'react';
 import type { ListParams as DataTableListParams } from '@/hooks/admin/use-data-table-query-state';
 import { courseCategories as courseCategoriesTable } from '@/lib/db/schema/course-categories';
-import { buildPaginatedQuery, buildCountQuery } from '@/lib/utils/query-utils';
+import { buildFilterConditions, buildWhereClause, buildOrderByClause } from '@/lib/utils/query-utils';
 import { courseCategoryColumnMap, courseCategorySelectColumns } from '@/lib/utils/course-categories';
 
 
@@ -49,26 +49,32 @@ export async function adminCourseCategoryList({
     filters = [],
 }: ListParams) {
     try {
-        // Build paginated query using utility functions
+
+        // Build filter conditions using utility function
+        const filterConditions = buildFilterConditions(filters, courseCategoryColumnMap);
+        const whereClause = buildWhereClause(filterConditions);
+
+        // Build order by clause using utility function
+        const sort = buildOrderByClause(sortBy, order, courseCategoryColumnMap);
+
         const baseQuery = db
             .select(courseCategorySelectColumns)
-            .from(courseCategoriesTable);
+            .from(courseCategoriesTable)
+            .where(whereClause)
+        if (sort) {
+            baseQuery.orderBy(sort);
+        }
+        baseQuery.limit(pageSize)
+            .offset((page - 1) * pageSize);
 
-        const query = buildPaginatedQuery({
-            queryBuilder: baseQuery,
-            columnMap: courseCategoryColumnMap,
-            options: { page, pageSize, sortBy, order, filters }
-        });
+        const countQuery = db
+            .select({ count: sql<number>`count(*)` })
+            .from(courseCategoriesTable)
+            .where(whereClause);
 
-        // Build count query using utility function
-        const countQuery = buildCountQuery({
-            table: db.select().from(courseCategoriesTable),
-            columnMap: courseCategoryColumnMap,
-            filters
-        });
 
         const [data, [{ count }]] = await Promise.all([
-            query,
+            baseQuery,
             countQuery,
         ]);
 

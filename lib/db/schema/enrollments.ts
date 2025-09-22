@@ -54,7 +54,9 @@ export const enrollments = pgTable(
 );
 
 // Optional: Define relationships
-export const enrollmentRelations = relations(enrollments, ({ one }) => ({
+import { payments } from './payments';
+
+export const enrollmentRelations = relations(enrollments, ({ one, many }) => ({
   user: one(profiles, {
     fields: [enrollments.user_id],
     references: [profiles.id],
@@ -63,4 +65,5 @@ export const enrollmentRelations = relations(enrollments, ({ one }) => ({
     fields: [enrollments.intake_id],
     references: [intakes.id],
   }),
+  payments: many(payments),
 }));

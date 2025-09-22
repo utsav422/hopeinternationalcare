@@ -23,6 +23,7 @@ lib/                    # Business logic, utilities, and data access layers
 utils/                  # Utility functions and Supabase client configurations
 drizzle/                # Database migrations
 public/                 # Static assets
+.kiro/                  # Project specifications and implementation plans
 ```
 
 ## Key Features
@@ -93,6 +94,9 @@ npm run generate-types
 
 # Seed database
 npm run db:seed
+
+# Run type checking
+npx tsc --noEmit
 ```
 
 ## Environment Variables
@@ -117,6 +121,30 @@ The project uses:
 - Custom query keys defined in `lib/query-keys.ts`
 - Supabase client/server configurations in `utils/supabase/`
 - Drizzle ORM for database schema and migrations
+
+## Implementation Standards
+
+### Standardized Module Architecture
+All admin modules follow a consistent architectural pattern with:
+- **Centralized Type System**: All types defined in `lib/types/{module}/index.ts`
+- **Optimized Server Actions**: Single comprehensive functions for list/detail operations
+- **Standardized Hooks**: Consistent React Query patterns across all modules
+- **Business Logic Separation**: Dedicated utility functions for core business rules
+- **Error Handling**: Unified error response format and logging strategies
+
+### Module Implementation Status
+11 critical admin modules have been standardized following the `.kiro/specs` documentation:
+- Affiliations Management System
+- Courses Management System
+- Course Categories Management System
+- Intakes Management System
+- Customer Contact Replies Management System
+- Customer Contact Requests Management System
+- Email Logs Management System
+- Payments Management System
+- Refunds Management System
+- User Profiles Management System
+- User Deletion History Management System
 
 ## Recent Improvements
 
@@ -143,7 +171,3 @@ The course management system has been significantly improved with:
 - Centralized extended types for better type safety
 - Updated documentation in WARP.md
 - Consistent error handling patterns across the codebase
-
-## Deployment
-
-The application is designed for deployment on Vercel with Supabase integration. The Vercel deployment automatically configures environment variables from the Supabase project.

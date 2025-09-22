@@ -105,7 +105,7 @@ Database and data modeling (Drizzle)
 - Migrations: drizzle/*.sql; configured by drizzle.config.ts (output dir ./drizzle)
 - Zod validation: lib/db/drizzle-zod-schema/* provides runtime validation for server actions and API inputs
 
-Server Actions (Next.js “use server”)
+Server Actions (Next.js "use server")
 - Pattern: Validate input (Zod), check auth (requireAdmin or server Supabase getUser), perform DB changes via Drizzle, revalidate paths via next/cache as needed
 - Admin examples
   - lib/server-actions/admin/courses.ts: Paginated listing, details, upsert with image storage via Supabase Storage, constraint checking for deletions, constraint checking for deletions
@@ -114,6 +114,7 @@ Server Actions (Next.js “use server”)
   - lib/server-actions/admin/user-deletion.ts: Soft-delete, schedule deletion, restore with email notifications and audit trail
   - lib/server-actions/admin/customer-contact-reply.ts: Reply and batch reply workflows with Resend and persistence
   - lib/server-actions/admin/affiliations.ts: Affiliation management with constraint checking and pagination
+  - lib/server-actions/admin/enrollments-optimized.ts: Enhanced enrollment management with improved performance, centralized types, and separated business logic
 - User examples
   - lib/server-actions/user/enrollments.ts: Enrollment creation with capacity checks, notifications, and profile lookups
   - lib/server-actions/user/customer-contact-requests.ts: Save contact requests and notify admins

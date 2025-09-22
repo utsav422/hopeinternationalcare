@@ -60,9 +60,12 @@ export const profiles = pgTable(
     ]
 );
 
-export const profileRelations = relations(profiles, ({ one }) => ({
+import { enrollments } from './enrollments';
+
+export const profileRelations = relations(profiles, ({ one, many }) => ({
     authUser: one(authUsers, {
         fields: [profiles.id],
         references: [authUsers.id],
     }),
+    enrollments: many(enrollments),
 }));

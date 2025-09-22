@@ -1,6 +1,16 @@
+/*
+ * DEPRECATED: This file contains the old enrollment server actions implementation.
+ * 
+ * PLEASE USE THE NEW OPTIMIZED VERSIONS:
+ * - For new code: import from '@/lib/server-actions/admin/enrollments-optimized'
+ * - For backward compatibility: import from '@/lib/server-actions/admin/enrollments-compat'
+ * 
+ * This file is maintained for backward compatibility only and will be removed in a future release.
+ */
+
 'use server';
 
-import type { ColumnFilter, ColumnFiltersState } from '@tanstack/react-table';
+import type { ColumnFiltersState } from '@tanstack/react-table';
 import {
     type AnyColumn,
     eq,
@@ -393,23 +403,23 @@ export async function adminEnrollmentUpdateStatusById(
                             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                   <h2 style="color: #dc2626;">Enrollment Cancelled</h2>
-
+                  
                   <p>Dear ${enrollment.userName},</p>
-
+                  
                   <p>We regret to inform you that your enrollment has been cancelled.</p>
-
+                  
                   <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
                     <h3 style="margin-top: 0; color: #1e293b;">Cancellation Details</h3>
                     <p><strong>Course:</strong> ${enrollment.courseTitle || 'Course'}</p>
                     <p><strong>Status:</strong> Cancelled</p>
                     ${cancelled_reason ? `<p><strong>Reason:</strong> ${cancelled_reason}</p>` : ''}
                   </div>
-
+                  
                   <p>If you have any questions about this cancellation, please contact our admissions team.</p>
-
+                  
                   <p>Best regards,<br>
                   Hope International Admissions Team</p>
-
+                  
                   <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 14px;">
                     <p>Hope International - Aged Care Training and Elderly Care Center</p>
                     <p>Kathmandu, Nepal</p>

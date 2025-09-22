@@ -4,13 +4,15 @@ import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tansta
 import type { ColumnFiltersState } from '@tanstack/react-table';
 import type { ListParams as DataTableListParams } from '@/hooks/admin/use-data-table-query-state';
 import {
-    adminCourseDeleteById,
-    adminCourseDetailsById,
+    adminCourseDelete,
+    adminCourseDetails,
     adminCourseList,
-    adminCourseListAll,
-    adminCourseUpdateCategoryId,
-    adminCourseUpsert,
-} from '@/lib/server-actions/admin/courses';
+    // adminCourseCreate, // Will be used for upsert
+    // adminCourseUpdate, // Will be used for upsert
+    // adminCourseCheckConstraints,
+    // adminCourseImageUpload,
+    // adminCourseImageDelete
+} from '@/lib/server-actions/admin/courses-optimized';
 import type { ZodInsertCourseType } from '@/lib/db/drizzle-zod-schema/courses';
 import { queryKeys } from '../../lib/query-keys';
 

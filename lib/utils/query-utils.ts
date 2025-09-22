@@ -1,176 +1,135 @@
+import { AnyColumn, SQL, sql, asc, desc } from 'drizzle-orm';
 import type { ColumnFiltersState } from '@tanstack/react-table';
-import type { AnyColumn, SQL } from 'drizzle-orm';
-import { asc, desc, sql } from 'drizzle-orm';
 
 /**
- * Builds filter conditions from column filters
+ * Query optimization utilities for all modules
  */
+
+// Build filter conditions from column filters
 export function buildFilterConditions(
   filters: ColumnFiltersState,
   columnMap: Record<string, AnyColumn>
 ): SQL<unknown>[] {
   return filters
-    .map((filter: any) => {
-      const col = columnMap[filter.id];
-
-      if (col && typeof filter.value === 'string') {
-        // Text search using ILIKE for case-insensitive matching
-        return sql`${col} ILIKE ${`%${filter.value}%`}`;
-      }
-
-      if (
-        col &&
-        Array.isArray(filter.value) &&
-        filter.value.length > 0
-      ) {
-        // For array filters, use IN clause
-        return sql`${col} IN ${filter.value}`;
-      }
-
-      // Handle numeric range filters [min, max]
-      if (
-        col &&
-        Array.isArray(filter.value) &&
-        filter.value.length === 2 &&
-        typeof filter.value[0] === 'number' &&
-        typeof filter.value[1] === 'number'
-      ) {
-        const [min, max] = filter.value;
-        const conditions: SQL[] = [];
-        if (min !== undefined && min !== null) {
-          conditions.push(sql`${col} >= ${min}`);
+    .map(filter => {
+      const column = columnMap[filter.id];
+      if (!column) return null;
+      
+      // Handle different filter types
+      if (typeof filter.value === 'string') {
+        // String filters
+        if (filter.value.includes('%')) {
+          // Already has wildcards
+          return sql`${column} ILIKE ${filter.value}`;
+        } else {
+          // Add wildcards for partial matching
+          return sql`${column} ILIKE ${`%${filter.value}%`}`;
         }
-        if (max !== undefined && max !== null) {
-          conditions.push(sql`${col} <= ${max}`);
+      } else if (typeof filter.value === 'number') {
+        // Number filters
+        return sql`${column} = ${filter.value}`;
+      } else if (Array.isArray(filter.value)) {
+        // Array filters (for IN clauses)
+        if (filter.value.length > 0) {
+          return sql`${column} IN ${filter.value}`;
         }
-        if (conditions.length > 0) {
-          return conditions.length > 1
-            ? sql`${conditions[0]} AND ${conditions[1]}`
-            : conditions[0];
+      } else if (filter.value && typeof filter.value === 'object') {
+        // Object filters (for range queries)
+        const objValue = filter.value as Record<string, any>;
+        if (objValue.from !== undefined && objValue.to !== undefined) {
+          return sql`${column} BETWEEN ${objValue.from} AND ${objValue.to}`;
+        } else if (objValue.from !== undefined) {
+          return sql`${column} >= ${objValue.from}`;
+        } else if (objValue.to !== undefined) {
+          return sql`${column} <= ${objValue.to}`;
         }
       }
-
-      // Handle single numeric value filters (e.g., exact match)
-      if (col && typeof filter.value === 'number') {
-        return sql`${col} = ${filter.value}`;
-      }
-
+      
       return null;
     })
-    .filter(Boolean) as SQL<unknown>[];
+    .filter((condition): condition is SQL<unknown> => condition !== null);
 }
 
-/**
- * Builds WHERE clause from filter conditions
- */
-export function buildWhereClause(filterConditions: SQL<unknown>[]) {
-  return filterConditions.length > 0
-    ? filterConditions.reduce((acc, condition) =>
-      acc ? sql`${acc} AND ${condition}` : condition
-    )
-    : undefined;
+// Build WHERE clause from filter conditions
+export function buildWhereClause(filterConditions: SQL<unknown>[]): SQL<unknown> | undefined {
+  if (filterConditions.length === 0) {
+    return undefined;
+  }
+  
+  if (filterConditions.length === 1) {
+    return filterConditions[0];
+  }
+  
+  // Combine conditions with AND
+  return filterConditions.reduce((acc, condition) => {
+    return sql`${acc} AND ${condition}`;
+  });
 }
 
-/**
- * Builds ORDER BY clause
- */
+// Build ORDER BY clause
 export function buildOrderByClause(
   sortBy: string,
   order: 'asc' | 'desc',
   columnMap: Record<string, AnyColumn>
-) {
-  const sortColumn = columnMap[sortBy];
-  if (!sortColumn) {
-    // Default to created_at if sort column not found
-    const defaultColumn = Object.values(columnMap).find(col =>
-      col.name === 'created_at' || col.name === 'id'
-    );
-    return defaultColumn ? desc(defaultColumn) : undefined;
+): SQL<unknown> | undefined {
+  const column = columnMap[sortBy];
+  if (!column) {
+    return undefined;
   }
-
-  return order === 'asc' ? asc(sortColumn) : desc(sortColumn);
+  
+  return order === 'asc' ? asc(column) : desc(column);
 }
 
-/**
- * Calculates offset for pagination
- */
-export function calculateOffset(page: number, pageSize: number) {
+// Calculate offset for pagination
+export function calculateOffset(page: number, pageSize: number): number {
   return (page - 1) * pageSize;
 }
 
-/**
- * Builds a complete query with pagination, filtering, and sorting
- */
-export function buildPaginatedQuery({
-  queryBuilder,
-  columnMap,
-  options,
-}: {
-  queryBuilder: any;
-  columnMap: Record<string, AnyColumn>;
-  options: {
-    page?: number;
-    pageSize?: number;
-    sortBy?: string;
-    order?: 'asc' | 'desc';
-    filters?: ColumnFiltersState;
-  };
-}) {
-  const {
-    page = 1,
-    pageSize = 10,
-    sortBy = 'created_at',
-    order = 'desc',
-    filters = []
-  } = options;
-
-  const offset = calculateOffset(page, pageSize);
-
-  // Build filter conditions
-  const filterConditions = buildFilterConditions(filters, columnMap);
-  const whereClause = buildWhereClause(filterConditions);
-
-  // Build order by clause
-  const orderBy = buildOrderByClause(sortBy, order, columnMap);
-
-  // Apply where clause if exists
-  let query = whereClause ? queryBuilder.where(whereClause) : queryBuilder;
-
-  // Apply order by if exists
-  if (orderBy) {
-    query = query.orderBy(orderBy);
-  }
-
-  // Apply pagination
-  query = query.limit(pageSize).offset(offset);
-
-  return query;
+// Build SELECT clause with optimized columns
+export function buildSelectClause<T>(
+  selectColumns: T
+): T {
+  // In a real implementation, this could optimize the select clause
+  // For now, we just return the provided columns
+  return selectColumns;
 }
 
-/**
- * Builds a count query for pagination
- */
-export function buildCountQuery({
-  table,
-  columnMap,
-  filters = [],
-}: {
-  table: any;
-  columnMap: Record<string, AnyColumn>;
-  filters?: ColumnFiltersState;
-}) {
-  // Build filter conditions
-  const filterConditions = buildFilterConditions(filters, columnMap);
-  const whereClause = buildWhereClause(filterConditions);
+// Build JOIN clauses for optimized queries
+export function buildJoinClause(
+  joins: Array<{ table: any; condition: SQL<unknown> }>
+): SQL<unknown>[] {
+  return joins.map(join => 
+    sql`JOIN ${join.table} ON ${join.condition}`
+  );
+}
 
-  // Build count query
-  let query = table
-    .select({ count: sql<number>`count(*)` })
-    .from(table);
-
-  if (whereClause) {
-    query = query.where(whereClause);
+// Build GROUP BY clause
+export function buildGroupByClause(
+  groupByColumns: AnyColumn[]
+): SQL<unknown> | undefined {
+  if (groupByColumns.length === 0) {
+    return undefined;
   }
+  
+  return sql`${groupByColumns[0]}${
+    groupByColumns.slice(1).map(col => sql`, ${col}`)
+  }`;
+}
 
-  return query;
+// Build HAVING clause
+export function buildHavingClause(
+  havingConditions: SQL<unknown>[]
+): SQL<unknown> | undefined {
+  if (havingConditions.length === 0) {
+    return undefined;
+  }
+  
+  if (havingConditions.length === 1) {
+    return havingConditions[0];
+  }
+  
+  // Combine conditions with AND
+  return havingConditions.reduce((acc, condition) => {
+    return sql`${acc} AND ${condition}`;
+  });
 }
