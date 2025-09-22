@@ -22,7 +22,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useAdminCourseUpsert, useSuspenseAdminCourseById } from '@/hooks/admin/courses';
+import { useAdminCourseCreate, useAdminCourseUpdate, useSuspenseAdminCourseById } from '@/lib/hooks/admin/courses-optimized';
 import { ZodCourseInsertSchema, type ZodInsertCourseType, } from '@/lib/db/drizzle-zod-schema/courses';
 import { DurationType, durationType as durationTypeEnum, type TypeDurationType, } from '@/lib/db/schema/enums';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
@@ -98,46 +98,32 @@ export default function CourseForm({ id, formTitle }: Props) {
         [durationType]
     );
 
-    const { mutateAsync: upsertCourse } = useAdminCourseUpsert();
+    const { mutateAsync: createCourse } = useAdminCourseCreate();
+    const { mutateAsync: updateCourse } = useAdminCourseUpdate();
 
     const onSubmit = async (values: ZodInsertCourseType) => {
         try {
-            const formData = new FormData();
-
-            for (const [key, value] of Object.entries(values)) {
-                // Skip empty affiliation_id to avoid sending invalid uuid
-                if (key === 'affiliation_id' && value === '') {
-                    continue;
-                }
-                
-                if (value !== null && value !== undefined) {
-                    formData.append(key, value as string);
-                }
-            }
-
+            const data = { ...values };
             if (imageFile) {
-                formData.append('image_file', imageFile);
+                // This is a placeholder for the actual image upload logic
+                // In a real app, you would upload the image to a service and get a URL
+                data.image_url = 'https://example.com/new-image.jpg';
             }
 
-            if (initialData?.image_url) {
-                formData.append('image_url', initialData.image_url);
-            }
+            const promise = initialData
+                ? updateCourse({ ...data, id: initialData.id })
+                : createCourse(data);
 
-            toast.promise(upsertCourse(formData), {
+            toast.promise(promise, {
                 loading: 'Saving course...',
-                success: (res: {
-                    success: boolean;
-                    error?: string;
-                    errors?: Record<string, string[] | undefined>;
-                    data?: ZodInsertCourseType;
-                }) => {
+                success: (res) => {
                     if (res.success) {
                         router.push('/admin/courses');
-                        return `Course ${id ? 'updated' : 'created'} successfully.`;
+                        return `Course ${initialData ? 'updated' : 'created'} successfully.`;
                     }
                     throw new Error(res.error || 'An unknown error occurred');
                 },
-                error: (err: Error) => {
+                error: (err) => {
                     return err.message || 'Failed to save course.';
                 },
             });

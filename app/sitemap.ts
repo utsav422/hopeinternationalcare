@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { getCachedPublicCourses } from '@/lib/server-actions/public/courses';
+import { getCachedPublicCourses } from '@/lib/server-actions/public/courses-optimized';
 import { getCachedPublicAllCategories } from '@/lib/server-actions/public/course-categories';
 
 // Next.js 15 Enhanced Sitemap with comprehensive SEO optimization
@@ -9,7 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // Get all courses for dynamic routes
     const coursesResponse = await getCachedPublicCourses({ pageSize: 1000 });
-    const courses = coursesResponse.data || [];
+    const courses = coursesResponse.data?.data || [];
 
     // Get all categories for dynamic routes
     const categoriesResponse = await getCachedPublicAllCategories();

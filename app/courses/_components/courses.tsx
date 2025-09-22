@@ -11,7 +11,7 @@ import SortingSelect from '@/components/Custom/sorting-select';
 import { UpcomingIntakesBanner } from '@/components/Custom/upcoming-intakes-banner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useGetPublicCourses } from '@/hooks/public/courses';
+import { useGetPublicCourses } from '@/lib/hooks/public/courses-optimized';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 
 export function AllCourses() {
@@ -50,7 +50,7 @@ export function AllCourses() {
         }
     }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-    const courses = data?.pages.flatMap((page) => page.data) ?? [];
+    const courses = data?.pages.flatMap((page) => page.data?.data) ?? [];
 
     const handleFilterChange = (filterName: string, value: string) => {
         setFilters((prev) => ({ ...prev, [filterName]: value }));

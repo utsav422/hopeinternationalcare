@@ -9,7 +9,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useAdminCoursesAll } from '@/hooks/admin/courses';
+import { useAdminCoursesAll } from '@/lib/hooks/admin/courses-optimized';
 import type { ZodSelectCourseType } from '@/lib/db/drizzle-zod-schema/courses';
 import type { ZodInsertIntakeType } from '@/lib/db/drizzle-zod-schema/intakes';
 import { Skeleton } from '../ui/skeleton';

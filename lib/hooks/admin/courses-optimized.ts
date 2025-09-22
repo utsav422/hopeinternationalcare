@@ -4,17 +4,17 @@ import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tansta
 import type { ColumnFiltersState } from '@tanstack/react-table';
 import type { ListParams as DataTableListParams } from '@/hooks/admin/use-data-table-query-state';
 import {
-    adminCourseDelete,
-    adminCourseDetails,
     adminCourseList,
-    // adminCourseCreate, // Will be used for upsert
-    // adminCourseUpdate, // Will be used for upsert
-    // adminCourseCheckConstraints,
-    // adminCourseImageUpload,
-    // adminCourseImageDelete
+    adminCourseListAll,
+    adminCourseDetails,
+    adminCourseCreate,
+    adminCourseUpdate,
+    adminCourseDelete,
+    adminCourseUpdateCategoryId
 } from '@/lib/server-actions/admin/courses-optimized';
 import type { ZodInsertCourseType } from '@/lib/db/drizzle-zod-schema/courses';
-import { queryKeys } from '../../lib/query-keys';
+import { queryKeys } from '@/lib/query-keys';
+import { CourseCreateData, CourseUpdateData } from '@/lib/types/courses';
 
 // Types
 type ListParams = {
@@ -48,7 +48,7 @@ export const useAdminCoursesAll = () => {
 export const useAdminCourseById = (id: string) => {
     return useQuery({
         queryKey: queryKeys.courses.detail(id),
-        queryFn: async () => adminCourseDetailsById(id),
+        queryFn: async () => adminCourseDetails(id),
         staleTime: 1000 * 60 * 5,  // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
         enabled: !!id,
@@ -58,21 +58,37 @@ export const useAdminCourseById = (id: string) => {
 export const useSuspenseAdminCourseById = (id: string) => {
     return useSuspenseQuery({
         queryKey: queryKeys.courses.detail(id),
-        queryFn: async () => adminCourseDetailsById(id),
+        queryFn: async () => adminCourseDetails(id),
         staleTime: 1000 * 60 * 5,  // 5 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
 
 // Course mutation hooks
-export const useAdminCourseUpsert = () => {
+export const useAdminCourseCreate = () => {
     const queryClient = useQueryClient();
     
     return useMutation({
-        mutationFn: (data: FormData) => adminCourseUpsert(data),
+        mutationFn: (data: CourseCreateData) => adminCourseCreate(data),
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: queryKeys.courses.all,
+            });
+        },
+    });
+};
+
+export const useAdminCourseUpdate = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: CourseUpdateData) => adminCourseUpdate(data),
+        onSuccess: async (data) => {
+            await queryClient.invalidateQueries({
+                queryKey: queryKeys.courses.all,
+            });
+            await queryClient.invalidateQueries({
+                queryKey: queryKeys.courses.detail(data.data?.id || ''),
             });
         },
     });
@@ -82,10 +98,13 @@ export const useAdminCourseUpdateCategoryId = () => {
     const queryClient = useQueryClient();
     
     return useMutation({
-        mutationFn: (data: Partial<ZodInsertCourseType>) => adminCourseUpdateCategoryId(data),
-        onSuccess: async () => {
+        mutationFn: ({ courseId, categoryId }: { courseId: string, categoryId: string }) => adminCourseUpdateCategoryId(courseId, categoryId),
+        onSuccess: async (data) => {
             await queryClient.invalidateQueries({
                 queryKey: queryKeys.courses.all,
+            });
+            await queryClient.invalidateQueries({
+                queryKey: queryKeys.courses.detail(data.data?.id || ''),
             });
         },
     });
@@ -95,7 +114,7 @@ export const useAdminCourseDelete = () => {
     const queryClient = useQueryClient();
     
     return useMutation({
-        mutationFn: (id: string) => adminCourseDeleteById(id),
+        mutationFn: (id: string) => adminCourseDelete(id),
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: queryKeys.courses.all,

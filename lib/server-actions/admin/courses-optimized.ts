@@ -2,6 +2,7 @@
 
 import { eq, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { cache } from 'react';
 import { db } from '@/lib/db/drizzle';
 import { courses } from '@/lib/db/schema/courses';
 import type { InferInsertModel } from 'drizzle-orm';
@@ -124,18 +125,13 @@ export async function adminCourseList(params: CourseQueryParams): Promise<ApiRes
                 slug: courses.slug,
                 price: courses.price,
                 level: courses.level,
+                image_url: courses.image_url,
                 duration_type: courses.duration_type,
                 duration_value: courses.duration_value,
                 created_at: courses.created_at,
                 updated_at: courses.updated_at,
-                category: {
-                    id: courseCategories.id,
-                    name: courseCategories.name,
-                },
-                affiliation: {
-                    id: affiliations.id,
-                    name: affiliations.name,
-                },
+                category_name: courseCategories.name,
+                affiliation_name: affiliations.name,
                 intake_count: sql<number>`count(intakes.id)`,
                 enrollment_count: sql<number>`count(enrollments.id)`,
             })
@@ -498,5 +494,62 @@ export async function adminCourseImageDelete(imageUrl: string, courseId: string)
         return { success: true };
     } catch (error) {
         return handleCourseError(error, 'image-delete');
+    }
+}
+
+// Cached versions
+export const cachedAdminCourseList = cache(adminCourseList);
+export const cachedAdminCourseDetails = cache(adminCourseDetails);
+
+/**
+ * Get all courses without pagination
+ */
+export async function adminCourseListAll(): Promise<ApiResponse<CourseListItem[]>> {
+    const result = await adminCourseList({ page: 1, pageSize: 9999 }); // Use a large page size to fetch all
+    if (result.success) {
+        return {
+            success: true,
+            data: result.data.data,
+        };
+    }
+    return {
+        success: false,
+        error: result.error,
+        code: result.code,
+        details: result.details,
+    };
+}
+
+export const cachedAdminCourseListAll = cache(adminCourseListAll);
+
+/**
+ * Update course category
+ */
+export async function adminCourseUpdateCategoryId(
+    courseId: string,
+    categoryId: string
+): Promise<ApiResponse<CourseBase>> {
+    try {
+        await requireAdmin();
+
+        const [updated] = await db
+            .update(courses)
+            .set({ category_id: categoryId, updated_at: sql`now()` })
+            .where(eq(courses.id, courseId))
+            .returning();
+
+        if (!updated) {
+            return {
+                success: false,
+                error: 'Course not found',
+                code: 'NOT_FOUND',
+            };
+        }
+
+        revalidatePath('/admin/courses');
+        revalidatePath(`/admin/courses/${courseId}`);
+        return { success: true, data: updated };
+    } catch (error) {
+        return handleCourseError(error, 'update-category');
     }
 }

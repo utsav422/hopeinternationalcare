@@ -27,18 +27,13 @@ export interface CourseListItem {
   slug: string;
   price: number;
   level: number;
+  image_url: string | null;
   duration_type: TypeDurationType;
   duration_value: number;
   created_at: string;
   updated_at: string;
-  category: {
-    id: string;
-    name: string;
-  } | null;
-  affiliation: {
-    id:string;
-    name: string;
-  } | null;
+  category_name: string | null;
+  affiliation_name: string | null;
   intake_count: number;
   enrollment_count: number;
 }

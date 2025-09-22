@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getCachedPublicCourses } from '@/lib/server-actions/public/courses';
+import { getCachedPublicCourses } from '@/lib/server-actions/public/courses-optimized';
 
 // Next.js 15 Dynamic Courses Sitemap
 export async function GET() {
@@ -8,7 +8,7 @@ export async function GET() {
     try {
         // Get all courses
         const coursesResponse = await getCachedPublicCourses({ pageSize: 1000 });
-        const courses = coursesResponse.data || [];
+        const courses = coursesResponse.data?.data || [];
 
         // Generate XML sitemap for courses
         const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

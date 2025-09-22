@@ -1,14 +1,14 @@
 'use client';
 
 import { useQuery, useSuspenseQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { queryKeys } from '../../lib/query-keys';
+import { queryKeys } from '@/lib/query-keys';
 import {
     getCachedPublicCourseBySlug,
     getCachedPublicCourses,
     getCachedRelatedCourses,
     getCachedPublicCourseById,
     getCachedNewCourses
-} from '@/lib/server-actions/public/courses';
+} from '@/lib/server-actions/public/courses-optimized';
 
 type Filters = {
     title?: string;
