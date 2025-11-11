@@ -1,7 +1,14 @@
 import { NextResponse } from 'next/server';
 import { sendContactFormEmail, isResendConfigured } from '@/lib/email/resend';
-import { withApiSecurity, getSanitizedBody, type AuthenticatedRequest } from '@/lib/api-security/middleware';
-import { validateContactForm, detectSpamInput } from '@/lib/api-security/input-sanitizer';
+import {
+    withApiSecurity,
+    getSanitizedBody,
+    type AuthenticatedRequest,
+} from '@/lib/api-security/middleware';
+import {
+    validateContactForm,
+    detectSpamInput,
+} from '@/lib/api-security/input-sanitizer';
 import { actionRateLimit, RATE_LIMITS } from '@/lib/api-security/rate-limiter';
 
 async function handleContactForm(request: AuthenticatedRequest) {
@@ -23,7 +30,7 @@ async function handleContactForm(request: AuthenticatedRequest) {
             return NextResponse.json(
                 {
                     error: 'Validation failed',
-                    details: validation.errors
+                    details: validation.errors,
                 },
                 { status: 400 }
             );
@@ -32,24 +39,32 @@ async function handleContactForm(request: AuthenticatedRequest) {
         const { name, email, phone, message } = validation.sanitized!;
 
         // Check for spam (repeated identical messages)
-        const clientId = request.headers.get('x-forwarded-for') ||
-                         request.headers.get('x-real-ip') ||
-                         request.headers.get('cf-connecting-ip') ||
-                         'unknown';
+        const clientId =
+            request.headers.get('x-forwarded-for') ||
+            request.headers.get('x-real-ip') ||
+            request.headers.get('cf-connecting-ip') ||
+            'unknown';
         if (detectSpamInput(message, clientId)) {
             return NextResponse.json(
-                { error: 'Spam detected. Please wait before submitting again.' },
+                {
+                    error: 'Spam detected. Please wait before submitting again.',
+                },
                 { status: 429 }
             );
         }
 
         // Additional rate limiting for contact form submissions
-        const rateLimitResult = await actionRateLimit(request, 'contact_form', 3, 300); // 3 attempts per 5 minutes
+        const rateLimitResult = await actionRateLimit(
+            request,
+            'contact_form',
+            3,
+            300
+        ); // 3 attempts per 5 minutes
         if (!rateLimitResult.success) {
             return NextResponse.json(
                 {
                     error: 'Too many contact form submissions. Please try again later.',
-                    retryAfter: rateLimitResult.retryAfter
+                    retryAfter: rateLimitResult.retryAfter,
                 },
                 { status: 429 }
             );
@@ -66,7 +81,7 @@ async function handleContactForm(request: AuthenticatedRequest) {
         if (result.success) {
             return NextResponse.json({
                 message: 'Email sent successfully',
-                emailId: result.data?.data?.id
+                emailId: result.data?.data?.id,
             });
         } else {
             return NextResponse.json(

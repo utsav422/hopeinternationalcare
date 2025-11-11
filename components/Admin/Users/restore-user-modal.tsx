@@ -1,10 +1,10 @@
 'use client';
 
-import {useState} from 'react';
-import {zodResolver} from '@hookform/resolvers/zod';
-import {useForm} from 'react-hook-form';
-import {toast} from 'sonner';
-import {Button} from '@/components/ui/button';
+import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -13,10 +13,21 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage,} from '@/components/ui/form';
-import {Textarea} from '@/components/ui/textarea';
-import {AlertTriangle, RefreshCw, UserCheck} from 'lucide-react';
-import {ZodUserRestorationSchema, type ZodUserRestorationType} from '@/lib/db/drizzle-zod-schema';
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
+import { AlertTriangle, RefreshCw, UserCheck } from 'lucide-react';
+import {
+    ZodUserRestorationSchema,
+    type ZodUserRestorationType,
+} from '@/lib/db/drizzle-zod-schema';
 
 interface RestoreUserModalProps {
     isOpen: boolean;
@@ -31,9 +42,16 @@ interface RestoreUserModalProps {
     onRestore: (data: ZodUserRestorationType) => Promise<void>;
 }
 
-const MAX_RESTORATIONS = parseInt(process.env.NEXT_PUBLIC_MAX_USER_RESTORATIONS || '3');
+const MAX_RESTORATIONS = parseInt(
+    process.env.NEXT_PUBLIC_MAX_USER_RESTORATIONS || '3'
+);
 
-export default function RestoreUserModal({isOpen, onClose, user, onRestore}: RestoreUserModalProps) {
+export default function RestoreUserModal({
+    isOpen,
+    onClose,
+    user,
+    onRestore,
+}: RestoreUserModalProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const form = useForm<ZodUserRestorationType>({
@@ -56,7 +74,11 @@ export default function RestoreUserModal({isOpen, onClose, user, onRestore}: Res
             form.reset();
             onClose();
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : 'Failed to restore user');
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : 'Failed to restore user'
+            );
         } finally {
             setIsSubmitting(false);
         }
@@ -78,19 +100,22 @@ export default function RestoreUserModal({isOpen, onClose, user, onRestore}: Res
             <DialogContent className="max-w-2xl">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-green-600">
-                        <UserCheck className="h-5 w-5"/>
+                        <UserCheck className="h-5 w-5" />
                         Restore User Account
                     </DialogTitle>
                     <DialogDescription>
-                        This action will reactivate the user account and restore full access.
+                        This action will reactivate the user account and restore
+                        full access.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                     <div className="flex items-start gap-3">
-                        <UserCheck className="h-5 w-5 text-blue-500 mt-0.5"/>
+                        <UserCheck className="h-5 w-5 text-blue-500 mt-0.5" />
                         <div>
-                            <h4 className="font-medium text-blue-800">User Information</h4>
+                            <h4 className="font-medium text-blue-800">
+                                User Information
+                            </h4>
                             <p className="text-sm text-blue-700 mt-1">
                                 <strong>Name:</strong> {user.full_name}
                             </p>
@@ -98,13 +123,21 @@ export default function RestoreUserModal({isOpen, onClose, user, onRestore}: Res
                                 <strong>Email:</strong> {user.email}
                             </p>
                             <p className="text-sm text-blue-700">
-                                <strong>Deleted:</strong> {user.deleted_at ? new Date(user.deleted_at).toLocaleString('en-US', {timeZone: 'Asia/Kathmandu'}) : 'Unknown'}
+                                <strong>Deleted:</strong>{' '}
+                                {user.deleted_at
+                                    ? new Date(user.deleted_at).toLocaleString(
+                                          'en-US',
+                                          { timeZone: 'Asia/Kathmandu' }
+                                      )
+                                    : 'Unknown'}
                             </p>
                             <p className="text-sm text-blue-700">
-                                <strong>Previous Deletions:</strong> {deletionCount}
+                                <strong>Previous Deletions:</strong>{' '}
+                                {deletionCount}
                             </p>
                             <p className="text-sm text-blue-700">
-                                <strong>Remaining Restorations:</strong> {remainingRestorations}
+                                <strong>Remaining Restorations:</strong>{' '}
+                                {remainingRestorations}
                             </p>
                         </div>
                     </div>
@@ -113,12 +146,16 @@ export default function RestoreUserModal({isOpen, onClose, user, onRestore}: Res
                 {!canRestore && (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                         <div className="flex items-start gap-3">
-                            <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5"/>
+                            <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5" />
                             <div>
-                                <h4 className="font-medium text-red-800">Restoration Limit Reached</h4>
+                                <h4 className="font-medium text-red-800">
+                                    Restoration Limit Reached
+                                </h4>
                                 <p className="text-sm text-red-700 mt-1">
-                                    This user has reached the maximum restoration limit of {MAX_RESTORATIONS}.
-                                    Contact system administrator for special approval.
+                                    This user has reached the maximum
+                                    restoration limit of {MAX_RESTORATIONS}.
+                                    Contact system administrator for special
+                                    approval.
                                 </p>
                             </div>
                         </div>
@@ -127,11 +164,14 @@ export default function RestoreUserModal({isOpen, onClose, user, onRestore}: Res
 
                 {canRestore && (
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                        <form
+                            onSubmit={form.handleSubmit(handleSubmit)}
+                            className="space-y-6"
+                        >
                             <FormField
                                 control={form.control}
                                 name="restoration_reason"
-                                render={({field}) => (
+                                render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-base font-medium">
                                             Restoration Reason *
@@ -144,24 +184,42 @@ export default function RestoreUserModal({isOpen, onClose, user, onRestore}: Res
                                             />
                                         </FormControl>
                                         <FormDescription>
-                                            This reason will be included in the notification email and audit logs.
+                                            This reason will be included in the
+                                            notification email and audit logs.
                                         </FormDescription>
-                                        <FormMessage/>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
 
                             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                                 <div className="flex items-start gap-3">
-                                    <RefreshCw className="h-5 w-5 text-green-500 mt-0.5"/>
+                                    <RefreshCw className="h-5 w-5 text-green-500 mt-0.5" />
                                     <div>
-                                        <h4 className="font-medium text-green-800">What Will Happen</h4>
+                                        <h4 className="font-medium text-green-800">
+                                            What Will Happen
+                                        </h4>
                                         <ul className="text-sm text-green-700 mt-2 space-y-1">
-                                            <li>• User will regain full access to their account</li>
-                                            <li>• All account features will be restored</li>
-                                            <li>• User will receive a confirmation email</li>
-                                            <li>• Restoration will be logged for audit purposes</li>
-                                            <li>• User can immediately sign in and use the platform</li>
+                                            <li>
+                                                • User will regain full access
+                                                to their account
+                                            </li>
+                                            <li>
+                                                • All account features will be
+                                                restored
+                                            </li>
+                                            <li>
+                                                • User will receive a
+                                                confirmation email
+                                            </li>
+                                            <li>
+                                                • Restoration will be logged for
+                                                audit purposes
+                                            </li>
+                                            <li>
+                                                • User can immediately sign in
+                                                and use the platform
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>
@@ -170,13 +228,20 @@ export default function RestoreUserModal({isOpen, onClose, user, onRestore}: Res
                             {remainingRestorations <= 2 && (
                                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                                     <div className="flex items-start gap-3">
-                                        <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5"/>
+                                        <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
                                         <div>
-                                            <h4 className="font-medium text-yellow-800">Restoration Limit Warning</h4>
+                                            <h4 className="font-medium text-yellow-800">
+                                                Restoration Limit Warning
+                                            </h4>
                                             <p className="text-sm text-yellow-700 mt-1">
-                                                This user has
-                                                only {remainingRestorations} restoration{remainingRestorations !== 1 ? 's' : ''} remaining.
-                                                Please ensure this restoration is necessary.
+                                                This user has only{' '}
+                                                {remainingRestorations}{' '}
+                                                restoration
+                                                {remainingRestorations !== 1
+                                                    ? 's'
+                                                    : ''}{' '}
+                                                remaining. Please ensure this
+                                                restoration is necessary.
                                             </p>
                                         </div>
                                     </div>
@@ -200,13 +265,12 @@ export default function RestoreUserModal({isOpen, onClose, user, onRestore}: Res
                                 >
                                     {isSubmitting ? (
                                         <div className="flex items-center gap-2">
-                                            <div
-                                                className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"/>
+                                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                                             Restoring...
                                         </div>
                                     ) : (
                                         <div className="flex items-center gap-2">
-                                            <RefreshCw className="h-4 w-4"/>
+                                            <RefreshCw className="h-4 w-4" />
                                             Restore User
                                         </div>
                                     )}

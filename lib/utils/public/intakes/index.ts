@@ -7,14 +7,14 @@ import { eq, sql, and, gte, lte } from 'drizzle-orm';
  */
 
 export class PublicIntakeValidationError extends Error {
-  constructor(
-    message: string,
-    public code: string,
-    public details?: Record<string, any>
-  ) {
-    super(message);
-    this.name = 'PublicIntakeValidationError';
-  }
+    constructor(
+        message: string,
+        public code: string,
+        public details?: Record<string, any>
+    ) {
+        super(message);
+        this.name = 'PublicIntakeValidationError';
+    }
 }
 
 /**
@@ -23,13 +23,13 @@ export class PublicIntakeValidationError extends Error {
  * @throws PublicIntakeValidationError if validation fails
  */
 export function validateIntakeId(id: string): void {
-  if (!id || typeof id !== 'string') {
-    throw new PublicIntakeValidationError(
-      'Intake ID is required and must be a string',
-      'INVALID_INTAKE_ID',
-      { id }
-    );
-  }
+    if (!id || typeof id !== 'string') {
+        throw new PublicIntakeValidationError(
+            'Intake ID is required and must be a string',
+            'INVALID_INTAKE_ID',
+            { id }
+        );
+    }
 }
 
 /**
@@ -38,13 +38,13 @@ export function validateIntakeId(id: string): void {
  * @throws PublicIntakeValidationError if validation fails
  */
 export function validateCourseSlug(slug: string): void {
-  if (!slug || typeof slug !== 'string') {
-    throw new PublicIntakeValidationError(
-      'Course slug is required and must be a string',
-      'INVALID_COURSE_SLUG',
-      { slug }
-    );
-  }
+    if (!slug || typeof slug !== 'string') {
+        throw new PublicIntakeValidationError(
+            'Course slug is required and must be a string',
+            'INVALID_COURSE_SLUG',
+            { slug }
+        );
+    }
 }
 
 /**
@@ -57,9 +57,9 @@ export function validateCourseSlug(slug: string): void {
  * @returns boolean indicating if intake is active
  */
 export function isIntakeActive(endDate: string): boolean {
-  const now = new Date();
-  const end = new Date(endDate);
-  return end >= now;
+    const now = new Date();
+    const end = new Date(endDate);
+    return end >= now;
 }
 
 /**
@@ -69,9 +69,9 @@ export function isIntakeActive(endDate: string): boolean {
  * @returns boolean indicating if intake is open
  */
 export function isIntakeOpen(startDate: string, isOpen: boolean): boolean {
-  const now = new Date();
-  const start = new Date(startDate);
-  return isOpen && start > now;
+    const now = new Date();
+    const start = new Date(startDate);
+    return isOpen && start > now;
 }
 
 /**
@@ -80,6 +80,9 @@ export function isIntakeOpen(startDate: string, isOpen: boolean): boolean {
  * @param registered - The number of registered students
  * @returns Number of seats remaining
  */
-export function calculateSeatsRemaining(capacity: number, registered: number): number {
-  return Math.max(0, capacity - registered);
+export function calculateSeatsRemaining(
+    capacity: number,
+    registered: number
+): number {
+    return Math.max(0, capacity - registered);
 }

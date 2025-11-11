@@ -19,12 +19,18 @@ import type { TypePaymentStatus } from '@/lib/db/schema';
 import { DashboardCardSkeleton } from '.';
 
 function PaymentOverviewCard() {
-    const { data: queryResult, error, isLoading } = useAdminDashboardPaymentListByStatus();
+    const {
+        data: queryResult,
+        error,
+        isLoading,
+    } = useAdminDashboardPaymentListByStatus();
     const success = queryResult?.success;
     const queryDataError = queryResult?.error;
     const paymentsByStatus = queryResult?.data;
     if (error || !queryResult || !success || queryDataError) {
-        toast.error(error?.message ?? queryDataError ?? 'Unexpected error occurs');
+        toast.error(
+            error?.message ?? queryDataError ?? 'Unexpected error occurs'
+        );
     }
     const paymentChartData =
         paymentsByStatus?.map(
@@ -33,7 +39,8 @@ function PaymentOverviewCard() {
                 count: number;
                 totalAmount: number;
             }) => ({
-                name: item.status.charAt(0).toUpperCase() + item.status.slice(1),
+                name:
+                    item.status.charAt(0).toUpperCase() + item.status.slice(1),
                 count: item.count,
                 totalAmount: item.totalAmount,
             })
@@ -47,7 +54,10 @@ function PaymentOverviewCard() {
                 <CardTitle className="">Payment Status</CardTitle>
             </CardHeader>
             <CardContent className="pl-2">
-                <ChartContainer className="aspect-auto h-[250px] w-full" config={{}}>
+                <ChartContainer
+                    className="aspect-auto h-[250px] w-full"
+                    config={{}}
+                >
                     <ResponsiveContainer height="100%" width="100%">
                         <BarChart data={paymentChartData}>
                             <CartesianGrid
@@ -56,14 +66,18 @@ function PaymentOverviewCard() {
                             />
                             <XAxis dataKey="name" tick={{ fill: 'white' }} />
                             <YAxis tick={{ fill: 'white' }} />
-                            <ChartTooltip
-                                content={
-                                    <ChartTooltipContent />
-                                }
-                            />
+                            <ChartTooltip content={<ChartTooltipContent />} />
                             <Legend wrapperStyle={{ color: 'white' }} />
-                            <Bar dataKey="count" fill="#82ca9d" name="Payments Count" />
-                            <Bar dataKey="totalAmount" fill="#ffc658" name="Total Amount" />
+                            <Bar
+                                dataKey="count"
+                                fill="#82ca9d"
+                                name="Payments Count"
+                            />
+                            <Bar
+                                dataKey="totalAmount"
+                                fill="#ffc658"
+                                name="Total Amount"
+                            />
                         </BarChart>
                     </ResponsiveContainer>
                 </ChartContainer>

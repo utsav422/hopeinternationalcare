@@ -20,7 +20,15 @@ export function CourseSidebarSkeleton() {
     );
 }
 
-export function CourseSidebar({ price, duration_type, duration_value }: { price: number, duration_type: TypeDurationType, duration_value: number }) {
+export function CourseSidebar({
+    price,
+    duration_type,
+    duration_value,
+}: {
+    price: number;
+    duration_type: TypeDurationType;
+    duration_value: number;
+}) {
     return (
         <div className="rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
             <h2 className="mb-4 font-semibold text-2xl text-gray-800 ">

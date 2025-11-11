@@ -2,23 +2,29 @@
 import { Resend } from 'resend';
 import { generateEmailHTML, EMAIL_SUBJECTS } from './templates';
 import { logger } from '@/utils/logger';
-import { createEmailLog } from '@/lib/server-actions/admin/email-logs';
+import { adminEmailLogCreate } from '@/lib/server-actions/admin/email-logs-optimized';
 
 // Initialize Resend with API key
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Validate configuration on module load
 if (!process.env.RESEND_API_KEY) {
-    console.warn('RESEND_API_KEY is not configured. Email functionality will not work.');
+    console.warn(
+        'RESEND_API_KEY is not configured. Email functionality will not work.'
+    );
 }
 
 if (!process.env.RESEND_FROM_EMAIL) {
-    console.warn('RESEND_FROM_EMAIL is not configured. Using default email address.');
+    console.warn(
+        'RESEND_FROM_EMAIL is not configured. Using default email address.'
+    );
 }
 
 // Default email configuration
-const DEFAULT_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'noreply@hopeinternational.com.np';
-const DEFAULT_TO_EMAIL = process.env.RESEND_TO_EMAIL || 'info@hopeinternational.com.np';
+const DEFAULT_FROM_EMAIL =
+    process.env.RESEND_FROM_EMAIL || 'noreply@hopeinternational.com.np';
+const DEFAULT_TO_EMAIL =
+    process.env.RESEND_TO_EMAIL || 'info@hopeinternational.com.np';
 
 // Email templates and types
 export interface ContactFormData {
@@ -41,7 +47,9 @@ export async function sendContactFormEmail(data: ContactFormData) {
     try {
         // Validate required fields
         if (!data.name || !data.email || !data.message) {
-            throw new Error('Missing required fields: name, email, and message are required');
+            throw new Error(
+                'Missing required fields: name, email, and message are required'
+            );
         }
 
         // Validate email format
@@ -61,7 +69,12 @@ export async function sendContactFormEmail(data: ContactFormData) {
             to: [DEFAULT_TO_EMAIL],
             replyTo: email,
             subject: EMAIL_SUBJECTS.contactForm(name),
-            html: generateEmailHTML('contactForm', { name, email, phone, message }),
+            html: generateEmailHTML('contactForm', {
+                name,
+                email,
+                phone,
+                message,
+            }),
             text: `
 New Contact Form Submission
 
@@ -83,11 +96,12 @@ Reply directly to this email to respond to ${name}.
             data: emailData,
         };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send email';
+        const errorMessage =
+            error instanceof Error ? error.message : 'Failed to send email';
         logger.error('Failed to send contact form email:', {
             error: errorMessage,
             email: data.email,
-            name: data.name
+            name: data.name,
         });
         return {
             success: false,
@@ -97,11 +111,20 @@ Reply directly to this email to respond to ${name}.
 }
 
 // Enrollment notification emails
-export async function sendEnrollmentNotifications(data: EnrollmentNotificationData) {
+export async function sendEnrollmentNotifications(
+    data: EnrollmentNotificationData
+) {
     try {
         // Validate required fields
-        if (!data.userEmail || !data.userName || !data.intakeId || !data.adminEmails?.length) {
-            throw new Error('Missing required fields: userEmail, userName, intakeId, and adminEmails are required');
+        if (
+            !data.userEmail ||
+            !data.userName ||
+            !data.intakeId ||
+            !data.adminEmails?.length
+        ) {
+            throw new Error(
+                'Missing required fields: userEmail, userName, intakeId, and adminEmails are required'
+            );
         }
 
         // Validate email formats
@@ -127,7 +150,11 @@ export async function sendEnrollmentNotifications(data: EnrollmentNotificationDa
             from: DEFAULT_FROM_EMAIL,
             to: [userEmail],
             subject: EMAIL_SUBJECTS.enrollmentReceived,
-            html: generateEmailHTML('enrollmentReceived', { userName, intakeId, courseName }),
+            html: generateEmailHTML('enrollmentReceived', {
+                userName,
+                intakeId,
+                courseName,
+            }),
         });
 
         // Send notification email to admins
@@ -135,7 +162,12 @@ export async function sendEnrollmentNotifications(data: EnrollmentNotificationDa
             from: DEFAULT_FROM_EMAIL,
             to: adminEmails,
             subject: EMAIL_SUBJECTS.enrollmentNotification,
-            html: generateEmailHTML('enrollmentNotification', { userName, userEmail, intakeId, courseName }),
+            html: generateEmailHTML('enrollmentNotification', {
+                userName,
+                userEmail,
+                intakeId,
+                courseName,
+            }),
         });
 
         return {
@@ -146,12 +178,15 @@ export async function sendEnrollmentNotifications(data: EnrollmentNotificationDa
             },
         };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send notifications';
+        const errorMessage =
+            error instanceof Error
+                ? error.message
+                : 'Failed to send notifications';
         logger.error('Failed to send enrollment notifications:', {
             error: errorMessage,
             userEmail: data.userEmail,
             userName: data.userName,
-            intakeId: data.intakeId
+            intakeId: data.intakeId,
         });
         return {
             success: false,
@@ -190,7 +225,7 @@ export async function sendEmail({
         }
         // Log the email
         try {
-            await createEmailLog({
+            await adminEmailLogCreate({
                 resend_email_id: emailData?.data?.id,
                 from_email: from,
                 to_emails: Array.isArray(to) ? to : [to],
@@ -212,11 +247,12 @@ export async function sendEmail({
             data: emailData.data,
         };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send email';
+        const errorMessage =
+            error instanceof Error ? error.message : 'Failed to send email';
         logger.error('Failed to send email:', {
             error: errorMessage,
             to: Array.isArray(to) ? to.join(', ') : to,
-            subject
+            subject,
         });
         return {
             success: false,
@@ -255,22 +291,34 @@ export async function sendBatchEmails(emails: BatchEmailData[]) {
         }
 
         if (emails.length > 100) {
-            return { success: false, error: 'Maximum 100 emails allowed per batch' };
+            return {
+                success: false,
+                error: 'Maximum 100 emails allowed per batch',
+            };
         }
 
         // Check if Resend is configured
         if (!isResendConfigured()) {
-            return { success: false, error: 'Email service is not properly configured' };
+            return {
+                success: false,
+                error: 'Email service is not properly configured',
+            };
         }
 
         // Validate each email
         for (const email of emails) {
             if (!email.to || !email.subject) {
-                return { success: false, error: 'Each email must have "to" and "subject" fields' };
+                return {
+                    success: false,
+                    error: 'Each email must have "to" and "subject" fields',
+                };
             }
 
             if (!validateEmail(email.to)) {
-                return { success: false, error: `Invalid email format: ${email.to}` };
+                return {
+                    success: false,
+                    error: `Invalid email format: ${email.to}`,
+                };
             }
         }
 
@@ -296,7 +344,7 @@ export async function sendBatchEmails(emails: BatchEmailData[]) {
                     const email = emails[i];
                     const result = batchResult.data.data[i];
 
-                    await createEmailLog({
+                    await adminEmailLogCreate({
                         resend_email_id: result?.id,
                         batch_id: batchId,
                         from_email: email.from || DEFAULT_FROM_EMAIL,
@@ -331,7 +379,10 @@ export async function sendBatchEmails(emails: BatchEmailData[]) {
             },
         };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send batch emails';
+        const errorMessage =
+            error instanceof Error
+                ? error.message
+                : 'Failed to send batch emails';
         logger.error('Failed to send batch emails:', {
             error: errorMessage,
             totalEmails: emails.length,
@@ -377,7 +428,11 @@ export async function sendBatchEmailsWithTemplate(
             }
 
             // Merge template data with recipient-specific data
-            const mergedData = { ...templateData, ...recipient.data, name: recipient.name };
+            const mergedData = {
+                ...templateData,
+                ...recipient.data,
+                name: recipient.name,
+            };
 
             return {
                 to: recipient.email,
@@ -400,7 +455,10 @@ export async function sendBatchEmailsWithTemplate(
 
         return result;
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send batch template emails';
+        const errorMessage =
+            error instanceof Error
+                ? error.message
+                : 'Failed to send batch template emails';
         logger.error('Failed to send batch template emails:', {
             error: errorMessage,
             templateKey,
@@ -423,7 +481,10 @@ export async function getEmailById(emailId: string) {
 
         // Check if Resend is configured
         if (!isResendConfigured()) {
-            return { success: false, error: 'Email service is not properly configured' };
+            return {
+                success: false,
+                error: 'Email service is not properly configured',
+            };
         }
 
         // Retrieve email using Resend API
@@ -442,7 +503,8 @@ export async function getEmailById(emailId: string) {
             data: emailData.data,
         };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to retrieve email';
+        const errorMessage =
+            error instanceof Error ? error.message : 'Failed to retrieve email';
         logger.error('Failed to retrieve email:', {
             error: errorMessage,
             emailId,
@@ -475,7 +537,10 @@ export async function getEmailStatus(emailId: string) {
             },
         };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to get email status';
+        const errorMessage =
+            error instanceof Error
+                ? error.message
+                : 'Failed to get email status';
         logger.error('Failed to get email status:', {
             error: errorMessage,
             emailId,
@@ -492,7 +557,10 @@ export async function sendWelcomeEmail(userEmail: string, userName: string) {
     try {
         // Validate required fields
         if (!userEmail || !userName) {
-            return { success: false, error: 'Missing required fields: userEmail and userName are required' };
+            return {
+                success: false,
+                error: 'Missing required fields: userEmail and userName are required',
+            };
         }
 
         // Validate email format
@@ -502,7 +570,10 @@ export async function sendWelcomeEmail(userEmail: string, userName: string) {
 
         // Check if Resend is configured
         if (!isResendConfigured()) {
-            return { success: false, error: 'Email service is not properly configured' };
+            return {
+                success: false,
+                error: 'Email service is not properly configured',
+            };
         }
         const emailData = await resend.emails.send({
             from: DEFAULT_FROM_EMAIL,
@@ -516,11 +587,14 @@ export async function sendWelcomeEmail(userEmail: string, userName: string) {
             data: emailData,
         };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send welcome email';
+        const errorMessage =
+            error instanceof Error
+                ? error.message
+                : 'Failed to send welcome email';
         logger.error('Failed to send welcome email:', {
             error: errorMessage,
             userEmail,
-            userName
+            userName,
         });
         return {
             success: false,
@@ -539,7 +613,10 @@ export async function sendEnrollmentConfirmation(
     try {
         // Validate required fields
         if (!userEmail || !userName || !courseName || !intakeDate) {
-            return { success: false, error: 'Missing required fields: userEmail, userName, courseName, and intakeDate are required' };
+            return {
+                success: false,
+                error: 'Missing required fields: userEmail, userName, courseName, and intakeDate are required',
+            };
         }
 
         // Validate email format
@@ -549,13 +626,20 @@ export async function sendEnrollmentConfirmation(
 
         // Check if Resend is configured
         if (!isResendConfigured()) {
-            return { success: false, error: 'Email service is not properly configured' };
+            return {
+                success: false,
+                error: 'Email service is not properly configured',
+            };
         }
         const emailData = await resend.emails.send({
             from: DEFAULT_FROM_EMAIL,
             to: [userEmail],
             subject: EMAIL_SUBJECTS.enrollmentConfirmed,
-            html: generateEmailHTML('enrollmentConfirmed', { userName, courseName, intakeDate }),
+            html: generateEmailHTML('enrollmentConfirmed', {
+                userName,
+                courseName,
+                intakeDate,
+            }),
         });
 
         return {
@@ -563,12 +647,15 @@ export async function sendEnrollmentConfirmation(
             data: emailData,
         };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send enrollment confirmation';
+        const errorMessage =
+            error instanceof Error
+                ? error.message
+                : 'Failed to send enrollment confirmation';
         logger.error('Failed to send enrollment confirmation:', {
             error: errorMessage,
             userEmail,
             userName,
-            courseName
+            courseName,
         });
         return {
             success: false,
@@ -578,11 +665,17 @@ export async function sendEnrollmentConfirmation(
 }
 
 // Send password reset email
-export async function sendPasswordResetEmail(userEmail: string, resetLink: string) {
+export async function sendPasswordResetEmail(
+    userEmail: string,
+    resetLink: string
+) {
     try {
         // Validate required fields
         if (!userEmail || !resetLink) {
-            return { success: false, error: 'Missing required fields: userEmail and resetLink are required' };
+            return {
+                success: false,
+                error: 'Missing required fields: userEmail and resetLink are required',
+            };
         }
 
         // Validate email format
@@ -597,7 +690,10 @@ export async function sendPasswordResetEmail(userEmail: string, resetLink: strin
 
         // Check if Resend is configured
         if (!isResendConfigured()) {
-            return { success: false, error: 'Email service is not properly configured' };
+            return {
+                success: false,
+                error: 'Email service is not properly configured',
+            };
         }
         const emailData = await resend.emails.send({
             from: DEFAULT_FROM_EMAIL,
@@ -611,10 +707,13 @@ export async function sendPasswordResetEmail(userEmail: string, resetLink: strin
             data: emailData,
         };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send password reset email';
+        const errorMessage =
+            error instanceof Error
+                ? error.message
+                : 'Failed to send password reset email';
         logger.error('Failed to send password reset email:', {
             error: errorMessage,
-            userEmail
+            userEmail,
         });
         return {
             success: false,
@@ -633,7 +732,10 @@ export async function sendCertificateEmail(
     try {
         // Validate required fields
         if (!userEmail || !userName || !courseName) {
-            return { success: false, error: 'Missing required fields: userEmail, userName, and courseName are required' };
+            return {
+                success: false,
+                error: 'Missing required fields: userEmail, userName, and courseName are required',
+            };
         }
 
         // Validate email format
@@ -648,13 +750,20 @@ export async function sendCertificateEmail(
 
         // Check if Resend is configured
         if (!isResendConfigured()) {
-            return { success: false, error: 'Email service is not properly configured' };
+            return {
+                success: false,
+                error: 'Email service is not properly configured',
+            };
         }
         const emailData = await resend.emails.send({
             from: DEFAULT_FROM_EMAIL,
             to: [userEmail],
             subject: EMAIL_SUBJECTS.certificate,
-            html: generateEmailHTML('certificate', { userName, courseName, certificateUrl }),
+            html: generateEmailHTML('certificate', {
+                userName,
+                courseName,
+                certificateUrl,
+            }),
         });
 
         return {
@@ -662,12 +771,15 @@ export async function sendCertificateEmail(
             data: emailData,
         };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send certificate email';
+        const errorMessage =
+            error instanceof Error
+                ? error.message
+                : 'Failed to send certificate email';
         logger.error('Failed to send certificate email:', {
             error: errorMessage,
             userEmail,
             userName,
-            courseName
+            courseName,
         });
         return {
             success: false,
@@ -679,12 +791,25 @@ export async function sendCertificateEmail(
 // Send user deletion notification email
 export async function sendUserDeletionNotification(
     userEmail: string,
-    templateData: { userName: string; deletionDate: string; reason: string; contactEmail: string }
+    templateData: {
+        userName: string;
+        deletionDate: string;
+        reason: string;
+        contactEmail: string;
+    }
 ) {
     try {
         // Validate required fields
-        if (!userEmail || !templateData.userName || !templateData.deletionDate || !templateData.reason) {
-            return { success: false, error: 'Missing required fields for deletion notification' };
+        if (
+            !userEmail ||
+            !templateData.userName ||
+            !templateData.deletionDate ||
+            !templateData.reason
+        ) {
+            return {
+                success: false,
+                error: 'Missing required fields for deletion notification',
+            };
         }
 
         // Validate email format
@@ -694,31 +819,42 @@ export async function sendUserDeletionNotification(
 
         // Check if Resend is configured
         if (!isResendConfigured()) {
-            return { success: false, error: 'Email service is not properly configured' };
+            return {
+                success: false,
+                error: 'Email service is not properly configured',
+            };
         }
 
         const emailData = await resend.emails.send({
             from: DEFAULT_FROM_EMAIL,
             to: [userEmail],
             subject: EMAIL_SUBJECTS.accountDeletionNotification,
-            html: generateEmailHTML('accountDeletionNotification', templateData),
+            html: generateEmailHTML(
+                'accountDeletionNotification',
+                templateData
+            ),
         });
 
         // Log the email
         try {
-            await createEmailLog({
+            await adminEmailLogCreate({
                 resend_email_id: emailData?.data?.id,
                 from_email: DEFAULT_FROM_EMAIL,
                 to_emails: [userEmail],
                 subject: EMAIL_SUBJECTS.accountDeletionNotification,
-                html_content: generateEmailHTML('accountDeletionNotification', templateData),
+                html_content: generateEmailHTML(
+                    'accountDeletionNotification',
+                    templateData
+                ),
                 status: 'sent',
                 email_type: 'user_deletion',
                 template_used: 'accountDeletionNotification',
                 resend_response: emailData,
             });
         } catch (logError) {
-            logger.error('Failed to log deletion notification email:', { error: logError });
+            logger.error('Failed to log deletion notification email:', {
+                error: logError,
+            });
         }
 
         return {
@@ -726,11 +862,14 @@ export async function sendUserDeletionNotification(
             data: emailData,
         };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send deletion notification';
+        const errorMessage =
+            error instanceof Error
+                ? error.message
+                : 'Failed to send deletion notification';
         logger.error('Failed to send deletion notification:', {
             error: errorMessage,
             userEmail,
-            userName: templateData.userName
+            userName: templateData.userName,
         });
         return {
             success: false,
@@ -742,12 +881,25 @@ export async function sendUserDeletionNotification(
 // Send scheduled deletion warning email
 export async function sendScheduledDeletionWarning(
     userEmail: string,
-    templateData: { userName: string; scheduledDate: string; reason: string; contactEmail: string }
+    templateData: {
+        userName: string;
+        scheduledDate: string;
+        reason: string;
+        contactEmail: string;
+    }
 ) {
     try {
         // Validate required fields
-        if (!userEmail || !templateData.userName || !templateData.scheduledDate || !templateData.reason) {
-            return { success: false, error: 'Missing required fields for scheduled deletion warning' };
+        if (
+            !userEmail ||
+            !templateData.userName ||
+            !templateData.scheduledDate ||
+            !templateData.reason
+        ) {
+            return {
+                success: false,
+                error: 'Missing required fields for scheduled deletion warning',
+            };
         }
 
         // Validate email format
@@ -757,7 +909,10 @@ export async function sendScheduledDeletionWarning(
 
         // Check if Resend is configured
         if (!isResendConfigured()) {
-            return { success: false, error: 'Email service is not properly configured' };
+            return {
+                success: false,
+                error: 'Email service is not properly configured',
+            };
         }
 
         const emailData = await resend.emails.send({
@@ -769,19 +924,24 @@ export async function sendScheduledDeletionWarning(
 
         // Log the email
         try {
-            await createEmailLog({
+            await adminEmailLogCreate({
                 resend_email_id: emailData?.data?.id,
                 from_email: DEFAULT_FROM_EMAIL,
                 to_emails: [userEmail],
                 subject: EMAIL_SUBJECTS.accountDeletionScheduled,
-                html_content: generateEmailHTML('accountDeletionScheduled', templateData),
+                html_content: generateEmailHTML(
+                    'accountDeletionScheduled',
+                    templateData
+                ),
                 status: 'sent',
                 email_type: 'scheduled_deletion_warning',
                 template_used: 'accountDeletionScheduled',
                 resend_response: emailData,
             });
         } catch (logError) {
-            logger.error('Failed to log scheduled deletion warning email:', { error: logError });
+            logger.error('Failed to log scheduled deletion warning email:', {
+                error: logError,
+            });
         }
 
         return {
@@ -789,11 +949,14 @@ export async function sendScheduledDeletionWarning(
             data: emailData,
         };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send scheduled deletion warning';
+        const errorMessage =
+            error instanceof Error
+                ? error.message
+                : 'Failed to send scheduled deletion warning';
         logger.error('Failed to send scheduled deletion warning:', {
             error: errorMessage,
             userEmail,
-            userName: templateData.userName
+            userName: templateData.userName,
         });
         return {
             success: false,
@@ -805,12 +968,23 @@ export async function sendScheduledDeletionWarning(
 // Send deletion reminder email (24 hours before)
 export async function sendDeletionReminder(
     userEmail: string,
-    templateData: { userName: string; deletionDate: string; contactEmail: string }
+    templateData: {
+        userName: string;
+        deletionDate: string;
+        contactEmail: string;
+    }
 ) {
     try {
         // Validate required fields
-        if (!userEmail || !templateData.userName || !templateData.deletionDate) {
-            return { success: false, error: 'Missing required fields for deletion reminder' };
+        if (
+            !userEmail ||
+            !templateData.userName ||
+            !templateData.deletionDate
+        ) {
+            return {
+                success: false,
+                error: 'Missing required fields for deletion reminder',
+            };
         }
 
         // Validate email format
@@ -820,7 +994,10 @@ export async function sendDeletionReminder(
 
         // Check if Resend is configured
         if (!isResendConfigured()) {
-            return { success: false, error: 'Email service is not properly configured' };
+            return {
+                success: false,
+                error: 'Email service is not properly configured',
+            };
         }
 
         const emailData = await resend.emails.send({
@@ -832,19 +1009,24 @@ export async function sendDeletionReminder(
 
         // Log the email
         try {
-            await createEmailLog({
+            await adminEmailLogCreate({
                 resend_email_id: emailData?.data?.id,
                 from_email: DEFAULT_FROM_EMAIL,
                 to_emails: [userEmail],
                 subject: EMAIL_SUBJECTS.accountDeletionReminder,
-                html_content: generateEmailHTML('accountDeletionReminder', templateData),
+                html_content: generateEmailHTML(
+                    'accountDeletionReminder',
+                    templateData
+                ),
                 status: 'sent',
                 email_type: 'deletion_reminder',
                 template_used: 'accountDeletionReminder',
                 resend_response: emailData,
             });
         } catch (logError) {
-            logger.error('Failed to log deletion reminder email:', { error: logError });
+            logger.error('Failed to log deletion reminder email:', {
+                error: logError,
+            });
         }
 
         return {
@@ -852,11 +1034,14 @@ export async function sendDeletionReminder(
             data: emailData,
         };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send deletion reminder';
+        const errorMessage =
+            error instanceof Error
+                ? error.message
+                : 'Failed to send deletion reminder';
         logger.error('Failed to send deletion reminder:', {
             error: errorMessage,
             userEmail,
-            userName: templateData.userName
+            userName: templateData.userName,
         });
         return {
             success: false,
@@ -868,12 +1053,23 @@ export async function sendDeletionReminder(
 // Send account restoration confirmation email
 export async function sendRestorationConfirmation(
     userEmail: string,
-    templateData: { userName: string; restorationDate: string; contactEmail: string }
+    templateData: {
+        userName: string;
+        restorationDate: string;
+        contactEmail: string;
+    }
 ) {
     try {
         // Validate required fields
-        if (!userEmail || !templateData.userName || !templateData.restorationDate) {
-            return { success: false, error: 'Missing required fields for restoration confirmation' };
+        if (
+            !userEmail ||
+            !templateData.userName ||
+            !templateData.restorationDate
+        ) {
+            return {
+                success: false,
+                error: 'Missing required fields for restoration confirmation',
+            };
         }
 
         // Validate email format
@@ -883,7 +1079,10 @@ export async function sendRestorationConfirmation(
 
         // Check if Resend is configured
         if (!isResendConfigured()) {
-            return { success: false, error: 'Email service is not properly configured' };
+            return {
+                success: false,
+                error: 'Email service is not properly configured',
+            };
         }
 
         const emailData = await resend.emails.send({
@@ -895,19 +1094,24 @@ export async function sendRestorationConfirmation(
 
         // Log the email
         try {
-            await createEmailLog({
+            await adminEmailLogCreate({
                 resend_email_id: emailData?.data?.id,
                 from_email: DEFAULT_FROM_EMAIL,
                 to_emails: [userEmail],
                 subject: EMAIL_SUBJECTS.accountRestored,
-                html_content: generateEmailHTML('accountRestored', templateData),
+                html_content: generateEmailHTML(
+                    'accountRestored',
+                    templateData
+                ),
                 status: 'sent',
                 email_type: 'account_restoration',
                 template_used: 'accountRestored',
                 resend_response: emailData,
             });
         } catch (logError) {
-            logger.error('Failed to log restoration confirmation email:', { error: logError });
+            logger.error('Failed to log restoration confirmation email:', {
+                error: logError,
+            });
         }
 
         return {
@@ -915,11 +1119,14 @@ export async function sendRestorationConfirmation(
             data: emailData,
         };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send restoration confirmation';
+        const errorMessage =
+            error instanceof Error
+                ? error.message
+                : 'Failed to send restoration confirmation';
         logger.error('Failed to send restoration confirmation:', {
             error: errorMessage,
             userEmail,
-            userName: templateData.userName
+            userName: templateData.userName,
         });
         return {
             success: false,

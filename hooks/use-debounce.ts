@@ -3,24 +3,24 @@ import { useCallback, useRef } from 'react';
 // Simple debounce hook
 
 export default function useDebounce<T extends (...args: unknown[]) => void>(
-  fn: T,
-  delay: number
+    fn: T,
+    delay: number
 ) {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const debouncedFn = useCallback(
-    (...args: Parameters<T>) => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      timeoutRef.current = setTimeout(() => {
-        fn(...args);
-      }, delay);
-    },
-    [fn, delay]
-  );
+    const debouncedFn = useCallback(
+        (...args: Parameters<T>) => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+            timeoutRef.current = setTimeout(() => {
+                fn(...args);
+            }, delay);
+        },
+        [fn, delay]
+    );
 
-  return debouncedFn;
+    return debouncedFn;
 }
 
 // Example usage:

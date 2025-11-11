@@ -6,7 +6,11 @@ import { useAdminDashboardTotalUsers } from '@/hooks/admin/dashboard';
 import { DashboardCardSkeleton } from '.';
 
 function TotalUserCard() {
-    const { data: queryResult, error, isLoading } = useAdminDashboardTotalUsers();
+    const {
+        data: queryResult,
+        error,
+        isLoading,
+    } = useAdminDashboardTotalUsers();
     const totalUsers = queryResult.data;
     if (error) {
         toast.error(error.message);

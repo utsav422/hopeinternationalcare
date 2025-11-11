@@ -62,20 +62,20 @@ interface DataTableBaseProps<TData, TValue> {
 type DataTableProps<TData, TValue> = DataTableBaseProps<TData, TValue> &
     (
         | {
-            headerActionNode: ReactNode; // Custom React node for header action
-            headerActionUrl?: never; // Exclude URL if node is provided
-            headerActionUrlLabel?: never; // Exclude label if node is provided
-        }
+              headerActionNode: ReactNode; // Custom React node for header action
+              headerActionUrl?: never; // Exclude URL if node is provided
+              headerActionUrlLabel?: never; // Exclude label if node is provided
+          }
         | {
-            headerActionNode?: never; // Exclude node if URL is provided
-            headerActionUrl: string; // URL for the header action button
-            headerActionUrlLabel: string; // Label for the header action button
-        }
+              headerActionNode?: never; // Exclude node if URL is provided
+              headerActionUrl: string; // URL for the header action button
+              headerActionUrlLabel: string; // Label for the header action button
+          }
         | {
-            headerActionNode?: never; // No header action
-            headerActionUrl?: never; // No header action
-            headerActionUrlLabel?: never; // No header action
-        }
+              headerActionNode?: never; // No header action
+              headerActionUrl?: never; // No header action
+              headerActionUrlLabel?: never; // No header action
+          }
     );
 
 /**
@@ -97,20 +97,22 @@ export function DataTable<TData, TValue>({
     headerActionUrlLabel,
 }: DataTableProps<TData, TValue>) {
     // State for column visibility, managed internally as it doesn't affect server-side data fetching
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+        {}
+    );
 
     // Query states for URL synchronization, replacing local useState and useEffect for these.
     // These hooks automatically read from and write to the URL query parameters.
     const [queryFilterSearch, setQueryFilterSearch] = useQueryState('search');
     const [queryPage, setQueryPage] = useQueryState('page', {
         defaultValue: 1, // Default page is 1
-        parse: (value) => Number.parseInt(value, 10), // Parse page number from string to integer with radix 10
-        serialize: (value) => value.toString(), // Serialize page number from integer to string
+        parse: value => Number.parseInt(value, 10), // Parse page number from string to integer with radix 10
+        serialize: value => value.toString(), // Serialize page number from integer to string
     });
     const [queryPageSize, setQueryPageSize] = useQueryState('pageSize', {
         defaultValue: 10, // Default page size is 10
-        parse: (value) => Number.parseInt(value, 10), // Parse page size from string to integer with radix 10
-        serialize: (value) => value.toString(), // Serialize page size from integer to string
+        parse: value => Number.parseInt(value, 10), // Parse page size from string to integer with radix 10
+        serialize: value => value.toString(), // Serialize page size from integer to string
     });
     const [querySortBy, setQuerySortBy] = useQueryState('sortBy', {
         defaultValue: 'created_at', // Default sort column
@@ -120,7 +122,7 @@ export function DataTable<TData, TValue>({
     });
     const [queryFilters, setQueryFilters] = useQueryState('filters', {
         parse: safeJsonParse,
-        serialize: (value) => JSON.stringify(value), // Serialize filters to JSON string
+        serialize: value => JSON.stringify(value), // Serialize filters to JSON string
     });
 
     /**
@@ -258,49 +260,55 @@ export function DataTable<TData, TValue>({
     return (
         <div className="space-y-4">
             <div className="flex justify-between">
-                <h1 className="font-bold text-2xl capitalize">
-                    {title}
-                </h1>
+                <h1 className="font-bold text-2xl capitalize">{title}</h1>
                 {/* Render custom header action node if provided */}
                 {headerActionNode && headerActionNode}
                 {/* Render header action button if URL and label are provided */}
-                {!headerActionNode && headerActionUrl && headerActionUrlLabel && (
-                    <Button asChild>
-                        <a href={headerActionUrl}>{headerActionUrlLabel}</a>
-                    </Button>
-                )}
+                {!headerActionNode &&
+                    headerActionUrl &&
+                    headerActionUrlLabel && (
+                        <Button asChild>
+                            <a href={headerActionUrl}>{headerActionUrlLabel}</a>
+                        </Button>
+                    )}
             </div>
             {/* Toolbar for search, filters, and column visibility */}
             <DataTableToolbar table={table} />
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
+                        {table.getHeaderGroups().map(headerGroup => (
                             <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
+                                {headerGroup.headers.map(header => {
                                     return (
                                         <TableHead
                                             className={
-                                                header.column.getCanSort() ? 'cursor-pointer' : ''
+                                                header.column.getCanSort()
+                                                    ? 'cursor-pointer'
+                                                    : ''
                                             }
                                             colSpan={header.colSpan}
                                             key={header.id}
                                             {...(header.column.getCanSort()
-                                                ? { onClick: header.column.getToggleSortingHandler() }
+                                                ? {
+                                                      onClick:
+                                                          header.column.getToggleSortingHandler(),
+                                                  }
                                                 : {})}
                                         >
                                             <div className="flex transition-all">
                                                 {header.isPlaceholder
                                                     ? null
                                                     : flexRender(
-                                                        header.column.columnDef.header,
-                                                        header.getContext()
-                                                    )}
+                                                          header.column
+                                                              .columnDef.header,
+                                                          header.getContext()
+                                                      )}
                                                 {/* Display sorting icons */}
-                                                {header.column.getIsSorted() === 'asc' && <ChevronUp />}
-                                                {header.column.getIsSorted() === 'desc' && (
-                                                    <ChevronDown />
-                                                )}
+                                                {header.column.getIsSorted() ===
+                                                    'asc' && <ChevronUp />}
+                                                {header.column.getIsSorted() ===
+                                                    'desc' && <ChevronDown />}
                                             </div>
                                         </TableHead>
                                     );
@@ -311,12 +319,14 @@ export function DataTable<TData, TValue>({
                     <TableBody>
                         {/* Render table rows if data is available */}
                         {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
+                            table.getRowModel().rows.map(row => (
                                 <TableRow
-                                    data-state={row.getIsSelected() && 'selected'}
+                                    data-state={
+                                        row.getIsSelected() && 'selected'
+                                    }
                                     key={row.id}
                                 >
-                                    {row.getVisibleCells().map((cell) => (
+                                    {row.getVisibleCells().map(cell => (
                                         <TableCell key={cell.id}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
@@ -328,14 +338,14 @@ export function DataTable<TData, TValue>({
                             ))
                         ) : (
                             // Display "No results." if no data
-                            (<TableRow>
+                            <TableRow>
                                 <TableCell
                                     className="h-24 text-center"
                                     colSpan={columns.length}
                                 >
                                     No results.
                                 </TableCell>
-                            </TableRow>)
+                            </TableRow>
                         )}
                     </TableBody>
                 </Table>

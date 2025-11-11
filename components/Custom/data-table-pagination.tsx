@@ -31,19 +31,20 @@ export function DataTablePagination<TData>({
                 <div className="flex items-center space-x-2">
                     <p className="font-medium text-sm ">Rows per page</p>
                     <Select
-                        onValueChange={(value) => {
+                        onValueChange={value => {
                             table.setPageSize(Number(value));
                         }}
                         value={`${table.getState().pagination.pageSize}`}
                     >
                         <SelectTrigger className="h-8 w-[70px]">
-                            <SelectValue placeholder={table.getState().pagination.pageSize} />
+                            <SelectValue
+                                placeholder={
+                                    table.getState().pagination.pageSize
+                                }
+                            />
                         </SelectTrigger>
-                        <SelectContent
-                            className=""
-                            side="top"
-                        >
-                            {[1, 10, 20, 30, 40, 50].map((pageSize) => (
+                        <SelectContent className="" side="top">
+                            {[1, 10, 20, 30, 40, 50].map(pageSize => (
                                 <SelectItem
                                     key={pageSize}
                                     value={`${pageSize}`}
@@ -89,7 +90,9 @@ export function DataTablePagination<TData>({
                     <Button
                         className="hidden h-8 w-8 p-0 lg:flex  "
                         disabled={!table.getCanNextPage()}
-                        onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                        onClick={() =>
+                            table.setPageIndex(table.getPageCount() - 1)
+                        }
                         variant="outline"
                     >
                         <span className="sr-only">Go to last page</span>

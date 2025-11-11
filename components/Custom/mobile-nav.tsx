@@ -21,7 +21,7 @@ function NavItem({ href, label }: NavItemProps) {
 function MobileNav({ isScrolling }: { isScrolling: boolean }) {
     const [open, setOpen] = React.useState(false);
 
-    const handleOpen = () => setOpen((cur) => !cur);
+    const handleOpen = () => setOpen(cur => !cur);
 
     React.useEffect(() => {
         window.addEventListener(

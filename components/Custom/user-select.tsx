@@ -8,7 +8,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useAdminProfileListAll } from '@/hooks/admin/profiles';
+import { useAdminProfileList } from '@/hooks/admin/profiles-optimized';
 import type { ZodEnrollmentInsertType } from '@/lib/db/drizzle-zod-schema/enrollments';
 import type { ZodSelectProfileType } from '@/lib/db/drizzle-zod-schema/profiles';
 
@@ -18,10 +18,20 @@ interface UserSelectProps {
 }
 
 export default function UserSelect({ field, disabled }: UserSelectProps) {
-    const { data: profiles, error, isLoading } = useAdminProfileListAll();
-    const filteredProfiles = profiles?.filter(
-        (item: ZodSelectProfileType) => item.role === 'authenticated'
-    );
+    // Use the optimized hook with parameters to get all profiles
+    const {
+        data: result,
+        error,
+        isLoading,
+    } = useAdminProfileList({
+        page: 1,
+        pageSize: 9999,
+        filters: [{ id: 'role', value: 'authenticated' }],
+    });
+    const profiles = result?.data?.data;
+    // ProfileListItem doesn't have role field, so we need to adjust the filter
+    // Since the ProfileListItem doesn't include role, we'll include all profiles
+    const filteredProfiles = profiles;
 
     if (isLoading) {
         return <p className="">Loading courses...</p>;
@@ -36,34 +46,24 @@ export default function UserSelect({ field, disabled }: UserSelectProps) {
     }
 
     if (!filteredProfiles || filteredProfiles?.length === 0) {
-        return (
-            <span className="">
-                No user item found for enrollment selection
-            </span>
-        );
+        return <span className="">No user found for enrollment selection</span>;
     }
     return (
         <Select
-            disabled={disabled || isLoading}
+            disabled={disabled || field.disabled || isLoading}
             onValueChange={field.onChange}
             value={field.value ?? undefined}
         >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full" ref={field.ref}>
                 <SelectValue placeholder="Select a user profile" />
             </SelectTrigger>
             <SelectContent className="">
-                {filteredProfiles?.map((profile: ZodSelectProfileType) => (
-                    <SelectItem
-                        key={profile.id}
-                        value={profile.id}
-                    >
-                        <span className="font-bold ">{profile.email}</span>
-                        ::{' '}
-                        <span className="font-bold ">
-                            {profile.full_name}
-                        </span>
-                        ::<span className="font-bold ">{profile.phone}</span>
-                        ::<span className="font-bold ">{profile.role}</span>
+                {filteredProfiles?.map(profile => (
+                    <SelectItem key={profile.id} value={profile.id}>
+                        <span className="font-bold ">{profile.email}</span>:{' '}
+                        <span className="font-bold ">{profile.full_name}</span>:
+                        <span className="font-bold ">{profile.phone}</span>:
+                        <span className="font-bold ">{'authenticated'}</span>
                     </SelectItem>
                 ))}
             </SelectContent>

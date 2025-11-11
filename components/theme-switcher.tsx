@@ -1,9 +1,9 @@
 'use client';
 
-import {Laptop, Moon, Sun} from 'lucide-react';
-import {useTheme} from 'next-themes';
-import {useEffect, useState} from 'react';
-import {Button} from '@/components/ui/button';
+import { Laptop, Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -14,7 +14,7 @@ import {
 
 const ThemeSwitcher = () => {
     const [mounted, setMounted] = useState(false);
-    const {theme, setTheme} = useTheme();
+    const { theme, setTheme } = useTheme();
 
     // useEffect only runs on the client, so now we can safely show the UI
     useEffect(() => {
@@ -30,11 +30,11 @@ const ThemeSwitcher = () => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline"
-                        className=" flex gap-6 items-center-safe transition-all duration-300 hover:bg-gray-200 dark:hover:bg-gray-700 w-full"
+                <Button
+                    variant="outline"
+                    className=" flex gap-6 items-center-safe transition-all duration-300 hover:bg-gray-200 dark:hover:bg-gray-700 w-full"
                 >
-                    <div className='relative bottom-2'>
-
+                    <div className="relative bottom-2">
                         <Sun
                             className={`absolute transition-all duration-300 ${theme === 'light' ? 'rotate-0 scale-100 opacity-100' : '-rotate-90 scale-0 opacity-0'}`}
                             size={ICON_SIZE}
@@ -53,19 +53,31 @@ const ThemeSwitcher = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-content">
                 <DropdownMenuRadioGroup
-                    onValueChange={(e) => setTheme(e)}
+                    onValueChange={e => setTheme(e)}
                     value={theme}
                 >
                     <DropdownMenuRadioItem className="flex gap-2" value="light">
-                        <Sun className="text-muted-foreground" size={ICON_SIZE}/>{' '}
+                        <Sun
+                            className="text-muted-foreground"
+                            size={ICON_SIZE}
+                        />{' '}
                         <span>Light</span>
                     </DropdownMenuRadioItem>
                     <DropdownMenuRadioItem className="flex gap-2" value="dark">
-                        <Moon className="text-muted-foreground" size={ICON_SIZE}/>{' '}
+                        <Moon
+                            className="text-muted-foreground"
+                            size={ICON_SIZE}
+                        />{' '}
                         <span>Dark</span>
                     </DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem className="flex gap-2" value="system">
-                        <Laptop className="text-muted-foreground" size={ICON_SIZE}/>{' '}
+                    <DropdownMenuRadioItem
+                        className="flex gap-2"
+                        value="system"
+                    >
+                        <Laptop
+                            className="text-muted-foreground"
+                            size={ICON_SIZE}
+                        />{' '}
                         <span>System</span>
                     </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
@@ -74,4 +86,4 @@ const ThemeSwitcher = () => {
     );
 };
 
-export {ThemeSwitcher};
+export { ThemeSwitcher };

@@ -1,7 +1,11 @@
 import { db } from '@/lib/db/drizzle';
 import { emailLogs } from '@/lib/db/schema/email-logs';
 import { eq, sql } from 'drizzle-orm';
-import { EmailLogCreateData, EmailLogUpdateData, EmailLogConstraintCheck } from '@/lib/types/email-logs';
+import {
+    EmailLogCreateData,
+    EmailLogUpdateData,
+    EmailLogConstraintCheck,
+} from '@/lib/types/email-logs';
 
 /**
  * Email log validation utilities
@@ -86,7 +90,9 @@ export function validateEmailStatus(status: string): void {
  * @param data - The email log data to validate
  * @returns ValidationResult
  */
-export function validateEmailLogData(data: EmailLogCreateData | EmailLogUpdateData) {
+export function validateEmailLogData(
+    data: EmailLogCreateData | EmailLogUpdateData
+) {
     try {
         if ('recipient' in data) {
             validateEmailRecipient(data.recipient as string);
@@ -102,13 +108,13 @@ export function validateEmailLogData(data: EmailLogCreateData | EmailLogUpdateDa
                 success: false,
                 error: error.message,
                 code: error.code,
-                details: error.details
+                details: error.details,
             };
         }
         return {
             success: false,
             error: 'Validation failed',
-            code: 'VALIDATION_ERROR'
+            code: 'VALIDATION_ERROR',
         };
     }
 }
@@ -122,18 +128,20 @@ export function validateEmailLogData(data: EmailLogCreateData | EmailLogUpdateDa
  * @param id - The email log ID to check
  * @returns Object with canDelete flag
  */
-export async function checkEmailLogConstraints(id: string): Promise<EmailLogConstraintCheck> {
+export async function checkEmailLogConstraints(
+    id: string
+): Promise<EmailLogConstraintCheck> {
     try {
         // For now, we allow deletion of any email log
         // This could be extended with business rules if needed
         return {
-            canDelete: true
+            canDelete: true,
         };
     } catch (error) {
         console.error('Error checking email log constraints:', error);
         // In case of error, assume it cannot be deleted for safety
         return {
-            canDelete: false
+            canDelete: false,
         };
     }
 }
@@ -148,13 +156,16 @@ export async function checkEmailLogConstraints(id: string): Promise<EmailLogCons
  * @param newStatus - New email log status
  * @returns boolean indicating if update is allowed
  */
-export function canUpdateEmailLogStatus(currentStatus: string, newStatus: string): boolean {
+export function canUpdateEmailLogStatus(
+    currentStatus: string,
+    newStatus: string
+): boolean {
     // Valid status transitions
     const validTransitions: Record<string, string[]> = {
-        'pending': ['sent', 'failed'],
-        'sent': [],
-        'failed': ['retry'],
-        'retry': ['sent', 'failed']
+        pending: ['sent', 'failed'],
+        sent: [],
+        failed: ['retry'],
+        retry: ['sent', 'failed'],
     };
 
     // If current status is not in validTransitions, allow any update
@@ -171,12 +182,14 @@ export function canUpdateEmailLogStatus(currentStatus: string, newStatus: string
  * @param currentStatus - Current email log status
  * @returns Array of valid status transitions
  */
-export function getValidEmailLogStatusTransitions(currentStatus: string): string[] {
+export function getValidEmailLogStatusTransitions(
+    currentStatus: string
+): string[] {
     const validTransitions: Record<string, string[]> = {
-        'pending': ['sent', 'failed'],
-        'sent': [],
-        'failed': ['retry'],
-        'retry': ['sent', 'failed']
+        pending: ['sent', 'failed'],
+        sent: [],
+        failed: ['retry'],
+        retry: ['sent', 'failed'],
     };
 
     return validTransitions[currentStatus] || [];

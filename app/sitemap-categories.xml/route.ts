@@ -16,10 +16,10 @@ export async function GET() {
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0">
   ${categories
-                .map((category) => {
-                    const lastModified = new Date().toISOString();
+      .map(category => {
+          const lastModified = new Date().toISOString();
 
-                    return `
+          return `
   <url>
     <loc>${baseUrl}/courses?category=${category.id}</loc>
     <lastmod>${lastModified}</lastmod>
@@ -27,8 +27,8 @@ export async function GET() {
     <priority>0.6</priority>
     <mobile:mobile/>
   </url>`;
-                })
-                .join('')}
+      })
+      .join('')}
 </urlset>`;
 
         return new NextResponse(sitemap, {

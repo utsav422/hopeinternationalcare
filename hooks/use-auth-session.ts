@@ -1,17 +1,17 @@
 'use client';
 
-import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {useEffect} from 'react';
-import {supabase} from '@/utils/supabase/client';
-import {queryKeys} from '../lib/query-keys';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { supabase } from '@/utils/supabase/client';
+import { queryKeys } from '../lib/query-keys';
 
 export function useAuthSession() {
     const queryClient = useQueryClient();
 
-    const {data: user, isLoading: loading} = useQuery({
+    const { data: user, isLoading: loading } = useQuery({
         queryKey: queryKeys.users.session,
         queryFn: async () => {
-            const {data, error} = await supabase.auth.getUser();
+            const { data, error } = await supabase.auth.getUser();
             if (error) {
                 throw error;
             }
@@ -20,10 +20,9 @@ export function useAuthSession() {
         staleTime: Number.POSITIVE_INFINITY, // Session data is usually stable
         refetchOnWindowFocus: true, // Re-fetch on window focus to keep the session fresh
     });
-
     useEffect(() => {
         const {
-            data: {subscription: authListener},
+            data: { subscription: authListener },
         } = supabase.auth.onAuthStateChange((_, session) => {
             if (session?.user) {
                 queryClient.setQueryData(queryKeys.users.session, session.user);
@@ -37,5 +36,5 @@ export function useAuthSession() {
         };
     }, [queryClient]);
 
-    return {user, loading};
+    return { user, loading };
 }

@@ -13,11 +13,13 @@ export default async function Signup() {
         error: _,
     } = await adminAuthClient.listUsers();
     const isAdminAvailable =
-        users?.filter((user) => user.role === 'service_role').length > 0;
+        users?.filter(user => user.role === 'service_role').length > 0;
     if (isAdminAvailable) {
         redirect('/admin/sign-in');
     }
-    return <Suspense>
-        <AdminSignUpClient />
-    </Suspense>
+    return (
+        <Suspense>
+            <AdminSignUpClient />
+        </Suspense>
+    );
 }

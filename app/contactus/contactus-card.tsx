@@ -31,7 +31,8 @@ export function ContactUsCard() {
                         Get in Touch
                     </h2>
                     <p className="mx-auto mt-4 max-w-2xl text-gray-600 text-xl ">
-                        We'd love to hear from you. Here's how you can reach us.
+                        We&apos;d love to hear from you. Here&apos;s how you can
+                        reach us.
                     </p>
                 </div>
 

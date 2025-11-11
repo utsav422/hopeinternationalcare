@@ -3,7 +3,10 @@
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGetUserEnrollments } from '@/hooks/user/user-enrollments';
+import {
+    useGetUserEnrollments,
+    useGetUserEnrollmentsWithTotal,
+} from '@/hooks/user/user-enrollments-optimized';
 
 interface UserEnrollment {
     id: string;
@@ -12,8 +15,8 @@ interface UserEnrollment {
     intake_id: string | null;
     user_id: string | null;
     courseTitle: string | null;
-    course_highlights: string | null,
-    course_overview: string | null,
+    course_highlights: string | null;
+    course_overview: string | null;
     courseImage: string | null;
     start_date: string | null;
     end_date: string | null;
@@ -21,9 +24,9 @@ interface UserEnrollment {
 }
 
 export default function UserEnrollments() {
-    const { data: enrollments } = useGetUserEnrollments();
-
-    const total = enrollments?.length || 0;
+    const { data: enrollmentsWithTotal } = useGetUserEnrollmentsWithTotal();
+    const enrollments = enrollmentsWithTotal?.data || [];
+    const total = enrollmentsWithTotal?.total || 0;
 
     return (
         <div className="space-y-6">
@@ -48,26 +51,44 @@ export default function UserEnrollments() {
                         <Card className="overflow-hidden" key={enrollment.id}>
                             <CardHeader className="bg-muted p-4">
                                 <CardTitle className="line-clamp-1 text-base">
-                                    {enrollment.courseTitle || 'Untitled Course'}
+                                    {enrollment.courseTitle ||
+                                        'Untitled Course'}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-4">
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <Badge variant="secondary">{enrollment.status}</Badge>
+                                        <Badge variant="secondary">
+                                            {enrollment.status}
+                                        </Badge>
                                         <span className="text-muted-foreground text-xs">
-                                            {format(new Date(enrollment.created_at), 'MMM d, yyyy')}
+                                            {format(
+                                                new Date(enrollment.created_at),
+                                                'MMM d, yyyy'
+                                            )}
                                         </span>
                                     </div>
                                     <div className="text-sm">
-                                        <p className="font-medium">Intake Period</p>
+                                        <p className="font-medium">
+                                            Intake Period
+                                        </p>
                                         <p>
                                             {enrollment.start_date
-                                                ? format(new Date(enrollment.start_date), 'MMM d, yyyy')
+                                                ? format(
+                                                      new Date(
+                                                          enrollment.start_date
+                                                      ),
+                                                      'MMM d, yyyy'
+                                                  )
                                                 : 'N/A'}{' '}
                                             -{' '}
                                             {enrollment.end_date
-                                                ? format(new Date(enrollment.end_date), 'MMM d, yyyy')
+                                                ? format(
+                                                      new Date(
+                                                          enrollment.end_date
+                                                      ),
+                                                      'MMM d, yyyy'
+                                                  )
                                                 : 'N/A'}
                                         </p>
                                     </div>

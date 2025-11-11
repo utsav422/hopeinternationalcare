@@ -7,7 +7,9 @@ export async function GET() {
 
     try {
         // Get all courses
-        const coursesResponse = await getCachedPublicCourses({ pageSize: 1000 });
+        const coursesResponse = await getCachedPublicCourses({
+            pageSize: 1000,
+        });
         const courses = coursesResponse.data?.data || [];
 
         // Generate XML sitemap for courses
@@ -19,11 +21,15 @@ export async function GET() {
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
         xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   ${courses
-                .map((course) => {
-                    const lastModified = new Date(course.updated_at || course.created_at).toISOString();
-                    const imageUrl = course.image_url ? `${baseUrl}${course.image_url}` : `${baseUrl}/opengraph-image.png`;
+      .map(course => {
+          const lastModified = new Date(
+              course.updated_at || course.created_at
+          ).toISOString();
+          const imageUrl = course.image_url
+              ? `${baseUrl}${course.image_url}`
+              : `${baseUrl}/opengraph-image.png`;
 
-                    return `
+          return `
   <url>
     <loc>${baseUrl}/courses/${course.slug}</loc>
     <lastmod>${lastModified}</lastmod>
@@ -36,8 +42,8 @@ export async function GET() {
     </image:image>
     <mobile:mobile/>
   </url>`;
-                })
-                .join('')}
+      })
+      .join('')}
 </urlset>`;
 
         return new NextResponse(sitemap, {

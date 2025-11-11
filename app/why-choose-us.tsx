@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import type React from 'react';
 import { useInView } from 'react-intersection-observer';
 import ImageBackgroundCard from '@/components/Custom/image-bg-card';
-import Image from "next/image";
+import Image from 'next/image';
 
 interface OptionProps {
     icon: React.ElementType;
@@ -86,8 +86,8 @@ export default function WhyChooseUs() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 variants={itemVariants}
             >
-                Discover the unique advantages, benefits, and standout features that set
-                our course apart from the rest.
+                Discover the unique advantages, benefits, and standout features
+                that set our course apart from the rest.
             </motion.p>
 
             {/* Content Grid */}
@@ -103,33 +103,44 @@ export default function WhyChooseUs() {
                 </motion.div>
 
                 {/* Right Column: Options */}
-                <motion.div className="space-y-5 sm:space-y-6" variants={containerVariants}>
+                <motion.div
+                    className="space-y-5 sm:space-y-6"
+                    variants={containerVariants}
+                >
                     {/* Option 1 */}
                     <motion.div variants={itemVariants}>
                         <Option icon={GiftIcon} title="Comprehensive Packages">
-                            We offer comprehensive caregiver training packages tailored to
-                            levels 1 through 5, ensuring that our trainees are equipped with
-                            the expertise needed to meet the diverse needs of aging
-                            individuals.
+                            We offer comprehensive caregiver training packages
+                            tailored to levels 1 through 5, ensuring that our
+                            trainees are equipped with the expertise needed to
+                            meet the diverse needs of aging individuals.
                         </Option>
                     </motion.div>
 
                     {/* Option 2 */}
                     <motion.div variants={itemVariants}>
-                        <Option icon={BookOpenIcon} title="Curriculum and Contents">
-                            Our curriculum covers a wide range of topics, including basic
-                            caregiving techniques, specialized care for individuals with
-                            conditions such as Alzheimer’s, Parkinson’s, dementia, and more.
+                        <Option
+                            icon={BookOpenIcon}
+                            title="Curriculum and Contents"
+                        >
+                            Our curriculum covers a wide range of topics,
+                            including basic caregiving techniques, specialized
+                            care for individuals with conditions such as
+                            Alzheimer’s, Parkinson’s, dementia, and more.
                         </Option>
                     </motion.div>
 
                     {/* Option 3 */}
                     <motion.div variants={itemVariants}>
-                        <Option icon={UserIcon} title="Personalized Career Guidance">
-                            We believe in guiding our trainees towards fulfilling and
-                            rewarding careers in elderly care. Through personalized career
-                            guidance and support, we help individuals navigate their
-                            professional paths with confidence and purpose.
+                        <Option
+                            icon={UserIcon}
+                            title="Personalized Career Guidance"
+                        >
+                            We believe in guiding our trainees towards
+                            fulfilling and rewarding careers in elderly care.
+                            Through personalized career guidance and support, we
+                            help individuals navigate their professional paths
+                            with confidence and purpose.
                         </Option>
                     </motion.div>
                 </motion.div>

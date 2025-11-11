@@ -1,12 +1,12 @@
-import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
-import {Suspense} from 'react';
-import {queryKeys} from '@/lib/query-keys';
-import {requireUser} from '@/utils/auth-guard';
-import {getQueryClient} from '@/utils/get-query-client';
-import {QueryErrorWrapper} from '@/components/Custom/query-error-wrapper';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { Suspense } from 'react';
+import { queryKeys } from '@/lib/query-keys';
+import { requireUser } from '@/utils/auth-guard';
+import { getQueryClient } from '@/utils/get-query-client';
+import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 import UserProfileComponent from './_components/user-profile';
-import {logger} from "@/utils/logger";
-import {redirect} from "next/navigation";
+import { logger } from '@/utils/logger';
+import { redirect } from 'next/navigation';
 
 export default async function ProfilePage() {
     const queryClient = getQueryClient();
@@ -27,7 +27,7 @@ export default async function ProfilePage() {
         <HydrationBoundary state={dehydrate(queryClient)}>
             <QueryErrorWrapper>
                 <Suspense fallback={<div>Loading profile...</div>}>
-                    <UserProfileComponent/>
+                    <UserProfileComponent />
                 </Suspense>
             </QueryErrorWrapper>
         </HydrationBoundary>

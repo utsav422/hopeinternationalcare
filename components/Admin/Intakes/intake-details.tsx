@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAdminIntakeDetailsById } from '@/hooks/admin/intakes';
+import { useAdminIntakeDetails } from '@/hooks/admin/intakes-optimized';
 
 function IntakeDetailsSkeleton() {
     return (
@@ -41,17 +41,30 @@ function IntakeDetailsSkeleton() {
 
 function IntakeDetails() {
     const { id } = useParams<{ id: string }>();
-    const { data: intake, error, isLoading } = useAdminIntakeDetailsById(id);
+    const {
+        data: queryResult,
+        error: queryError,
+        isLoading,
+    } = useAdminIntakeDetails(id);
 
+    const intake = queryResult?.data?.intake;
     if (isLoading) {
         return <IntakeDetailsSkeleton />;
     }
 
-    if (error || !intake) {
-        toast.error(error?.message ?? 'failed to ');
+    if (queryError || !intake || !queryResult.success) {
+        toast.error(queryError?.message ?? queryResult?.error ?? 'failed to ');
         return (
             <div className="flex h-full w-full items-center justify-center">
                 <p className="text-red-500">Failed to load intake details.</p>
+                {queryError?.message && (
+                    <p className="text-red-500">{queryError?.message}</p>
+                )}
+                {queryResult?.details && (
+                    <p className="text-red-500">
+                        {queryResult?.details.toString()}
+                    </p>
+                )}
             </div>
         );
     }
@@ -59,7 +72,7 @@ function IntakeDetails() {
     if (!intake) {
         notFound();
     }
-
+    const course = queryResult?.data?.course;
     return (
         <div className="container mx-auto p-4 sm:p-6 lg:p-8">
             <Card className="">
@@ -73,9 +86,7 @@ function IntakeDetails() {
                         <p className="font-semibold text-gray-700 dark:text-gray-300">
                             Course:
                         </p>
-                        <p className="text-gray-800 ">
-                            {intake.course?.title}
-                        </p>
+                        <p className="text-gray-800 ">{course?.title}</p>
                     </div>
                     <div className="space-y-2">
                         <p className="font-semibold text-gray-700 dark:text-gray-300">
@@ -97,9 +108,7 @@ function IntakeDetails() {
                         <p className="font-semibold text-gray-700 dark:text-gray-300">
                             Capacity:
                         </p>
-                        <p className="text-gray-800 ">
-                            {intake.capacity}
-                        </p>
+                        <p className="text-gray-800 ">{intake.capacity}</p>
                     </div>
                     <div className="space-y-2">
                         <p className="font-semibold text-gray-700 dark:text-gray-300">

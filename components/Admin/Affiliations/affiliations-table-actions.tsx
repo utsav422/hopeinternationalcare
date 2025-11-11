@@ -15,7 +15,10 @@ interface AffiliationsTableActionsProps {
     onDeleteAction: (id: string) => void;
 }
 
-export function AffiliationsTableActions({ id, onDeleteAction }: AffiliationsTableActionsProps) {
+export function AffiliationsTableActions({
+    id,
+    onDeleteAction,
+}: AffiliationsTableActionsProps) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -26,9 +29,7 @@ export function AffiliationsTableActions({ id, onDeleteAction }: AffiliationsTab
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                    <Link href={`/admin/affiliations/edit/${id}`}>
-                        Edit
-                    </Link>
+                    <Link href={`/admin/affiliations/edit/${id}`}>Edit</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     className="text-red-600 dark:text-red-500"

@@ -14,45 +14,44 @@ export type CourseInsert = typeof courses.$inferInsert;
 
 // Comprehensive joined data types
 export interface CourseWithDetails {
-  course: CourseBase;
-  category: CourseCategoryBase | null;
-  affiliation: AffiliationBase | null;
-  intakes: IntakeBase[] | null;
+    course: CourseBase;
+    category: CourseCategoryBase | null;
+    affiliation: AffiliationBase | null;
+    intakes: IntakeBase[] | null;
 }
 
 // List view optimized type
 export interface CourseListItem {
-  id: string;
-  title: string;
-  slug: string;
-  price: number;
-  level: number;
-  image_url: string | null;
-  duration_type: TypeDurationType;
-  duration_value: number;
-  created_at: string;
-  updated_at: string;
-  category_name: string | null;
-  affiliation_name: string | null;
-  intake_count: number;
-  enrollment_count: number;
+    id: string;
+    title: string;
+    slug: string;
+    price: number;
+    level: number;
+    image_url: string | null;
+    duration_type: TypeDurationType;
+    duration_value: number;
+    created_at: string;
+    updated_at: string;
+    category_name: string | null;
+    affiliation_name: string | null;
+    intake_count: number;
+    enrollment_count: number;
 }
 
 // Query parameter types
 export interface CourseQueryParams {
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  order?: 'asc' | 'desc';
-  filters?: ColumnFiltersState;
-  search?: string;
+    page?: number;
+    pageSize?: number;
+    sortBy?: string;
+    order?: 'asc' | 'desc';
+    filters: ColumnFiltersState;
+    search?: string;
 }
 
 // Business operation types
 export type CourseCreateData = Pick<
-  CourseInsert,
-  |
-'category_id'
+    CourseInsert,
+    | 'category_id'
     | 'affiliation_id'
     | 'title'
     | 'slug'
@@ -66,19 +65,18 @@ export type CourseCreateData = Pick<
 >;
 
 export type CourseUpdateData = CourseCreateData & {
-  id: string;
+    id: string;
 };
 
 // Constraint check result
 export interface CourseConstraintCheck {
-  canDelete: boolean;
-  intakeCount: number;
-  enrollmentCount: number;
+    canDelete: boolean;
+    intakeCount: number;
+    enrollmentCount: number;
 }
 
 // Image management types
 export interface CourseImageUploadResult {
-  url: string;
-  key: string;
+    url: string;
+    key: string;
 }
-

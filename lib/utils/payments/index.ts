@@ -1,7 +1,12 @@
 import { db } from '@/lib/db/drizzle';
 import { payments } from '@/lib/db/schema/payments';
 import { eq, sql } from 'drizzle-orm';
-import { PaymentCreateData, PaymentUpdateData, PaymentConstraintCheck, PaymentRefundData } from '@/lib/types';
+import {
+    PaymentCreateData,
+    PaymentUpdateData,
+    PaymentConstraintCheck,
+    PaymentRefundData,
+} from '@/lib/types';
 
 /**
  * Payment validation utilities
@@ -63,7 +68,13 @@ export function validatePaymentCurrency(currency: string): void {
  * @throws PaymentValidationError if validation fails
  */
 export function validatePaymentStatus(status: string): void {
-    const validStatuses = ['pending', 'completed', 'failed', 'refunded', 'cancelled'];
+    const validStatuses = [
+        'pending',
+        'completed',
+        'failed',
+        'refunded',
+        'cancelled',
+    ];
     if (!validStatuses.includes(status)) {
         throw new PaymentValidationError(
             'Invalid payment status',
@@ -79,7 +90,14 @@ export function validatePaymentStatus(status: string): void {
  * @throws PaymentValidationError if validation fails
  */
 export function validatePaymentMethod(method: string): void {
-    const validMethods = ['credit_card', 'debit_card', 'bank_transfer', 'paypal', 'cash', 'other'];
+    const validMethods = [
+        'credit_card',
+        'debit_card',
+        'bank_transfer',
+        'paypal',
+        'cash',
+        'other',
+    ];
     if (!validMethods.includes(method)) {
         throw new PaymentValidationError(
             'Invalid payment method',
@@ -95,7 +113,10 @@ export function validatePaymentMethod(method: string): void {
  * @param maxAmount - The maximum refundable amount
  * @throws PaymentValidationError if validation fails
  */
-export function validateRefundAmount(amount: number, maxAmount: number): void {
+export function validatePaymentRefundAmount(
+    amount: number,
+    maxAmount: number
+): void {
     if (amount <= 0) {
         throw new PaymentValidationError(
             'Refund amount must be greater than zero',
@@ -118,13 +139,14 @@ export function validateRefundAmount(amount: number, maxAmount: number): void {
  * @param data - The payment data to validate
  * @returns ValidationResult
  */
-export function validatePaymentData(data: PaymentCreateData | PaymentUpdateData) {
+export function validatePaymentData(
+    data: PaymentCreateData | PaymentUpdateData
+) {
     try {
         if ('amount' in data) {
             validatePaymentAmount(data.amount);
         }
         if ('status' in data) {
-
             validatePaymentStatus(data.status as string);
         }
         if ('payment_method' in data) {
@@ -137,13 +159,13 @@ export function validatePaymentData(data: PaymentCreateData | PaymentUpdateData)
                 success: false,
                 error: error.message,
                 code: error.code,
-                details: error.details
+                details: error.details,
             };
         }
         return {
             success: false,
             error: 'Validation failed',
-            code: 'VALIDATION_ERROR'
+            code: 'VALIDATION_ERROR',
         };
     }
 }
@@ -154,9 +176,12 @@ export function validatePaymentData(data: PaymentCreateData | PaymentUpdateData)
  * @param maxAmount - The maximum refundable amount
  * @returns ValidationResult
  */
-export function validateRefundData(data: PaymentRefundData, maxAmount: number) {
+export function validatePaymentRefundData(
+    data: PaymentRefundData,
+    maxAmount: number
+) {
     try {
-        validateRefundAmount(data.amount, maxAmount);
+        validatePaymentRefundAmount(data.amount, maxAmount);
         if (!data.reason || data.reason.length < 3) {
             throw new PaymentValidationError(
                 'Refund reason must be at least 3 characters long',
@@ -171,13 +196,13 @@ export function validateRefundData(data: PaymentRefundData, maxAmount: number) {
                 success: false,
                 error: error.message,
                 code: error.code,
-                details: error.details
+                details: error.details,
             };
         }
         return {
             success: false,
             error: 'Validation failed',
-            code: 'VALIDATION_ERROR'
+            code: 'VALIDATION_ERROR',
         };
     }
 }
@@ -191,18 +216,20 @@ export function validateRefundData(data: PaymentRefundData, maxAmount: number) {
  * @param id - The payment ID to check
  * @returns Object with canDelete flag
  */
-export async function checkPaymentConstraints(id: string): Promise<PaymentConstraintCheck> {
+export async function checkPaymentConstraints(
+    id: string
+): Promise<PaymentConstraintCheck> {
     try {
         // For now, we allow deletion of any payment
         // This could be extended with business rules if needed
         return {
-            canDelete: true
+            canDelete: true,
         };
     } catch (error) {
         console.error('Error checking payment constraints:', error);
         // In case of error, assume it cannot be deleted for safety
         return {
-            canDelete: false
+            canDelete: false,
         };
     }
 }
@@ -217,14 +244,17 @@ export async function checkPaymentConstraints(id: string): Promise<PaymentConstr
  * @param newStatus - New payment status
  * @returns boolean indicating if update is allowed
  */
-export function canUpdatePaymentStatus(currentStatus: string, newStatus: string): boolean {
+export function canUpdatePaymentStatus(
+    currentStatus: string,
+    newStatus: string
+): boolean {
     // Valid status transitions
     const validTransitions: Record<string, string[]> = {
-        'pending': ['completed', 'failed', 'cancelled'],
-        'completed': ['refunded'],
-        'failed': ['pending'],
-        'refunded': [],
-        'cancelled': []
+        pending: ['completed', 'failed', 'cancelled'],
+        completed: ['refunded'],
+        failed: ['pending'],
+        refunded: [],
+        cancelled: [],
     };
 
     // If current status is not in validTransitions, allow any update
@@ -241,13 +271,15 @@ export function canUpdatePaymentStatus(currentStatus: string, newStatus: string)
  * @param currentStatus - Current payment status
  * @returns Array of valid status transitions
  */
-export function getValidPaymentStatusTransitions(currentStatus: string): string[] {
+export function getValidPaymentStatusTransitions(
+    currentStatus: string
+): string[] {
     const validTransitions: Record<string, string[]> = {
-        'pending': ['completed', 'failed', 'cancelled'],
-        'completed': ['refunded'],
-        'failed': ['pending'],
-        'refunded': [],
-        'cancelled': []
+        pending: ['completed', 'failed', 'cancelled'],
+        completed: ['refunded'],
+        failed: ['pending'],
+        refunded: [],
+        cancelled: [],
     };
 
     return validTransitions[currentStatus] || [];
@@ -259,6 +291,9 @@ export function getValidPaymentStatusTransitions(currentStatus: string): string[
  * @param refundedAmount - The amount already refunded
  * @returns The refundable amount
  */
-export function calculateRefundableAmount(paymentAmount: number, refundedAmount: number): number {
+export function calculateRefundableAmount(
+    paymentAmount: number,
+    refundedAmount: number
+): number {
     return Math.max(0, paymentAmount - refundedAmount);
 }

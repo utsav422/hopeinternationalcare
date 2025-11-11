@@ -28,9 +28,13 @@ import {
     checkCourseConstraints,
     uploadCourseImage,
     deleteCourseImage,
-    CourseValidationError
+    CourseValidationError,
 } from '@/lib/utils/courses/index';
-import { buildFilterConditions, buildWhereClause, buildOrderByClause } from '@/lib/utils/query-utils';
+import {
+    buildFilterConditions,
+    buildWhereClause,
+    buildOrderByClause,
+} from '@/lib/utils/query-utils';
 import { ApiResponse } from '@/lib/types';
 import { DurationType, durationType, TypeDurationType } from '@/lib/db/schema';
 import { duration } from 'drizzle-orm/gel-core';
@@ -53,43 +57,48 @@ const courseColumnMap = {
 /**
  * Error handling utility
  */
-export function handleCourseError(error: unknown, operation: string): ApiResponse<never> {
+export async function handleCourseError(
+    error: unknown,
+    operation: string
+): Promise<ApiResponse<never>> {
     if (error instanceof CourseValidationError) {
         const validationError = error as CourseValidationError;
-        return {
+        return Promise.reject({
             success: false,
             error: validationError.message,
             code: validationError.code,
-            details: validationError.details
-        };
+            details: validationError.details,
+        });
     }
 
     if (error instanceof Error) {
         logger.error(`Course ${operation} failed:`, error);
-        return {
+        return Promise.reject({
             success: false,
             error: error.message,
-            code: 'UNKNOWN_ERROR'
-        };
+            code: 'UNKNOWN_ERROR',
+        });
     }
 
-    logger.error(`Unexpected error in course ${operation}:`, {error});
-    return {
+    logger.error(`Unexpected error in course ${operation}:`, { error });
+    return Promise.reject({
         success: false,
         error: 'An unexpected error occurred',
-        code: 'UNKNOWN_ERROR'
-    };
+        code: 'UNKNOWN_ERROR',
+    });
 }
 
 /**
  * Single comprehensive list function with filtering and pagination
  */
-export async function adminCourseList(params: CourseQueryParams): Promise<ApiResponse<{
-    data: CourseListItem[];
-    total: number;
-    page: number;
-    pageSize: number;
-}>> {
+export async function adminCourseList(params: CourseQueryParams): Promise<
+    ApiResponse<{
+        data: CourseListItem[];
+        total: number;
+        page: number;
+        pageSize: number;
+    }>
+> {
     try {
         await requireAdmin();
 
@@ -99,13 +108,16 @@ export async function adminCourseList(params: CourseQueryParams): Promise<ApiRes
             sortBy = 'created_at',
             order = 'desc',
             filters = [],
-            search
+            search,
         } = params;
 
         const offset = (page - 1) * pageSize;
 
         // Build filter conditions
-        const filterConditions = buildFilterConditions(filters, courseColumnMap);
+        const filterConditions = buildFilterConditions(
+            filters,
+            courseColumnMap
+        );
 
         // Add search condition if provided
         if (search) {
@@ -132,11 +144,28 @@ export async function adminCourseList(params: CourseQueryParams): Promise<ApiRes
                 updated_at: courses.updated_at,
                 category_name: courseCategories.name,
                 affiliation_name: affiliations.name,
-                intake_count: sql<number>`count(intakes.id)`,
-                enrollment_count: sql<number>`count(enrollments.id)`,
+                // count only intakes whose year matches the current year
+                intake_count: sql<number>`count(
+            CASE
+            WHEN EXTRACT(YEAR FROM intakes.start_date) = EXTRACT(YEAR FROM now())
+            THEN intakes.id
+            ELSE NULL
+            END
+            )`,
+                // count only enrollments for intakes in the current year
+                enrollment_count: sql<number>`count(
+            CASE
+            WHEN EXTRACT(YEAR FROM intakes.start_date) = EXTRACT(YEAR FROM now())
+            THEN enrollments.id
+            ELSE NULL
+            END
+            )`,
             })
             .from(courses)
-            .leftJoin(courseCategories, eq(courses.category_id, courseCategories.id))
+            .leftJoin(
+                courseCategories,
+                eq(courses.category_id, courseCategories.id)
+            )
             .leftJoin(affiliations, eq(courses.affiliation_id, affiliations.id))
             .leftJoin(intakes, eq(courses.id, intakes.course_id))
             .leftJoin(enrollments, eq(intakes.id, enrollments.intake_id))
@@ -162,13 +191,18 @@ export async function adminCourseList(params: CourseQueryParams): Promise<ApiRes
         const queryWithWhere = whereClause ? query.where(whereClause) : query;
 
         // Apply order by
-        const queryWithOrder = orderBy ? queryWithWhere.orderBy(orderBy) : queryWithWhere;
+        const queryWithOrder = orderBy
+            ? queryWithWhere.orderBy(orderBy)
+            : queryWithWhere;
 
         // Count query with same filters
         const countQuery = db
             .select({ count: sql<number>`count(*)` })
             .from(courses)
-            .leftJoin(courseCategories, eq(courses.category_id, courseCategories.id))
+            .leftJoin(
+                courseCategories,
+                eq(courses.category_id, courseCategories.id)
+            )
             .leftJoin(affiliations, eq(courses.affiliation_id, affiliations.id))
             .leftJoin(intakes, eq(courses.id, intakes.course_id))
             .leftJoin(enrollments, eq(intakes.id, enrollments.intake_id))
@@ -189,11 +223,15 @@ export async function adminCourseList(params: CourseQueryParams): Promise<ApiRes
             );
 
         // Apply where clause to count query if exists
-        const countQueryWithWhere = whereClause ? countQuery.where(whereClause) : countQuery;
+        const countQueryWithWhere = whereClause
+            ? countQuery.where(whereClause)
+            : countQuery;
 
         const [data, countResult] = await Promise.all([
             queryWithOrder,
-            db.select({ count: sql<number>`count(*)` }).from(countQueryWithWhere.as('count_subquery'))
+            db
+                .select({ count: sql<number>`count(*)` })
+                .from(countQueryWithWhere.as('count_subquery')),
         ]);
 
         return {
@@ -202,8 +240,8 @@ export async function adminCourseList(params: CourseQueryParams): Promise<ApiRes
                 data,
                 total: countResult[0]?.count || 0,
                 page,
-                pageSize
-            }
+                pageSize,
+            },
         };
     } catch (error) {
         return handleCourseError(error, 'list');
@@ -213,7 +251,9 @@ export async function adminCourseList(params: CourseQueryParams): Promise<ApiRes
 /**
  * Single comprehensive details function with proper joins
  */
-export async function adminCourseDetails(id: string): Promise<ApiResponse<CourseWithDetails>> {
+export async function adminCourseDetails(
+    id: string
+): Promise<ApiResponse<CourseWithDetails>> {
     try {
         await requireAdmin();
 
@@ -221,7 +261,10 @@ export async function adminCourseDetails(id: string): Promise<ApiResponse<Course
         const courseResult = await db
             .select()
             .from(courses)
-            .leftJoin(courseCategories, eq(courses.category_id, courseCategories.id))
+            .leftJoin(
+                courseCategories,
+                eq(courses.category_id, courseCategories.id)
+            )
             .leftJoin(affiliations, eq(courses.affiliation_id, affiliations.id))
             .where(eq(courses.id, id))
             .limit(1);
@@ -230,7 +273,7 @@ export async function adminCourseDetails(id: string): Promise<ApiResponse<Course
             return {
                 success: false,
                 error: 'Course not found',
-                code: 'NOT_FOUND'
+                code: 'NOT_FOUND',
             };
         }
 
@@ -250,8 +293,8 @@ export async function adminCourseDetails(id: string): Promise<ApiResponse<Course
                 course,
                 category: category || null,
                 affiliation: affiliation || null,
-                intakes: intakeResult
-            }
+                intakes: intakeResult,
+            },
         };
     } catch (error) {
         return handleCourseError(error, 'details');
@@ -261,7 +304,9 @@ export async function adminCourseDetails(id: string): Promise<ApiResponse<Course
 /**
  * Optimized CRUD operations with validation
  */
-export async function adminCourseCreate(data: CourseCreateData): Promise<ApiResponse<CourseBase>> {
+export async function adminCourseCreate(
+    data: CourseCreateData
+): Promise<ApiResponse<CourseBase>> {
     try {
         await requireAdmin();
 
@@ -272,7 +317,7 @@ export async function adminCourseCreate(data: CourseCreateData): Promise<ApiResp
                 success: false,
                 error: validation.error || 'Validation failed',
                 code: validation.code || 'VALIDATION_ERROR',
-                details: validation.details
+                details: validation.details,
             };
         }
 
@@ -290,20 +335,20 @@ export async function adminCourseCreate(data: CourseCreateData): Promise<ApiResp
             price: data.price,
         };
 
-        const [created] = await db
-            .insert(courses)
-            .values(values)
-            .returning();
+        const [created] = await db.insert(courses).values(values).returning();
 
         revalidatePath('/admin/courses');
         return { success: true, data: created };
     } catch (error: any) {
         // Handle unique constraint violation
-        if (error.code === '23505' || (error.message && error.message.includes('unique'))) {
+        if (
+            error.code === '23505' ||
+            (error.message && error.message.includes('unique'))
+        ) {
             return {
                 success: false,
                 error: 'A course with this slug already exists.',
-                code: 'UNIQUE_CONSTRAINT_VIOLATION'
+                code: 'UNIQUE_CONSTRAINT_VIOLATION',
             };
         }
 
@@ -311,10 +356,11 @@ export async function adminCourseCreate(data: CourseCreateData): Promise<ApiResp
     }
 }
 
-export async function adminCourseUpdate(data: CourseUpdateData): Promise<ApiResponse<CourseBase>> {
+export async function adminCourseUpdate(
+    data: CourseUpdateData
+): Promise<ApiResponse<CourseBase>> {
     try {
         await requireAdmin();
-
         // Validate data
         const validation = validateCourseData(data);
         if (!validation.success) {
@@ -322,7 +368,7 @@ export async function adminCourseUpdate(data: CourseUpdateData): Promise<ApiResp
                 success: false,
                 error: validation.error || 'Validation failed',
                 code: validation.code || 'VALIDATION_ERROR',
-                details: validation.details
+                details: validation.details,
             };
         }
 
@@ -340,18 +386,16 @@ export async function adminCourseUpdate(data: CourseUpdateData): Promise<ApiResp
             price: data.price,
             updated_at: sql`now()`,
         };
-
         const [updated] = await db
             .update(courses)
             .set(values)
             .where(eq(courses.id, data.id))
             .returning();
-
         if (!updated) {
             return {
                 success: false,
                 error: 'Course not found',
-                code: 'NOT_FOUND'
+                code: 'NOT_FOUND',
             };
         }
 
@@ -360,11 +404,14 @@ export async function adminCourseUpdate(data: CourseUpdateData): Promise<ApiResp
         return { success: true, data: updated };
     } catch (error: any) {
         // Handle unique constraint violation
-        if (error.code === '23505' || (error.message && error.message.includes('unique'))) {
+        if (
+            error.code === '23505' ||
+            (error.message && error.message.includes('unique'))
+        ) {
             return {
                 success: false,
                 error: 'A course with this slug already exists.',
-                code: 'UNIQUE_CONSTRAINT_VIOLATION'
+                code: 'UNIQUE_CONSTRAINT_VIOLATION',
             };
         }
 
@@ -372,12 +419,16 @@ export async function adminCourseUpdate(data: CourseUpdateData): Promise<ApiResp
     }
 }
 
-export async function adminCourseDelete(id: string): Promise<ApiResponse<void>> {
+export async function adminCourseDelete(
+    id: string
+): Promise<ApiResponse<void>> {
     try {
         await requireAdmin();
 
         // Check constraints before deletion
         const constraints = await checkCourseConstraints(id);
+        console.log('Course deletion constraints:', constraints);
+        debugger;
         if (!constraints.canDelete) {
             return {
                 success: false,
@@ -385,21 +436,23 @@ export async function adminCourseDelete(id: string): Promise<ApiResponse<void>> 
                 code: 'CONSTRAINT_VIOLATION',
                 details: {
                     intakeCount: constraints.intakeCount,
-                    enrollmentCount: constraints.enrollmentCount
-                }
+                    enrollmentCount: constraints.enrollmentCount,
+                },
             };
         }
 
-        const [deleted] = await db
+        const deletedRows = await db
             .delete(courses)
             .where(eq(courses.id, id))
             .returning();
+        console.log('Deleted rows:', deletedRows);
+        debugger;
 
-        if (!deleted) {
+        if (deletedRows.length === 0) {
             return {
                 success: false,
                 error: 'Course not found',
-                code: 'NOT_FOUND'
+                code: 'NOT_FOUND',
             };
         }
 
@@ -413,7 +466,9 @@ export async function adminCourseDelete(id: string): Promise<ApiResponse<void>> 
 /**
  * Business-specific operations
  */
-export async function adminCourseCheckConstraints(id: string): Promise<ApiResponse<CourseConstraintCheck>> {
+export async function adminCourseCheckConstraints(
+    id: string
+): Promise<ApiResponse<CourseConstraintCheck>> {
     try {
         await requireAdmin();
 
@@ -427,7 +482,10 @@ export async function adminCourseCheckConstraints(id: string): Promise<ApiRespon
 /**
  * Image management operations
  */
-export async function adminCourseImageUpload(file: File, courseId: string): Promise<ApiResponse<CourseImageUploadResult>> {
+export async function adminCourseImageUpload(
+    file: File,
+    courseId: string
+): Promise<ApiResponse<CourseImageUploadResult>> {
     try {
         await requireAdmin();
 
@@ -448,7 +506,7 @@ export async function adminCourseImageUpload(file: File, courseId: string): Prom
             return {
                 success: false,
                 error: 'Course not found',
-                code: 'NOT_FOUND'
+                code: 'NOT_FOUND',
             };
         }
 
@@ -457,15 +515,18 @@ export async function adminCourseImageUpload(file: File, courseId: string): Prom
             success: true,
             data: {
                 url: imageUrl,
-                key: `course-${courseId}-${Date.now()}`
-            }
+                key: `course-${courseId}-${Date.now()}`,
+            },
         };
     } catch (error) {
         return handleCourseError(error, 'image-upload');
     }
 }
 
-export async function adminCourseImageDelete(imageUrl: string, courseId: string): Promise<ApiResponse<void>> {
+export async function adminCourseImageDelete(
+    imageUrl: string,
+    courseId: string
+): Promise<ApiResponse<void>> {
     try {
         await requireAdmin();
 
@@ -486,7 +547,7 @@ export async function adminCourseImageDelete(imageUrl: string, courseId: string)
             return {
                 success: false,
                 error: 'Course not found',
-                code: 'NOT_FOUND'
+                code: 'NOT_FOUND',
             };
         }
 
@@ -504,9 +565,15 @@ export const cachedAdminCourseDetails = cache(adminCourseDetails);
 /**
  * Get all courses without pagination
  */
-export async function adminCourseListAll(): Promise<ApiResponse<CourseListItem[]>> {
-    const result = await adminCourseList({ page: 1, pageSize: 9999 }); // Use a large page size to fetch all
-    if (result.success) {
+export async function adminCourseListAll(): Promise<
+    ApiResponse<CourseListItem[]>
+> {
+    const result = await adminCourseList({
+        page: 1,
+        pageSize: 9999,
+        filters: [],
+    }); // Use a large page size to fetch all
+    if (result.success && result.data) {
         return {
             success: true,
             data: result.data.data,

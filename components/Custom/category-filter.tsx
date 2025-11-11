@@ -33,7 +33,7 @@ export default function CategoryFilter({
                         Loading...
                     </SelectItem>
                 ) : (
-                    categories.map((category) => (
+                    categories.map(category => (
                         <SelectItem
                             className="dark:hover:bg-gray-700"
                             key={category.id}

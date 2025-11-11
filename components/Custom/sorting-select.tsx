@@ -33,11 +33,8 @@ export default function SortingSelect({ value, onChange }: SortingSelectProps) {
                 <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
             <SelectContent className="">
-                {sortingOptions.map((option) => (
-                    <SelectItem
-                        key={option.value}
-                        value={option.value}
-                    >
+                {sortingOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
                         {option.label}
                     </SelectItem>
                 ))}

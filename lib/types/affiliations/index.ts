@@ -14,7 +14,10 @@ export interface AffiliationWithDetails {
 }
 
 // List view optimized type
-export type AffiliationListItem = Omit<AffiliationBase, 'created_at' | 'updated_at'> & {
+export type AffiliationListItem = Omit<
+    AffiliationBase,
+    'created_at' | 'updated_at'
+> & {
     created_at: string;
     updated_at: string;
     course_count: number;
@@ -45,5 +48,3 @@ export interface AffiliationConstraintCheck {
     canDelete: boolean;
     courseCount: number;
 }
-
-export type { ApiResponse } from '..';

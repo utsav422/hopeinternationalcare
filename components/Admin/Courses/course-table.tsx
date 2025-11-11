@@ -1,23 +1,31 @@
 // /components/Admin/Courses/CourseTable.tsx
 'use client';
 
-import {useQueryClient} from '@tanstack/react-query';
-import type {ColumnDef} from '@tanstack/react-table';
-import {MoreHorizontal} from 'lucide-react';
-import Image from "next/image";
+import { useQueryClient } from '@tanstack/react-query';
+import type { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
-import {toast} from 'sonner';
-import {DataTable} from '@/components/Custom/data-table';
-import {Button} from '@/components/ui/button';
-import {Card, CardContent, CardHeader} from '@/components/ui/card';
-import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from '@/components/ui/dropdown-menu';
-import { useAdminCourseDelete, useAdminCourses } from '@/lib/hooks/admin/courses-optimized';
-import {useDataTableQueryState} from '@/hooks/admin/use-data-table-query-state';
+import { toast } from 'sonner';
+import { DataTable } from '@/components/Custom/data-table';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+    useAdminCourseDelete,
+    useAdminCourses,
+} from '@/lib/hooks/admin/courses-optimized';
+import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
 // import { Input } from '@/components/ui/input';
 // import useDebounce from '@/hooks/use-debounce';
 import type { CourseListItem } from '@/lib/types/courses';
-import {queryKeys} from '@/lib/query-keys';
-import {adminIntakeGenerateForCourseAdvanced} from '@/lib/server-actions/admin/intakes';
+import { queryKeys } from '@/lib/query-keys';
+import { adminIntakeGenerateForCourseAdvanced } from '@/lib/server-actions/admin/intakes-optimized';
 
 // interface Props {
 //   data: Array<ZodInsertCourseType & { category_name: string | null }>;
@@ -27,12 +35,12 @@ import {adminIntakeGenerateForCourseAdvanced} from '@/lib/server-actions/admin/i
 export default function CourseTable() {
     const queryState = useDataTableQueryState();
     const queryClient = useQueryClient();
-    const {data: queryResult, error} = useAdminCourses({...queryState});
+    const { data: queryResult, error } = useAdminCourses({ ...queryState });
 
     const data = queryResult?.data?.data as CourseListItem[];
     const total = queryResult?.data?.total ?? 0;
 
-    const {mutateAsync: deleteCourse} = useAdminCourseDelete();
+    const { mutateAsync: deleteCourse } = useAdminCourseDelete();
 
     const handleDelete = async (id: string) => {
         if (!confirm('Are you sure you want to delete this course?')) {
@@ -42,26 +50,32 @@ export default function CourseTable() {
         toast.promise(deleteCourse(id), {
             loading: 'Deleting course...',
             success: 'Course deleted successfully',
-            error: (error) => error instanceof Error ? error.message : 'Failed to delete course',
+            error: error =>
+                error instanceof Error
+                    ? error.message
+                    : 'Failed to delete course',
         });
     };
     const columns: ColumnDef<CourseListItem>[] = [
         {
             accessorKey: 'image_url',
             header: () => <div className="">Image</div>,
-            cell: (cellProps) => {
+            cell: cellProps => {
                 return (
                     <div className="flex items-center justify-center">
-                        <Image unoptimized={true}
-                               alt={cellProps.row?.original?.title ?? 'some new one'}
-                               height={100}
-                               src={
-                                   cellProps.row?.original.image_url &&
-                                   cellProps.row?.original.image_url?.length > 0
-                                       ? cellProps.row?.original.image_url?.trim()
-                                       : 'https://placehold.co/100x200/?text=asdfa'
-                               }
-                               width={100}
+                        <Image
+                            unoptimized={true}
+                            alt={
+                                cellProps.row?.original?.title ?? 'some new one'
+                            }
+                            height={100}
+                            src={
+                                cellProps.row?.original.image_url &&
+                                cellProps.row?.original.image_url?.length > 0
+                                    ? cellProps.row?.original.image_url?.trim()
+                                    : 'https://placehold.co/100x200/?text=asdfa'
+                            }
+                            width={100}
                         />
                     </div>
                 );
@@ -70,22 +84,26 @@ export default function CourseTable() {
         {
             accessorKey: 'title',
             header: () => <div className="">Title</div>,
-            cell: ({row}) => (
-                <div className="dark:text-gray-300">{row.getValue('title')}</div>
+            cell: ({ row }) => (
+                <div className="dark:text-gray-300">
+                    {row.getValue('title')}
+                </div>
             ),
         },
         {
             accessorKey: 'level',
             header: () => <div className="">Level</div>,
-            cell: ({row}) => (
-                <div className="dark:text-gray-300">{row.getValue('level')}</div>
+            cell: ({ row }) => (
+                <div className="dark:text-gray-300">
+                    {row.getValue('level')}
+                </div>
             ),
         },
         {
             accessorKey: 'duration_value',
             header: () => <div className="">Duration</div>,
 
-            cell: (cellProps) => {
+            cell: cellProps => {
                 return (
                     <p className="flex items-center justify-center dark:text-gray-300">
                         {cellProps.row?.original.duration_value}
@@ -97,7 +115,7 @@ export default function CourseTable() {
             accessorKey: 'duration_type',
             header: () => <div className="">Duration Type</div>,
 
-            cell: (cellProps) => {
+            cell: cellProps => {
                 return (
                     <p className="flex items-center justify-center dark:text-gray-300">
                         {cellProps.row?.original.duration_type}
@@ -109,7 +127,7 @@ export default function CourseTable() {
             accessorKey: 'category_name',
             header: () => <div className="">Category</div>,
 
-            cell: (cellProps) => {
+            cell: cellProps => {
                 return (
                     <p className="flex items-center justify-center dark:text-gray-300">
                         {cellProps.row?.original.category_name}
@@ -120,13 +138,17 @@ export default function CourseTable() {
         {
             accessorKey: 'affiliation_name',
             header: () => <div className="">Affiliation</div>,
-            cell: ({ row }) => <div className="dark:text-gray-300">{row?.original?.affiliation_name ?? '-'}</div>,
+            cell: ({ row }) => (
+                <div className="dark:text-gray-300">
+                    {row?.original?.affiliation_name ?? '-'}
+                </div>
+            ),
         },
         {
             accessorKey: 'created_at',
             header: () => <div className="">Created At</div>,
 
-            cell: (cellProps) => {
+            cell: cellProps => {
                 return (
                     <p className="flex items-center justify-center dark:text-gray-300">
                         {cellProps.row?.original.created_at}
@@ -138,21 +160,19 @@ export default function CourseTable() {
             accessorKey: 'id',
             header: () => <div>Actions</div>,
             enableSorting: false,
-            cell: (cellProps) => {
+            cell: ({ row }) => {
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button size="icon" variant="ghost">
                                 <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4"/>
+                                <MoreHorizontal className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                            align="end"
-                        >
+                        <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
                                 <Link
-                                    href={`/admin/courses/${cellProps?.row.original.id}`}
+                                    href={`/admin/courses/${row.original.id}`}
                                 >
                                     View
                                 </Link>
@@ -160,27 +180,44 @@ export default function CourseTable() {
                             <DropdownMenuItem asChild>
                                 <Link
                                     className=""
-                                    href={`/admin/courses/edit/${cellProps?.row.original.id}`}
+                                    href={`/admin/courses/edit/${row.original.id}`}
                                 >
                                     Edit
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 className=""
+                                disabled={
+                                    row.original.intake_count.toString() === '0'
+                                        ? false
+                                        : true
+                                }
                                 onClick={async () => {
-                                    const courseId = cellProps?.row.original.id;
+                                    const courseId = row.original.id;
                                     if (courseId) {
                                         toast.promise(
-                                            adminIntakeGenerateForCourseAdvanced(courseId),
+                                            adminIntakeGenerateForCourseAdvanced(
+                                                courseId
+                                            ),
                                             {
-                                                loading: 'Generating intakes...',
-                                                success: (result) => {
+                                                loading:
+                                                    'Generating intakes...',
+                                                success: (result: any) => {
                                                     if (result.success) {
-                                                        return result.message || 'Intakes generated successfully';
+                                                        return (
+                                                            result.message ||
+                                                            'Intakes generated successfully'
+                                                        );
                                                     }
-                                                    throw new Error(result.error || 'Failed to generate intakes');
+                                                    throw new Error(
+                                                        result.error ||
+                                                            'Failed to generate intakes'
+                                                    );
                                                 },
-                                                error: (error) => error instanceof Error ? error.message : 'Failed to generate intakes',
+                                                error: error =>
+                                                    error instanceof Error
+                                                        ? error.message
+                                                        : 'Failed to generate intakes',
                                             }
                                         );
                                         await queryClient.invalidateQueries({
@@ -189,11 +226,14 @@ export default function CourseTable() {
                                     }
                                 }}
                             >
-                                Generate Intakes
+                                Generate Intakes{' '}
+                                {row.original.intake_count.toString() !== '0'
+                                    ? `(Disabled: ${row.original.intake_count} intakes exist)`
+                                    : ''}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 className="text-red-600 dark:text-red-500"
-                                onClick={() => handleDelete(cellProps?.row.original.id)}
+                                onClick={() => handleDelete(row.original.id)}
                             >
                                 Delete
                             </DropdownMenuItem>
@@ -205,7 +245,7 @@ export default function CourseTable() {
     ];
     return (
         <Card>
-            <CardHeader/>
+            <CardHeader />
             <CardContent>
                 <DataTable<CourseListItem, unknown>
                     columns={columns}

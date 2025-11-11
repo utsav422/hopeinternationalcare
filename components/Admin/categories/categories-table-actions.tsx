@@ -27,10 +27,7 @@ export function CategoriesTableActions({
                     <MoreHorizontal className="h-4 w-4" />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-                align="end"
-                className=""
-            >
+            <DropdownMenuContent align="end" className="">
                 <DropdownMenuItem asChild>
                     <Link
                         className=" dark:hover:bg-gray-700"
@@ -40,15 +37,9 @@ export function CategoriesTableActions({
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link
-                        href={`/admin/categories/edit/${id}`}
-                    >
-                        Edit
-                    </Link>
+                    <Link href={`/admin/categories/edit/${id}`}>Edit</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                    onClick={() => onDeleteAction(id)}
-                >
+                <DropdownMenuItem onClick={() => onDeleteAction(id)}>
                     Delete
                 </DropdownMenuItem>
             </DropdownMenuContent>

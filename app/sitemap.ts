@@ -69,7 +69,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
 
     // Course pages with medium-high priority
-    const courseUrls: MetadataRoute.Sitemap = courses.map((course) => ({
+    const courseUrls: MetadataRoute.Sitemap = courses.map(course => ({
         url: `${baseUrl}/courses/${course.slug}`,
         lastModified: new Date(
             course.updated_at || course.created_at
@@ -79,7 +79,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // Category pages with SEO optimization
-    const categoryUrls: MetadataRoute.Sitemap = categories.map((category) => ({
+    const categoryUrls: MetadataRoute.Sitemap = categories.map(category => ({
         url: `${baseUrl}/courses?category=${category.id}`,
         lastModified: currentDate,
         changeFrequency: 'weekly' as const,

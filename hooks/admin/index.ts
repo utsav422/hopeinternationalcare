@@ -1,35 +1,14 @@
-// Re-export admin user deletion hooks in a curated manner to avoid duplicate identifiers
-
-// Core deletion hooks and utilities
-export {
-    useDeleteUser,
-    useRestoreUser,
-    useDeletedUsers,
-    useUserDeletionHistory,
-    useCancelScheduledDeletion,
-    useBulkDeleteUsers,
-    useDeletionStatistics,
-    useCanRestoreUser,
-    useUserDeletionStatus,
-    useOptimisticUserDeletion,
-    usePrefetchUserDeletionHistory,
-    userDeletionKeys,
-} from './user-deletion';
-
-// Form management hooks
-export {
-    useUserDeletionForm,
-    useUserRestorationForm,
-    useScheduledDeletionCancellation,
-    useBulkDeletionForm,
-    useDeletionFilters,
-} from './use-user-deletion-forms';
-
-// Notification and monitoring hooks
-export {
-    useUserDeletionNotifications,
-    useScheduledDeletionMonitor,
-    useUserDeletionAudit,
-    useUserDeletionAnalytics,
-    useUserDeletionPermissions,
-} from './use-user-deletion-notifications';
+export * from './course-categories-optimized';
+export * from './email-logs-optimized';
+export * from './refunds-optimized';
+export * from './affiliations-optimized';
+export * from './courses-optimized';
+export * from './users';
+export * from './intakes-optimized';
+export * from './payments-optimized';
+export * from './profiles-optimized';
+export * from './enrollments';
+export * from './customer-contact-replies-optimized';
+export * from './customer-contact-requests-optimized';
+export * from './dashboard';
+export * from './use-data-table-query-state';

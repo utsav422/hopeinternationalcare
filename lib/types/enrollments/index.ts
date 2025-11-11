@@ -1,6 +1,9 @@
 import { PaymentBase } from '@/lib/types';
 import type { ColumnFiltersState } from '@tanstack/react-table';
-import type { TypeEnrollmentStatus, TypePaymentStatus } from '@/lib/db/schema/enums';
+import type {
+    TypeEnrollmentStatus,
+    TypePaymentStatus,
+} from '@/lib/db/schema/enums';
 import type { enrollments } from '@/lib/db/schema/enrollments';
 import { ProfileBase } from '../profiles';
 import { IntakeBase } from '../intakes';
@@ -13,7 +16,6 @@ export type { TypeEnrollmentStatus, TypePaymentStatus };
 // Base enrollment types
 export type EnrollmentBase = typeof enrollments.$inferSelect;
 export type EnrollmentInsert = typeof enrollments.$inferInsert;
-
 
 // Comprehensive joined data types
 export interface EnrollmentWithDetails {

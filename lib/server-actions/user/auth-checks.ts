@@ -1,6 +1,13 @@
 'use server';
 
-import { requireUser, requireAdmin, getCurrentUser, hasRole, isAdmin, isAuthenticated } from '@/utils/auth-guard';
+import {
+    requireUser,
+    requireAdmin,
+    getCurrentUser,
+    hasRole,
+    isAdmin,
+    isAuthenticated,
+} from '@/utils/auth-guard';
 
 /**
  * Server action to check if user is authenticated

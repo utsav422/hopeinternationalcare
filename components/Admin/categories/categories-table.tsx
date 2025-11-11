@@ -8,9 +8,9 @@ import { toast } from 'sonner';
 import { DataTable } from '@/components/Custom/data-table';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
-    useAdminCourseCategoryDeleteById,
+    useAdminCourseCategoryDelete,
     useAdminCourseCategoryList,
-} from '@/hooks/admin/course-categories';
+} from '@/hooks/admin/course-categories-optimized';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
 import type { ZodSelectCourseCategoryType } from '@/lib/db/drizzle-zod-schema/course-categories';
 import { CategoriesTableActions } from './categories-table-actions';
@@ -18,20 +18,23 @@ import { CategoriesTableActions } from './categories-table-actions';
 export default function CategoriesTable() {
     const router = useRouter();
     const queryState = useDataTableQueryState();
-    console.log({ queryState })
+    console.log({ queryState });
     const { data: queryResult, error } = useAdminCourseCategoryList({
         ...queryState,
-        filters: queryState?.filters ?? []
+        filters: queryState?.filters ?? [],
     });
 
-    const { mutateAsync: deleteCategory } = useAdminCourseCategoryDeleteById();
+    const { mutateAsync: deleteCategory } = useAdminCourseCategoryDelete();
 
-    const data = queryResult?.data;
-    const total = queryResult?.total;
+    const data = queryResult?.data?.data;
+    const total = queryResult?.data?.total;
 
     const handleDelete = useCallback(
         (id: string) => {
-            if (!confirm('Are you sure you want to delete this category?')) {
+            const consent = confirm(
+                'Are you sure you want to delete this category?'
+            );
+            if (!consent) {
                 return;
             }
 
@@ -40,10 +43,13 @@ export default function CategoriesTable() {
             toast.promise(promise, {
                 loading: 'Deleting category...',
                 success: 'Category deleted successfully',
-                error: (error) => error instanceof Error ? error.message : 'Failed to delete category',
+                error: error =>
+                    error instanceof Error
+                        ? error.message
+                        : 'Failed to delete category',
             });
         },
-        [router]
+        [deleteCategory]
     );
 
     const columns: ColumnDef<ZodSelectCourseCategoryType>[] = useMemo(
@@ -84,7 +90,7 @@ export default function CategoriesTable() {
     }
 
     return (
-        <Card >
+        <Card>
             <CardHeader />
             <CardContent>
                 <DataTable<ZodSelectCourseCategoryType, unknown>

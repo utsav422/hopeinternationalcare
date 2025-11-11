@@ -1,5 +1,6 @@
 'use client';
-import Image from "next/image";
+import Image from 'next/image';
+import Link from 'next/link';
 
 interface CourseCardProps {
     heading: string;
@@ -19,7 +20,8 @@ export function FeatureCourseCard({
             <div className="transform bg-white transition duration-300 hover:scale-105 dark:rounded-lg dark:bg-gray-800 dark:shadow-xl">
                 <div className="mx-0 mt-0 mb-6 h-48 w-48">
                     <div className="relative h-full w-full">
-                        <Image unoptimized={true}
+                        <Image
+                            unoptimized={true}
                             alt={title}
                             className="h-full w-full object-cover"
                             height={768}
@@ -32,12 +34,12 @@ export function FeatureCourseCard({
                     </div>
                 </div>
                 <div className="p-0">
-                    <a
+                    <Link
                         className="text-gray-900 transition-colors hover:text-blue-600  dark:hover:text-blue-400"
                         href="/courses"
                     >
                         <h5 className="mb-2 font-semibold text-xl">{title}</h5>
-                    </a>
+                    </Link>
                     <p className="mb-6 font-normal text-gray-600 dark:text-gray-300">
                         {desc}
                     </p>

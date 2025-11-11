@@ -1,6 +1,6 @@
 'use client';
 
-import Image from "next/image";
+import Image from 'next/image';
 
 const Users = [
     {
@@ -28,8 +28,8 @@ export function OurTeams() {
                     Our Team
                 </h2>
                 <p className="mb-12 px-3 font-normal text-gray-700 text-lg lg:px-0 dark:text-gray-300">
-                    Meet our highly experienced and dedicated team who are always there
-                    for your career guidance and support.
+                    Meet our highly experienced and dedicated team who are
+                    always there for your career guidance and support.
                 </p>
 
                 <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
@@ -39,7 +39,8 @@ export function OurTeams() {
                             key={username}
                         >
                             <div className="relative h-48 w-48 overflow-hidden rounded-full border-4 border-teal-500">
-                                <Image unoptimized={true}
+                                <Image
+                                    unoptimized={true}
                                     alt={`${username} profile`}
                                     className="h-full w-full object-cover"
                                     height={192}

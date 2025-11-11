@@ -11,57 +11,63 @@ export type EmailLogInsert = typeof emailLogs.$inferInsert;
 
 // List view optimized type
 export interface EmailLogListItem {
-  id: string;
-  to_emails: string[];
-  subject: string;
-  status: TypeEmailStatus;
-  email_type: string | null;
-  sent_at: string | null;
-  created_at: string;
-  error_message: string | null;
+    id: string;
+    to_emails: string[];
+    subject: string;
+    status: TypeEmailStatus;
+    email_type: string | null;
+    sent_at: string | null;
+    created_at: string;
+    error_message: string | null;
 }
 
 // Query parameter types
 export interface EmailLogQueryParams {
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  order?: 'asc' | 'desc';
-  filters?: ColumnFiltersState;
-  search?: string;
+    page?: number;
+    pageSize?: number;
+    sortBy?: string;
+    order?: 'asc' | 'desc';
+    filters?: ColumnFiltersState;
+    search?: string;
 }
 
 // Business operation types
 export type EmailLogCreateData = Pick<
-  EmailLogInsert,
-  |
-'from_email'
-  | 'to_emails'
-  | 'subject'
-  | 'html_content'
-  | 'text_content'
-  | 'status'
-  | 'email_type'
-  | 'user_id'
-  | 'admin_id'
-  | 'related_entity_type'
-  | 'related_entity_id'
+    EmailLogInsert,
+    | 'from_email'
+    | 'to_emails'
+    | 'subject'
+    | 'html_content'
+    | 'text_content'
+    | 'status'
+    | 'email_type'
+    | 'user_id'
+    | 'admin_id'
+    | 'related_entity_type'
+    | 'related_entity_id'
+    | 'resend_email_id'
+    | 'batch_id'
+    | 'reply_to'
+    | 'template_used'
+    | 'resend_response'
 >;
 
-export type EmailLogUpdateData = Partial<Omit<EmailLogCreateData, 'from_email' | 'to_emails'>> & {
-  id: string;
+export type EmailLogUpdateData = Partial<
+    Omit<EmailLogCreateData, 'from_email' | 'to_emails'>
+> & {
+    id: string;
 };
 
 // Constraint check result
 export interface EmailLogConstraintCheck {
-  canDelete: boolean;
+    canDelete: boolean;
 }
 
 // Status update types
 export interface EmailLogStatusUpdate {
-  id: string;
-  status: TypeEmailStatus;
-  error_message?: string | null;
-  resend_email_id?: string | null;
-  resend_response?: any;
+    id: string;
+    status: TypeEmailStatus;
+    error_message?: string | null;
+    resend_email_id?: string | null;
+    resend_response?: any;
 }

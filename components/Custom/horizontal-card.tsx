@@ -1,6 +1,6 @@
 'use client';
 
-import Image from "next/image";
+import Image from 'next/image';
 
 interface CourseInfoCardProps {
     heading: string;
@@ -18,7 +18,8 @@ export function CourseInfoCard({
     return (
         <div className="relative flex w-full transform rounded-xl bg-white bg-clip-border text-gray-700 shadow-lg transition duration-300 hover:scale-105 dark:bg-gray-800  dark:shadow-xl">
             <div className="relative m-0 w-2/5 shrink-0 overflow-hidden rounded-xl rounded-r-none bg-white bg-clip-border text-gray-700 dark:bg-gray-700">
-                <Image unoptimized={true}
+                <Image
+                    unoptimized={true}
                     alt="card-image"
                     className="h-full w-full object-cover"
                     src="/image/aboutusbg.jpg"

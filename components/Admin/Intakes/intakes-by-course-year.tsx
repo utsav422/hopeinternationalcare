@@ -1,14 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAdminIntakesByCourseAndYear } from '@/hooks/admin/intakes';
+import { useAdminIntakesByCourseAndYear } from '@/hooks/admin/intakes-optimized';
 import { format } from 'date-fns';
+import { IntakeBase } from '@/lib/types';
 
 interface IntakesByCourseYearProps {
     initialCourseId?: string;
@@ -17,17 +24,26 @@ interface IntakesByCourseYearProps {
 
 export default function IntakesByCourseYear({
     initialCourseId = '',
-    initialYear = new Date().getFullYear().toString()
+    initialYear = new Date().getFullYear().toString(),
 }: IntakesByCourseYearProps) {
     const [courseId, setCourseId] = useState(initialCourseId);
     const [year, setYear] = useState(initialYear);
-    const [searchParams, setSearchParams] = useState({ courseId: initialCourseId, year: initialYear });
+    const [searchParams, setSearchParams] = useState({
+        courseId: initialCourseId,
+        year: initialYear,
+    });
 
-    const { data: result, isLoading, error, refetch } = useAdminIntakesByCourseAndYear(
+    const {
+        data: result,
+        isLoading,
+        error,
+        refetch,
+    } = useAdminIntakesByCourseAndYear(
         searchParams.courseId,
         searchParams.year
     );
-
+    const metadata = result?.metadata;
+    const intakes = result?.intakes;
     const handleSearch = () => {
         // Basic validation
         if (!courseId.trim()) {
@@ -35,7 +51,12 @@ export default function IntakesByCourseYear({
         }
 
         const yearNum = parseInt(year, 10);
-        if (isNaN(yearNum) || year.length !== 4 || yearNum < 1900 || yearNum > 2100) {
+        if (
+            isNaN(yearNum) ||
+            year.length !== 4 ||
+            yearNum < 1900 ||
+            yearNum > 2100
+        ) {
             return;
         }
 
@@ -56,7 +77,8 @@ export default function IntakesByCourseYear({
                 <CardHeader>
                     <CardTitle>Search Intakes by Course and Year</CardTitle>
                     <CardDescription>
-                        Enter a course ID and year to view all intakes for that period
+                        Enter a course ID and year to view all intakes for that
+                        period
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -67,7 +89,8 @@ export default function IntakesByCourseYear({
                                 id="courseId"
                                 placeholder="Enter course UUID"
                                 value={courseId}
-                                onChange={(e) => setCourseId(e.target.value)}
+                                disabled
+                                onChange={e => setCourseId(e.target.value)}
                             />
                         </div>
                         <div className="space-y-2">
@@ -76,7 +99,7 @@ export default function IntakesByCourseYear({
                                 id="year"
                                 placeholder="e.g., 2024"
                                 value={year}
-                                onChange={(e) => setYear(e.target.value)}
+                                onChange={e => setYear(e.target.value)}
                             />
                         </div>
                         <div className="flex items-end space-x-2">
@@ -104,7 +127,10 @@ export default function IntakesByCourseYear({
                 <Card>
                     <CardContent className="pt-6">
                         <div className="text-center text-muted-foreground">
-                            <p>Enter a course ID and year above to search for intakes.</p>
+                            <p>
+                                Enter a course ID and year above to search for
+                                intakes.
+                            </p>
                         </div>
                     </CardContent>
                 </Card>
@@ -131,7 +157,11 @@ export default function IntakesByCourseYear({
                     <CardContent className="pt-6">
                         <div className="text-center text-red-600">
                             <p>Error: {error.message}</p>
-                            <Button variant="outline" onClick={() => refetch()} className="mt-2">
+                            <Button
+                                variant="outline"
+                                onClick={() => refetch()}
+                                className="mt-2"
+                            >
                                 Retry
                             </Button>
                         </div>
@@ -139,73 +169,120 @@ export default function IntakesByCourseYear({
                 </Card>
             )}
 
-            {result && !result.success && (
+            {error && (
                 <Card>
                     <CardContent className="pt-6">
                         <div className="text-center text-red-600">
-                            <p>Error: {result.error}</p>
+                            <p>Error: {error.message || 'An error occurred'}</p>
                         </div>
                     </CardContent>
                 </Card>
             )}
 
-            {result && result.success && result.metadata && result.data && (
+            {result && metadata && intakes && (
                 <div className="space-y-4">
                     {/* Statistics Card */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>{result.metadata.courseTitle}</CardTitle>
+                            <CardTitle>{metadata.courseTitle}</CardTitle>
                             <CardDescription>
-                                Intakes for {result.metadata.year}
+                                Intakes for {metadata.year}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div className="text-center">
-                                    <div className="text-2xl font-bold">{result.metadata.totalIntakes}</div>
-                                    <div className="text-sm text-muted-foreground">Total Intakes</div>
+                                    <div className="text-2xl font-bold">
+                                        {metadata.totalIntakes}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">
+                                        Total Intakes
+                                    </div>
                                 </div>
                                 <div className="text-center">
-                                    <div className="text-2xl font-bold text-green-600">{result.metadata.openIntakes}</div>
-                                    <div className="text-sm text-muted-foreground">Open</div>
+                                    <div className="text-2xl font-bold text-green-600">
+                                        {metadata.openIntakes}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">
+                                        Open
+                                    </div>
                                 </div>
                                 <div className="text-center">
-                                    <div className="text-2xl font-bold">{result.metadata.totalRegistered}</div>
-                                    <div className="text-sm text-muted-foreground">Registered</div>
+                                    <div className="text-2xl font-bold">
+                                        {metadata.totalRegistered}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">
+                                        Registered
+                                    </div>
                                 </div>
                                 <div className="text-center">
-                                    <div className="text-2xl font-bold">{result.metadata.utilizationRate}%</div>
-                                    <div className="text-sm text-muted-foreground">Utilization</div>
+                                    <div className="text-2xl font-bold">
+                                        {metadata.utilizationRate}%
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">
+                                        Utilization
+                                    </div>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
 
                     {/* Intakes List */}
-                    {result.data.length > 0 ? (
+                    {intakes.length > 0 ? (
                         <div className="grid gap-4">
-                            {result.data.map((intake) => (
+                            {intakes?.map((intake: any) => (
                                 <Card key={intake.id}>
                                     <CardContent className="pt-6">
                                         <div className="flex justify-between items-start">
                                             <div className="space-y-2">
                                                 <div className="flex items-center space-x-2">
                                                     <h3 className="font-semibold">
-                                                        {format(new Date(intake.start_date), 'MMM dd, yyyy')} - {format(new Date(intake.end_date), 'MMM dd, yyyy')}
+                                                        {format(
+                                                            new Date(
+                                                                intake.start_date
+                                                            ),
+                                                            'MMM dd, yyyy'
+                                                        )}{' '}
+                                                        -{' '}
+                                                        {format(
+                                                            new Date(
+                                                                intake.end_date
+                                                            ),
+                                                            'MMM dd, yyyy'
+                                                        )}
                                                     </h3>
-                                                    <Badge variant={intake.is_open ? 'default' : 'secondary'}>
-                                                        {intake.is_open ? 'Open' : 'Closed'}
+                                                    <Badge
+                                                        variant={
+                                                            intake.is_open
+                                                                ? 'default'
+                                                                : 'secondary'
+                                                        }
+                                                    >
+                                                        {intake.is_open
+                                                            ? 'Open'
+                                                            : 'Closed'}
                                                     </Badge>
                                                 </div>
                                                 <p className="text-sm text-muted-foreground">
-                                                    Capacity: {intake.total_registered}/{intake.capacity}
-                                                    ({intake.capacity - intake.total_registered} available)
+                                                    Capacity:{' '}
+                                                    {metadata.totalRegistered}/
+                                                    {intake.capacity}(
+                                                    {intake.capacity -
+                                                        metadata.totalRegistered}{' '}
+                                                    available)
                                                 </p>
                                             </div>
                                             <div className="text-right">
-                                                <div className="font-semibold">${intake.coursePrice}</div>
+                                                <div className="font-semibold">
+                                                    ${metadata.coursePrice}
+                                                </div>
                                                 <div className="text-sm text-muted-foreground">
-                                                    {Math.round((intake.total_registered / intake.capacity) * 100)}% full
+                                                    {Math.round(
+                                                        (metadata.totalRegistered /
+                                                            intake.capacity) *
+                                                            100
+                                                    )}
+                                                    % full
                                                 </div>
                                             </div>
                                         </div>
@@ -217,7 +294,11 @@ export default function IntakesByCourseYear({
                         <Card>
                             <CardContent className="pt-6">
                                 <div className="text-center text-muted-foreground">
-                                    <p>No intakes found for {result.metadata.courseTitle} in {result.metadata.year}</p>
+                                    <p>
+                                        No intakes found for{' '}
+                                        {metadata.courseTitle} in{' '}
+                                        {metadata.year}
+                                    </p>
                                 </div>
                             </CardContent>
                         </Card>

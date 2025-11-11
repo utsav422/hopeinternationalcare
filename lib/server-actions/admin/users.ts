@@ -55,14 +55,21 @@ export const adminUserCreate = async (formData: FormData) => {
                     phone,
                     role,
                 })
-                .select().single();
+                .select()
+                .single();
             if (profileError) {
-                logger.error('Error creating user profile:', { email, error: profileError.message });
+                logger.error('Error creating user profile:', {
+                    email,
+                    error: profileError.message,
+                });
                 return { success: false, error: profileError.message };
             }
 
             revalidatePath('/admin/users');
-            logger.info('User created successfully:', { userId: data.id, email });
+            logger.info('User created successfully:', {
+                userId: data.id,
+                email,
+            });
             return { success: true, data: data };
         }
         logger.error('User not created - no user data returned');
@@ -110,7 +117,14 @@ export const adminUserList = async (page?: number, pageSize?: number) => {
         // Fetch required auth user records efficiently
         const supabaseAdmin = createAdminSupabaseClient();
         const targetIds = new Set(activeUsers.map(u => u.id));
-        const authInfoById = new Map<string, { email_confirmed_at?: string | null; confirmation_sent_at?: string | null; confirmed_at?: string | null }>();
+        const authInfoById = new Map<
+            string,
+            {
+                email_confirmed_at?: string | null;
+                confirmation_sent_at?: string | null;
+                confirmed_at?: string | null;
+            }
+        >();
 
         // Iterate through auth users pages until we find all target IDs or exhaust the list
         // Use reasonable perPage to balance payload size and latency
@@ -118,18 +132,30 @@ export const adminUserList = async (page?: number, pageSize?: number) => {
         let pageIdx = 1;
         const maxPages = 50; // safety cap to avoid unbounded loops on very large datasets
         let done = false;
-        while (!done && pageIdx <= maxPages && authInfoById.size < targetIds.size) {
-            const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page: pageIdx, perPage });
+        while (
+            !done &&
+            pageIdx <= maxPages &&
+            authInfoById.size < targetIds.size
+        ) {
+            const { data, error } = await supabaseAdmin.auth.admin.listUsers({
+                page: pageIdx,
+                perPage,
+            });
             if (error) {
-                logger.error('adminUserList: error listing auth users', { page: pageIdx, error: error.message });
+                logger.error('adminUserList: error listing auth users', {
+                    page: pageIdx,
+                    error: error.message,
+                });
                 break; // fall back to whatever we've collected so far
             }
             const users = data?.users || [];
             for (const u of users) {
                 if (targetIds.has(u.id)) {
                     authInfoById.set(u.id, {
-                        email_confirmed_at: (u as any).email_confirmed_at ?? null,
-                        confirmation_sent_at: (u as any).confirmation_sent_at ?? null,
+                        email_confirmed_at:
+                            (u as any).email_confirmed_at ?? null,
+                        confirmation_sent_at:
+                            (u as any).confirmation_sent_at ?? null,
                         confirmed_at: (u as any).confirmed_at ?? null,
                     });
                 }
@@ -161,7 +187,7 @@ export const adminUserList = async (page?: number, pageSize?: number) => {
                 page: currentPage,
                 pageSize: currentPageSize,
                 totalPages: Math.ceil(total / currentPageSize),
-            }
+            },
         };
     } catch (error) {
         const e = error as Error;
@@ -194,7 +220,7 @@ export const adminUserListAll = async () => {
             data: {
                 users: activeUsers,
                 total: activeUsers.length,
-            }
+            },
         };
     } catch (error) {
         const e = error as Error;
@@ -210,7 +236,10 @@ export const adminUserDeleteById = async (id: string) => {
         const { data, error } = await supabaseAdmin.auth.admin.deleteUser(id);
 
         if (error) {
-            logger.error('Error deleting user:', { userId: id, error: error.message });
+            logger.error('Error deleting user:', {
+                userId: id,
+                error: error.message,
+            });
             return { success: false, error: error.message };
         }
 
@@ -247,7 +276,8 @@ export const adminUserDetailsWithProfileById = async (id: string) => {
         const supabaseAdmin = createAdminSupabaseClient();
 
         // Get user details
-        const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(id);
+        const { data: userData, error: userError } =
+            await supabaseAdmin.auth.admin.getUserById(id);
         if (userError) {
             return { success: false, error: userError.message };
         }
@@ -260,15 +290,18 @@ export const adminUserDetailsWithProfileById = async (id: string) => {
             .limit(1);
 
         if (profileData.length === 0) {
-            return { success: false, error: 'User not found or has been deleted' };
+            return {
+                success: false,
+                error: 'User not found or has been deleted',
+            };
         }
 
         return {
             success: true,
             data: {
                 ...userData,
-                profile: profileData[0]
-            }
+                profile: profileData[0],
+            },
         };
     } catch (error) {
         const e = error as Error;
@@ -282,7 +315,8 @@ export const adminUserDetailsWithEnrollmentsById = async (id: string) => {
         const supabaseAdmin = createAdminSupabaseClient();
 
         // Get user details
-        const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(id);
+        const { data: userData, error: userError } =
+            await supabaseAdmin.auth.admin.getUserById(id);
         if (userError) {
             return { success: false, error: userError.message };
         }
@@ -309,8 +343,8 @@ export const adminUserDetailsWithEnrollmentsById = async (id: string) => {
             success: true,
             data: {
                 ...userData,
-                enrollments: userEnrollments
-            }
+                enrollments: userEnrollments,
+            },
         };
     } catch (error) {
         const e = error as Error;
@@ -324,7 +358,8 @@ export const adminUserDetailsWithPaymentsById = async (id: string) => {
         const supabaseAdmin = createAdminSupabaseClient();
 
         // Get user details
-        const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(id);
+        const { data: userData, error: userError } =
+            await supabaseAdmin.auth.admin.getUserById(id);
         if (userError) {
             return { success: false, error: userError.message };
         }
@@ -351,8 +386,8 @@ export const adminUserDetailsWithPaymentsById = async (id: string) => {
             success: true,
             data: {
                 ...userData,
-                payments: userPayments
-            }
+                payments: userPayments,
+            },
         };
     } catch (error) {
         const e = error as Error;
@@ -366,7 +401,8 @@ export const adminUserDetailsWithRefundsById = async (id: string) => {
         const supabaseAdmin = createAdminSupabaseClient();
 
         // Get user details
-        const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(id);
+        const { data: userData, error: userError } =
+            await supabaseAdmin.auth.admin.getUserById(id);
         if (userError) {
             return { success: false, error: userError.message };
         }
@@ -394,8 +430,8 @@ export const adminUserDetailsWithRefundsById = async (id: string) => {
             success: true,
             data: {
                 ...userData,
-                refunds: userRefunds
-            }
+                refunds: userRefunds,
+            },
         };
     } catch (error) {
         const e = error as Error;
@@ -409,7 +445,8 @@ export const adminUserDetailsWithAllById = async (id: string) => {
         const supabaseAdmin = createAdminSupabaseClient();
 
         // Get user details
-        const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(id);
+        const { data: userData, error: userError } =
+            await supabaseAdmin.auth.admin.getUserById(id);
         if (userError) {
             return { success: false, error: userError.message };
         }
@@ -456,7 +493,10 @@ export const adminUserDetailsWithAllById = async (id: string) => {
                     course_id: courses.id,
                 })
                 .from(payments)
-                .leftJoin(enrollments, eq(payments.enrollment_id, enrollments.id))
+                .leftJoin(
+                    enrollments,
+                    eq(payments.enrollment_id, enrollments.id)
+                )
                 .leftJoin(intakes, eq(enrollments.intake_id, intakes.id))
                 .leftJoin(courses, eq(intakes.course_id, courses.id))
                 .where(eq(enrollments.user_id, id)),
@@ -474,10 +514,13 @@ export const adminUserDetailsWithAllById = async (id: string) => {
                 })
                 .from(refunds)
                 .leftJoin(payments, eq(refunds.payment_id, payments.id))
-                .leftJoin(enrollments, eq(payments.enrollment_id, enrollments.id))
+                .leftJoin(
+                    enrollments,
+                    eq(payments.enrollment_id, enrollments.id)
+                )
                 .leftJoin(intakes, eq(enrollments.intake_id, intakes.id))
                 .leftJoin(courses, eq(intakes.course_id, courses.id))
-                .where(eq(enrollments.user_id, id))
+                .where(eq(enrollments.user_id, id)),
         ]);
 
         return {
@@ -487,8 +530,8 @@ export const adminUserDetailsWithAllById = async (id: string) => {
                 profile: profileData,
                 enrollments: userEnrollments,
                 payments: userPayments,
-                refunds: userRefunds
-            }
+                refunds: userRefunds,
+            },
         };
     } catch (error) {
         const e = error as Error;
@@ -502,7 +545,8 @@ export const adminUserAnalyticsById = async (id: string) => {
         const supabaseAdmin = createAdminSupabaseClient();
 
         // Get user details
-        const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(id);
+        const { data: userData, error: userError } =
+            await supabaseAdmin.auth.admin.getUserById(id);
         if (userError) {
             return { success: false, error: userError.message };
         }
@@ -524,10 +568,18 @@ export const adminUserAnalyticsById = async (id: string) => {
             db
                 .select({
                     total: count(),
-                    requested: count(sql`CASE WHEN ${enrollments.status} = 'requested' THEN 1 END`),
-                    enrolled: count(sql`CASE WHEN ${enrollments.status} = 'enrolled' THEN 1 END`),
-                    completed: count(sql`CASE WHEN ${enrollments.status} = 'completed' THEN 1 END`),
-                    cancelled: count(sql`CASE WHEN ${enrollments.status} = 'cancelled' THEN 1 END`),
+                    requested: count(
+                        sql`CASE WHEN ${enrollments.status} = 'requested' THEN 1 END`
+                    ),
+                    enrolled: count(
+                        sql`CASE WHEN ${enrollments.status} = 'enrolled' THEN 1 END`
+                    ),
+                    completed: count(
+                        sql`CASE WHEN ${enrollments.status} = 'completed' THEN 1 END`
+                    ),
+                    cancelled: count(
+                        sql`CASE WHEN ${enrollments.status} = 'cancelled' THEN 1 END`
+                    ),
                 })
                 .from(enrollments)
                 .where(eq(enrollments.user_id, id)),
@@ -537,13 +589,24 @@ export const adminUserAnalyticsById = async (id: string) => {
                 .select({
                     total: count(),
                     totalAmount: sum(payments.amount),
-                    pending: count(sql`CASE WHEN ${payments.status} = 'pending' THEN 1 END`),
-                    completed: count(sql`CASE WHEN ${payments.status} = 'completed' THEN 1 END`),
-                    failed: count(sql`CASE WHEN ${payments.status} = 'failed' THEN 1 END`),
-                    cancelled: count(sql`CASE WHEN ${payments.status} = 'cancelled' THEN 1 END`),
+                    pending: count(
+                        sql`CASE WHEN ${payments.status} = 'pending' THEN 1 END`
+                    ),
+                    completed: count(
+                        sql`CASE WHEN ${payments.status} = 'completed' THEN 1 END`
+                    ),
+                    failed: count(
+                        sql`CASE WHEN ${payments.status} = 'failed' THEN 1 END`
+                    ),
+                    cancelled: count(
+                        sql`CASE WHEN ${payments.status} = 'cancelled' THEN 1 END`
+                    ),
                 })
                 .from(payments)
-                .leftJoin(enrollments, eq(payments.enrollment_id, enrollments.id))
+                .leftJoin(
+                    enrollments,
+                    eq(payments.enrollment_id, enrollments.id)
+                )
                 .where(eq(enrollments.user_id, id)),
 
             // Refund statistics
@@ -554,8 +617,11 @@ export const adminUserAnalyticsById = async (id: string) => {
                 })
                 .from(refunds)
                 .leftJoin(payments, eq(refunds.payment_id, payments.id))
-                .leftJoin(enrollments, eq(payments.enrollment_id, enrollments.id))
-                .where(eq(enrollments.user_id, id))
+                .leftJoin(
+                    enrollments,
+                    eq(payments.enrollment_id, enrollments.id)
+                )
+                .where(eq(enrollments.user_id, id)),
         ]);
 
         return {
@@ -583,12 +649,15 @@ export const adminUserAnalyticsById = async (id: string) => {
                         total: 0,
                         totalAmount: 0,
                     },
-                }
-            }
+                },
+            },
         };
     } catch (error) {
         const e = error as Error;
-        logger.error('Error fetching user analytics:', { userId: id, error: e.message });
+        logger.error('Error fetching user analytics:', {
+            userId: id,
+            error: e.message,
+        });
         return { success: false, error: e.message };
     }
 };
@@ -608,10 +677,11 @@ export const adminUserUpdateById = async (id: string, formData: FormData) => {
         }
 
         // Update user metadata
-        const { data: userData, error: userError } = await supabaseAdmin.auth.admin.updateUserById(id, {
-            email,
-            user_metadata: { full_name, phone, role },
-        });
+        const { data: userData, error: userError } =
+            await supabaseAdmin.auth.admin.updateUserById(id, {
+                email,
+                user_metadata: { full_name, phone, role },
+            });
 
         if (userError) {
             return { success: false, error: userError.message };
@@ -654,9 +724,19 @@ export const adminUserUpdateById = async (id: string, formData: FormData) => {
 export const cachedAdminUserList = cache(adminUserList);
 export const cachedAdminUserListAll = cache(adminUserListAll);
 export const cachedAdminUserDetailsById = cache(adminUserDetailsById);
-export const cachedAdminUserDetailsWithProfileById = cache(adminUserDetailsWithProfileById);
-export const cachedAdminUserDetailsWithEnrollmentsById = cache(adminUserDetailsWithEnrollmentsById);
-export const cachedAdminUserDetailsWithPaymentsById = cache(adminUserDetailsWithPaymentsById);
-export const cachedAdminUserDetailsWithRefundsById = cache(adminUserDetailsWithRefundsById);
-export const cachedAdminUserDetailsWithAllById = cache(adminUserDetailsWithAllById);
+export const cachedAdminUserDetailsWithProfileById = cache(
+    adminUserDetailsWithProfileById
+);
+export const cachedAdminUserDetailsWithEnrollmentsById = cache(
+    adminUserDetailsWithEnrollmentsById
+);
+export const cachedAdminUserDetailsWithPaymentsById = cache(
+    adminUserDetailsWithPaymentsById
+);
+export const cachedAdminUserDetailsWithRefundsById = cache(
+    adminUserDetailsWithRefundsById
+);
+export const cachedAdminUserDetailsWithAllById = cache(
+    adminUserDetailsWithAllById
+);
 export const cachedAdminUserAnalyticsById = cache(adminUserAnalyticsById);

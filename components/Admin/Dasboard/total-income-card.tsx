@@ -6,7 +6,11 @@ import { useAdminDashboardTotalIncome } from '@/hooks/admin/dashboard';
 import { DashboardCardSkeleton } from '.';
 
 function TotalIncomeCard() {
-    const { data: queryResult, error, isLoading } = useAdminDashboardTotalIncome();
+    const {
+        data: queryResult,
+        error,
+        isLoading,
+    } = useAdminDashboardTotalIncome();
     const totalIncome = queryResult.data;
     if (error) {
         toast.error(error.message);

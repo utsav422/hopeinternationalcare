@@ -33,7 +33,8 @@ export default function Hero() {
                     transition={{ duration: 0.5, delay: 0.2 }}
                     variants={variants}
                 >
-                    Hope International Aged Care Training And Elderly Care Center
+                    Hope International Aged Care Training And Elderly Care
+                    Center
                 </motion.h1>
 
                 {/* Subtitle */}
@@ -43,8 +44,8 @@ export default function Hero() {
                     variants={variants}
                 >
                     We offer courses from level 1 to level 5 where we provide
-                    theoretical and practical classes. Hurry up! Only limited seats are
-                    available.
+                    theoretical and practical classes. Hurry up! Only limited
+                    seats are available.
                 </motion.p>
 
                 {/* Button with Link Component */}
@@ -67,7 +68,6 @@ export default function Hero() {
                     </div>
                 </motion.div>
             </motion.div>
-
         </div>
     );
 }

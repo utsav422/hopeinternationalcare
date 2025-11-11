@@ -1,16 +1,9 @@
-"use client"
+'use client';
 
-import {  type Icon, IconChevronRight } from "@tabler/icons-react"
-import {
-    IconDotsVertical,
-    IconLogout
-} from "@tabler/icons-react"
+import { type Icon, IconChevronRight } from '@tabler/icons-react';
+import { IconDotsVertical, IconLogout } from '@tabler/icons-react';
 
-import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -19,11 +12,9 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-    useSidebar,
-} from "@/components/ui/sidebar"
-import { SidebarFooter } from "@/components/ui/sidebar";
+} from '@/components/ui/dropdown-menu';
+import { useSidebar } from '@/components/ui/sidebar';
+import { SidebarFooter } from '@/components/ui/sidebar';
 import {
     Sidebar,
     SidebarContent,
@@ -41,11 +32,15 @@ import {
 } from '@/components/ui/sidebar';
 import { signOutAction } from '@/lib/server-actions/admin/admin-auth-actions';
 import { IconInnerShadowTop } from '@tabler/icons-react';
-import { ThemeSwitcher } from "@/components/theme-switcher"
-import {usePathname, useRouter} from "next/navigation"
-import { toast } from "sonner"
-import { useState } from "react"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { ThemeSwitcher } from '@/components/theme-switcher';
+import { usePathname, useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { useState } from 'react';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 
 type SubNavItem = {
     title: string;
@@ -62,13 +57,13 @@ type NavMainItem = {
 };
 
 export function AdminAppSidebar({
-                                    ...props
-                                }: React.ComponentProps<typeof Sidebar>) {
+    ...props
+}: React.ComponentProps<typeof Sidebar>) {
     const data = {
         user: {
-            name: "Aaasha Bhattarai",
-            email: "bhattaraiaasha3739@gmail.com",
-            avatar: "/image/admin-avatar.png",
+            name: 'Aaasha Bhattarai',
+            email: 'bhattaraiaasha3739@gmail.com',
+            avatar: '/image/admin-avatar.png',
         },
         navMain: [
             {
@@ -140,14 +135,12 @@ export function AdminAppSidebar({
                         icon: undefined,
                         isActive: false,
                     },
-
                 ],
             },
         ],
     };
     return (
         <Sidebar collapsible="offcanvas" {...props}>
-
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -157,7 +150,9 @@ export function AdminAppSidebar({
                         >
                             <a href="#">
                                 <IconInnerShadowTop className="!size-5" />
-                                <span className="text-base font-semibold">Hope Internation Care ORG.</span>
+                                <span className="text-base font-semibold">
+                                    Hope Internation Care ORG.
+                                </span>
                             </a>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -173,26 +168,27 @@ export function AdminAppSidebar({
     );
 }
 
-
-function NavMain({items}: {
+function NavMain({
+    items,
+}: {
     items: {
-        title: string
-        url: string
-        icon?: Icon
-        isActive: boolean
+        title: string;
+        url: string;
+        icon?: Icon;
+        isActive: boolean;
         sub_items?: {
-            title: string
-            url: string
-            icon?: Icon
-            isActive: boolean
+            title: string;
+            url: string;
+            icon?: Icon;
+            isActive: boolean;
             sub_items?: {
-                title: string
-                url: string
-                icon?: Icon
-                isActive: boolean
-            }[]
-        }[]
-    }[]
+                title: string;
+                url: string;
+                icon?: Icon;
+                isActive: boolean;
+            }[];
+        }[];
+    }[];
 }) {
     const [openItems, setOpenItems] = useState<string[]>([]);
     const pathname = usePathname();
@@ -208,104 +204,138 @@ function NavMain({items}: {
     const isActiveUrl = (url?: string) => {
         if (!url) return false;
         if (!pathname) return false;
-        return pathname === url
+        return pathname === url;
     };
 
-    return (<>
-        {items.map((item) => (
-            <SidebarGroup key={item.title}>
-                <SidebarGroupLabel className="">
-                    {item.title}
-                </SidebarGroupLabel>
-                <SidebarGroupContent>
-                    <SidebarMenu>
-                        {item.sub_items?.map((subNavItem) => {
-                            const hasChildren = !!(subNavItem.sub_items && subNavItem.sub_items.length > 0);
-                            const selfActive = isActiveUrl(subNavItem.url);
-                            const childActive = hasChildren ? subNavItem.sub_items!.some((n) => isActiveUrl(n.url)) : false;
-                            const parentActive = selfActive || childActive;
-                            const isOpen = parentActive || openItems.includes(subNavItem.title);
+    return (
+        <>
+            {items.map(item => (
+                <SidebarGroup key={item.title}>
+                    <SidebarGroupLabel className="">
+                        {item.title}
+                    </SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            {item.sub_items?.map(subNavItem => {
+                                const hasChildren = !!(
+                                    subNavItem.sub_items &&
+                                    subNavItem.sub_items.length > 0
+                                );
+                                const selfActive = isActiveUrl(subNavItem.url);
+                                const childActive = hasChildren
+                                    ? subNavItem.sub_items!.some(n =>
+                                          isActiveUrl(n.url)
+                                      )
+                                    : false;
+                                const parentActive = selfActive || childActive;
+                                const isOpen =
+                                    parentActive ||
+                                    openItems.includes(subNavItem.title);
 
-                            return (
-                                <SidebarMenuItem key={subNavItem.title}>
-                                    {hasChildren ? (
-                                        <Collapsible
-                                            open={isOpen}
-                                            onOpenChange={() => toggleItem(subNavItem.title)}
-                                        >
-                                            <CollapsibleTrigger asChild>
-                                                <SidebarMenuButton className="capitalize" isActive={parentActive}>
+                                return (
+                                    <SidebarMenuItem key={subNavItem.title}>
+                                        {hasChildren ? (
+                                            <Collapsible
+                                                open={isOpen}
+                                                onOpenChange={() =>
+                                                    toggleItem(subNavItem.title)
+                                                }
+                                            >
+                                                <CollapsibleTrigger asChild>
+                                                    <SidebarMenuButton
+                                                        className="capitalize"
+                                                        isActive={parentActive}
+                                                    >
+                                                        {subNavItem.title}
+                                                        <IconChevronRight
+                                                            className={`ml-auto h-4 w-4 transition-transform ${isOpen ? 'rotate-90' : ''}`}
+                                                        />
+                                                    </SidebarMenuButton>
+                                                </CollapsibleTrigger>
+                                                <CollapsibleContent>
+                                                    <SidebarMenuSub>
+                                                        {subNavItem.sub_items!.map(
+                                                            nestedItem => {
+                                                                const nestedActive =
+                                                                    isActiveUrl(
+                                                                        nestedItem.url
+                                                                    );
+                                                                return (
+                                                                    <SidebarMenuSubItem
+                                                                        key={
+                                                                            nestedItem.title
+                                                                        }
+                                                                    >
+                                                                        <SidebarMenuSubButton
+                                                                            asChild
+                                                                            isActive={
+                                                                                nestedActive
+                                                                            }
+                                                                        >
+                                                                            <a
+                                                                                className="capitalize"
+                                                                                href={
+                                                                                    nestedItem.url
+                                                                                }
+                                                                            >
+                                                                                {
+                                                                                    nestedItem.title
+                                                                                }
+                                                                            </a>
+                                                                        </SidebarMenuSubButton>
+                                                                    </SidebarMenuSubItem>
+                                                                );
+                                                            }
+                                                        )}
+                                                    </SidebarMenuSub>
+                                                </CollapsibleContent>
+                                            </Collapsible>
+                                        ) : (
+                                            <SidebarMenuButton
+                                                asChild
+                                                isActive={selfActive}
+                                            >
+                                                <a
+                                                    className="capitalize"
+                                                    href={subNavItem.url}
+                                                >
                                                     {subNavItem.title}
-                                                    <IconChevronRight
-                                                        className={`ml-auto h-4 w-4 transition-transform ${isOpen ? 'rotate-90' : ''}`}
-                                                    />
-                                                </SidebarMenuButton>
-                                            </CollapsibleTrigger>
-                                            <CollapsibleContent>
-                                                <SidebarMenuSub>
-                                                    {subNavItem.sub_items!.map((nestedItem) => {
-                                                        const nestedActive = isActiveUrl(nestedItem.url);
-                                                        return (
-                                                            <SidebarMenuSubItem key={nestedItem.title}>
-                                                                <SidebarMenuSubButton
-                                                                    asChild
-                                                                    isActive={nestedActive}
-                                                                >
-                                                                    <a className="capitalize" href={nestedItem.url}>
-                                                                        {nestedItem.title}
-                                                                    </a>
-                                                                </SidebarMenuSubButton>
-                                                            </SidebarMenuSubItem>
-                                                        );
-                                                    })}
-                                                </SidebarMenuSub>
-                                            </CollapsibleContent>
-                                        </Collapsible>
-                                    ) : (
-                                        <SidebarMenuButton
-                                            asChild
-                                            isActive={selfActive}
-                                        >
-                                            <a className="capitalize" href={subNavItem.url}>
-                                                {subNavItem.title}
-                                            </a>
-                                        </SidebarMenuButton>
-                                    )}
-                                </SidebarMenuItem>
-                            );
-                        })}
-                    </SidebarMenu>
-                </SidebarGroupContent>
-            </SidebarGroup>
-        ))}
-    </>)
+                                                </a>
+                                            </SidebarMenuButton>
+                                        )}
+                                    </SidebarMenuItem>
+                                );
+                            })}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+            ))}
+        </>
+    );
 }
 
-
-
-
 export function NavUser({
-                            user,
-                        }: {
+    user,
+}: {
     user: {
-        name: string
-        email: string
-        avatar: string
-    }
+        name: string;
+        email: string;
+        avatar: string;
+    };
 }) {
-    const { isMobile } = useSidebar()
+    const { isMobile } = useSidebar();
     const router = useRouter();
     const handleApplicationSignOut = async () => {
         const { error, message, success } = await signOutAction();
         if (!success && error) {
-            toast.error(error)
+            toast.error(error);
         } else {
             toast.success(message);
             router.push('/admin-auth/sign-in', {
-                scroll: false
-            })
+                scroll: false,
+            });
         }
-    }
+    };
     return (
         <SidebarMenu>
             <SidebarMenuItem>
@@ -316,11 +346,18 @@ export function NavUser({
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
                             <Avatar className="h-8 w-8 rounded-lg grayscale">
-                                <AvatarImage src={user.avatar} alt={user.name} />
-                                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                                <AvatarImage
+                                    src={user.avatar}
+                                    alt={user.name}
+                                />
+                                <AvatarFallback className="rounded-lg">
+                                    CN
+                                </AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-medium">{user.name}</span>
+                                <span className="truncate font-medium">
+                                    {user.name}
+                                </span>
                                 <span className="text-muted-foreground truncate text-xs">
                                     {user.email}
                                 </span>
@@ -330,18 +367,25 @@ export function NavUser({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                         className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-                        side={isMobile ? "bottom" : "right"}
+                        side={isMobile ? 'bottom' : 'right'}
                         align="end"
                         sideOffset={4}
                     >
                         <DropdownMenuLabel className="p-0 font-normal">
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <Avatar className="h-8 w-8 rounded-lg">
-                                    <AvatarImage src={user.avatar} alt={user.name} />
-                                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                                    <AvatarImage
+                                        src={user.avatar}
+                                        alt={user.name}
+                                    />
+                                    <AvatarFallback className="rounded-lg">
+                                        CN
+                                    </AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-medium">{user.name}</span>
+                                    <span className="truncate font-medium">
+                                        {user.name}
+                                    </span>
                                     <span className="text-muted-foreground truncate text-xs">
                                         {user.email}
                                     </span>
@@ -356,15 +400,15 @@ export function NavUser({
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                            onClick={handleApplicationSignOut} className="text-red-600"
+                            onClick={handleApplicationSignOut}
+                            className="text-red-600"
                         >
-
                             <IconLogout className="text-red-600" />
                             Logout
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>
-        </SidebarMenu >
-    )
+        </SidebarMenu>
+    );
 }

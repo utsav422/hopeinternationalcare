@@ -34,29 +34,6 @@ const DotMap = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
-    const routes: { start: RoutePoint; end: RoutePoint; color: string }[] = [
-        {
-            start: { x: 100, y: 150, delay: 0 },
-            end: { x: 200, y: 80, delay: 2 },
-            color: '#14B8A6',
-        },
-        {
-            start: { x: 200, y: 80, delay: 2 },
-            end: { x: 260, y: 120, delay: 4 },
-            color: '#14B8A6',
-        },
-        {
-            start: { x: 50, y: 50, delay: 1 },
-            end: { x: 150, y: 180, delay: 3 },
-            color: '#14B8A6',
-        },
-        {
-            start: { x: 280, y: 60, delay: 0.5 },
-            end: { x: 180, y: 180, delay: 2.5 },
-            color: '#14B8A6',
-        },
-    ];
-
     const generateDots = useCallback((width: number, height: number) => {
         const dots: DOT[] = [];
         const gap = 12;
@@ -109,7 +86,7 @@ const DotMap = () => {
             return;
         }
 
-        const resizeObserver = new ResizeObserver((entries) => {
+        const resizeObserver = new ResizeObserver(entries => {
             const { width, height } = entries[0].contentRect;
             setDimensions({ width, height });
             canvas.width = width;
@@ -135,6 +112,31 @@ const DotMap = () => {
             return;
         }
 
+        // Define routes inside the effect to avoid dependency issues
+        const routes: { start: RoutePoint; end: RoutePoint; color: string }[] =
+            [
+                {
+                    start: { x: 100, y: 150, delay: 0 },
+                    end: { x: 200, y: 80, delay: 2 },
+                    color: '#14B8A6',
+                },
+                {
+                    start: { x: 200, y: 80, delay: 2 },
+                    end: { x: 260, y: 120, delay: 4 },
+                    color: '#14B8A6',
+                },
+                {
+                    start: { x: 50, y: 50, delay: 1 },
+                    end: { x: 150, y: 180, delay: 3 },
+                    color: '#14B8A6',
+                },
+                {
+                    start: { x: 280, y: 60, delay: 0.5 },
+                    end: { x: 180, y: 180, delay: 2.5 },
+                    color: '#14B8A6',
+                },
+            ];
+
         const dots = generateDots(dimensions.width, dimensions.height);
         let animationFrameId: number;
         let startTime = Date.now();
@@ -147,7 +149,7 @@ const DotMap = () => {
             for (const dot of dots) {
                 ctx.beginPath();
                 ctx.arc(dot.x, dot.y, dot.radius ?? 1, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(20, 184, 166, ${dot.opacity ?? 0.5})`;
+                ctx.fillStyle = `rgba(20, 184, 16, ${dot.opacity ?? 0.5})`;
                 ctx.fill();
             }
         }
@@ -167,8 +169,10 @@ const DotMap = () => {
                 const duration = 3;
                 const progress = Math.min(elapsed / duration, 1);
 
-                const x = route.start.x + (route.end.x - route.start.x) * progress;
-                const y = route.start.y + (route.end.y - route.start.y) * progress;
+                const x =
+                    route.start.x + (route.end.x - route.start.x) * progress;
+                const y =
+                    route.start.y + (route.end.y - route.start.y) * progress;
 
                 ctx.beginPath();
                 ctx.moveTo(route.start.x, route.start.y);
@@ -220,24 +224,25 @@ const DotMap = () => {
 
     return (
         <div className="relative h-full w-full overflow-hidden">
-            <canvas className="absolute inset-0 h-full w-full" ref={canvasRef} />
+            <canvas
+                className="absolute inset-0 h-full w-full"
+                ref={canvasRef}
+            />
         </div>
     );
 };
 
 const SignUpClientComponent = () => {
-    const searchParams = useSearchParams()
+    const searchParams = useSearchParams();
     const router = useRouter();
-    const error = searchParams?.getAll('error')
+    const error = searchParams?.getAll('error');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-    const { mutateAsync: userSignUpAsync } = useUserSignUp()
+    const { mutateAsync: userSignUpAsync } = useUserSignUp();
     // Display error message from URL parameter as toast
     useEffect(() => {
         if (error && error.length > 0) {
-            const errorMessage = Array.isArray(error)
-                ? error[0]
-                : error;
+            const errorMessage = Array.isArray(error) ? error[0] : error;
             toast.error(decodeURIComponent(errorMessage));
         }
     }, [error]);
@@ -261,7 +266,7 @@ const SignUpClientComponent = () => {
         },
     });
 
-    const onSubmit = form.handleSubmit(async (data) => {
+    const onSubmit = form.handleSubmit(async data => {
         const formData = new FormData();
         formData.set('full_name', data.full_name);
         formData.set('phone', data.phone);
@@ -269,20 +274,29 @@ const SignUpClientComponent = () => {
         formData.set('password', data.password);
         toast.promise(userSignUpAsync(formData), {
             loading: 'Registering user details...',
-            success: (results: { success: boolean; message: string, data?: { user: User } }) => {
-                if (results?.success && results?.message && results?.data?.user) {
+            success: (results: {
+                success: boolean;
+                message: string;
+                data?: { user: User };
+            }) => {
+                if (
+                    results?.success &&
+                    results?.message &&
+                    results?.data?.user
+                ) {
                     router.push('/users/profile');
                     return results?.message;
                 }
-                return 'Failed to register user'
+                return 'Failed to register user';
             },
-            error: (error: Error) => { return error.message || 'Failed to register user' },
+            error: (error: Error) => {
+                return error.message || 'Failed to register user';
+            },
         });
-
     });
 
     return (
-        <div className="flex min-h-screen w-full items-center justify-center bg-gray-100 p-4 dark:bg-gray-900">
+        <div className="flex min-h-screen w-full items-center justify-center bg-gray-10 p-4 dark:bg-gray-900">
             <div className="flex h-full w-full items-center justify-center">
                 <motion.div
                     animate={{ opacity: 1, scale: 1 }}
@@ -290,7 +304,7 @@ const SignUpClientComponent = () => {
                     initial={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.5 }}
                 >
-                    <div className="relative order-2 hidden h-[667px] w-1/2 overflow-hidden border-gray-200 border-r md:block dark:border-gray-700">
+                    <div className="relative order-2 hidden h-[667px] w-1/2 overflow-hidden border-gray-20 border-r md:block dark:border-gray-700">
                         <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-blue-100 dark:from-teal-900/50 dark:to-blue-900/50">
                             <DotMap />
                             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-8 text-center">
@@ -309,7 +323,10 @@ const SignUpClientComponent = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         className="mb-2 inline-block bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text font-bold text-3xl text-transparent dark:from-teal-400 dark:to-teal-300"
                                         initial={{ opacity: 0, y: -20 }}
-                                        transition={{ delay: 0.7, duration: 0.5 }}
+                                        transition={{
+                                            delay: 0.7,
+                                            duration: 0.5,
+                                        }}
                                     >
                                         Hope
                                     </motion.span>
@@ -317,18 +334,22 @@ const SignUpClientComponent = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         className="mb-2 inline-block bg-gradient-to-r from-blue-600 to-blue-500/80 bg-clip-text font-bold text-3xl text-transparent dark:from-blue-400 dark:to-blue-300/80"
                                         initial={{ opacity: 0, y: -20 }}
-                                        transition={{ delay: 0.7, duration: 0.5 }}
+                                        transition={{
+                                            delay: 0.7,
+                                            duration: 0.5,
+                                        }}
                                     >
                                         International Care
                                     </motion.span>
                                 </h2>
                                 <motion.p
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="max-w-xs text-gray-600 text-sm "
+                                    className="max-w-xs text-gray-60 text-sm "
                                     initial={{ opacity: 0, y: -20 }}
                                     transition={{ delay: 0.8, duration: 0.5 }}
                                 >
-                                    Sign up to create your account and access our services.
+                                    Sign up to create your account and access
+                                    our services.
                                 </motion.p>
                             </div>
                         </div>
@@ -409,7 +430,8 @@ const SignUpClientComponent = () => {
                                                     />
                                                 </FormControl>
                                                 <FormDescription className="dark:text-gray-500">
-                                                    We'll never share your email.
+                                                    We'll never share your
+                                                    email.
                                                 </FormDescription>
                                                 <FormMessage />
                                             </FormItem>
@@ -431,20 +453,30 @@ const SignUpClientComponent = () => {
                                                             className="pr-10 dark:border-gray-600 dark:bg-gray-700  dark:placeholder:text-gray-500"
                                                             placeholder="Enter your password"
                                                             required
-                                                            type={isPasswordVisible ? 'text' : 'password'}
+                                                            type={
+                                                                isPasswordVisible
+                                                                    ? 'text'
+                                                                    : 'password'
+                                                            }
                                                         />
                                                         <Button
-                                                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:bg-transparent hover:text-gray-700  dark:hover:text-gray-200"
+                                                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:bg-transparent hover:text-gray-700 dark:hover:text-gray-200"
                                                             onClick={() =>
-                                                                setIsPasswordVisible(!isPasswordVisible)
+                                                                setIsPasswordVisible(
+                                                                    !isPasswordVisible
+                                                                )
                                                             }
                                                             type="button"
                                                             variant="ghost"
                                                         >
                                                             {isPasswordVisible ? (
-                                                                <EyeOff size={18} />
+                                                                <EyeOff
+                                                                    size={18}
+                                                                />
                                                             ) : (
-                                                                <Eye size={18} />
+                                                                <Eye
+                                                                    size={18}
+                                                                />
                                                             )}
                                                         </Button>
                                                     </div>
@@ -479,8 +511,13 @@ const SignUpClientComponent = () => {
                                                     animate={{ left: '100%' }}
                                                     className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-transparent via-white/30 to-transparent"
                                                     initial={{ left: '-100%' }}
-                                                    style={{ filter: 'blur(8px)' }}
-                                                    transition={{ duration: 1, ease: 'easeInOut' }}
+                                                    style={{
+                                                        filter: 'blur(8px)',
+                                                    }}
+                                                    transition={{
+                                                        duration: 1,
+                                                        ease: 'easeInOut',
+                                                    }}
                                                 />
                                             )}
                                         </Button>

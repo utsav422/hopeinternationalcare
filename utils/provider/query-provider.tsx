@@ -7,16 +7,18 @@ import type { ReactNode } from 'react';
 import { getQueryClient } from '../get-query-client';
 
 interface QueryProviderProps {
-  children: ReactNode;
+    children: ReactNode;
 }
 
 export function QueryProvider({ children }: QueryProviderProps) {
-  const queryClient = getQueryClient();
+    const queryClient = getQueryClient();
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <ReactQueryStreamedHydration>{children}</ReactQueryStreamedHydration>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
-  );
+    return (
+        <QueryClientProvider client={queryClient}>
+            <ReactQueryStreamedHydration>
+                {children}
+            </ReactQueryStreamedHydration>
+            <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+    );
 }

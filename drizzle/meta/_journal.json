@@ -1,27 +1,41 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1755767685877,
-      "tag": "0000_glorious_fabian_cortez",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1756047644835,
-      "tag": "0001_goofy_viper",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1757862470875,
-      "tag": "0002_nebulous_cyclops",
-      "breakpoints": true
-    }
-  ]
+    "version": "7",
+    "dialect": "postgresql",
+    "entries": [
+        {
+            "idx": 0,
+            "version": "7",
+            "when": 1755767685877,
+            "tag": "0000_glorious_fabian_cortez",
+            "breakpoints": true
+        },
+        {
+            "idx": 1,
+            "version": "7",
+            "when": 1756047644835,
+            "tag": "0001_goofy_viper",
+            "breakpoints": true
+        },
+        {
+            "idx": 2,
+            "version": "7",
+            "when": 1757862470875,
+            "tag": "0002_nebulous_cyclops",
+            "breakpoints": true
+        },
+        {
+            "idx": 3,
+            "version": "7",
+            "when": 1760198074739,
+            "tag": "0003_swift_slayback",
+            "breakpoints": true
+        },
+        {
+            "idx": 4,
+            "version": "7",
+            "when": 1760198535742,
+            "tag": "0004_previous_omega_flight",
+            "breakpoints": true
+        }
+    ]
 }

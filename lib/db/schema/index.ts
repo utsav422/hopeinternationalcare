@@ -10,4 +10,3 @@ export * from './intakes';
 export * from './payments';
 export * from './profiles';
 export * from './refunds';
-export * from './user-deletion-history';

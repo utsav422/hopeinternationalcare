@@ -1,5 +1,5 @@
 'use client';
-import {useMutation, useQuery} from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
     forgotPasswordAction,
     resetPasswordAction,
@@ -8,9 +8,9 @@ import {
     signOutAction,
     signUpAction,
 } from '@/lib/server-actions/user/user-auth-actions';
-import { 
-    getCurrentUserAction, 
-    requireUserAction 
+import {
+    getCurrentUserAction,
+    requireUserAction,
 } from '@/lib/server-actions/user/auth-checks';
 
 export const useUserSignUp = () => {
@@ -28,17 +28,18 @@ export const useUserSignUp = () => {
 export const useUserSignIn = () => {
     return useMutation({
         mutationFn: async (formData: FormData) => {
-            const result = await signInAction(formData);
-            if (!result.success) {
-                throw new Error(result.message);
-            }
-            // Check user authentication after sign in
             try {
+                const result = await signInAction(formData);
+                if (!result.success) {
+                    console.log('Sign-in failed:', result.message);
+                    throw new Error(result.message);
+                }
+                // Check user authentication after sign in
                 await requireUserAction();
-            } catch (error) {
-                throw new Error('Authentication failed');
+                return result;
+            } catch (error: any) {
+                throw new Error(error?.message ?? 'Authentication failed');
             }
-            return result;
         },
     });
 };
@@ -98,7 +99,11 @@ export const useGetSession = () => {
             try {
                 return await requireUserAction();
             } catch (error) {
-                throw new Error(error instanceof Error ? error.message : 'User not authenticated');
+                throw new Error(
+                    error instanceof Error
+                        ? error.message
+                        : 'User not authenticated'
+                );
             }
         },
         staleTime: 1000 * 60 * 5, // 5 minutes

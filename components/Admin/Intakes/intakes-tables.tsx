@@ -11,9 +11,12 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAdminIntakeDelete, useAdminIntakeList } from '@/hooks/admin/intakes';
+import {
+    useAdminIntakeDelete,
+    useAdminIntakeList,
+} from '@/hooks/admin/intakes-optimized';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
-import type { IntakeWithCourse } from '@/lib/server-actions/admin/intakes';
+import type { IntakeListItem } from '@/lib/types/intakes';
 import { DataTable } from '../../Custom/data-table';
 import { Button } from '../../ui/button';
 import { Skeleton } from '../../ui/skeleton';
@@ -30,10 +33,7 @@ function IntakesTableSkeleton() {
     );
 }
 
-type IntakeWithNestedCourse = Omit<
-    IntakeWithCourse,
-    'courseTitle' | 'coursePrice'
-> & {
+type IntakeWithNestedCourse = IntakeListItem & {
     course?: {
         title: string;
         price: number;
@@ -41,8 +41,6 @@ type IntakeWithNestedCourse = Omit<
 };
 
 export default function IntakesTables() {
-    const searchParams = useSearchParams();
-    const tab = searchParams.get('tab');
     const queryState = useDataTableQueryState();
 
     const { data: queryResult, error } = useAdminIntakeList({ ...queryState });
@@ -51,7 +49,8 @@ export default function IntakesTables() {
             description: error.message,
         });
     }
-    const data = queryResult?.data?.map((intake: IntakeWithNestedCourse) => ({
+    console.log('Intakes queryResult:', queryResult?.data);
+    const data = queryResult?.data?.data.map((intake: IntakeListItem) => ({
         ...intake,
         courseTitle: intake.course?.title,
         coursePrice: intake.course?.price,
@@ -59,11 +58,11 @@ export default function IntakesTables() {
     const { mutateAsync: deleteIntake } = useAdminIntakeDelete();
 
     const currentYear = new Date().getFullYear();
-    const currentIntakes = data?.filter((intake) => {
+    const currentIntakes = data?.filter((intake: any) => {
         return new Date(intake?.start_date).getFullYear() === currentYear;
     });
     const currentTotal = currentIntakes?.length ?? 0;
-    const historyIntakes = data?.filter((intake) => {
+    const historyIntakes = data?.filter((intake: any) => {
         return new Date(intake?.start_date).getFullYear() !== currentYear;
     });
     const historyTotal = historyIntakes?.length ?? 0;
@@ -72,28 +71,27 @@ export default function IntakesTables() {
         toast.promise(deleteIntake(id), {
             loading: 'Deleting intake...',
             success: 'Intake deleted successfully',
-            error: (error) => error instanceof Error ? error.message : 'Failed to delete intake',
+            error: error =>
+                error instanceof Error
+                    ? error.message
+                    : 'Failed to delete intake',
         });
     };
 
     const columns = [
         {
             accessorKey: 'courseTitle',
-            header: () => (
-                <div className=" ">Course Title</div>
-            ),
-            cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
+            header: () => <div className=" ">Course Title</div>,
+            cell: ({ row }: { row: { original: IntakeListItem } }) => (
                 <span className="text-gray-700 dark:text-gray-300">
-                    {row.original.courseTitle}
+                    {row.original.course?.title}
                 </span>
             ),
         },
         {
             accessorKey: 'start_date',
-            header: () => (
-                <div className=" ">Start Date</div>
-            ),
-            cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
+            header: () => <div className=" ">Start Date</div>,
+            cell: ({ row }: { row: { original: IntakeListItem } }) => (
                 <span className="text-gray-700 dark:text-gray-300">
                     {new Date(row.original.start_date).toLocaleDateString()}
                 </span>
@@ -101,10 +99,8 @@ export default function IntakesTables() {
         },
         {
             accessorKey: 'end_date',
-            header: () => (
-                <div className=" ">End Date</div>
-            ),
-            cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
+            header: () => <div className=" ">End Date</div>,
+            cell: ({ row }: { row: { original: IntakeListItem } }) => (
                 <span className="text-gray-700 dark:text-gray-300">
                     {new Date(row.original.end_date).toLocaleDateString()}
                 </span>
@@ -112,10 +108,8 @@ export default function IntakesTables() {
         },
         {
             accessorKey: 'capacity',
-            header: () => (
-                <div className=" ">Capacity</div>
-            ),
-            cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
+            header: () => <div className=" ">Capacity</div>,
+            cell: ({ row }: { row: { original: IntakeListItem } }) => (
                 <span className="text-gray-700 dark:text-gray-300">
                     {row.original.capacity}
                 </span>
@@ -123,21 +117,17 @@ export default function IntakesTables() {
         },
         {
             accessorKey: 'total_registered',
-            header: () => (
-                <div className=" ">Total Registered</div>
-            ),
-            cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
+            header: () => <div className=" ">Total Registered</div>,
+            cell: ({ row }: { row: { original: IntakeListItem } }) => (
                 <span className="text-gray-700 dark:text-gray-300">
-                    {row.original.total_registered}
+                    {row.original.enrollment_count}
                 </span>
             ),
         },
         {
             accessorKey: 'is_open',
-            header: () => (
-                <div className=" ">Is Open</div>
-            ),
-            cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
+            header: () => <div className=" ">Is Open</div>,
+            cell: ({ row }: { row: { original: IntakeListItem } }) => (
                 <span className="text-gray-700 dark:text-gray-300">
                     {row.original.is_open ? 'Yes' : 'No'}
                 </span>
@@ -145,13 +135,10 @@ export default function IntakesTables() {
         },
         {
             id: 'actions',
-            cell: ({ row }: { row: { original: IntakeWithCourse } }) => (
+            cell: ({ row }: { row: { original: IntakeListItem } }) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                        >
+                        <Button size="sm" variant="ghost">
                             ...
                         </Button>
                     </DropdownMenuTrigger>
@@ -172,12 +159,12 @@ export default function IntakesTables() {
                                 Edit
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem
+                        {/* <DropdownMenuItem
                             className="cursor-pointer text-red-600 dark:text-red-500 "
                             onClick={() => handleDelete(row.original.id)}
                         >
                             Delete
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                     </DropdownMenuContent>
                 </DropdownMenu>
             ),
@@ -186,18 +173,10 @@ export default function IntakesTables() {
 
     return (
         <Suspense fallback={<IntakesTableSkeleton />}>
-            <Tabs defaultValue={tab ?? 'current'}>
-                <TabsList className="/50">
-                    <TabsTrigger
-                        value="current"
-                    >
-                        Current Intakes
-                    </TabsTrigger>
-                    <TabsTrigger
-                        value="history"
-                    >
-                        History Intakes
-                    </TabsTrigger>
+            <Tabs defaultValue={'current'}>
+                <TabsList className="">
+                    <TabsTrigger value="current">Current Intakes</TabsTrigger>
+                    <TabsTrigger value="history">History Intakes</TabsTrigger>
                 </TabsList>
                 <TabsContent value="current">
                     <DataTable

@@ -1,7 +1,11 @@
 import { AnyColumn, SQL, sql } from 'drizzle-orm';
 import { affiliations } from '@/lib/db/schema/affiliations';
 import { courses } from '@/lib/db/schema/courses';
-import { buildFilterConditions, buildWhereClause, buildOrderByClause } from '@/lib/utils/query-utils';
+import {
+    buildFilterConditions,
+    buildWhereClause,
+    buildOrderByClause,
+} from '@/lib/utils/query-utils';
 import type { ColumnFiltersState } from '@tanstack/react-table';
 import { db } from '@/lib/db/drizzle';
 import { eq } from 'drizzle-orm';
@@ -59,7 +63,7 @@ export function buildAffiliationOrderByClause(
 /**
  * Calculates offset for pagination
  */
-export function calculateOffset(page: number, pageSize: number) {
+export function calculateAffiliationOffset(page: number, pageSize: number) {
     return (page - 1) * pageSize;
 }
 
@@ -116,13 +120,13 @@ export function validateAffiliationData(data: any) {
                 success: false,
                 error: error.message,
                 code: error.code,
-                details: error.details
+                details: error.details,
             };
         }
         return {
             success: false,
             error: 'Validation failed',
-            code: 'VALIDATION_ERROR'
+            code: 'VALIDATION_ERROR',
         };
     }
 }
@@ -136,7 +140,9 @@ export function validateAffiliationData(data: any) {
  * @param id - The affiliation ID to check
  * @returns Object with canDelete flag and courseCount
  */
-export async function checkAffiliationConstraints(id: string): Promise<{ canDelete: boolean; courseCount: number }> {
+export async function checkAffiliationConstraints(
+    id: string
+): Promise<{ canDelete: boolean; courseCount: number }> {
     try {
         const [{ count }] = await db
             .select({ count: sql<number>`count(*)` })
@@ -144,15 +150,15 @@ export async function checkAffiliationConstraints(id: string): Promise<{ canDele
             .where(eq(courses.affiliation_id, id));
 
         return {
-            canDelete: count === 0,
-            courseCount: count
+            canDelete: count.toString() === '0',
+            courseCount: count,
         };
     } catch (error) {
         console.error('Error checking affiliation constraints:', error);
         // In case of error, assume it cannot be deleted for safety
         return {
             canDelete: false,
-            courseCount: 0
+            courseCount: 0,
         };
     }
 }
@@ -167,7 +173,10 @@ export async function checkAffiliationConstraints(id: string): Promise<{ canDele
  * @param newType - New affiliation type
  * @returns boolean indicating if update is allowed
  */
-export function canUpdateAffiliationType(currentType: string, newType: string): boolean {
+export function canUpdateAffiliationType(
+    currentType: string,
+    newType: string
+): boolean {
     // For now, allow any type update
     // This could be extended with business rules if needed
     return true;

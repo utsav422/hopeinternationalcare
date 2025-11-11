@@ -12,14 +12,19 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAdminCustomerContactRequestUpdateStatusById } from '@/hooks/admin/customer-contact-requests';
+import { useAdminCustomerContactRequestUpdateStatus } from '@/hooks/admin/customer-contact-requests-optimized';
 import { CustomerContactReplyModal } from './customer-contact-reply-modal';
 import type { ZodCustomerContactRequestSelectType } from '@/lib/db/drizzle-zod-schema/customer-contact-requests';
+import { TypeContactRequestStatus } from '@/lib/types';
 
-const ActionsCell = ({ request }: { request: ZodCustomerContactRequestSelectType }) => {
-    const updateStatusMutation = useAdminCustomerContactRequestUpdateStatusById();
+const ActionsCell = ({
+    request,
+}: {
+    request: ZodCustomerContactRequestSelectType;
+}) => {
+    const updateStatusMutation = useAdminCustomerContactRequestUpdateStatus();
 
-    const handleStatusChange = (status: string) => {
+    const handleStatusChange = (status: TypeContactRequestStatus) => {
         updateStatusMutation.mutate({ id: request.id, status });
     };
 
@@ -44,13 +49,31 @@ const ActionsCell = ({ request }: { request: ZodCustomerContactRequestSelectType
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => handleStatusChange('pending')}>
+                    <DropdownMenuItem
+                        onClick={() =>
+                            handleStatusChange(
+                                'pending' as TypeContactRequestStatus
+                            )
+                        }
+                    >
                         Mark as Pending
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleStatusChange('resolved')}>
+                    <DropdownMenuItem
+                        onClick={() =>
+                            handleStatusChange(
+                                'resolved' as TypeContactRequestStatus
+                            )
+                        }
+                    >
                         Mark as Resolved
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleStatusChange('closed')}>
+                    <DropdownMenuItem
+                        onClick={() =>
+                            handleStatusChange(
+                                'closed' as TypeContactRequestStatus
+                            )
+                        }
+                    >
                         Mark as Closed
                     </DropdownMenuItem>
                 </DropdownMenuContent>

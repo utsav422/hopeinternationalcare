@@ -11,7 +11,7 @@ export default function NotFound() {
                 Page Not Found
             </h2>
             <p className="mb-8 text-gray-600 text-lg sm:text-xl ">
-                Sorry, we couldn't find the page you're looking for.
+                Sorry, we couldn&apos;t find the page you&apos;re looking for.
             </p>
             <Link href="/">
                 <Button className="rounded-full bg-teal-500 px-8 py-3 font-semibold text-lg text-white shadow-md transition-colors duration-300 hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800">

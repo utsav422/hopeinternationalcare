@@ -11,46 +11,47 @@ export type UserBase = InferSelectModel<typeof authUsers>;
 
 // Comprehensive joined data types
 export interface ProfileWithDetails {
-  profile: ProfileBase;
-  user: UserBase | null;
-  enrollments: EnrollmentBase[] | null;
-  payments: PaymentBase[] | null;
+    profile: ProfileBase;
+    user: UserBase | null;
+    enrollments: EnrollmentBase[] | null;
+    payments: PaymentBase[] | null;
 }
 
 // List view optimized type
 export interface ProfileListItem {
-  id: string;
-  full_name: string;
-  email: string;
-  phone: string | null;
-  created_at: string;
-  updated_at: string;
-  enrollment_count: number;
-  total_payments: number;
+    id: string;
+    full_name: string;
+    email: string;
+    phone: string | null;
+    created_at: string;
+    updated_at: string;
+    enrollment_count: number;
+    total_payments: number;
 }
 
 // Query parameter types
 export interface ProfileQueryParams {
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  order?: 'asc' | 'desc';
-  filters?: ColumnFiltersState;
-  search?: string;
+    page?: number;
+    pageSize?: number;
+    sortBy?: string;
+    order?: 'asc' | 'desc';
+    filters?: ColumnFiltersState;
+    search?: string;
 }
 
 // Business operation types
 export type ProfileCreateData = Pick<
-  ProfileInsert,
-  'id' | 'full_name' | 'email' | 'phone' | 'role'
+    ProfileInsert,
+    'id' | 'full_name' | 'email' | 'phone' | 'role'
 >;
 
-export type ProfileUpdateData = Partial<Omit<ProfileCreateData, 'id' | 'email'>> & {
-  id: string;
+export type ProfileUpdateData = Partial<
+    Omit<ProfileCreateData, 'id' | 'email'>
+> & {
+    id: string;
 };
 
 // Constraint check result
 export interface ProfileConstraintCheck {
-  canDelete: boolean;
+    canDelete: boolean;
 }
-

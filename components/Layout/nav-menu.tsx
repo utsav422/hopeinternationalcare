@@ -15,7 +15,6 @@ export const NavMenu = ({
     isHomePage,
     ...navProps
 }: NavigationMenuProps & { isHomePage?: boolean }) => {
-
     const navItems = [
         { href: '/', label: 'Home' },
         { href: '/aboutus', label: 'About Us' },
@@ -36,12 +35,11 @@ export const NavMenu = ({
                     'flex-col items-start gap-2 data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-start sm:flex-row sm:items-center sm:gap-4 md:gap-6'
                 )}
             >
-                {navItems.map((item) => (
+                {navItems.map(item => (
                     <NavigationMenuItem
                         key={item.href}
                         className={cn(
-                            'rounded-md px-3 py-2 text-base font-medium transition-colors sm:px-4 sm:py-2.5 sm:text-sm md:px-5 md:py-3 md:text-base',
-                         
+                            'rounded-md px-3 py-2 text-base font-medium transition-colors sm:px-4 sm:py-2.5 sm:text-sm md:px-5 md:py-3 md:text-base'
                         )}
                     >
                         <NavigationMenuLink asChild>
@@ -61,7 +59,6 @@ export const NavMenu = ({
                                     aria-label={social.label}
                                     className={cn(
                                         'rounded-full p-2 transition-colors'
-                                    
                                     )}
                                 >
                                     <Icon className="h-5 w-5 md:h-6 md:w-6" />

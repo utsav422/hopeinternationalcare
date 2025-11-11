@@ -27,11 +27,15 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useAdminPaymentDetails, useAdminPaymentCreate, useAdminPaymentUpdate } from '@/hooks/admin/payments-optimized';
+import {
+    useAdminPaymentDetails,
+    useAdminPaymentCreate,
+    useAdminPaymentUpdate,
+} from '@/hooks/admin/payments-optimized';
 import type { EnrollmentListItem } from '@/lib/types/enrollments';
 import {
     ZodPaymentInsertSchema,
-    type ZodInsertPaymentType
+    type ZodInsertPaymentType,
 } from '@/lib/db/drizzle-zod-schema/payments';
 import { PaymentMethod, PaymentStatus } from '@/lib/db/schema/enums';
 import { useEffect } from 'react';
@@ -70,11 +74,14 @@ export default function PaymentForm({ id, formTitle }: Props) {
         if (initialData?.payment) {
             form.reset({
                 ...initialData.payment,
-                paid_at: initialData.payment.paid_at ? new Date(initialData.payment.paid_at).toISOString().substring(0, 10) : '',
+                paid_at: initialData.payment.paid_at
+                    ? new Date(initialData.payment.paid_at)
+                          .toISOString()
+                          .substring(0, 10)
+                    : '',
             });
         }
     }, [initialData, form]);
-
 
     const { isSubmitting } = form.formState;
 
@@ -88,12 +95,16 @@ export default function PaymentForm({ id, formTitle }: Props) {
                 loading: 'Saving payment...',
                 success: () => {
                     router.push('/admin/payments');
-                    return `Payment ${id ? 'updated' : 'created'} successfully.`;
+                    return `Payment ${
+                        id ? 'updated' : 'created'
+                    } successfully.`;
                 },
                 error: 'Failed to save payment.',
             });
         } catch (err) {
-            toast.error((err as Error).message || 'An unexpected error occurred.');
+            toast.error(
+                (err as Error).message || 'An unexpected error occurred.'
+            );
         }
     };
 
@@ -148,8 +159,13 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                         <FormControl>
                                             <EnrollmentSelect
                                                 field={field}
-                                                getItemOnValueChanges={(item: EnrollmentListItem) => {
-                                                    form.setValue('amount', item.course.price);
+                                                getItemOnValueChanges={(
+                                                    item: EnrollmentListItem
+                                                ) => {
+                                                    form.setValue(
+                                                        'amount',
+                                                        item.course.price || 0
+                                                    );
                                                 }}
                                             />
                                         </FormControl>
@@ -164,7 +180,9 @@ export default function PaymentForm({ id, formTitle }: Props) {
                             render={({ field }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="">Amount</FormLabel>
+                                        <FormLabel className="">
+                                            Amount
+                                        </FormLabel>
                                         <FormDescription className="text-xs ">
                                             Amount is set from the course price.
                                         </FormDescription>
@@ -174,11 +192,12 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                             <Input
                                                 type="number"
                                                 {...field}
-                                                onChange={(e) =>
+                                                onChange={e =>
                                                     field.onChange(
                                                         e.target.value === ''
                                                             ? null
-                                                            : e.target.valueAsNumber
+                                                            : e.target
+                                                                  .valueAsNumber
                                                     )
                                                 }
                                             />
@@ -204,20 +223,30 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                                 onValueChange={field.onChange}
                                                 value={field.value ?? undefined}
                                             >
-                                                <SelectTrigger className='w-full'>
+                                                <SelectTrigger className="w-full">
                                                     <SelectValue placeholder="Select a payment method" />
                                                 </SelectTrigger>
                                                 <SelectContent className="capitalize ">
                                                     <SelectGroup>
-                                                        <SelectLabel>Payment Method</SelectLabel>
-                                                        {Object.values(PaymentMethod).map((method: string) => (
-                                                            <SelectItem
-                                                                key={method}
-                                                                value={method}
-                                                            >
-                                                                {method}
-                                                            </SelectItem>
-                                                        ))}
+                                                        <SelectLabel>
+                                                            Payment Method
+                                                        </SelectLabel>
+                                                        {Object.values(
+                                                            PaymentMethod
+                                                        ).map(
+                                                            (
+                                                                method: string
+                                                            ) => (
+                                                                <SelectItem
+                                                                    key={method}
+                                                                    value={
+                                                                        method
+                                                                    }
+                                                                >
+                                                                    {method}
+                                                                </SelectItem>
+                                                            )
+                                                        )}
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>
@@ -243,13 +272,17 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                                 onValueChange={field.onChange}
                                                 value={field.value ?? undefined}
                                             >
-                                                <SelectTrigger className='w-full'>
+                                                <SelectTrigger className="w-full">
                                                     <SelectValue placeholder="Select a payment status" />
                                                 </SelectTrigger>
                                                 <SelectContent className="capitalize ">
                                                     <SelectGroup>
-                                                        <SelectLabel>Payment Status</SelectLabel>
-                                                        {Object.values(PaymentStatus).map((status) => (
+                                                        <SelectLabel>
+                                                            Payment Status
+                                                        </SelectLabel>
+                                                        {Object.values(
+                                                            PaymentStatus
+                                                        ).map(status => (
                                                             <SelectItem
                                                                 className="capitalize "
                                                                 key={status}
@@ -296,10 +329,7 @@ export default function PaymentForm({ id, formTitle }: Props) {
                                 </FormLabel>
                             </div>
                             <div className="space-y-2 md:col-span-3">
-                                <Button
-                                    disabled={isSubmitting}
-                                    type="submit"
-                                >
+                                <Button disabled={isSubmitting} type="submit">
                                     {isSubmitting && (
                                         <svg
                                             className="mr-2 h-4 w-4 animate-spin"

@@ -142,7 +142,9 @@ const PaymentInfo = ({ paymentDetails }: PaymentDetailsCardProps) => {
                     className="font-medium text-sm leading-none dark:text-gray-300"
                     id="paidAt"
                 >
-                    {payment.paid_at ? format(new Date(payment.paid_at), 'PPP p') : 'N/A'}
+                    {payment.paid_at
+                        ? format(new Date(payment.paid_at), 'PPP p')
+                        : 'N/A'}
                 </p>
             </div>
             <div>
@@ -306,7 +308,7 @@ export default function PaymentDetailsCard() {
     if (error) {
         toast.error(
             error?.message ??
-            'Something went wrong try again later, or contact to administrator'
+                'Something went wrong try again later, or contact to administrator'
         );
     }
 

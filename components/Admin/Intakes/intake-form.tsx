@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import CourseSelect from '@/components/Custom/course-select';
@@ -34,7 +34,11 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
-import { useAdminIntakeDetailsById, useAdminIntakeUpsert } from '@/hooks/admin/intakes';
+import {
+    useAdminIntakeDetails,
+    useAdminIntakeCreate,
+    useAdminIntakeUpsert,
+} from '@/hooks/admin/intakes-optimized';
 import {
     type ZodInsertIntakeType,
     ZodIntakeInsertSchema,
@@ -48,13 +52,13 @@ interface IntakeFormProps {
 
 export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
     const router = useRouter();
-    const { data: queryResult, error } = useAdminIntakeDetailsById(id ?? '');
+    const { data: queryResult, error } = useAdminIntakeDetails(id ?? '');
     if (error) {
         toast.error('Error fetching intake details', {
             description: error.message,
         });
     }
-    const initialData = queryResult;
+    const initialData = queryResult?.data?.intake;
     const { mutateAsync: upsertIntake } = useAdminIntakeUpsert();
 
     const form = useForm<ZodInsertIntakeType>({
@@ -76,7 +80,10 @@ export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
                 router.push('/admin/intakes');
                 return `Intake ${initialData ? 'updated' : 'created'} successfully.`;
             },
-            error: (error) => error instanceof Error ? error.message : 'Failed to save intake.',
+            error: error =>
+                error instanceof Error
+                    ? error.message
+                    : 'Failed to save intake.',
         });
     };
 
@@ -120,7 +127,8 @@ export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
                                                 Course
                                             </FormLabel>
                                             <FormDescription className="text-muted-foreground  ">
-                                                Select the course for this intake.
+                                                Select the course for this
+                                                intake.
                                             </FormDescription>
                                         </div>
                                         <div className="space-y-2 md:col-span-3">
@@ -148,15 +156,21 @@ export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
                                                     <FormControl>
                                                         <Button
                                                             className={cn(
-                                                                'w-full bg-white pl-3 text-left font-normal',
-
+                                                                'w-full bg-white pl-3 text-left font-normal'
                                                             )}
                                                             variant="outline"
                                                         >
                                                             {field.value ? (
-                                                                format(new Date(field.value), 'PPP')
+                                                                format(
+                                                                    new Date(
+                                                                        field.value
+                                                                    ),
+                                                                    'PPP'
+                                                                )
                                                             ) : (
-                                                                <span>Pick a date</span>
+                                                                <span>
+                                                                    Pick a date
+                                                                </span>
                                                             )}
                                                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                         </Button>
@@ -167,13 +181,25 @@ export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
                                                     className="w-auto p-0 "
                                                 >
                                                     <Calendar
-                                                        initialFocus
+                                                        defaultMonth={
+                                                            field.value
+                                                                ? new Date(
+                                                                      field.value
+                                                                  )
+                                                                : new Date()
+                                                        }
                                                         mode="single"
-                                                        onSelect={(date) =>
-                                                            field.onChange(date?.toISOString())
+                                                        onSelect={date =>
+                                                            field.onChange(
+                                                                date?.toISOString()
+                                                            )
                                                         }
                                                         selected={
-                                                            field.value ? new Date(field.value) : undefined
+                                                            field.value
+                                                                ? new Date(
+                                                                      field.value
+                                                                  )
+                                                                : undefined
                                                         }
                                                     />
                                                 </PopoverContent>
@@ -199,14 +225,21 @@ export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
                                                     <FormControl>
                                                         <Button
                                                             className={cn(
-                                                                'w-full bg-white pl-3 text-left font-normal',
+                                                                'w-full bg-white pl-3 text-left font-normal'
                                                             )}
                                                             variant="outline"
                                                         >
                                                             {field.value ? (
-                                                                format(new Date(field.value), 'PPP')
+                                                                format(
+                                                                    new Date(
+                                                                        field.value
+                                                                    ),
+                                                                    'PPP'
+                                                                )
                                                             ) : (
-                                                                <span>Pick a date</span>
+                                                                <span>
+                                                                    Pick a date
+                                                                </span>
                                                             )}
                                                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                         </Button>
@@ -217,13 +250,25 @@ export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
                                                     className="w-auto p-0 "
                                                 >
                                                     <Calendar
-                                                        initialFocus
+                                                        defaultMonth={
+                                                            field.value
+                                                                ? new Date(
+                                                                      field.value
+                                                                  )
+                                                                : new Date()
+                                                        }
                                                         mode="single"
-                                                        onSelect={(date) =>
-                                                            field.onChange(date?.toISOString())
+                                                        onSelect={date =>
+                                                            field.onChange(
+                                                                date?.toISOString()
+                                                            )
                                                         }
                                                         selected={
-                                                            field.value ? new Date(field.value) : undefined
+                                                            field.value
+                                                                ? new Date(
+                                                                      field.value
+                                                                  )
+                                                                : undefined
                                                         }
                                                     />
                                                 </PopoverContent>
@@ -248,11 +293,13 @@ export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
                                                 <Input
                                                     {...field}
                                                     type="number"
-                                                    onChange={(e) =>
+                                                    onChange={e =>
                                                         field.onChange(
-                                                            e.target.value === ''
+                                                            e.target.value ===
+                                                                ''
                                                                 ? null
-                                                                : e.target.valueAsNumber
+                                                                : e.target
+                                                                      .valueAsNumber
                                                         )
                                                     }
                                                 />
@@ -272,7 +319,16 @@ export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
                                                 Total Registered
                                             </FormLabel>
 
-                                            {id && id?.length > 0 && initialData ? null : <FormDescription className="text-muted-foreground  "> This is automactically handled by the application </FormDescription>}
+                                            {id &&
+                                            id?.length > 0 &&
+                                            initialData ? null : (
+                                                <FormDescription className="text-muted-foreground  ">
+                                                    {' '}
+                                                    This is automactically
+                                                    handled by the
+                                                    application{' '}
+                                                </FormDescription>
+                                            )}
                                         </div>
                                         <div className="space-y-2 md:col-span-3">
                                             <FormControl>
@@ -281,11 +337,13 @@ export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
                                                     min={0}
                                                     disabled
                                                     type="number"
-                                                    onChange={(e) =>
+                                                    onChange={e =>
                                                         field.onChange(
-                                                            e.target.value === ''
+                                                            e.target.value ===
+                                                                ''
                                                                 ? null
-                                                                : e.target.valueAsNumber
+                                                                : e.target
+                                                                      .valueAsNumber
                                                         )
                                                     }
                                                 />
@@ -302,7 +360,8 @@ export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
                                     <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                         <div className="space-y-1 md:col-span-1">
                                             <FormLabel className="font-medium text-sm leading-none ">
-                                                Is this intake currently open for enrollment?
+                                                Is this intake currently open
+                                                for enrollment?
                                             </FormLabel>
                                         </div>
                                         <div className="space-y-2 md:col-span-3">
@@ -310,7 +369,9 @@ export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
                                                 <Checkbox
                                                     checked={!!field.value}
                                                     className="mr-2"
-                                                    onCheckedChange={field.onChange}
+                                                    onCheckedChange={
+                                                        field.onChange
+                                                    }
                                                 />
                                             </FormControl>
                                         </div>
@@ -325,15 +386,12 @@ export default function IntakeForm({ id, formTitle }: IntakeFormProps) {
                                 </FormLabel>{' '}
                                 <FormDescription className="text-muted-foreground  ">
                                     Submit Action Button For{' '}
-                                    {initialData ? 'Updating' : 'Creating'} Intake
+                                    {initialData ? 'Updating' : 'Creating'}{' '}
+                                    Intake
                                 </FormDescription>
                             </div>
                             <div>
-                                <Button
-
-                                    disabled={isSubmitting}
-                                    type="submit"
-                                >
+                                <Button disabled={isSubmitting} type="submit">
                                     {' '}
                                     {isSubmitting && (
                                         <svg

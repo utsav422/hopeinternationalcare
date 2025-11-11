@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Image from "next/image";
+import Image from 'next/image';
 import Link from 'next/link';
 import { useInView } from 'react-intersection-observer';
 
@@ -58,7 +58,10 @@ export function OurCoursesOverview() {
     };
 
     return (
-        <section className="bg-gray-50 py-16 sm:py-20 md:py-28 dark:bg-gray-900" ref={ref}>
+        <section
+            className="bg-gray-50 py-16 sm:py-20 md:py-28 dark:bg-gray-900"
+            ref={ref}
+        >
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
                     animate={inView ? 'visible' : 'hidden'}
@@ -76,8 +79,8 @@ export function OurCoursesOverview() {
                         className="mx-auto mt-3 max-w-2xl text-gray-600 text-sm sm:text-base md:text-lg md:mt-4 lg:text-xl dark:text-gray-400"
                         variants={itemVariants}
                     >
-                        Explore our various courses and make yourself market ready for
-                        abroad preparation and jobs.
+                        Explore our various courses and make yourself market
+                        ready for abroad preparation and jobs.
                     </motion.p>
                 </motion.div>
 

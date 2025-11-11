@@ -1,5 +1,5 @@
 'use client';
-import Image from "next/image";
+import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +22,7 @@ interface CourseContentProps {
     image_url: string;
     title: string;
     overview: string;
-    highlights: string
+    highlights: string;
     level?: number;
     duration_value?: number;
     duration_type?: string;
@@ -37,7 +37,7 @@ export function CourseContent({
     level,
     duration_value,
     duration_type,
-    category
+    category,
 }: CourseContentProps) {
     return (
         <div className="space-y-8">
@@ -75,7 +75,10 @@ export function CourseContent({
                                 </Badge>
                             )}
                             {duration_value && duration_type && (
-                                <Badge variant="outline" className="text-sm flex items-center gap-1">
+                                <Badge
+                                    variant="outline"
+                                    className="text-sm flex items-center gap-1"
+                                >
                                     <Clock className="h-3 w-3" />
                                     {duration_value} {duration_type}
                                 </Badge>
@@ -88,19 +91,15 @@ export function CourseContent({
             {/* Course Overview */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Overview of  tis Course</CardTitle>
+                    <CardTitle>Overview of tis Course</CardTitle>
                 </CardHeader>
-                <CardContent>
-                    {overview}
-                </CardContent>
+                <CardContent>{overview}</CardContent>
             </Card>
             <Card>
                 <CardHeader>
-                    <CardTitle>Highlights of  tis Course</CardTitle>
+                    <CardTitle>Highlights of tis Course</CardTitle>
                 </CardHeader>
-                <CardContent>
-                    {highlights}
-                </CardContent>
+                <CardContent>{highlights}</CardContent>
             </Card>
         </div>
     );

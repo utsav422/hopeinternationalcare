@@ -1,16 +1,28 @@
 'use client';
 
-import {zodResolver} from '@hookform/resolvers/zod';
-import {useRouter} from 'next/navigation';
-import {useEffect} from 'react';
-import {useForm} from 'react-hook-form';
-import {toast} from 'sonner';
-import {Button} from '@/components/ui/button';
-import {Card, CardContent, CardHeader} from '@/components/ui/card';
-import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage,} from '@/components/ui/form';
-import {Input} from '@/components/ui/input';
-import {Textarea} from '@/components/ui/textarea';
-import {useAdminCourseCategoryDetailsById, useAdminCourseCategoryUpsert,} from '@/hooks/admin/course-categories';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+    useAdminCourseCategoryDetails,
+    useAdminCourseCategoryCreate,
+    useAdminCourseCategoryUpdate,
+} from '@/hooks/admin/course-categories-optimized';
 import {
     ZodCourseCategoryInsertSchema,
     type ZodInsertCourseCategoryType,
@@ -22,13 +34,18 @@ interface Props {
     formTitle: string;
 }
 
-export default function CategoryForm({id = 'new', formTitle}: Props) {
+export default function CategoryForm({ id, formTitle }: Props) {
     const router = useRouter();
-    const {data: initialDataResult, error} = useAdminCourseCategoryDetailsById(id);
+    const { data: initialDataResult, error } =
+        useAdminCourseCategoryDetails(id);
 
-    const initialData = id && id.length > 0 && initialDataResult?.success
-        ? initialDataResult.data
-        : undefined;
+    const initialData =
+        id &&
+        id !== 'new' &&
+        initialDataResult?.success &&
+        initialDataResult?.data
+            ? initialDataResult.data.category
+            : undefined;
 
     if (error) {
         toast.error('Something went wrong while fetching categories', {
@@ -49,8 +66,9 @@ export default function CategoryForm({id = 'new', formTitle}: Props) {
             description: '',
         },
     });
-    const {isSubmitting, isLoading} = form.formState;
-    const {mutateAsync: upsertCategory} = useAdminCourseCategoryUpsert();
+    const { isSubmitting, isLoading } = form.formState;
+    const { mutateAsync: createCategory } = useAdminCourseCategoryCreate();
+    const { mutateAsync: updateCategory } = useAdminCourseCategoryUpdate();
 
     useEffect(() => {
         if (initialData) {
@@ -59,22 +77,29 @@ export default function CategoryForm({id = 'new', formTitle}: Props) {
     }, [initialData, form]);
 
     const onSubmit = async (values: ZodInsertCourseCategoryType) => {
-        return toast.promise(upsertCategory(values), {
+        // Determine if we're creating or updating
+        const isUpdate = id && id !== 'new' && initialData;
+
+        const promise = isUpdate
+            ? updateCategory({ id, ...values })
+            : createCategory(values);
+
+        return toast.promise(promise, {
             loading: 'Saving category...',
-            success: ({success, error}: {
-                success: boolean,
-                error?: string,
-            }) => {
-                if (success) {
+            success: (result: any) => {
+                if (result.success) {
                     router.push('/admin/categories');
-                    return `Category ${initialData ? 'updated' : 'created'} successfully.`;
+                    return `Category ${
+                        isUpdate ? 'updated' : 'created'
+                    } successfully.`;
                 }
-                throw new Error(error || 'An unknown error occurred');
-
+                throw new Error(result.error || 'An unknown error occurred');
             },
-            error: (error) => error instanceof Error ? error.message : 'Failed to save category.',
+            error: error =>
+                error instanceof Error
+                    ? error.message
+                    : 'Failed to save category.',
         });
-
     };
 
     const getButtonText = () => {
@@ -91,14 +116,12 @@ export default function CategoryForm({id = 'new', formTitle}: Props) {
         <Card className="">
             <CardHeader>
                 <div className="mb-6 space-y-1">
-                    <h3 className="font-medium text-lg">
-                        {formTitle}
-                    </h3>
+                    <h3 className="font-medium text-lg">{formTitle}</h3>
                     <p className="text-muted-foreground text-sm ">
                         Fill in the information about the category.
                     </p>
                 </div>
-                <hr/>
+                <hr />
             </CardHeader>
             <CardContent>
                 <Form {...form}>
@@ -109,7 +132,7 @@ export default function CategoryForm({id = 'new', formTitle}: Props) {
                         <FormField
                             control={form.control}
                             name="name"
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
                                         <FormLabel className="">Name</FormLabel>
@@ -124,7 +147,7 @@ export default function CategoryForm({id = 'new', formTitle}: Props) {
                                                 placeholder="e.g. Web Development"
                                             />
                                         </FormControl>
-                                        <FormMessage/>
+                                        <FormMessage />
                                     </div>
                                 </FormItem>
                             )}
@@ -132,7 +155,7 @@ export default function CategoryForm({id = 'new', formTitle}: Props) {
                         <FormField
                             control={form.control}
                             name="description"
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
                                         <FormLabel className="">
@@ -150,7 +173,7 @@ export default function CategoryForm({id = 'new', formTitle}: Props) {
                                                 value={field.value ?? ''}
                                             />
                                         </FormControl>
-                                        <FormMessage/>
+                                        <FormMessage />
                                     </div>
                                 </FormItem>
                             )}
@@ -165,10 +188,7 @@ export default function CategoryForm({id = 'new', formTitle}: Props) {
                                 </FormDescription>
                             </div>
                             <div className="space-y-2 md:col-span-3">
-                                <Button
-                                    disabled={isLoading}
-                                    type="submit"
-                                >
+                                <Button disabled={isLoading} type="submit">
                                     {isLoading && (
                                         <svg
                                             className="mr-2 h-4 w-4 animate-spin"

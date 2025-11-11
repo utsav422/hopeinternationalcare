@@ -1,4 +1,3 @@
-import { AffiliationInsert } from './../../types/affiliations/index';
 'use server';
 
 import { Column, eq, sql } from 'drizzle-orm';
@@ -18,21 +17,20 @@ import {
     AffiliationConstraintCheck,
     AffiliationBase,
     ApiResponse,
-    PaginationResponse
+    PaginationResponse,
 } from '@/lib/types';
-import {
-    AffiliationValidationError
-} from '@/lib/utils/affiliations';
+import { AffiliationValidationError } from '@/lib/utils/affiliations';
 import {
     validateAffiliationData,
-    checkAffiliationConstraints
+    checkAffiliationConstraints,
 } from '@/lib/utils/affiliations';
-import { buildFilterConditions, buildWhereClause, buildOrderByClause } from '../../utils/query-utils';
-
-
+import {
+    buildFilterConditions,
+    buildWhereClause,
+    buildOrderByClause,
+} from '../../utils/query-utils';
 
 // Type for new affiliation
-
 
 // Column mappings for affiliations
 const affiliationColumnMap: Record<string, Column> = {
@@ -47,42 +45,73 @@ const affiliationColumnMap: Record<string, Column> = {
 /**
  * Error handling utility
  */
-export function handleAffiliationError(error: unknown, operation: string): ApiResponse<never> {
+export async function handleAffiliationError(
+    error: unknown,
+    operation: string
+): Promise<ApiResponse<never>> {
     if (error instanceof AffiliationValidationError) {
-        return {
+        return Promise.reject({
             success: false,
             error: error.message,
             code: error.code,
-            details: error.details
-        };
+            details: error.details,
+        });
     }
 
     if (error instanceof Error) {
-        logger.error(`Affiliation ${operation} failed:`, { error: error.message });
-        return {
+        logger.error(`Affiliation ${operation} failed:`, {
+            error: error.message,
+        });
+        return Promise.reject({
             success: false,
             error: error.message,
-            code: 'UNKNOWN_ERROR'
-        };
+            code: 'UNKNOWN_ERROR',
+        });
     }
 
-    logger.error(`Unexpected error in affiliation ${operation}:`, { error: String(error) });
-    return {
+    logger.error(`Unexpected error in affiliation ${operation}:`, {
+        error: String(error),
+    });
+    return Promise.reject({
         success: false,
         error: 'An unexpected error occurred',
-        code: 'UNKNOWN_ERROR'
-    };
+        code: 'UNKNOWN_ERROR',
+    });
+}
+
+/**
+ * Single comprehensive list all function for the select component
+ */
+export async function adminAffiliationsAll(): Promise<
+    ApiResponse<AffiliationBase[]>
+> {
+    try {
+        await requireAdmin();
+
+        const affiliationsList = await db
+            .select()
+            .from(affiliations)
+            .orderBy(sql`${affiliations.name} ASC`);
+
+        return { success: true, data: affiliationsList };
+    } catch (error) {
+        return handleAffiliationError(error, 'list-all');
+    }
 }
 
 /**
  * Single comprehensive list function with filtering and pagination
  */
-export async function adminAffiliationList(params: AffiliationQueryParams): Promise<ApiResponse<{
-    data: AffiliationListItem[];
-    total: number;
-    page: number;
-    pageSize: number;
-}>> {
+export async function adminAffiliationList(
+    params: AffiliationQueryParams
+): Promise<
+    ApiResponse<{
+        data: AffiliationListItem[];
+        total: number;
+        page: number;
+        pageSize: number;
+    }>
+> {
     try {
         await requireAdmin();
 
@@ -92,13 +121,16 @@ export async function adminAffiliationList(params: AffiliationQueryParams): Prom
             sortBy = 'created_at',
             order = 'desc',
             filters = [],
-            search
+            search,
         } = params;
 
         const offset = (page - 1) * pageSize;
 
         // Build filter conditions
-        const filterConditions = buildFilterConditions(filters, affiliationColumnMap);
+        const filterConditions = buildFilterConditions(
+            filters,
+            affiliationColumnMap
+        );
 
         // Add search condition if provided
         if (search) {
@@ -139,7 +171,9 @@ export async function adminAffiliationList(params: AffiliationQueryParams): Prom
         const queryWithWhere = whereClause ? query.where(whereClause) : query;
 
         // Apply order by
-        const queryWithOrder = orderBy ? queryWithWhere.orderBy(orderBy) : queryWithWhere;
+        const queryWithOrder = orderBy
+            ? queryWithWhere.orderBy(orderBy)
+            : queryWithWhere;
 
         // Count query with same filters
         const countQuery = db
@@ -148,11 +182,15 @@ export async function adminAffiliationList(params: AffiliationQueryParams): Prom
             .leftJoin(courses, eq(affiliations.id, courses.affiliation_id));
 
         // Apply where clause to count query if exists
-        const countQueryWithWhere = whereClause ? countQuery.where(whereClause) : countQuery;
+        const countQueryWithWhere = whereClause
+            ? countQuery.where(whereClause)
+            : countQuery;
 
         const [data, countResult] = await Promise.all([
             queryWithOrder,
-            db.select({ count: sql<number>`count(*)` }).from(countQueryWithWhere.as('count_subquery'))
+            db
+                .select({ count: sql<number>`count(*)` })
+                .from(countQueryWithWhere.as('count_subquery')),
         ]);
 
         return {
@@ -161,8 +199,8 @@ export async function adminAffiliationList(params: AffiliationQueryParams): Prom
                 data,
                 total: countResult[0]?.count || 0,
                 page,
-                pageSize
-            }
+                pageSize,
+            },
         };
     } catch (error) {
         return handleAffiliationError(error, 'list');
@@ -172,7 +210,9 @@ export async function adminAffiliationList(params: AffiliationQueryParams): Prom
 /**
  * Single comprehensive details function with proper joins
  */
-export async function adminAffiliationDetails(id: string): Promise<ApiResponse<AffiliationWithDetails>> {
+export async function adminAffiliationDetails(
+    id: string
+): Promise<ApiResponse<AffiliationWithDetails>> {
     try {
         await requireAdmin();
 
@@ -187,7 +227,7 @@ export async function adminAffiliationDetails(id: string): Promise<ApiResponse<A
             return {
                 success: false,
                 error: 'Affiliation not found',
-                code: 'NOT_FOUND'
+                code: 'NOT_FOUND',
             };
         }
 
@@ -203,8 +243,8 @@ export async function adminAffiliationDetails(id: string): Promise<ApiResponse<A
             success: true,
             data: {
                 affiliation,
-                courses: courseResult
-            }
+                courses: courseResult,
+            },
         };
     } catch (error) {
         return handleAffiliationError(error, 'details');
@@ -214,7 +254,9 @@ export async function adminAffiliationDetails(id: string): Promise<ApiResponse<A
 /**
  * Optimized CRUD operations with validation
  */
-export async function adminAffiliationCreate(data: AffiliationCreateData): Promise<ApiResponse<NewAffiliation>> {
+export async function adminAffiliationCreate(
+    data: AffiliationCreateData
+): Promise<ApiResponse<NewAffiliation>> {
     try {
         await requireAdmin();
 
@@ -225,7 +267,7 @@ export async function adminAffiliationCreate(data: AffiliationCreateData): Promi
                 success: false,
                 error: validation.error || 'Validation failed',
                 code: validation.code || 'VALIDATION_ERROR',
-                details: validation.details
+                details: validation.details,
             };
         }
 
@@ -244,11 +286,14 @@ export async function adminAffiliationCreate(data: AffiliationCreateData): Promi
         return { success: true, data: created };
     } catch (error: any) {
         // Handle unique constraint violation
-        if (error.code === '23505' || (error.message && error.message.includes('unique'))) {
+        if (
+            error.code === '23505' ||
+            (error.message && error.message.includes('unique'))
+        ) {
             return {
                 success: false,
                 error: 'An affiliation with this name already exists.',
-                code: 'UNIQUE_CONSTRAINT_VIOLATION'
+                code: 'UNIQUE_CONSTRAINT_VIOLATION',
             };
         }
 
@@ -256,7 +301,9 @@ export async function adminAffiliationCreate(data: AffiliationCreateData): Promi
     }
 }
 
-export async function adminAffiliationUpdate(data: AffiliationUpdateData): Promise<ApiResponse<NewAffiliation>> {
+export async function adminAffiliationUpdate(
+    data: AffiliationUpdateData
+): Promise<ApiResponse<NewAffiliation>> {
     try {
         await requireAdmin();
 
@@ -267,7 +314,7 @@ export async function adminAffiliationUpdate(data: AffiliationUpdateData): Promi
                 success: false,
                 error: validation.error || 'Validation failed',
                 code: validation.code || 'VALIDATION_ERROR',
-                details: validation.details
+                details: validation.details,
             };
         }
 
@@ -288,7 +335,7 @@ export async function adminAffiliationUpdate(data: AffiliationUpdateData): Promi
             return {
                 success: false,
                 error: 'Affiliation not found',
-                code: 'NOT_FOUND'
+                code: 'NOT_FOUND',
             };
         }
 
@@ -297,11 +344,14 @@ export async function adminAffiliationUpdate(data: AffiliationUpdateData): Promi
         return { success: true, data: updated };
     } catch (error: any) {
         // Handle unique constraint violation
-        if (error.code === '23505' || (error.message && error.message.includes('unique'))) {
+        if (
+            error.code === '23505' ||
+            (error.message && error.message.includes('unique'))
+        ) {
             return {
                 success: false,
                 error: 'An affiliation with this name already exists.',
-                code: 'UNIQUE_CONSTRAINT_VIOLATION'
+                code: 'UNIQUE_CONSTRAINT_VIOLATION',
             };
         }
 
@@ -309,18 +359,20 @@ export async function adminAffiliationUpdate(data: AffiliationUpdateData): Promi
     }
 }
 
-export async function adminAffiliationDelete(id: string): Promise<ApiResponse<void>> {
+export async function adminAffiliationDelete(
+    id: string
+): Promise<ApiResponse<void>> {
     try {
         await requireAdmin();
 
         // Check constraints before deletion
         const constraints = await checkAffiliationConstraints(id);
-        if (!constraints.canDelete) {
+        if (!constraints.canDelete && constraints.courseCount > 0) {
             return {
                 success: false,
                 error: `Cannot delete: referenced by ${constraints.courseCount} course(s). Update or remove those courses first.`,
                 code: 'CONSTRAINT_VIOLATION',
-                details: { courseCount: constraints.courseCount }
+                details: { courseCount: constraints.courseCount },
             };
         }
 
@@ -333,7 +385,7 @@ export async function adminAffiliationDelete(id: string): Promise<ApiResponse<vo
             return {
                 success: false,
                 error: 'Affiliation not found',
-                code: 'NOT_FOUND'
+                code: 'NOT_FOUND',
             };
         }
 
@@ -347,7 +399,9 @@ export async function adminAffiliationDelete(id: string): Promise<ApiResponse<vo
 /**
  * Business-specific operations
  */
-export async function adminAffiliationCheckConstraints(id: string): Promise<ApiResponse<AffiliationConstraintCheck>> {
+export async function adminAffiliationCheckConstraints(
+    id: string
+): Promise<ApiResponse<AffiliationConstraintCheck>> {
     try {
         await requireAdmin();
 

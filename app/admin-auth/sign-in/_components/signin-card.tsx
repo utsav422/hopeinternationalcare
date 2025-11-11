@@ -30,29 +30,6 @@ const DotMap = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
-    const routes: { start: RoutePoint; end: RoutePoint; color: string }[] = [
-        {
-            start: { x: 100, y: 150, delay: 0 },
-            end: { x: 200, y: 80, delay: 2 },
-            color: '#14B8A6',
-        },
-        {
-            start: { x: 200, y: 80, delay: 2 },
-            end: { x: 260, y: 120, delay: 4 },
-            color: '#14B8A6',
-        },
-        {
-            start: { x: 50, y: 50, delay: 1 },
-            end: { x: 150, y: 180, delay: 3 },
-            color: '#14B8A6',
-        },
-        {
-            start: { x: 280, y: 60, delay: 0.5 },
-            end: { x: 180, y: 180, delay: 2.5 },
-            color: '#14B8A6',
-        },
-    ];
-
     const generateDots = useCallback((width: number, height: number) => {
         const dots: DOT[] = [];
         const gap = 12;
@@ -105,7 +82,7 @@ const DotMap = () => {
             return;
         }
 
-        const resizeObserver = new ResizeObserver((entries) => {
+        const resizeObserver = new ResizeObserver(entries => {
             const { width, height } = entries[0].contentRect;
             setDimensions({ width, height });
             canvas.width = width;
@@ -130,6 +107,30 @@ const DotMap = () => {
         if (!ctx) {
             return;
         }
+
+        const routes: { start: RoutePoint; end: RoutePoint; color: string }[] =
+            [
+                {
+                    start: { x: 100, y: 150, delay: 0 },
+                    end: { x: 200, y: 80, delay: 2 },
+                    color: '#14B8A6',
+                },
+                {
+                    start: { x: 200, y: 80, delay: 2 },
+                    end: { x: 260, y: 120, delay: 4 },
+                    color: '#14B8A6',
+                },
+                {
+                    start: { x: 50, y: 50, delay: 1 },
+                    end: { x: 150, y: 180, delay: 3 },
+                    color: '#14B8A6',
+                },
+                {
+                    start: { x: 280, y: 60, delay: 0.5 },
+                    end: { x: 180, y: 180, delay: 2.5 },
+                    color: '#14B8A6',
+                },
+            ];
 
         const dots = generateDots(dimensions.width, dimensions.height);
         let animationFrameId: number;
@@ -163,8 +164,10 @@ const DotMap = () => {
                 const duration = 3;
                 const progress = Math.min(elapsed / duration, 1);
 
-                const x = route.start.x + (route.end.x - route.start.x) * progress;
-                const y = route.start.y + (route.end.y - route.start.y) * progress;
+                const x =
+                    route.start.x + (route.end.x - route.start.x) * progress;
+                const y =
+                    route.start.y + (route.end.y - route.start.y) * progress;
 
                 ctx.beginPath();
                 ctx.moveTo(route.start.x, route.start.y);
@@ -216,24 +219,25 @@ const DotMap = () => {
 
     return (
         <div className="relative h-full w-full overflow-hidden">
-            <canvas className="absolute inset-0 h-full w-full" ref={canvasRef} />
+            <canvas
+                className="absolute inset-0 h-full w-full"
+                ref={canvasRef}
+            />
         </div>
     );
 };
 
 const SignInCard = () => {
-    const searchParams = useSearchParams()
-    const error = searchParams?.getAll('error')
-    const router = useRouter()
+    const searchParams = useSearchParams();
+    const error = searchParams?.getAll('error');
+    const router = useRouter();
 
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     // Display error message from URL parameter as toast
     useEffect(() => {
         if (error && error.length > 0) {
-            const errorMessage = Array.isArray(error)
-                ? error[0]
-                : error;
+            const errorMessage = Array.isArray(error) ? error[0] : error;
             toast.error(decodeURIComponent(errorMessage));
         }
     }, [error]);
@@ -255,14 +259,19 @@ const SignInCard = () => {
             const formData = new FormData();
             formData.set('email', values.email);
             formData.set('password', values.password);
-            const { error, success, message, data: user } = await AdminSignInAction(formData);
+            const {
+                error,
+                success,
+                message,
+                data: user,
+            } = await AdminSignInAction(formData);
             if (error && !success) {
                 toast.error(error);
             } else {
                 toast.success(message);
                 router.push('/admin-auth/sign-in', {
-                    scroll: true
-                })
+                    scroll: true,
+                });
             }
         } catch (error: unknown) {
             toast.error(
@@ -274,7 +283,6 @@ const SignInCard = () => {
     }
 
     return (
-
         <div className="flex min-h-screen w-full items-center justify-center bg-gray-100 dark:bg-gray-900">
             <motion.div
                 animate={{ opacity: 1, scale: 1 }}
@@ -320,8 +328,8 @@ const SignInCard = () => {
                                 initial={{ opacity: 0, y: -20 }}
                                 transition={{ delay: 0.8, duration: 0.5 }}
                             >
-                                Sign in to access your organization's web dashboard as an
-                                Administrator.
+                                Sign in to access your organization&apos;s web
+                                dashboard as an Administrator.
                             </motion.p>
                         </div>
                     </div>
@@ -381,12 +389,18 @@ const SignInCard = () => {
                                                         className="w-full border-gray-300 bg-gray-100 pr-10 text-gray-800 placeholder:text-gray-400 focus:border-teal-500 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700  dark:placeholder:text-gray-500"
                                                         placeholder="Enter your password"
                                                         required
-                                                        type={isPasswordVisible ? 'text' : 'password'}
+                                                        type={
+                                                            isPasswordVisible
+                                                                ? 'text'
+                                                                : 'password'
+                                                        }
                                                     />
                                                     <button
                                                         className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700  dark:hover:text-gray-200"
                                                         onClick={() =>
-                                                            setIsPasswordVisible(!isPasswordVisible)
+                                                            setIsPasswordVisible(
+                                                                !isPasswordVisible
+                                                            )
                                                         }
                                                         type="button"
                                                     >
@@ -429,7 +443,10 @@ const SignInCard = () => {
                                                 className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-transparent via-white/30 to-transparent"
                                                 initial={{ left: '-100%' }}
                                                 style={{ filter: 'blur(8px)' }}
-                                                transition={{ duration: 1, ease: 'easeInOut' }}
+                                                transition={{
+                                                    duration: 1,
+                                                    ease: 'easeInOut',
+                                                }}
                                             />
                                         )}
                                     </Button>

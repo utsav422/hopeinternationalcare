@@ -1,17 +1,32 @@
 'use client';
 
-import {zodResolver} from '@hookform/resolvers/zod';
-import {type SubmitHandler, useForm} from 'react-hook-form';
-import {toast} from 'sonner';
-import {Button} from '@/components/ui/button';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { type SubmitHandler, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
-import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage,} from '@/components/ui/form';
-import {Input} from '@/components/ui/input';
-import {InviteUserSchema, type ZInviteUserType,} from '@/lib/db/drizzle-zod-schema/users';
-import {inviteUserAction} from '@/lib/server-actions/admin/admin-auth-actions';
-import {useRouter} from "next/navigation";
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+    InviteUserSchema,
+    type ZInviteUserType,
+} from '@/lib/db/drizzle-zod-schema/users';
+import { inviteUserAction } from '@/lib/server-actions/admin/admin-auth-actions';
+import { useRouter } from 'next/navigation';
 
-export default function InviteUserForm({onFinishCallback}: { onFinishCallback: Function }) {
+export default function InviteUserForm({
+    onFinishCallback,
+}: {
+    onFinishCallback: Function;
+}) {
     const router = useRouter();
     const form = useForm<ZInviteUserType>({
         resolver: zodResolver(InviteUserSchema),
@@ -22,7 +37,7 @@ export default function InviteUserForm({onFinishCallback}: { onFinishCallback: F
         },
     });
     const handleSubmit = form.handleSubmit;
-    const onSubmit: SubmitHandler<ZInviteUserType> = async (validInputs) => {
+    const onSubmit: SubmitHandler<ZInviteUserType> = async validInputs => {
         const formData = new FormData();
         formData.append('email', validInputs.email);
 
@@ -39,11 +54,11 @@ export default function InviteUserForm({onFinishCallback}: { onFinishCallback: F
             loading: 'Sending invite...',
             success: (result: { success: boolean; message: string }) => {
                 if (result?.success && result?.message) {
-                    onFinishCallback && onFinishCallback()
+                    onFinishCallback && onFinishCallback();
                     router.replace('/admin/users', undefined);
                     toast.success(
                         `Invite sent successfully to ${validInputs.email}`
-                    )
+                    );
                     form.reset();
                     return result?.message;
                 }
@@ -58,22 +73,23 @@ export default function InviteUserForm({onFinishCallback}: { onFinishCallback: F
         });
     };
 
-
-    return (<>
-
+    return (
+        <>
             <Form {...form}>
-                <form className="w-full space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                <form
+                    className="w-full space-y-6"
+                    onSubmit={handleSubmit(onSubmit)}
+                >
                     <FormField
                         control={form.control}
                         name="email"
-                        render={({field}) => (
+                        render={({ field }) => (
                             <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                 <div className="space-y-1 md:col-span-1">
                                     <FormLabel className="font-medium text-sm leading-none ">
                                         Email
                                     </FormLabel>
-                                </div>
-                                {' '}
+                                </div>{' '}
                                 <div className="space-y-2 md:col-span-3">
                                     <FormControl>
                                         <Input
@@ -88,7 +104,7 @@ export default function InviteUserForm({onFinishCallback}: { onFinishCallback: F
                                         />
                                     </FormControl>
 
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </div>
                             </FormItem>
                         )}
@@ -97,14 +113,13 @@ export default function InviteUserForm({onFinishCallback}: { onFinishCallback: F
                     <FormField
                         control={form.control}
                         name="full_name"
-                        render={({field}) => (
+                        render={({ field }) => (
                             <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                 <div className="space-y-1 md:col-span-1">
                                     <FormLabel className="font-medium text-sm leading-none ">
                                         Full name
                                     </FormLabel>
-                                </div>
-                                {' '}
+                                </div>{' '}
                                 <div className="space-y-2 md:col-span-3">
                                     <FormControl>
                                         <Input
@@ -118,7 +133,7 @@ export default function InviteUserForm({onFinishCallback}: { onFinishCallback: F
                                         />
                                     </FormControl>
 
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </div>
                             </FormItem>
                         )}
@@ -126,14 +141,13 @@ export default function InviteUserForm({onFinishCallback}: { onFinishCallback: F
                     <FormField
                         control={form.control}
                         name="phone"
-                        render={({field}) => (
+                        render={({ field }) => (
                             <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                 <div className="space-y-1 md:col-span-1">
                                     <FormLabel className="font-medium text-sm leading-none ">
                                         Phone number
                                     </FormLabel>
-                                </div>
-                                {' '}
+                                </div>{' '}
                                 <div className="space-y-2 md:col-span-3">
                                     <FormControl className="w-full">
                                         <Input
@@ -147,7 +161,7 @@ export default function InviteUserForm({onFinishCallback}: { onFinishCallback: F
                                         />
                                     </FormControl>
 
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </div>
                             </FormItem>
                         )}
@@ -176,7 +190,6 @@ export default function InviteUserForm({onFinishCallback}: { onFinishCallback: F
                     </FormItem>
                 </form>
             </Form>{' '}
-
         </>
     );
 }

@@ -38,7 +38,8 @@ export function MultiSelectFilter({
     title,
     options,
     selectedValues,
-    onValueChange, onClearCallback
+    onValueChange,
+    onClearCallback,
 }: MultiSelectFilterProps) {
     const handleSelect = (value: string) => {
         const newSelectedValues = new Set(selectedValues);
@@ -67,7 +68,10 @@ export function MultiSelectFilter({
                     {title}
                     {selectedValues.size > 0 && (
                         <>
-                            <Separator className="mx-2 h-4" orientation="vertical" />
+                            <Separator
+                                className="mx-2 h-4"
+                                orientation="vertical"
+                            />
                             <Badge
                                 className="rounded-sm px-1 font-normal lg:hidden"
                                 variant="secondary"
@@ -84,8 +88,10 @@ export function MultiSelectFilter({
                                     </Badge>
                                 ) : (
                                     options
-                                        .filter((option) => selectedValues.has(option.value))
-                                        .map((option) => (
+                                        .filter(option =>
+                                            selectedValues.has(option.value)
+                                        )
+                                        .map(option => (
                                             <Badge
                                                 className="rounded-sm px-1 font-normal"
                                                 key={option.value}
@@ -100,25 +106,22 @@ export function MultiSelectFilter({
                     )}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent
-                align="start"
-                className="w-[200px] p-0"
-            >
+            <PopoverContent align="start" className="w-[200px] p-0">
                 <Command>
-                    <CommandInput
-                        placeholder={title}
-                    />
+                    <CommandInput placeholder={title} />
                     <CommandList>
-                        <CommandEmpty>
-                            No results found.
-                        </CommandEmpty>
+                        <CommandEmpty>No results found.</CommandEmpty>
                         <CommandGroup>
-                            {options.map((option) => {
-                                const isSelected = selectedValues.has(option.value);
+                            {options.map(option => {
+                                const isSelected = selectedValues.has(
+                                    option.value
+                                );
                                 return (
                                     <CommandItem
                                         key={option.value}
-                                        onSelect={() => handleSelect(option.value)}
+                                        onSelect={() =>
+                                            handleSelect(option.value)
+                                        }
                                     >
                                         <div
                                             className={cn(

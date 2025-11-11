@@ -1,8 +1,14 @@
-'use client'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+'use client';
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Check } from 'lucide-react';
 import Link from 'next/link';
-import React from 'react'
+import React from 'react';
 
 function page() {
     return (
@@ -17,14 +23,15 @@ function page() {
                     </div>
                 </CardTitle>
             </CardHeader>
-            <CardContent className="italic">You can close this page, and contiue using features of application</CardContent>
+            <CardContent className="italic">
+                You can close this page, and contiue using features of
+                application
+            </CardContent>
             <CardFooter>
                 <Link href={'/profile'}> Visit Profile </Link>
             </CardFooter>
         </Card>
-
     );
-
 }
 
-export default page
+export default page;

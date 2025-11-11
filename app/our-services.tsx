@@ -74,8 +74,9 @@ export function OurServices() {
                         className="mx-auto mt-4 max-w-2xl text-gray-500 text-xl dark:text-gray-400"
                         variants={itemVariants}
                     >
-                        Learn from experienced professionals who are passionate about
-                        sharing their knowledge and expertise in elderly care.
+                        Learn from experienced professionals who are passionate
+                        about sharing their knowledge and expertise in elderly
+                        care.
                     </motion.p>
                 </motion.div>
 

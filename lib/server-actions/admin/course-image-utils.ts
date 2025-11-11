@@ -1,3 +1,4 @@
+'use server';
 import { createServerSupabaseClient } from '@/utils/supabase/server';
 
 /**
@@ -9,27 +10,13 @@ import { createServerSupabaseClient } from '@/utils/supabase/server';
 export async function handleCourseImage(
     imageFile: File | null,
     oldImageUrl: string | null
-) {
+): Promise<string | null> {
     // If no image file provided, return null
     if (!imageFile || imageFile.size === 0) {
-        return { publicUrl: null };
+        return null;
     }
 
     const client = await createServerSupabaseClient();
-
-    // Delete old image if exists
-    if (oldImageUrl) {
-        const oldImageKey = oldImageUrl.substring(
-            oldImageUrl.lastIndexOf('media/') + 'media/'.length
-        );
-        try {
-            await client.storage.from('media').remove([oldImageKey]);
-        } catch (e) {
-            const err = e as Error;
-            console.warn(`Failed to delete old image: ${err.message}`);
-            // Continue with upload even if deletion fails
-        }
-    }
 
     // Upload new image
     const fileName = `course_image/${Date.now()}-${imageFile.name}`;
@@ -48,5 +35,19 @@ export async function handleCourseImage(
         data: { publicUrl },
     } = client.storage.from('media').getPublicUrl(fileName);
 
-    return { publicUrl };
+    // Delete old image if exists
+    if (oldImageUrl) {
+        const oldImageKey = oldImageUrl.substring(
+            oldImageUrl.lastIndexOf('media/') + 'media/'.length
+        );
+        try {
+            await client.storage.from('media').remove([oldImageKey]);
+        } catch (e) {
+            const err = e as Error;
+            console.warn(`Failed to delete old image: ${err.message}`);
+            // Continue with upload even if deletion fails
+        }
+    }
+
+    return publicUrl;
 }

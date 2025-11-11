@@ -1,5 +1,5 @@
-import { Suspense } from "react";
-import SignInClientComponent from "./_components/sign-in-client-component";
+import { Suspense } from 'react';
+import SignInClientComponent from './_components/sign-in-client-component';
 
 export default async function page() {
     return (
@@ -7,5 +7,4 @@ export default async function page() {
             <SignInClientComponent />
         </Suspense>
     );
-};
-
+}

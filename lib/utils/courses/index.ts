@@ -2,7 +2,11 @@ import { db } from '@/lib/db/drizzle';
 import { intakes } from '@/lib/db/schema/intakes';
 import { enrollments } from '@/lib/db/schema/enrollments';
 import { eq, sql } from 'drizzle-orm';
-import { CourseCreateData, CourseUpdateData, CourseConstraintCheck } from '@/lib/types/courses';
+import {
+    CourseCreateData,
+    CourseUpdateData,
+    CourseConstraintCheck,
+} from '@/lib/types/courses';
 
 /**
  * Course validation utilities
@@ -59,7 +63,7 @@ export function validateCoursePrice(price: number): boolean {
  */
 export function validateCourseDuration(type: string, value: number): boolean {
     // Valid duration types
-    const validTypes = ['days', 'weeks', 'months', 'years'];
+    const validTypes = ['days', 'weeks', 'month', 'year'];
 
     if (!validTypes.includes(type)) {
         return false;
@@ -96,7 +100,12 @@ export function validateCourseData(data: CourseCreateData | CourseUpdateData) {
             );
         }
 
-        if (!validateCourseDuration(data.duration_type ?? '', data?.duration_value ?? 0)) {
+        if (
+            !validateCourseDuration(
+                data.duration_type ?? '',
+                data?.duration_value ?? 0
+            )
+        ) {
             throw new CourseValidationError(
                 'Invalid duration type or value',
                 'INVALID_DURATION',
@@ -111,6 +120,20 @@ export function validateCourseData(data: CourseCreateData | CourseUpdateData) {
                 { slug: data.slug }
             );
         }
+        if (!data.courseHighlights || data.courseHighlights.length === 0) {
+            throw new CourseValidationError(
+                'At least one course highlight is required',
+                'MISSING_HIGHLIGHTS',
+                { courseHighlights: data.courseHighlights }
+            );
+        }
+        if (!data.courseOverview || data.courseOverview.length === 0) {
+            throw new CourseValidationError(
+                'At least one course overview is required',
+                'MISSING_COURSE_OVERVIEW',
+                { courseOverview: data.courseOverview }
+            );
+        }
 
         return { success: true };
     } catch (error) {
@@ -119,13 +142,13 @@ export function validateCourseData(data: CourseCreateData | CourseUpdateData) {
                 success: false,
                 error: error.message,
                 code: error.code,
-                details: error.details
+                details: error.details,
             };
         }
         return {
             success: false,
             error: 'Validation failed',
-            code: 'VALIDATION_ERROR'
+            code: 'VALIDATION_ERROR',
         };
     }
 }
@@ -139,7 +162,9 @@ export function validateCourseData(data: CourseCreateData | CourseUpdateData) {
  * @param id - The course ID to check
  * @returns Object with canDelete flag and counts
  */
-export async function checkCourseConstraints(id: string): Promise<CourseConstraintCheck> {
+export async function checkCourseConstraints(
+    id: string
+): Promise<CourseConstraintCheck> {
     try {
         // Check intakes
         const intakeResult = await db
@@ -159,9 +184,11 @@ export async function checkCourseConstraints(id: string): Promise<CourseConstrai
         const enrollmentCount = enrollmentResult[0]?.count || 0;
 
         return {
-            canDelete: intakeCount === 0 && enrollmentCount === 0,
+            canDelete:
+                intakeCount.toString() === '0' &&
+                enrollmentCount.toString() === '0',
             intakeCount,
-            enrollmentCount
+            enrollmentCount,
         };
     } catch (error) {
         console.error('Error checking course constraints:', error);
@@ -169,7 +196,7 @@ export async function checkCourseConstraints(id: string): Promise<CourseConstrai
         return {
             canDelete: false,
             intakeCount: 0,
-            enrollmentCount: 0
+            enrollmentCount: 0,
         };
     }
 }
@@ -184,7 +211,10 @@ export async function checkCourseConstraints(id: string): Promise<CourseConstrai
  * @param courseId - The course ID
  * @returns Promise with image URL
  */
-export async function uploadCourseImage(file: File, courseId: string): Promise<string> {
+export async function uploadCourseImage(
+    file: File,
+    courseId: string
+): Promise<string> {
     // This is a placeholder implementation
     // In a real implementation, this would upload to a storage service
     // and return the URL

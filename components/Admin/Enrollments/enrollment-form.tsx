@@ -36,7 +36,8 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    useAdminEnrollmentDetailsById,
+    useAdminEnrollmentDetails,
+    useAdminEnrollmentCreate,
     useAdminEnrollmentUpsert,
 } from '@/hooks/admin/enrollments';
 import {
@@ -48,8 +49,9 @@ import {
     //   durationType as durationTypeEnum,
     enrollmentStatus as enrollmentStatusEnum,
 } from '@/lib/db/schema/enums';
-import type { IntakeWithCourse } from '@/lib/server-actions/admin/intakes';
+import type { IntakeListItem } from '@/lib/types/intakes';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
+import CourseSelect from '@/components/Custom/course-select';
 
 // type CourseFormInput = TablesInsert<'courses'>
 interface Props {
@@ -61,21 +63,36 @@ export default function EnrollmentForm({ formTitle }: Props) {
     const params = useParams<{ id: string }>();
     const id = params.id;
     const router = useRouter();
-    const [_selecredPrice, setSelectedPrice] = useState<number | null>(null);
     const {
         isLoading,
         error,
         data: queryResult,
-    } = useAdminEnrollmentDetailsById(id ?? '');
+    } = useAdminEnrollmentDetails(id ?? '');
     const { mutateAsync: upsertEnrollment } = useAdminEnrollmentUpsert();
-    const initialData = id && id.length > 0 && queryResult
-        ? queryResult
-        : undefined;    //   courseData && courseData.price;
+    const initialData =
+        id && id.length > 0 && queryResult ? queryResult.data : undefined; //   courseData && courseData.price;
+
+    const formInitialData = {
+        intake_id: initialData?.intake?.id,
+        user_id: initialData?.user?.id,
+        status: initialData?.enrollment?.status,
+        notes: initialData?.enrollment?.notes,
+        enrollment_date: initialData?.enrollment?.enrollment_date,
+        cancelled_reason: initialData?.enrollment?.cancelled_reason,
+        created_at: initialData?.enrollment?.created_at,
+    };
+    console.log('Form Initial Data:', formInitialData);
+    const [_selecredPrice, setSelectedPrice] = useState<number | null>(
+        initialData?.course?.price ?? null
+    );
+    const [selectedCourseId, setSelectedCourseId] = useState<string | null>(
+        initialData?.course?.id ?? null
+    );
     const form = useForm<ZodEnrollmentInsertType>({
         resolver: zodResolver(ZodEnrollmentInsertSchema),
-        defaultValues: initialData || {
+        defaultValues: formInitialData ?? {
             intake_id: null,
-            user_id: null,
+            user_id: '',
             status: 'requested',
             notes: null,
             enrollment_date: new Date().toISOString(),
@@ -84,15 +101,18 @@ export default function EnrollmentForm({ formTitle }: Props) {
         },
     });
 
-    useEffect(() => {
-        if (initialData) {
-            form.reset(initialData);
-        }
-    }, [initialData, form]);
-
     const notes = form.watch('notes');
     const onSubmit = async (values: ZodEnrollmentInsertType) => {
-        toast.promise(upsertEnrollment(values), {
+        // Map values to EnrollmentCreateData type
+        const enrollmentData: any = {
+            id: id && id.length > 0 ? id : undefined,
+            user_id: values.user_id || '',
+            intake_id: values.intake_id || '',
+            status: values.status,
+            notes: values.notes || undefined,
+        };
+
+        toast.promise(upsertEnrollment(enrollmentData), {
             loading: 'Saving enrollment...',
             success: () => {
                 router.push(`/admin/enrollments?status?=${values.status}`, {
@@ -100,9 +120,23 @@ export default function EnrollmentForm({ formTitle }: Props) {
                 });
                 return values.id ? 'Enrollment updated' : 'Enrollment created';
             },
-            error: (error) => error instanceof Error ? error.message : 'Failed to save enrollment',
+            error: error =>
+                error instanceof Error
+                    ? error.message
+                    : 'Failed to save enrollment',
         });
     };
+
+    const getButtonText = () => {
+        if (isSubmitting) {
+            return 'Saving...';
+        }
+        if (id && initialData) {
+            return 'Update Enrollment';
+        }
+        return 'Create Enrollment';
+    };
+    const { isSubmitting } = form.formState;
     if (error) {
         toast.error('Something went wrong while fetching categories', {
             description: error.message,
@@ -118,29 +152,21 @@ export default function EnrollmentForm({ formTitle }: Props) {
             </div>
         );
     }
-    const getButtonText = () => {
-        if (isSubmitting) {
-            return 'Saving...';
-        }
-        if (id && initialData) {
-            return 'Update Enrollment';
-        }
-        return 'Create Enrollment';
-    };
-    const { isSubmitting } = form.formState;
-
     return (
-        <Card >
-            <CardHeader >
+        <Card>
+            <CardHeader>
                 <div className="mb-6 space-y-1">
-
-                    <CardTitle className="font-medium text-lg">{formTitle}</CardTitle>
+                    <CardTitle className="font-medium text-lg">
+                        {formTitle}
+                    </CardTitle>
                     <CardDescription className="">
-                        Fill all the inputs of below form
+                        Fill all the inputs of below form. In Edit Form most of
+                        the field are disabled.
                     </CardDescription>
                 </div>
-                <hr />            </CardHeader>
-            <CardContent >
+                <hr />
+            </CardHeader>
+            <CardContent>
                 <Form {...form}>
                     <form
                         className="w-full space-y-6"
@@ -152,7 +178,9 @@ export default function EnrollmentForm({ formTitle }: Props) {
                             render={({ field }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="">Notes</FormLabel>
+                                        <FormLabel className="">
+                                            Notes
+                                        </FormLabel>
                                     </div>
                                     <div className="space-y-2 md:col-span-3">
                                         <FormControl>
@@ -173,7 +201,9 @@ export default function EnrollmentForm({ formTitle }: Props) {
                             render={({ field }) => (
                                 <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
                                     <div className="space-y-1 md:col-span-1">
-                                        <FormLabel className="">Status</FormLabel>
+                                        <FormLabel className="">
+                                            Status
+                                        </FormLabel>
                                     </div>
                                     <div className="space-y-2 md:col-span-3">
                                         <FormControl>
@@ -189,20 +219,25 @@ export default function EnrollmentForm({ formTitle }: Props) {
                                                         <SelectLabel className="">
                                                             Enrollment Type
                                                         </SelectLabel>
-                                                        {enrollmentStatusEnum.enumValues.map((item) => {
-                                                            return (
-                                                                <SelectItem
-                                                                    disabled={Boolean(
-                                                                        initialData?.id &&
-                                                                        item === EnrollmentStatus.cancelled
-                                                                    )}
-                                                                    key={item}
-                                                                    value={item}
-                                                                >
-                                                                    {item}
-                                                                </SelectItem>
-                                                            );
-                                                        })}
+                                                        {enrollmentStatusEnum.enumValues.map(
+                                                            item => {
+                                                                return (
+                                                                    <SelectItem
+                                                                        // disabled={Boolean(
+                                                                        //     initialData?.enrollment?.id
+                                                                        // )}
+                                                                        key={
+                                                                            item
+                                                                        }
+                                                                        value={
+                                                                            item
+                                                                        }
+                                                                    >
+                                                                        {item}
+                                                                    </SelectItem>
+                                                                );
+                                                            }
+                                                        )}
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>
@@ -222,7 +257,8 @@ export default function EnrollmentForm({ formTitle }: Props) {
                                             Enrollment Date
                                         </FormLabel>
                                         <FormDescription className="">
-                                            This will take the current date and time
+                                            This will take the current date and
+                                            time
                                         </FormDescription>
                                     </div>
                                     <div className="space-y-2 md:col-span-3">
@@ -233,7 +269,9 @@ export default function EnrollmentForm({ formTitle }: Props) {
                                                 disabled
                                                 value={
                                                     field.value
-                                                        ? new Date(field.value).toISOString().split('T')[0]
+                                                        ? new Date(field.value)
+                                                              .toISOString()
+                                                              .split('T')[0]
                                                         : ''
                                                 }
                                             />
@@ -243,6 +281,43 @@ export default function EnrollmentForm({ formTitle }: Props) {
                                 </FormItem>
                             )}
                         />
+
+                        {/* Course selection - not part of the form schema but used to filter intakes */}
+                        <FormItem className="grid grid-cols-1 items-start gap-4 md:grid-cols-4">
+                            <div className="space-y-1 md:col-span-1">
+                                <FormLabel className="">
+                                    Select Course
+                                </FormLabel>
+                            </div>
+                            <div className="space-y-2 md:col-span-3">
+                                <CourseSelect
+                                    field={{
+                                        onChange: value => {
+                                            // This is needed for the form field, but we'll handle the course ID update via callback
+                                        },
+                                        onBlur: () => {},
+                                        value: selectedCourseId || '',
+                                        disabled: !!id, // Disable if editing existing enrollment
+                                        name: 'course_id',
+                                        ref: () => {},
+                                    }}
+                                    disabled={!!id} // Disable if editing existing enrollment
+                                    getItemOnValueChanges={(
+                                        selectedCourse: any
+                                    ) => {
+                                        if (selectedCourse) {
+                                            setSelectedCourseId(
+                                                selectedCourse.id
+                                            );
+                                            // Reset intake selection when course changes
+                                            form.setValue('intake_id', '');
+                                        } else {
+                                            setSelectedCourseId(null);
+                                        }
+                                    }}
+                                />
+                            </div>
+                        </FormItem>
 
                         <FormField
                             control={form.control}
@@ -258,9 +333,17 @@ export default function EnrollmentForm({ formTitle }: Props) {
                                         <FormControl>
                                             <IntakeSelect
                                                 field={field}
+                                                disabled={
+                                                    !selectedCourseId ||
+                                                    Boolean(id)
+                                                } // Disable if no course selected or editing existing enrollment
+                                                courseId={
+                                                    selectedCourseId ||
+                                                    undefined
+                                                }
                                                 getItemOnValueChanges={(
-                                                    selectedIntakes: IntakeWithCourse
-                                                ) => setSelectedPrice(selectedIntakes.coursePrice || null)}
+                                                    selectedIntakes: IntakeListItem
+                                                ) => setSelectedPrice(null)} // IntakeListItem doesn't have coursePrice
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -283,7 +366,10 @@ export default function EnrollmentForm({ formTitle }: Props) {
                                         <FormControl>
                                             <QueryErrorWrapper>
                                                 <Suspense>
-                                                    <UserSelect field={field} />
+                                                    <UserSelect
+                                                        field={field}
+                                                        disabled={Boolean(id)}
+                                                    />
                                                 </Suspense>
                                             </QueryErrorWrapper>
                                         </FormControl>
@@ -299,14 +385,12 @@ export default function EnrollmentForm({ formTitle }: Props) {
                                 </FormLabel>
                                 <FormDescription className="text-muted-foreground text-xs ">
                                     Submit Action Button For
-                                    {initialData ? 'Updating' : 'Creating'} Enrollment
+                                    {initialData ? 'Updating' : 'Creating'}{' '}
+                                    Enrollment
                                 </FormDescription>
                             </div>
-                            <div >
-                                <Button disabled={isSubmitting}
-
-                                    type="submit"
-                                >
+                            <div>
+                                <Button disabled={isSubmitting} type="submit">
                                     {isSubmitting && (
                                         <svg
                                             className="mr-2 h-4 w-4 animate-spin"

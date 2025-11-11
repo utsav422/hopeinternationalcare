@@ -9,7 +9,10 @@ export default function UserProfileComponent() {
     const { data: userSession } = useSuspenseQuery<User>({
         queryKey: queryKeys.users.session,
         queryFn: async () => {
-            const { data: { session }, error } = await supabase.auth.getSession()
+            const {
+                data: { session },
+                error,
+            } = await supabase.auth.getSession();
             if (error || !session) {
                 throw error;
             }

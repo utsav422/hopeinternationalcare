@@ -1,7 +1,8 @@
-import { db } from '@/lib/db/drizzle';
-import { refunds } from '@/lib/db/schema/refunds';
-import { eq, sql } from 'drizzle-orm';
-import { RefundCreateData, RefundUpdateData, RefundConstraintCheck } from '@/lib/types';
+import {
+    RefundCreateData,
+    RefundUpdateData,
+    RefundConstraintCheck,
+} from '@/lib/types';
 
 /**
  * Refund validation utilities
@@ -63,7 +64,13 @@ export function validateRefundCurrency(currency: string): void {
  * @throws RefundValidationError if validation fails
  */
 export function validateRefundStatus(status: string): void {
-    const validStatuses = ['pending', 'approved', 'rejected', 'processed', 'failed'];
+    const validStatuses = [
+        'pending',
+        'approved',
+        'rejected',
+        'processed',
+        'failed',
+    ];
     if (!validStatuses.includes(status)) {
         throw new RefundValidationError(
             'Invalid refund status',
@@ -119,13 +126,13 @@ export function validateRefundData(data: RefundCreateData | RefundUpdateData) {
                 success: false,
                 error: error.message,
                 code: error.code,
-                details: error.details
+                details: error.details,
             };
         }
         return {
             success: false,
             error: 'Validation failed',
-            code: 'VALIDATION_ERROR'
+            code: 'VALIDATION_ERROR',
         };
     }
 }
@@ -139,18 +146,20 @@ export function validateRefundData(data: RefundCreateData | RefundUpdateData) {
  * @param id - The refund ID to check
  * @returns Object with canDelete flag
  */
-export async function checkRefundConstraints(id: string): Promise<RefundConstraintCheck> {
+export async function checkRefundConstraints(
+    id: string
+): Promise<RefundConstraintCheck> {
     try {
         // For now, we allow deletion of any refund
         // This could be extended with business rules if needed
         return {
-            canDelete: true
+            canDelete: true,
         };
     } catch (error) {
         console.error('Error checking refund constraints:', error);
         // In case of error, assume it cannot be deleted for safety
         return {
-            canDelete: false
+            canDelete: false,
         };
     }
 }
@@ -165,14 +174,17 @@ export async function checkRefundConstraints(id: string): Promise<RefundConstrai
  * @param newStatus - New refund status
  * @returns boolean indicating if update is allowed
  */
-export function canUpdateRefundStatus(currentStatus: string, newStatus: string): boolean {
+export function canUpdateRefundStatus(
+    currentStatus: string,
+    newStatus: string
+): boolean {
     // Valid status transitions
     const validTransitions: Record<string, string[]> = {
-        'pending': ['approved', 'rejected'],
-        'approved': ['processed', 'failed'],
-        'rejected': [],
-        'processed': [],
-        'failed': []
+        pending: ['approved', 'rejected'],
+        approved: ['processed', 'failed'],
+        rejected: [],
+        processed: [],
+        failed: [],
     };
 
     // If current status is not in validTransitions, allow any update
@@ -189,13 +201,15 @@ export function canUpdateRefundStatus(currentStatus: string, newStatus: string):
  * @param currentStatus - Current refund status
  * @returns Array of valid status transitions
  */
-export function getValidRefundStatusTransitions(currentStatus: string): string[] {
+export function getValidRefundStatusTransitions(
+    currentStatus: string
+): string[] {
     const validTransitions: Record<string, string[]> = {
-        'pending': ['approved', 'rejected'],
-        'approved': ['processed', 'failed'],
-        'rejected': [],
-        'processed': [],
-        'failed': []
+        pending: ['approved', 'rejected'],
+        approved: ['processed', 'failed'],
+        rejected: [],
+        processed: [],
+        failed: [],
     };
 
     return validTransitions[currentStatus] || [];

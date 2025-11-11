@@ -1,37 +1,47 @@
-import {dehydrate, HydrationBoundary} from '@tanstack/react-query';
-import {notFound, redirect} from 'next/navigation';
-import {queryKeys} from '@/lib/query-keys';
-import {cachedAdminIntakeDetailsById} from '@/lib/server-actions/admin/intakes';
-import {requireAdmin} from '@/utils/auth-guard';
-import {getQueryClient} from '@/utils/get-query-client';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { notFound, redirect } from 'next/navigation';
+import { queryKeys } from '@/lib/query-keys';
+import { adminIntakeDetails } from '@/lib/server-actions/admin/intakes-optimized';
+import { requireAdmin } from '@/utils/auth-guard';
+import { getQueryClient } from '@/utils/get-query-client';
 import IntakeForm from '../../../../../../components/Admin/Intakes/intake-form';
-import {QueryErrorWrapper} from '@/components/Custom/query-error-wrapper';
-import {Suspense} from 'react';
-import {ZodAdminCourseCategoryQuerySchema, ZodAdminCourseCategoryQueryType} from "@/lib/db/drizzle-zod-schema";
-import {normalizeProps} from "@/lib/normalizeProps";
-import {IdParams, IdParamsSchema} from "@/lib/types/shared";
+import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
+import { Suspense } from 'react';
+import {
+    ZodAdminCourseCategoryQuerySchema,
+    ZodAdminCourseCategoryQueryType,
+} from '@/lib/db/drizzle-zod-schema';
+import { normalizeProps } from '@/lib/normalizeProps';
+import { IdParams, IdParamsSchema } from '@/lib/types/shared';
 
-
-export default async function EditIntakePage({params: promisedParams, searchParams: promisedSearchParams}: {
-    params: Promise<IdParams>,
-    searchParams: Promise<ZodAdminCourseCategoryQueryType>
+export default async function EditIntakePage({
+    params: promisedParams,
+    searchParams: promisedSearchParams,
+}: {
+    params: Promise<IdParams>;
+    searchParams: Promise<ZodAdminCourseCategoryQueryType>;
 }) {
     // Await the promised params and searchParams
     const params = await promisedParams;
     const searchParams = await promisedSearchParams;
 
     // Validate and normalize the props
-    const {
-        params: validatedParams,
-        searchParams: validatedSearchParams
-    } = await normalizeProps(IdParamsSchema, ZodAdminCourseCategoryQuerySchema, params, searchParams);
+    const { params: validatedParams, searchParams: validatedSearchParams } =
+        await normalizeProps(
+            IdParamsSchema,
+            ZodAdminCourseCategoryQuerySchema,
+            params,
+            searchParams
+        );
+    console.log('Validated Params:', validatedParams);
+    console.log('Validated Search Params:', validatedSearchParams);
     if (!validatedParams.id) {
         notFound();
     }
     const queryClient = getQueryClient();
     try {
         await requireAdmin();
-        const response = await cachedAdminIntakeDetailsById(validatedParams.id);
+        const response = await adminIntakeDetails(validatedParams.id);
         if (!response.success) {
             notFound();
         }
@@ -41,18 +51,19 @@ export default async function EditIntakePage({params: promisedParams, searchPara
             queryFn: () => response,
         });
     } catch (error) {
-        redirect('/admin-auth/sign-in?redirect=/admin/categories')
+        redirect('/admin-auth/sign-in?redirect=/admin/categories');
     }
-
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
             <QueryErrorWrapper>
                 <Suspense>
-                    <IntakeForm formTitle="Edit Intake Form" id={validatedParams.id}/>
+                    <IntakeForm
+                        formTitle="Edit Intake Form"
+                        id={validatedParams.id}
+                    />
                 </Suspense>
             </QueryErrorWrapper>
         </HydrationBoundary>
     );
 }
-

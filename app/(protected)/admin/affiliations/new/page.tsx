@@ -15,14 +15,17 @@ export default async function NewAffiliation() {
 
     await queryClient.prefetchQuery({
         queryKey: queryKeys.affiliations.detail(''),
-        queryFn: () => Promise.resolve({ data: null, success: true, error: '' }),
-        staleTime: 1000 * 60 * 5,  //5minutes
+        queryFn: () =>
+            Promise.resolve({ data: null, success: true, error: '' }),
+        staleTime: 1000 * 60 * 5, //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
-    })
+    });
 
-    return (<HydrationBoundary state={dehydrate(queryClient)}>
-        <Suspense fallback="Loading...">
-            <AffiliationForm formTitle="Create New Affiliation" />
-        </Suspense>
-    </HydrationBoundary>)
+    return (
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <Suspense fallback="Loading...">
+                <AffiliationForm formTitle="Create New Affiliation" />
+            </Suspense>
+        </HydrationBoundary>
+    );
 }

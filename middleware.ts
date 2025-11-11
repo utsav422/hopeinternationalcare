@@ -1,5 +1,5 @@
-import {type NextRequest, NextResponse} from 'next/server';
-import {updateSession} from '@/utils/supabase/middleware';
+import { type NextRequest, NextResponse } from 'next/server';
+import { updateSession } from '@/utils/supabase/middleware';
 
 export async function middleware(request: NextRequest) {
     // Step 1: Handle CORS
@@ -13,7 +13,8 @@ export async function middleware(request: NextRequest) {
         const response = NextResponse.next({
             headers: {
                 'Access-Control-Allow-Origin': origin,
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Methods':
+                    'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, Authorization',
             },
         });

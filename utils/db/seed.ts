@@ -2,11 +2,10 @@ import { logger } from '@/utils/logger';
 import { createAdminSupabaseClient } from '@/utils/supabase/admin';
 import { SupabaseClient } from '@supabase/supabase-js';
 
-
 /**
  * Seed function to create an administrative user with service_role
  * This function creates a user in Supabase auth with auto-verified status
-*/
+ */
 async function seedAdminUser(client: SupabaseClient) {
     // Get environment variables for admin user
     const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@example.com';
@@ -17,7 +16,7 @@ async function seedAdminUser(client: SupabaseClient) {
     const {
         data: { users },
     } = await client.auth.admin.listUsers();
-    const adminUser = users.find((u) => u.email === adminEmail);
+    const adminUser = users.find(u => u.email === adminEmail);
     if (adminUser) {
         logger.info('Administrative user already exists:', {
             user: adminUser.email,
@@ -53,15 +52,13 @@ async function seedAdminUser(client: SupabaseClient) {
 
     // Also create a profile for the user
     if (user?.id) {
-        const { error: profileError } = await client
-            .from('profiles')
-            .upsert({
-                id: user.id,
-                full_name: adminFullName,
-                email: adminEmail,
-                phone: adminPhone,
-                role: 'service_role',
-            });
+        const { error: profileError } = await client.from('profiles').upsert({
+            id: user.id,
+            full_name: adminFullName,
+            email: adminEmail,
+            phone: adminPhone,
+            role: 'service_role',
+        });
 
         if (profileError) {
             throw new Error(
@@ -78,7 +75,6 @@ async function seedAdminUser(client: SupabaseClient) {
  * This function is idempotent and can be run multiple times.
  */
 async function seedCoursesAndIntakes(client: SupabaseClient) {
-
     logger.info('Upserting course categories, courses, and intakes...');
 
     // 1. Upsert Course Categories
@@ -118,46 +114,49 @@ async function seedCoursesAndIntakes(client: SupabaseClient) {
         image_url: string;
         price: number;
     }[] = [
-            {
-                title: 'Web Development Bootcamp',
-                slug: 'web-development-bootcamp',
-                description: 'A comprehensive bootcamp for aspiring web developers.',
-                category_id: seededCategories.find((c) => c.name === 'Technology')?.id,
-                level: 1,
-                duration_value: 6,
-                duration_type: 'month',
-                image_url: 'https://placehold.co/600x400',
-                price: 1200,
-            },
-            {
-                title: 'Digital Marketing',
-                slug: 'digital-marketing',
-                description: 'Learn the ins and outs of digital marketing.',
-                category_id: seededCategories.find((c) => c.name === 'Business')?.id,
-                level: 2,
-                duration_value: 3,
-                duration_type: 'month',
-                image_url: 'https://placehold.co/600x400',
-                price: 800,
-            },
-            {
-                title: 'Annual Yoga Retreat',
-                slug: 'annual-yoga-retreat',
-                description: 'A year-long journey into the world of yoga.',
-                category_id: seededCategories.find((c) => c.name === 'Health & Wellness')
-                    ?.id,
-                level: 3,
-                duration_value: 1,
-                duration_type: 'year',
-                image_url: 'https://placehold.co/600x400',
-                price: 2000,
-            },
-        ];
+        {
+            title: 'Web Development Bootcamp',
+            slug: 'web-development-bootcamp',
+            description:
+                'A comprehensive bootcamp for aspiring web developers.',
+            category_id: seededCategories.find(c => c.name === 'Technology')
+                ?.id,
+            level: 1,
+            duration_value: 6,
+            duration_type: 'month',
+            image_url: 'https://placehold.co/600x400',
+            price: 1200,
+        },
+        {
+            title: 'Digital Marketing',
+            slug: 'digital-marketing',
+            description: 'Learn the ins and outs of digital marketing.',
+            category_id: seededCategories.find(c => c.name === 'Business')?.id,
+            level: 2,
+            duration_value: 3,
+            duration_type: 'month',
+            image_url: 'https://placehold.co/600x400',
+            price: 800,
+        },
+        {
+            title: 'Annual Yoga Retreat',
+            slug: 'annual-yoga-retreat',
+            description: 'A year-long journey into the world of yoga.',
+            category_id: seededCategories.find(
+                c => c.name === 'Health & Wellness'
+            )?.id,
+            level: 3,
+            duration_value: 1,
+            duration_type: 'year',
+            image_url: 'https://placehold.co/600x400',
+            price: 2000,
+        },
+    ];
 
     const { data: seededCourses, error: courseError } = await client
         .from('courses')
         .upsert(
-            courses.filter((c) => c.category_id),
+            courses.filter(c => c.category_id),
             { onConflict: 'slug' }
         )
         .select();
@@ -168,7 +167,7 @@ async function seedCoursesAndIntakes(client: SupabaseClient) {
     logger.info('Upserted courses successfully.');
 
     // 3. Generate and Seed Intakes
-    const courseIds = seededCourses.map((c) => c.id);
+    const courseIds = seededCourses.map(c => c.id);
     logger.info(`Deleting existing intakes for ${courseIds.length} courses...`);
     const { error: deleteError } = await client
         .from('intakes')
@@ -176,7 +175,9 @@ async function seedCoursesAndIntakes(client: SupabaseClient) {
         .in('course_id', courseIds);
 
     if (deleteError) {
-        throw new Error(`Error deleting existing intakes: ${deleteError.message}`);
+        throw new Error(
+            `Error deleting existing intakes: ${deleteError.message}`
+        );
     }
     logger.info('Existing intakes deleted.');
 
@@ -217,9 +218,7 @@ async function seedCoursesAndIntakes(client: SupabaseClient) {
     }
 
     logger.info(`Inserting ${intakes.length} new intakes...`);
-    const { error: intakeError } = await client
-        .from('intakes')
-        .insert(intakes);
+    const { error: intakeError } = await client.from('intakes').insert(intakes);
 
     if (intakeError) {
         throw new Error(`Error seeding intakes: ${intakeError.message}`);
@@ -240,7 +239,9 @@ async function main() {
         process.exit(0);
     } catch (error) {
         const errorMessage =
-            error instanceof Error ? error.message : 'An unknown error occurred.';
+            error instanceof Error
+                ? error.message
+                : 'An unknown error occurred.';
         logger.error('Unexpected error during seeding:', {
             description: errorMessage,
         });

@@ -32,12 +32,14 @@ export default function ResetPasswordComponent() {
     const resetPasswordError = searchParams.get('error');
     const formSchema = z
         .object({
-            password: z.string().min(6, 'Password must be at least 6 characters.'),
+            password: z
+                .string()
+                .min(6, 'Password must be at least 6 characters.'),
             confirmPassword: z
                 .string()
                 .min(6, 'Password must be at least 6 characters.'),
         })
-        .refine((data) => data.password === data.confirmPassword, {
+        .refine(data => data.password === data.confirmPassword, {
             message: "Passwords don't match.",
             path: ['confirmPassword'],
         });
@@ -96,12 +98,18 @@ export default function ResetPasswordComponent() {
                                                     className="dark:border-gray-600 dark:bg-gray-700 "
                                                     placeholder="Enter new password"
                                                     required
-                                                    type={isPasswordVisible ? 'text' : 'password'}
+                                                    type={
+                                                        isPasswordVisible
+                                                            ? 'text'
+                                                            : 'password'
+                                                    }
                                                 />
                                                 <Button
                                                     className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700  dark:hover:text-gray-200"
                                                     onClick={() =>
-                                                        setIsPasswordVisible(!isPasswordVisible)
+                                                        setIsPasswordVisible(
+                                                            !isPasswordVisible
+                                                        )
                                                     }
                                                     type="button"
                                                     variant="ghost"

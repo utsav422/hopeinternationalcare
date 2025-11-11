@@ -1,11 +1,11 @@
 'use client';
 
-import {useAdminCustomerContactRequestList} from '@/hooks/admin/customer-contact-requests';
-import {useDataTableQueryState} from '@/hooks/admin/use-data-table-query-state';
-import {CustomerContactRequestsTable} from './customer-contact-requests-table-component';
+import { useAdminCustomerContactRequestList } from '@/hooks/admin/customer-contact-requests-optimized';
+import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
+import { CustomerContactRequestsTable } from './customer-contact-requests-table-component';
 
 export default function CustomerContactRequestsTableContainer() {
-    const {page, pageSize, sortBy, order, filters} = useDataTableQueryState();
+    const { page, pageSize, sortBy, order, filters } = useDataTableQueryState();
 
     // Extract search and status from filters
     const search = filters?.find(
@@ -15,12 +15,18 @@ export default function CustomerContactRequestsTableContainer() {
         (f: { id: string; value: unknown }) => f.id === 'status'
     )?.value as string | undefined;
 
-    const {data} = useAdminCustomerContactRequestList({page, pageSize, sortBy, order, filters});
+    const { data } = useAdminCustomerContactRequestList({
+        page,
+        pageSize,
+        sortBy,
+        order,
+        filters,
+    });
 
     return (
         <CustomerContactRequestsTable
-            data={data?.data || []}
-            total={data?.total || 0}
+            data={data?.data?.data || []}
+            total={data?.data?.total || 0}
         />
     );
 }

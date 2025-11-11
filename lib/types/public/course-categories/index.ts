@@ -6,17 +6,8 @@ export type CourseCategoryBase = InferSelectModel<typeof courseCategories>;
 
 // Public course category list item
 export interface PublicCourseCategoryListItem {
-  id: string;
-  name: string;
-  description: string | null;
-  created_at: string;
-}
-
-// API response type
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  code?: string;
-  details?: Record<string, any>;
+    id: string;
+    name: string;
+    description: string | null;
+    created_at: string;
 }

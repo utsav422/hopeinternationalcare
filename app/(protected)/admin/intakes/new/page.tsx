@@ -17,16 +17,17 @@ export default async function NewIntakePage() {
     await Promise.all([
         queryClient.prefetchQuery({
             queryKey: queryKeys.intakes.detail(''),
-            queryFn: () => Promise.resolve({ data: null, success: false, error: '' }),
-            staleTime: 1000 * 60 * 5,  //5minutes
+            queryFn: () =>
+                Promise.resolve({ data: null, success: false, error: '' }),
+            staleTime: 1000 * 60 * 5, //5minutes
             gcTime: 1000 * 60 * 60, // 1 hour
         }),
         queryClient.prefetchQuery({
             queryKey: queryKeys.courses.lists(),
             queryFn: cachedAdminCourseListAll,
-            staleTime: 1000 * 60 * 5,  //5minutes
+            staleTime: 1000 * 60 * 5, //5minutes
             gcTime: 1000 * 60 * 60, // 1 hour
-        })
+        }),
     ]);
 
     return (

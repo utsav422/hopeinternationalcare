@@ -52,12 +52,7 @@ export default function robots(): MetadataRoute.Robots {
             // Bing-specific rules
             {
                 userAgent: 'Bingbot',
-                allow: [
-                    '/',
-                    '/courses/',
-                    '/aboutus',
-                    '/contactus',
-                ],
+                allow: ['/', '/courses/', '/aboutus', '/contactus'],
                 disallow: [
                     '/admin/',
                     '/users/',
@@ -70,46 +65,19 @@ export default function robots(): MetadataRoute.Robots {
             // Social media crawlers
             {
                 userAgent: 'facebookexternalhit',
-                allow: [
-                    '/',
-                    '/courses/',
-                    '/aboutus',
-                    '/contactus',
-                ],
-                disallow: [
-                    '/admin/',
-                    '/users/',
-                    '/api/',
-                ],
+                allow: ['/', '/courses/', '/aboutus', '/contactus'],
+                disallow: ['/admin/', '/users/', '/api/'],
             },
             {
                 userAgent: 'Twitterbot',
-                allow: [
-                    '/',
-                    '/courses/',
-                    '/aboutus',
-                    '/contactus',
-                ],
-                disallow: [
-                    '/admin/',
-                    '/users/',
-                    '/api/',
-                ],
+                allow: ['/', '/courses/', '/aboutus', '/contactus'],
+                disallow: ['/admin/', '/users/', '/api/'],
             },
             // LinkedIn crawler
             {
                 userAgent: 'LinkedInBot',
-                allow: [
-                    '/',
-                    '/courses/',
-                    '/aboutus',
-                    '/contactus',
-                ],
-                disallow: [
-                    '/admin/',
-                    '/users/',
-                    '/api/',
-                ],
+                allow: ['/', '/courses/', '/aboutus', '/contactus'],
+                disallow: ['/admin/', '/users/', '/api/'],
             },
             // Block malicious bots
             {

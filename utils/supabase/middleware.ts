@@ -1,6 +1,6 @@
-import {createServerClient} from '@supabase/ssr';
-import {type NextRequest, NextResponse} from 'next/server';
-import type {Database} from './database.types';
+import { createServerClient } from '@supabase/ssr';
+import { type NextRequest, NextResponse } from 'next/server';
+import type { Database } from './database.types';
 
 const Roles = {
     Service: 'service_role',
@@ -21,12 +21,12 @@ const isAdminAuthRoute = (pathname: string) =>
 
 const isAdminRoute = (pathname: string) => pathname.startsWith('/admin');
 
-const isUserRoute = (pathname: string) =>
-    pathname.startsWith('/users'); // covers /users and /users/profile and subpaths
+const isUserRoute = (pathname: string) => pathname.startsWith('/users'); // covers /users and /users/profile and subpaths
 
 const getEnvOrThrow = (key: string): string => {
     const value = process.env[key];
-    if (!value) throw new Error(`Missing required environment variable: ${key}`);
+    if (!value)
+        throw new Error(`Missing required environment variable: ${key}`);
     return value;
 };
 
@@ -35,27 +35,34 @@ const buildRedirect = (path: string, req: NextRequest) =>
 
 export const updateSession = async (request: NextRequest) => {
     try {
-        let response = NextResponse.next({request});
+        let response = NextResponse.next({ request });
 
         const supabaseUrl = getEnvOrThrow('NEXT_PUBLIC_SUPABASE_URL');
         const supabaseAnonKey = getEnvOrThrow('NEXT_PUBLIC_SUPABASE_ANON_KEY');
 
-        const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
-            cookies: {
-                getAll() {
-                    return request.cookies.getAll();
+        const supabase = createServerClient<Database>(
+            supabaseUrl,
+            supabaseAnonKey,
+            {
+                cookies: {
+                    getAll() {
+                        return request.cookies.getAll();
+                    },
+                    setAll(cookiesToSet) {
+                        for (const { name, value } of cookiesToSet) {
+                            request.cookies.set(name, value);
+                        }
+                        response = NextResponse.next({ request });
+                    },
                 },
-                setAll(cookiesToSet) {
-                    for (const {name, value} of cookiesToSet) {
-                        request.cookies.set(name, value);
-                    }
-                    response = NextResponse.next({request});
-                },
-            },
-        });
+            }
+        );
 
         // IMPORTANT: Do not run additional code between client creation and getUser - HERE
-        const {data: {user}, error} = await supabase.auth.getUser();
+        const {
+            data: { user },
+            error,
+        } = await supabase.auth.getUser();
 
         // For auth routes, surface auth errors via query param for UI handling
         if (error && isAuthRoute(request.nextUrl.pathname)) {
@@ -72,10 +79,12 @@ export const updateSession = async (request: NextRequest) => {
 
             if (!user) {
                 // Non-authenticated users can access admin auth pages only
-                if (!onAdminAuthPage) return buildRedirect('/admin-auth/sign-in', request);
+                if (!onAdminAuthPage)
+                    return buildRedirect('/admin-auth/sign-in', request);
             } else if (user.role !== Roles.Service) {
                 // Authenticated but not service role
-                if (user.role === Roles.Authenticated) return buildRedirect('/users/profile', request);
+                if (user.role === Roles.Authenticated)
+                    return buildRedirect('/users/profile', request);
                 return buildRedirect('/sign-in', request);
             } else if (onAdminAuthPage) {
                 // Service role users should not see admin auth pages
@@ -88,7 +97,8 @@ export const updateSession = async (request: NextRequest) => {
             if (!user) return buildRedirect('/sign-in', request);
 
             if (user.role !== Roles.Authenticated) {
-                if (user.role === Roles.Service) return buildRedirect('/admin', request);
+                if (user.role === Roles.Service)
+                    return buildRedirect('/admin', request);
                 return buildRedirect('/sign-in', request);
             }
         }

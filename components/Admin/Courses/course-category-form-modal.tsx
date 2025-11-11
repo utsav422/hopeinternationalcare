@@ -31,7 +31,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useAdminCourseCategoryListAll } from '@/hooks/admin/course-categories';
+import { useAdminCourseCategoryList } from '@/hooks/admin/course-categories-optimized';
 import {
     ZodCourseCategoryInsertSchema,
     type ZodInsertCourseCategoryType,
@@ -53,12 +53,12 @@ export default function CourseCategoryFormModal({
     creationOnly = false,
 }: Props) {
     const {
-        data: queryResult,
+        data: result,
         isLoading: isLoadingCategories,
         error,
-    } = useAdminCourseCategoryListAll();
+    } = useAdminCourseCategoryList({ page: 1, pageSize: 99 });
     const categories =
-        (queryResult?.data as {
+        (result?.data?.data as {
             id: string;
             name: string;
             description: string | null;
@@ -66,10 +66,11 @@ export default function CourseCategoryFormModal({
             updated_at: string;
         }[]) ?? [];
 
-    const [showNewCategoryForm, setShowNewCategoryForm] = useState(creationOnly);
-    const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
-        undefined
-    );
+    const [showNewCategoryForm, setShowNewCategoryForm] =
+        useState(creationOnly);
+    const [selectedCategory, setSelectedCategory] = useState<
+        string | undefined
+    >(undefined);
 
     const form = useForm<ZodInsertCourseCategoryType>({
         resolver: zodResolver(ZodCourseCategoryInsertSchema),
@@ -99,18 +100,17 @@ export default function CourseCategoryFormModal({
 
     return (
         <Dialog onOpenChange={setIsOpen} open={isOpen}>
-
-            <DialogContent >
+            <DialogContent>
                 <DialogHeader>
-                    <DialogTitle >
-                        Manage Course Category
-                    </DialogTitle>
+                    <DialogTitle>Manage Course Category</DialogTitle>
                 </DialogHeader>
                 {showNewCategoryForm ? (
                     <Form {...form}>
                         <form
                             className="w-full space-y-6"
-                            onSubmit={form.handleSubmit(handleNewCategorySubmit)}
+                            onSubmit={form.handleSubmit(
+                                handleNewCategorySubmit
+                            )}
                         >
                             <FormField
                                 control={form.control}
@@ -124,9 +124,7 @@ export default function CourseCategoryFormModal({
                                         </div>{' '}
                                         <div className="space-y-2 md:col-span-3">
                                             <FormControl>
-                                                <Input
-                                                    {...field}
-                                                />
+                                                <Input {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </div>
@@ -160,15 +158,18 @@ export default function CourseCategoryFormModal({
                 ) : (
                     <div className="space-y-4">
                         <Select onValueChange={setSelectedCategory}>
-                            <SelectTrigger className='w-full'>
+                            <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
-                            <SelectContent >
+                            <SelectContent>
                                 {isLoadingCategories ? (
                                     <Loader className="animate-spin" />
                                 ) : (
-                                    categories?.map((category) => (
-                                        <SelectItem key={category.id} value={category.id}>
+                                    categories?.map(category => (
+                                        <SelectItem
+                                            key={category.id}
+                                            value={category.id}
+                                        >
                                             {category.name}
                                         </SelectItem>
                                     ))
@@ -201,7 +202,7 @@ export default function CourseCategoryFormModal({
                         variant={'destructive'}
                         onClick={() => {
                             form.reset();
-                            setIsOpen(false)
+                            setIsOpen(false);
                         }}
                         type="submit"
                     >
@@ -219,6 +220,6 @@ export default function CourseCategoryFormModal({
                     </Button>
                 </DialogFooter>
             </DialogContent>
-        </Dialog >
+        </Dialog>
     );
 }

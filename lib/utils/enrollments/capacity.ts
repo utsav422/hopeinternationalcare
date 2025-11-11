@@ -19,14 +19,14 @@ export async function updateIntakeCapacity(
             await db
                 .update(intakes)
                 .set({
-                    total_registered: sql`${intakes.total_registered} + 1`
+                    total_registered: sql`${intakes.total_registered} + 1`,
                 })
                 .where(eq(intakes.id, intakeId));
         } else if (operation === 'decrement') {
             await db
                 .update(intakes)
                 .set({
-                    total_registered: sql`${intakes.total_registered} - 1`
+                    total_registered: sql`${intakes.total_registered} - 1`,
                 })
                 .where(eq(intakes.id, intakeId));
         }
@@ -34,7 +34,7 @@ export async function updateIntakeCapacity(
         logger.error('Error updating intake capacity', {
             error: error instanceof Error ? error.message : 'Unknown error',
             intakeId,
-            operation
+            operation,
         });
         throw new EnrollmentBusinessError(
             'Failed to update intake capacity',
@@ -48,14 +48,16 @@ export async function updateIntakeCapacity(
  * Validates and updates intake capacity for a new enrollment
  * @param intakeId Intake ID
  */
-export async function validateAndIncrementCapacity(intakeId: string): Promise<void> {
+export async function validateAndIncrementCapacity(
+    intakeId: string
+): Promise<void> {
     try {
         // Fetch current intake details
         const intakeResult = await db
             .select({
                 id: intakes.id,
                 capacity: intakes.capacity,
-                total_registered: intakes.total_registered
+                total_registered: intakes.total_registered,
             })
             .from(intakes)
             .where(eq(intakes.id, intakeId))
@@ -81,7 +83,7 @@ export async function validateAndIncrementCapacity(intakeId: string): Promise<vo
                 'CAPACITY_EXCEEDED',
                 {
                     current: intake.total_registered,
-                    max: intake.capacity
+                    max: intake.capacity,
                 }
             );
         }
@@ -94,7 +96,7 @@ export async function validateAndIncrementCapacity(intakeId: string): Promise<vo
         }
         logger.error('Error validating and incrementing capacity', {
             error: error instanceof Error ? error.message : 'Unknown error',
-            intakeId
+            intakeId,
         });
         throw new EnrollmentBusinessError(
             'Failed to validate and update intake capacity',
@@ -118,12 +120,12 @@ export async function syncEnrollmentPaymentStatus(
         const { payments } = await import('@/lib/db/schema/payments');
         const { eq } = await import('drizzle-orm');
 
-        let newPaymentStatus: TypePaymentStatus
+        let newPaymentStatus: TypePaymentStatus;
 
         switch (enrollmentStatus) {
             case 'enrolled':
             case 'completed':
-                newPaymentStatus = PaymentStatus.completed
+                newPaymentStatus = PaymentStatus.completed;
                 break;
             case 'cancelled':
                 newPaymentStatus = PaymentStatus.cancelled;
@@ -152,7 +154,7 @@ export async function syncEnrollmentPaymentStatus(
         logger.error('Error synchronizing enrollment payment status', {
             error: error instanceof Error ? error.message : 'Unknown error',
             enrollmentId,
-            enrollmentStatus
+            enrollmentStatus,
         });
         // Don't fail the enrollment update if payment sync fails, just log the error
     }

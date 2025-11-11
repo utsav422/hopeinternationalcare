@@ -1,6 +1,6 @@
 'use client';
 
-import { useUserDeletionForm } from '@/hooks/admin/use-user-deletion-forms';
+// import { useUserDeletionForm } from '@/hooks/admin/use-user-deletion-forms';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -23,13 +23,15 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { AlertTriangle, Calendar, Clock, Mail, Trash2 } from 'lucide-react';
-import { ZodUserDeletionSchema, type ZodUserDeletionType } from '@/lib/db/drizzle-zod-schema';
 import { z } from 'zod';
 
 // Create a form-specific schema that makes send_email_notification required
 const FormUserDeletionSchema = z.object({
     user_id: z.string().uuid(),
-    deletion_reason: z.string().min(10, 'Deletion reason must be at least 10 characters').max(500, 'Deletion reason cannot exceed 500 characters'),
+    deletion_reason: z
+        .string()
+        .min(10, 'Deletion reason must be at least 10 characters')
+        .max(500, 'Deletion reason cannot exceed 500 characters'),
     scheduled_deletion_date: z.string().datetime().optional(),
     send_email_notification: z.boolean(),
 });
@@ -47,26 +49,31 @@ interface DeleteUserModalProps {
     onDelete: (data: FormUserDeletionType) => Promise<void>;
 }
 
-export default function DeleteUserModal({ isOpen, onClose, user, onDelete }: DeleteUserModalProps) {
-    const {
-        form,
-        isScheduled,
-        isSubmitting,
-        handleSubmit,
-        handleScheduledToggle,
-        resetForm,
-        getDefaultScheduledDate,
-    } = useUserDeletionForm(user);
+export default function DeleteUserModal({
+    isOpen,
+    onClose,
+    user,
+    onDelete,
+}: DeleteUserModalProps) {
+    // const {
+    //     form,
+    //     isScheduled,
+    //     isSubmitting,
+    //     handleSubmit,
+    //     handleScheduledToggle,
+    //     resetForm,
+    //     getDefaultScheduledDate,
+    // } = useUserDeletionForm(user);
 
     const handleFormSubmit = async (data: FormUserDeletionType) => {
-        const result = await handleSubmit(data);
-        if (result?.success) {
-            onClose();
-        }
+        // const result = await handleSubmit(data);
+        // if (result?.success) {
+        //     onClose();
+        // }
     };
 
     const handleClose = () => {
-        resetForm();
+        // resetForm();
         onClose();
     };
 
@@ -81,7 +88,8 @@ export default function DeleteUserModal({ isOpen, onClose, user, onDelete }: Del
                         Delete User Account
                     </DialogTitle>
                     <DialogDescription>
-                        This action will deactivate the user account. Please provide a reason and choose deletion timing.
+                        This action will deactivate the user account. Please
+                        provide a reason and choose deletion timing.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -89,7 +97,9 @@ export default function DeleteUserModal({ isOpen, onClose, user, onDelete }: Del
                     <div className="flex items-start gap-3">
                         <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5" />
                         <div>
-                            <h4 className="font-medium text-red-800">User Information</h4>
+                            <h4 className="font-medium text-red-800">
+                                User Information
+                            </h4>
                             <p className="text-sm text-red-700 mt-1">
                                 <strong>Name:</strong> {user.full_name}
                             </p>
@@ -99,9 +109,12 @@ export default function DeleteUserModal({ isOpen, onClose, user, onDelete }: Del
                         </div>
                     </div>
                 </div>
-
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+                <h1>This is depricated</h1>
+                {/* <Form {...form}>
+                    <form
+                        onSubmit={form.handleSubmit(handleFormSubmit)}
+                        className="space-y-6"
+                    >
                         <FormField
                             control={form.control}
                             name="deletion_reason"
@@ -118,7 +131,8 @@ export default function DeleteUserModal({ isOpen, onClose, user, onDelete }: Del
                                         />
                                     </FormControl>
                                     <FormDescription>
-                                        This reason will be included in the notification email and audit logs.
+                                        This reason will be included in the
+                                        notification email and audit logs.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -130,7 +144,9 @@ export default function DeleteUserModal({ isOpen, onClose, user, onDelete }: Del
                                 <Checkbox
                                     id="scheduled"
                                     checked={isScheduled}
-                                    onCheckedChange={(checked) => handleScheduledToggle(checked === true)}
+                                    onCheckedChange={checked =>
+                                        handleScheduledToggle(checked === true)
+                                    }
                                 />
                                 <label
                                     htmlFor="scheduled"
@@ -159,7 +175,8 @@ export default function DeleteUserModal({ isOpen, onClose, user, onDelete }: Del
                                                 />
                                             </FormControl>
                                             <FormDescription>
-                                                Time zone: Nepal Standard Time (NPT). Maximum 30 days from now.
+                                                Time zone: Nepal Standard Time
+                                                (NPT). Maximum 30 days from now.
                                             </FormDescription>
                                             <FormMessage />
                                         </FormItem>
@@ -185,7 +202,9 @@ export default function DeleteUserModal({ isOpen, onClose, user, onDelete }: Del
                                             Send email notification to user
                                         </FormLabel>
                                         <FormDescription>
-                                            The user will receive an email notification about the account deletion.
+                                            The user will receive an email
+                                            notification about the account
+                                            deletion.
                                         </FormDescription>
                                     </div>
                                 </FormItem>
@@ -196,12 +215,26 @@ export default function DeleteUserModal({ isOpen, onClose, user, onDelete }: Del
                             <div className="flex items-start gap-3">
                                 <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
                                 <div>
-                                    <h4 className="font-medium text-yellow-800">Important Notice</h4>
+                                    <h4 className="font-medium text-yellow-800">
+                                        Important Notice
+                                    </h4>
                                     <ul className="text-sm text-yellow-700 mt-2 space-y-1">
-                                        <li>• The user will immediately lose access to their account</li>
-                                        <li>• All active enrollments will be cancelled</li>
-                                        <li>• This action can be reversed by administrators</li>
-                                        <li>• All deletion activities are logged for audit purposes</li>
+                                        <li>
+                                            • The user will immediately lose
+                                            access to their account
+                                        </li>
+                                        <li>
+                                            • All active enrollments will be
+                                            cancelled
+                                        </li>
+                                        <li>
+                                            • This action can be reversed by
+                                            administrators
+                                        </li>
+                                        <li>
+                                            • All deletion activities are logged
+                                            for audit purposes
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
@@ -235,7 +268,7 @@ export default function DeleteUserModal({ isOpen, onClose, user, onDelete }: Del
                             </Button>
                         </DialogFooter>
                     </form>
-                </Form>
+                </Form> */}
             </DialogContent>
         </Dialog>
     );

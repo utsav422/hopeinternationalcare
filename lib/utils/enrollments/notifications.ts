@@ -1,4 +1,7 @@
-import { type EnrollmentWithDetails, type TypeEnrollmentStatus } from '@/lib/types/enrollments';
+import {
+    type EnrollmentWithDetails,
+    type TypeEnrollmentStatus,
+} from '@/lib/types/enrollments';
 import { emailService } from '@/lib/email/service';
 import { logger } from '@/utils/logger';
 
@@ -10,62 +13,62 @@ import { logger } from '@/utils/logger';
  * @param reason Cancellation reason (if applicable)
  */
 export async function handleEnrollmentStatusNotification(
-  enrollment: EnrollmentWithDetails,
-  previousStatus: TypeEnrollmentStatus,
-  newStatus: TypeEnrollmentStatus,
-  reason?: string
+    enrollment: EnrollmentWithDetails,
+    previousStatus: TypeEnrollmentStatus,
+    newStatus: TypeEnrollmentStatus,
+    reason?: string
 ): Promise<void> {
-  // Only send email if status actually changed
-  if (previousStatus === newStatus) {
-    logger.info('No email sent - enrollment status unchanged', {
-      enrollmentId: enrollment.enrollment.id,
-      status: newStatus
-    });
-    return;
-  }
-
-  const userEmail = enrollment.user?.email;
-  const userName = enrollment.user?.full_name;
-  const courseTitle = enrollment.course?.title;
-
-  // Check if we have required data to send email
-  if (!userEmail || !userName || !courseTitle) {
-    logger.warn('Missing required data for enrollment notification', {
-      enrollmentId: enrollment.enrollment.id,
-      hasUserEmail: !!userEmail,
-      hasUserName: !!userName,
-      hasCourseTitle: !!courseTitle
-    });
-    return;
-  }
-
-  try {
-    let emailResult;
-
-    switch (newStatus) {
-      case 'enrolled':
-        // Send enrollment confirmation email
-        emailResult = await emailService.sendEnrollmentConfirmation(
-          userEmail,
-          userName,
-          courseTitle,
-          enrollment.intake?.start_date || ''
-        );
-        logger.info('Enrollment confirmation email sent', {
-          userEmail,
-          userName,
-          courseName: courseTitle,
-          previousStatus,
-          newStatus
+    // Only send email if status actually changed
+    if (previousStatus === newStatus) {
+        logger.info('No email sent - enrollment status unchanged', {
+            enrollmentId: enrollment.enrollment.id,
+            status: newStatus,
         });
-        break;
+        return;
+    }
 
-      case 'cancelled':
-        // Send enrollment cancellation email
-        emailResult = await emailService.send({
-          to: userEmail,
-          subject: 'Enrollment Cancelled - Hope International',
-          html: `
+    const userEmail = enrollment.user?.email;
+    const userName = enrollment.user?.full_name;
+    const courseTitle = enrollment.course?.title;
+
+    // Check if we have required data to send email
+    if (!userEmail || !userName || !courseTitle) {
+        logger.warn('Missing required data for enrollment notification', {
+            enrollmentId: enrollment.enrollment.id,
+            hasUserEmail: !!userEmail,
+            hasUserName: !!userName,
+            hasCourseTitle: !!courseTitle,
+        });
+        return;
+    }
+
+    try {
+        let emailResult;
+
+        switch (newStatus) {
+            case 'enrolled':
+                // Send enrollment confirmation email
+                emailResult = await emailService.sendEnrollmentConfirmation(
+                    userEmail,
+                    userName,
+                    courseTitle,
+                    enrollment.intake?.start_date || ''
+                );
+                logger.info('Enrollment confirmation email sent', {
+                    userEmail,
+                    userName,
+                    courseName: courseTitle,
+                    previousStatus,
+                    newStatus,
+                });
+                break;
+
+            case 'cancelled':
+                // Send enrollment cancellation email
+                emailResult = await emailService.send({
+                    to: userEmail,
+                    subject: 'Enrollment Cancelled - Hope International',
+                    html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <h2 style="color: #dc2626;">Enrollment Cancelled</h2>
               
@@ -90,54 +93,54 @@ export async function handleEnrollmentStatusNotification(
                 <p>Kathmandu, Nepal</p>
               </div>
             </div>
-          `
-        });
-        logger.info('Enrollment cancellation email sent', {
-          userEmail,
-          userName,
-          courseName: courseTitle,
-          cancellationReason: reason,
-          previousStatus,
-          newStatus
-        });
-        break;
+          `,
+                });
+                logger.info('Enrollment cancellation email sent', {
+                    userEmail,
+                    userName,
+                    courseName: courseTitle,
+                    cancellationReason: reason,
+                    previousStatus,
+                    newStatus,
+                });
+                break;
 
-      case 'completed':
-        // Send course completion email with certificate
-        emailResult = await emailService.sendCertificateEmail(
-          userEmail,
-          userName,
-          courseTitle
-        );
-        logger.info('Course completion email sent', {
-          userEmail,
-          userName,
-          courseName: courseTitle,
-          previousStatus,
-          newStatus
-        });
-        break;
+            case 'completed':
+                // Send course completion email with certificate
+                emailResult = await emailService.sendCertificateEmail(
+                    userEmail,
+                    userName,
+                    courseTitle
+                );
+                logger.info('Course completion email sent', {
+                    userEmail,
+                    userName,
+                    courseName: courseTitle,
+                    previousStatus,
+                    newStatus,
+                });
+                break;
 
-      default:
-        logger.info('No notification required for status change', {
-          enrollmentId: enrollment.enrollment.id,
-          previousStatus,
-          newStatus
+            default:
+                logger.info('No notification required for status change', {
+                    enrollmentId: enrollment.enrollment.id,
+                    previousStatus,
+                    newStatus,
+                });
+                return;
+        }
+
+        if (emailResult && !emailResult.success) {
+            logger.error('Failed to send enrollment status change email', {
+                error: emailResult.error,
+            });
+        }
+    } catch (error) {
+        logger.error('Error sending enrollment status change email', {
+            error: error instanceof Error ? error.message : 'Unknown error',
         });
-        return;
+        // Don't fail the status update if email fails, just log the error
     }
-
-    if (emailResult && !emailResult.success) {
-      logger.error('Failed to send enrollment status change email', {
-        error: emailResult.error
-      });
-    }
-  } catch (error) {
-    logger.error('Error sending enrollment status change email', {
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-    // Don't fail the status update if email fails, just log the error
-  }
 }
 
 /**
@@ -146,15 +149,15 @@ export async function handleEnrollmentStatusNotification(
  * @param status New status for all enrollments
  */
 export async function sendBulkEnrollmentNotifications(
-  enrollments: EnrollmentWithDetails[],
-  status: TypeEnrollmentStatus
+    enrollments: EnrollmentWithDetails[],
+    status: TypeEnrollmentStatus
 ): Promise<void> {
-  for (const enrollment of enrollments) {
-    // For bulk operations, we'll use the current status as "previous" since we don't have individual previous states
-    await handleEnrollmentStatusNotification(
-      enrollment,
-      enrollment.enrollment.status,
-      status
-    );
-  }
+    for (const enrollment of enrollments) {
+        // For bulk operations, we'll use the current status as "previous" since we don't have individual previous states
+        await handleEnrollmentStatusNotification(
+            enrollment,
+            enrollment.enrollment.status,
+            status
+        );
+    }
 }

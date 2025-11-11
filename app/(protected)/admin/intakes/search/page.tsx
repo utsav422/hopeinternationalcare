@@ -22,16 +22,17 @@ function IntakesSearchSkeleton() {
 
 export default async function IntakesSearchPage() {
     await requireAdmin();
-    
+
     return (
         <div className="container mx-auto py-6">
             <div className="mb-6">
                 <h1 className="text-3xl font-bold">Search Intakes</h1>
                 <p className="text-muted-foreground">
-                    Search for intakes by course and year to view detailed information and statistics.
+                    Search for intakes by course and year to view detailed
+                    information and statistics.
                 </p>
             </div>
-            
+
             <QueryErrorWrapper>
                 <Suspense fallback={<IntakesSearchSkeleton />}>
                     <IntakesByCourseYear />

@@ -43,7 +43,12 @@ export const EMAIL_TEMPLATES = {
   `,
 
     // Contact form template
-    contactForm: (data: { name: string; email: string; phone?: string; message: string }) => `
+    contactForm: (data: {
+        name: string;
+        email: string;
+        phone?: string;
+        message: string;
+    }) => `
     <h2 style="color: #2563eb;">New Contact Form Submission</h2>
     
     <div class="alert alert-info">
@@ -93,7 +98,11 @@ export const EMAIL_TEMPLATES = {
   `,
 
     // Enrollment request received template
-    enrollmentReceived: (data: { userName: string; intakeId: string; courseName?: string }) => `
+    enrollmentReceived: (data: {
+        userName: string;
+        intakeId: string;
+        courseName?: string;
+    }) => `
     <h2 style="color: #2563eb;">Enrollment Request Received</h2>
     
     <p>Dear ${data.userName},</p>
@@ -124,7 +133,12 @@ export const EMAIL_TEMPLATES = {
   `,
 
     // Admin enrollment notification template
-    enrollmentNotification: (data: { userName: string; userEmail: string; intakeId: string; courseName?: string }) => `
+    enrollmentNotification: (data: {
+        userName: string;
+        userEmail: string;
+        intakeId: string;
+        courseName?: string;
+    }) => `
     <h2 style="color: #dc2626;">New Enrollment Request</h2>
     
     <p>A new enrollment request has been submitted and requires your attention.</p>
@@ -150,7 +164,11 @@ export const EMAIL_TEMPLATES = {
   `,
 
     // Enrollment confirmation template
-    enrollmentConfirmed: (data: { userName: string; courseName: string; intakeDate: string }) => `
+    enrollmentConfirmed: (data: {
+        userName: string;
+        courseName: string;
+        intakeDate: string;
+    }) => `
     <h2 style="color: #16a34a;">Enrollment Confirmed!</h2>
     
     <p>Dear ${data.userName},</p>
@@ -203,7 +221,11 @@ export const EMAIL_TEMPLATES = {
   `,
 
     // Course completion certificate template
-    certificate: (data: { userName: string; courseName: string; certificateUrl?: string }) => `
+    certificate: (data: {
+        userName: string;
+        courseName: string;
+        certificateUrl?: string;
+    }) => `
     <h2 style="color: #7c3aed;">Congratulations on Your Achievement!</h2>
 
     <p>Dear ${data.userName},</p>
@@ -217,13 +239,17 @@ export const EMAIL_TEMPLATES = {
       <p><strong>Status:</strong> Certified</p>
     </div>
 
-    ${data.certificateUrl ? `
+    ${
+        data.certificateUrl
+            ? `
     <div style="text-align: center; margin: 30px 0;">
       <a href="${data.certificateUrl}" class="button" style="background-color: #7c3aed;">
         Download Certificate
       </a>
     </div>
-    ` : ''}
+    `
+            : ''
+    }
 
     <p>Your dedication and hard work have paid off. This certification demonstrates your commitment to excellence in aged care.</p>
 
@@ -234,7 +260,12 @@ export const EMAIL_TEMPLATES = {
   `,
 
     // Account deletion notification template
-    accountDeletionNotification: (data: { userName: string; deletionDate: string; reason: string; contactEmail: string }) => `
+    accountDeletionNotification: (data: {
+        userName: string;
+        deletionDate: string;
+        reason: string;
+        contactEmail: string;
+    }) => `
     <h2 style="color: #dc2626;">Account Deletion Notification</h2>
 
     <p>Dear ${data.userName},</p>
@@ -273,7 +304,12 @@ export const EMAIL_TEMPLATES = {
   `,
 
     // Scheduled deletion warning template
-    accountDeletionScheduled: (data: { userName: string; scheduledDate: string; reason: string; contactEmail: string }) => `
+    accountDeletionScheduled: (data: {
+        userName: string;
+        scheduledDate: string;
+        reason: string;
+        contactEmail: string;
+    }) => `
     <h2 style="color: #f59e0b;">Account Deletion Scheduled</h2>
 
     <p>Dear ${data.userName},</p>
@@ -315,7 +351,11 @@ export const EMAIL_TEMPLATES = {
   `,
 
     // Deletion reminder template (24 hours before)
-    accountDeletionReminder: (data: { userName: string; deletionDate: string; contactEmail: string }) => `
+    accountDeletionReminder: (data: {
+        userName: string;
+        deletionDate: string;
+        contactEmail: string;
+    }) => `
     <h2 style="color: #dc2626;">Final Notice: Account Deletion in 24 Hours</h2>
 
     <p>Dear ${data.userName},</p>
@@ -343,7 +383,11 @@ export const EMAIL_TEMPLATES = {
   `,
 
     // Account restored template
-    accountRestored: (data: { userName: string; restorationDate: string; contactEmail: string }) => `
+    accountRestored: (data: {
+        userName: string;
+        restorationDate: string;
+        contactEmail: string;
+    }) => `
     <h2 style="color: #16a34a;">Account Successfully Restored</h2>
 
     <p>Dear ${data.userName},</p>
@@ -387,7 +431,10 @@ export const EMAIL_TEMPLATES = {
 };
 
 // Helper function to generate complete email HTML
-export function generateEmailHTML(templateKey: keyof typeof EMAIL_TEMPLATES, ...args: any[]): string {
+export function generateEmailHTML(
+    templateKey: keyof typeof EMAIL_TEMPLATES,
+    ...args: any[]
+): string {
     const template = EMAIL_TEMPLATES[templateKey];
     if (templateKey === 'base') {
         return template(args[0]);
@@ -406,7 +453,9 @@ export const EMAIL_SUBJECTS = {
     passwordReset: 'Reset Your Password - Hope International',
     certificate: 'Course Completion Certificate - Hope International',
     accountDeletionNotification: 'Account Deactivated - Hope International',
-    accountDeletionScheduled: 'Important: Account Deletion Scheduled - Hope International',
-    accountDeletionReminder: 'Final Notice: Account Deletion in 24 Hours - Hope International',
+    accountDeletionScheduled:
+        'Important: Account Deletion Scheduled - Hope International',
+    accountDeletionReminder:
+        'Final Notice: Account Deletion in 24 Hours - Hope International',
     accountRestored: 'Account Restored - Hope International',
 };

@@ -1,55 +1,59 @@
 // Comprehensive email service for Hope International
-import { sendEmail, sendContactFormEmail, sendEnrollmentNotifications } from './resend';
+import {
+    sendEmail,
+    sendContactFormEmail,
+    sendEnrollmentNotifications,
+} from './resend';
 import type { ContactFormData, EnrollmentNotificationData } from './resend';
 
 // Email service class for centralized email management
 export class EmailService {
-  private static instance: EmailService;
+    private static instance: EmailService;
 
-  private constructor() {}
+    private constructor() {}
 
-  public static getInstance(): EmailService {
-    if (!EmailService.instance) {
-      EmailService.instance = new EmailService();
+    public static getInstance(): EmailService {
+        if (!EmailService.instance) {
+            EmailService.instance = new EmailService();
+        }
+        return EmailService.instance;
     }
-    return EmailService.instance;
-  }
 
-  // Contact form emails
-  async sendContactForm(data: ContactFormData) {
-    return await sendContactFormEmail(data);
-  }
+    // Contact form emails
+    async sendContactForm(data: ContactFormData) {
+        return await sendContactFormEmail(data);
+    }
 
-  // Enrollment notification emails
-  async sendEnrollmentNotification(data: EnrollmentNotificationData) {
-    return await sendEnrollmentNotifications(data);
-  }
+    // Enrollment notification emails
+    async sendEnrollmentNotification(data: EnrollmentNotificationData) {
+        return await sendEnrollmentNotifications(data);
+    }
 
-  // Generic email sending
-  async send({
-    to,
-    subject,
-    html,
-    text,
-    from,
-    replyTo,
-  }: {
-    to: string | string[];
-    subject: string;
-    html: string;
-    text?: string;
-    from?: string;
-    replyTo?: string;
-  }) {
-    return await sendEmail({ to, subject, html, text, from, replyTo });
-  }
+    // Generic email sending
+    async send({
+        to,
+        subject,
+        html,
+        text,
+        from,
+        replyTo,
+    }: {
+        to: string | string[];
+        subject: string;
+        html: string;
+        text?: string;
+        from?: string;
+        replyTo?: string;
+    }) {
+        return await sendEmail({ to, subject, html, text, from, replyTo });
+    }
 
-  // Welcome email for new users
-  async sendWelcomeEmail(userEmail: string, userName: string) {
-    return await this.send({
-      to: userEmail,
-      subject: 'Welcome to Hope International!',
-      html: `
+    // Welcome email for new users
+    async sendWelcomeEmail(userEmail: string, userName: string) {
+        return await this.send({
+            to: userEmail,
+            subject: 'Welcome to Hope International!',
+            html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #2563eb;">Welcome to Hope International!</h2>
           
@@ -78,15 +82,15 @@ export class EmailService {
           </div>
         </div>
       `,
-    });
-  }
+        });
+    }
 
-  // Password reset email
-  async sendPasswordResetEmail(userEmail: string, resetLink: string) {
-    return await this.send({
-      to: userEmail,
-      subject: 'Reset Your Password - Hope International',
-      html: `
+    // Password reset email
+    async sendPasswordResetEmail(userEmail: string, resetLink: string) {
+        return await this.send({
+            to: userEmail,
+            subject: 'Reset Your Password - Hope International',
+            html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #2563eb;">Password Reset Request</h2>
           
@@ -114,20 +118,20 @@ export class EmailService {
           </div>
         </div>
       `,
-    });
-  }
+        });
+    }
 
-  // Course enrollment confirmation
-  async sendEnrollmentConfirmation(
-    userEmail: string,
-    userName: string,
-    courseName: string,
-    intakeDate: string
-  ) {
-    return await this.send({
-      to: userEmail,
-      subject: 'Enrollment Confirmed - Hope International',
-      html: `
+    // Course enrollment confirmation
+    async sendEnrollmentConfirmation(
+        userEmail: string,
+        userName: string,
+        courseName: string,
+        intakeDate: string
+    ) {
+        return await this.send({
+            to: userEmail,
+            subject: 'Enrollment Confirmed - Hope International',
+            html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #16a34a;">Enrollment Confirmed!</h2>
           
@@ -163,20 +167,20 @@ export class EmailService {
           </div>
         </div>
       `,
-    });
-  }
+        });
+    }
 
-  // Course completion certificate email
-  async sendCertificateEmail(
-    userEmail: string,
-    userName: string,
-    courseName: string,
-    certificateUrl?: string
-  ) {
-    return await this.send({
-      to: userEmail,
-      subject: 'Course Completion Certificate - Hope International',
-      html: `
+    // Course completion certificate email
+    async sendCertificateEmail(
+        userEmail: string,
+        userName: string,
+        courseName: string,
+        certificateUrl?: string
+    ) {
+        return await this.send({
+            to: userEmail,
+            subject: 'Course Completion Certificate - Hope International',
+            html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #7c3aed;">Congratulations on Your Achievement!</h2>
           
@@ -191,14 +195,18 @@ export class EmailService {
             <p><strong>Status:</strong> Certified</p>
           </div>
           
-          ${certificateUrl ? `
+          ${
+              certificateUrl
+                  ? `
           <div style="margin: 30px 0; text-align: center;">
             <a href="${certificateUrl}" 
                style="background-color: #7c3aed; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
               Download Certificate
             </a>
           </div>
-          ` : ''}
+          `
+                  : ''
+          }
           
           <p>Your dedication and hard work have paid off. This certification demonstrates your commitment to excellence in aged care.</p>
           
@@ -213,8 +221,8 @@ export class EmailService {
           </div>
         </div>
       `,
-    });
-  }
+        });
+    }
 }
 
 // Export singleton instance

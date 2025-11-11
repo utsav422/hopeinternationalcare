@@ -1,20 +1,26 @@
-'use client'
-import {Logo} from '@/components/Layout/logo';
-import {Button} from '@/components/ui/button';
-import {Sheet, SheetContent, SheetTrigger} from '@/components/ui/sheet';
-import {IconBrandFacebook, IconBrandInstagram} from '@tabler/icons-react';
-import {ChevronLeft, ChevronRight, LayoutDashboard, LogOut, Menu} from 'lucide-react';
-import Image from "next/image";
+'use client';
+import { Logo } from '@/components/Layout/logo';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { IconBrandFacebook, IconBrandInstagram } from '@tabler/icons-react';
+import {
+    ChevronLeft,
+    ChevronRight,
+    LayoutDashboard,
+    LogOut,
+    Menu,
+} from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
-import React, {useEffect, useState} from 'react'
-import {useAuthSession} from '@/hooks/use-auth-session';
-import {Skeleton} from '@/components/ui/skeleton';
-import {supabase} from '@/utils/supabase/client';
+import React, { useEffect, useState } from 'react';
+import { useAuthSession } from '@/hooks/use-auth-session';
+import { Skeleton } from '@/components/ui/skeleton';
+import { supabase } from '@/utils/supabase/client';
 
 function BackgroungImageCarousel() {
     const [currentSlide, setCurrentSlide] = useState(0);
     const carouselImages = ['/image/bg1.jpg', '/image/bg2.jpg'];
-    const {user, loading} = useAuthSession();
+    const { user, loading } = useAuthSession();
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -23,34 +29,40 @@ function BackgroungImageCarousel() {
     };
     useEffect(() => {
         const interval = setInterval(() => {
-            setCurrentSlide((prevSlide) =>
+            setCurrentSlide(prevSlide =>
                 prevSlide === carouselImages.length - 1 ? 0 : prevSlide + 1
             );
         }, 5000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [carouselImages.length]);
 
     const handlePrevClick = () => {
-        setCurrentSlide((prevSlide) =>
+        setCurrentSlide(prevSlide =>
             prevSlide === 0 ? carouselImages.length - 1 : prevSlide - 1
         );
     };
 
     const handleNextClick = () => {
-        setCurrentSlide((prevSlide) =>
+        setCurrentSlide(prevSlide =>
             prevSlide === carouselImages.length - 1 ? 0 : prevSlide + 1
         );
     };
     return (
-        <>  {/* Background Image */}
+        <>
+            {' '}
+            {/* Background Image */}
             <div className="absolute inset-0">
                 {/* Background Image Carousel */}
                 <div className="absolute inset-0 h-full w-full">
                     {carouselImages.map((src, index) => (
                         <Image
                             alt={`Background image ${index + 1}`}
-                            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+                            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-in-out ${
+                                index === currentSlide
+                                    ? 'opacity-100'
+                                    : 'opacity-0'
+                            }`}
                             key={src}
                             width={1920}
                             height={1080}
@@ -62,25 +74,37 @@ function BackgroungImageCarousel() {
                     ))}
                 </div>
                 {/* Dark overlay for better text readability */}
-                <div className="absolute inset-0 bg-black/40"/>
+                <div className="absolute inset-0 bg-black/40" />
             </div>
             {/* Navigation Bar */}
             <nav className="relative z-10 flex items-center justify-between px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6">
                 {/* Logo */}
-                <Logo/>
+                <Logo />
 
                 {/* Desktop Navigation Menu */}
                 <div className="hidden md:flex items-center space-x-6 lg:space-x-8 text-white">
-                    <Link href="/" className="hover:text-teal-400 transition-colors text-sm lg:text-base">
+                    <Link
+                        href="/"
+                        className="hover:text-teal-400 transition-colors text-sm lg:text-base"
+                    >
                         Home
                     </Link>
-                    <Link href="/aboutus" className="hover:text-teal-400 transition-colors text-sm lg:text-base">
+                    <Link
+                        href="/aboutus"
+                        className="hover:text-teal-400 transition-colors text-sm lg:text-base"
+                    >
                         About Us
                     </Link>
-                    <Link href="/courses" className="hover:text-teal-400 transition-colors text-sm lg:text-base">
+                    <Link
+                        href="/courses"
+                        className="hover:text-teal-400 transition-colors text-sm lg:text-base"
+                    >
                         Our Courses
                     </Link>
-                    <Link href="/contactus" className="hover:text-teal-400 transition-colors text-sm lg:text-base">
+                    <Link
+                        href="/contactus"
+                        className="hover:text-teal-400 transition-colors text-sm lg:text-base"
+                    >
                         Contact Us
                     </Link>
                 </div>
@@ -89,14 +113,23 @@ function BackgroungImageCarousel() {
                 <div className="flex items-center space-x-3 sm:space-x-4">
                     {/* Social Icons - Hidden on mobile */}
                     <div className="hidden md:flex items-center space-x-2 lg:space-x-3">
-                        <Link href="#" className="text-white hover:text-teal-400 transition-colors">
-                            <IconBrandInstagram className="w-4 h-4 sm:w-5 sm:h-5"/>
+                        <Link
+                            href="#"
+                            className="text-white hover:text-teal-400 transition-colors"
+                        >
+                            <IconBrandInstagram className="w-4 h-4 sm:w-5 sm:h-5" />
                         </Link>
-                        <Link href="#" className="text-white hover:text-teal-400 transition-colors">
-                            <IconBrandFacebook className="w-4 h-4 sm:w-5 sm:h-5"/>
+                        <Link
+                            href="#"
+                            className="text-white hover:text-teal-400 transition-colors"
+                        >
+                            <IconBrandFacebook className="w-4 h-4 sm:w-5 sm:h-5" />
                         </Link>
-                        <Link href="#" className="text-white hover:text-teal-400 transition-colors">
-                            <IconBrandInstagram className="w-4 h-4 sm:w-5 sm:h-5"/>
+                        <Link
+                            href="#"
+                            className="text-white hover:text-teal-400 transition-colors"
+                        >
+                            <IconBrandInstagram className="w-4 h-4 sm:w-5 sm:h-5" />
                         </Link>
                     </div>
 
@@ -104,18 +137,28 @@ function BackgroungImageCarousel() {
                     <div className="hidden md:flex items-center space-x-2">
                         {loading ? (
                             // Loading state with skeleton UI
-                            (<>
-                                <Skeleton className="h-8 w-16 bg-white/20"/>
-                                <Skeleton className="h-8 w-20 bg-white/20"/>
-                            </>)
+                            <>
+                                <Skeleton className="h-8 w-16 bg-white/20" />
+                                <Skeleton className="h-8 w-20 bg-white/20" />
+                            </>
                         ) : user ? (
                             // Authenticated user - show dashboard and logout buttons
-                            (<>
-                                <Link href={user.role === 'service_role' ? '/admin' : '/users/profile'}>
-                                    <Button variant="ghost"
-                                            className="text-white hover:text-teal-400 hover:bg-white/10 px-2 py-1.5 text-xs sm:px-3 sm:py-2 sm:text-sm">
-                                        <LayoutDashboard className="w-4 h-4 mr-1 sm:mr-2"/>
-                                        {user.role === 'service_role' ? 'Dashboard' : 'Profile'}
+                            <>
+                                <Link
+                                    href={
+                                        user.role === 'service_role'
+                                            ? '/admin'
+                                            : '/users/profile'
+                                    }
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        className="text-white hover:text-teal-400 hover:bg-white/10 px-2 py-1.5 text-xs sm:px-3 sm:py-2 sm:text-sm"
+                                    >
+                                        <LayoutDashboard className="w-4 h-4 mr-1 sm:mr-2" />
+                                        {user.role === 'service_role'
+                                            ? 'Dashboard'
+                                            : 'Profile'}
                                     </Button>
                                 </Link>
                                 <Button
@@ -123,26 +166,27 @@ function BackgroungImageCarousel() {
                                     variant="ghost"
                                     className="text-white hover:text-teal-400 hover:bg-white/10 px-2 py-1.5 text-xs sm:px-3 sm:py-2 sm:text-sm"
                                 >
-                                    <LogOut className="w-4 h-4 mr-1 sm:mr-2"/>
+                                    <LogOut className="w-4 h-4 mr-1 sm:mr-2" />
                                     Logout
                                 </Button>
-                            </>)
+                            </>
                         ) : (
                             // Unauthenticated user - show sign in and sign up buttons
-                            (<>
+                            <>
                                 <Link href="/sign-in">
-                                    <Button variant="ghost"
-                                            className="text-white hover:text-teal-400 hover:bg-white/10 px-2 py-1.5 text-xs sm:px-3 sm:py-2 sm:text-sm">
+                                    <Button
+                                        variant="ghost"
+                                        className="text-white hover:text-teal-400 hover:bg-white/10 px-2 py-1.5 text-xs sm:px-3 sm:py-2 sm:text-sm"
+                                    >
                                         Sign In
                                     </Button>
                                 </Link>
                                 <Link href="/sign-up">
-                                    <Button
-                                        className="bg-teal-400 hover:bg-teal-500 text-white px-3 py-1.5 text-xs font-medium sm:px-4 sm:py-2 sm:text-sm">
+                                    <Button className="bg-teal-400 hover:bg-teal-500 text-white px-3 py-1.5 text-xs font-medium sm:px-4 sm:py-2 sm:text-sm">
                                         Sign up
                                     </Button>
                                 </Link>
-                            </>)
+                            </>
                         )}
                     </div>
 
@@ -154,11 +198,14 @@ function BackgroungImageCarousel() {
                                 size="icon"
                                 className="md:hidden text-white hover:text-teal-400 hover:bg-white/10"
                             >
-                                <Menu className="w-5 h-5 sm:w-6 sm:h-6"/>
+                                <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
                                 <span className="sr-only">Open menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="right" className="w-[280px] sm:w-[300px] bg-white/95 backdrop-blur-md">
+                        <SheetContent
+                            side="right"
+                            className="w-[280px] sm:w-[300px] bg-white/95 backdrop-blur-md"
+                        >
                             <div className="flex flex-col space-y-6 mt-8">
                                 {/* Navigation Links */}
                                 <div className="flex flex-col space-y-4">
@@ -189,25 +236,31 @@ function BackgroungImageCarousel() {
                                 </div>
 
                                 {/* Divider */}
-                                <div className="border-t border-gray-200"/>
+                                <div className="border-t border-gray-200" />
 
                                 {/* Auth Buttons */}
                                 <div className="flex flex-col space-y-3">
                                     {loading ? (
                                         // Loading state with skeleton UI
-                                        (<>
-                                            <Skeleton className="h-10 w-full bg-gray-200"/>
-                                            <Skeleton className="h-10 w-full bg-gray-200"/>
-                                        </>)
+                                        <>
+                                            <Skeleton className="h-10 w-full bg-gray-200" />
+                                            <Skeleton className="h-10 w-full bg-gray-200" />
+                                        </>
                                     ) : user ? (
                                         // Authenticated user - show dashboard and logout buttons
-                                        (<>
-                                            <Link href={user.role === 'service_role' ? '/admin' : '/profile'}>
+                                        <>
+                                            <Link
+                                                href={
+                                                    user.role === 'service_role'
+                                                        ? '/admin'
+                                                        : '/profile'
+                                                }
+                                            >
                                                 <Button
                                                     variant="outline"
                                                     className="w-full border-gray-300 text-gray-800 hover:bg-gray-50 bg-transparent"
                                                 >
-                                                    <LayoutDashboard className="w-4 h-4 mr-2"/>
+                                                    <LayoutDashboard className="w-4 h-4 mr-2" />
                                                     Dashboard
                                                 </Button>
                                             </Link>
@@ -215,13 +268,13 @@ function BackgroungImageCarousel() {
                                                 onClick={handleLogout}
                                                 className="w-full bg-teal-400 hover:bg-teal-500 text-white"
                                             >
-                                                <LogOut className="w-4 h-4 mr-2"/>
+                                                <LogOut className="w-4 h-4 mr-2" />
                                                 Logout
                                             </Button>
-                                        </>)
+                                        </>
                                     ) : (
                                         // Unauthenticated user - show sign in and sign up buttons
-                                        (<>
+                                        <>
                                             <Link href="/sign-in">
                                                 <Button
                                                     variant="outline"
@@ -231,23 +284,33 @@ function BackgroungImageCarousel() {
                                                 </Button>
                                             </Link>
                                             <Link href="/sign-up">
-                                                <Button className="w-full bg-teal-400 hover:bg-teal-500 text-white">Sign
-                                                    up</Button>
+                                                <Button className="w-full bg-teal-400 hover:bg-teal-500 text-white">
+                                                    Sign up
+                                                </Button>
                                             </Link>
-                                        </>)
+                                        </>
                                     )}
                                 </div>
 
                                 {/* Social Icons */}
                                 <div className="flex items-center justify-center space-x-6 pt-4">
-                                    <Link href="#" className="text-gray-600 hover:text-teal-600 transition-colors">
-                                        <IconBrandInstagram className="w-5 h-5 sm:w-6 sm:h-6"/>
+                                    <Link
+                                        href="#"
+                                        className="text-gray-600 hover:text-teal-600 transition-colors"
+                                    >
+                                        <IconBrandInstagram className="w-5 h-5 sm:w-6 sm:h-6" />
                                     </Link>
-                                    <Link href="#" className="text-gray-600 hover:text-teal-600 transition-colors">
-                                        <IconBrandFacebook className="w-5 h-5 sm:w-6 sm:h-6"/>
+                                    <Link
+                                        href="#"
+                                        className="text-gray-600 hover:text-teal-600 transition-colors"
+                                    >
+                                        <IconBrandFacebook className="w-5 h-5 sm:w-6 sm:h-6" />
                                     </Link>
-                                    <Link href="#" className="text-gray-600 hover:text-teal-600 transition-colors">
-                                        <IconBrandInstagram className="w-5 h-5 sm:w-6 sm:h-6"/>
+                                    <Link
+                                        href="#"
+                                        className="text-gray-600 hover:text-teal-600 transition-colors"
+                                    >
+                                        <IconBrandInstagram className="w-5 h-5 sm:w-6 sm:h-6" />
                                     </Link>
                                 </div>
                             </div>
@@ -262,7 +325,7 @@ function BackgroungImageCarousel() {
                 onClick={handlePrevClick}
                 type="button"
             >
-                <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7"/>
+                <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" />
             </button>
             <button
                 aria-label="Next Slide"
@@ -270,10 +333,10 @@ function BackgroungImageCarousel() {
                 onClick={handleNextClick}
                 type="button"
             >
-                <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7"/>
+                <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" />
             </button>
         </>
     );
 }
 
-export default BackgroungImageCarousel
+export default BackgroungImageCarousel;

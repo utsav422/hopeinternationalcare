@@ -22,11 +22,16 @@ type CourseForSelect = Omit<
 };
 
 interface CourseSelectProps {
-    field: ControllerRenderProps<ZodInsertIntakeType, 'course_id'>;
+    field: ControllerRenderProps<any, string>;
     disabled?: boolean;
+    getItemOnValueChanges?: (item: any) => void;
 }
 
-export default function CourseSelect({ field, disabled }: CourseSelectProps) {
+export default function CourseSelect({
+    field,
+    disabled,
+    getItemOnValueChanges,
+}: CourseSelectProps) {
     const { isLoading, error, data: queryResult } = useAdminCoursesAll();
     const courses = queryResult?.data as CourseForSelect[] | undefined;
 
@@ -48,7 +53,21 @@ export default function CourseSelect({ field, disabled }: CourseSelectProps) {
     return (
         <Select
             disabled={disabled || isLoading}
-            onValueChange={field.onChange}
+            onValueChange={value => {
+                field.onChange(value);
+                // Find the selected course to pass to the callback
+                const selectedCourse = courses?.find(
+                    course => course.id === value
+                );
+                if (selectedCourse) {
+                    getItemOnValueChanges?.(selectedCourse);
+                } else {
+                    // If the value is empty (e.g. user cleared the selection), pass null or undefined
+                    if (!value) {
+                        getItemOnValueChanges?.(null);
+                    }
+                }
+            }}
             value={field.value ?? undefined}
         >
             <SelectTrigger className="w-full">
@@ -56,10 +75,7 @@ export default function CourseSelect({ field, disabled }: CourseSelectProps) {
             </SelectTrigger>
             <SelectContent className="">
                 {courses?.map((course: CourseForSelect) => (
-                    <SelectItem
-                        key={course.id}
-                        value={course.id}
-                    >
+                    <SelectItem key={course.id} value={course.id}>
                         {course.title}
                     </SelectItem>
                 ))}

@@ -12,7 +12,11 @@ import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 function CourseDetails() {
     const params = useParams<{ slug: string }>();
     const slug = params.slug;
-    const { data: resultData, error, isLoading } = useGetPublicCourseBySlug(slug);
+    const {
+        data: resultData,
+        error,
+        isLoading,
+    } = useGetPublicCourseBySlug(slug);
     if (error) {
         toast.error(error.message);
     }
@@ -20,7 +24,7 @@ function CourseDetails() {
     if (!course) {
         notFound();
     }
-    if (isLoading) return <>Loading ...</>
+    if (isLoading) return <>Loading ...</>;
     return (
         <div className="min-h-screen bg-gray-50 pt-20 dark:bg-gray-900">
             <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
@@ -51,7 +55,8 @@ function CourseDetails() {
                         <CourseSidebar
                             price={course.price}
                             duration_type={course.duration_type}
-                            duration_value={course.duration_value} />
+                            duration_value={course.duration_value}
+                        />
                         <QueryErrorWrapper>
                             <Suspense fallback={<CourseIntakesSkeleton />}>
                                 <CourseIntakes courseId={course.id} />

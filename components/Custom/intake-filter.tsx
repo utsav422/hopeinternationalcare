@@ -7,19 +7,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useAdminIntakeListAll } from '@/hooks/public/intakes';
-
-interface Intake {
-    id: string;
-    course_id: string | null;
-    start_date: string;
-    end_date: string;
-    capacity: number;
-    is_open: boolean | null;
-    total_registered: number;
-    created_at: string;
-    updated_at: string;
-}
+import { useQuery } from '@tanstack/react-query';
+import { getAllIntakes } from '@/lib/server-actions/public/intakes-optimized';
+import type { ActiveIntake } from '@/lib/types/public/intakes';
 
 interface IntakeFilterProps {
     value: string;
@@ -27,11 +17,22 @@ interface IntakeFilterProps {
 }
 
 export default function IntakeFilter({ value, onChange }: IntakeFilterProps) {
-    const { data: queryResult } = useAdminIntakeListAll();
+    const { data: queryResult, isLoading } = useQuery({
+        queryKey: ['all-intakes'],
+        queryFn: async () => {
+            const result = await getAllIntakes();
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to fetch all intakes');
+            }
+            return result;
+        },
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        gcTime: 1000 * 60 * 60, // 1 hour
+    });
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set to start of today for comparison
-    const intakes = queryResult?.data;
-    const futureIntakes = (intakes ?? []).filter((intake: Intake) => {
+    today.setHours(0, 0, 0); // Set to start of today for comparison
+    const intakes = queryResult?.data || [];
+    const futureIntakes = intakes.filter((intake: ActiveIntake) => {
         const startDate = new Date(intake.start_date);
         return startDate > today;
     });
@@ -44,24 +45,16 @@ export default function IntakeFilter({ value, onChange }: IntakeFilterProps) {
         });
     };
 
-    const renderContent = () => {
-        if (futureIntakes.length > 0) {
-            return futureIntakes.map((intake: Intake) => (
-                <SelectItem
-                    className="dark:hover:bg-gray-700"
-                    key={intake.id}
-                    value={intake.id}
-                >
-                    {formatDate(intake.start_date)}
-                </SelectItem>
-            ));
-        }
+    if (isLoading) {
         return (
-            <SelectItem className="" disabled value="no-intakes">
-                No upcoming intakes
-            </SelectItem>
+            <Select value={value}>
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Loading intakes..." />
+                </SelectTrigger>
+                <SelectContent className=""></SelectContent>
+            </Select>
         );
-    };
+    }
 
     return (
         <Select onValueChange={onChange} value={value}>
@@ -69,7 +62,21 @@ export default function IntakeFilter({ value, onChange }: IntakeFilterProps) {
                 <SelectValue placeholder="Filter by intake..." />
             </SelectTrigger>
             <SelectContent className="">
-                {renderContent()}
+                {futureIntakes.length > 0 ? (
+                    futureIntakes.map((intake: ActiveIntake) => (
+                        <SelectItem
+                            className="dark:hover:bg-gray-700"
+                            key={intake.id}
+                            value={intake.id}
+                        >
+                            {formatDate(intake.start_date)}
+                        </SelectItem>
+                    ))
+                ) : (
+                    <SelectItem className="" disabled value="no-intakes">
+                        No upcoming intakes
+                    </SelectItem>
+                )}
             </SelectContent>
         </Select>
     );

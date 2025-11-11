@@ -10,10 +10,16 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useAdminCourseCategoryListAll } from '@/hooks/admin/course-categories';
-import type { ZodInsertCourseCategoryType, ZodSelectCourseCategoryType } from '@/lib/db/drizzle-zod-schema/course-categories';
+import { useAdminCourseCategoryList } from '@/hooks/admin/course-categories-optimized';
+import type {
+    ZodInsertCourseCategoryType,
+    ZodSelectCourseCategoryType,
+} from '@/lib/db/drizzle-zod-schema/course-categories';
 import type { ZodInsertCourseType } from '@/lib/db/drizzle-zod-schema/courses';
-import { adminCourseCategoryUpsert } from '@/lib/server-actions/admin/course-categories';
+import {
+    adminCourseCategoryCreate,
+    adminCourseCategoryUpdate,
+} from '@/lib/server-actions/admin/course-categories-optimized';
 import CourseCategoryFormModal from '../Admin/Courses/course-category-form-modal';
 import { Button } from '../ui/button';
 import { FormControl } from '../ui/form';
@@ -33,21 +39,27 @@ export default function CourseCategorySelect({
 }: CourseCategorySelectProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const {
-        data: queryResult,
+        data: result,
         isLoading,
         error: queryError,
         refetch,
-    } = useAdminCourseCategoryListAll();
+    } = useAdminCourseCategoryList({ page: 1, pageSize: 9999 });
     if (queryError) {
         toast.error('Something went wrong while fetching categories', {
             description: queryError.message,
         });
     }
-    const categories = queryResult?.data ?? [];
+    const categories = result?.data?.data ?? [];
 
     const handleCreateCategory = async (data: ZodInsertCourseCategoryType) => {
         try {
-            const result = await adminCourseCategoryUpsert(data);
+            // For creating a new category, we only pass the name and description
+            const createData = {
+                name: data.name,
+                description: data.description,
+            };
+
+            const result = await adminCourseCategoryCreate(createData);
             if (result.success) {
                 toast.success('Category created successfully');
                 refetch();
@@ -75,15 +87,11 @@ export default function CourseCategorySelect({
         return (
             <div className="">
                 <p>No categories found.</p>
-                <Button
-                    onClick={() => setIsModalOpen(true)}
-                    type="button"
-                >
+                <Button onClick={() => setIsModalOpen(true)} type="button">
                     Create Category
                 </Button>
                 <QueryErrorWrapper>
                     <Suspense fallback={'loading...'}>
-
                         <CourseCategoryFormModal
                             creationOnly
                             isOpen={isModalOpen}
@@ -107,11 +115,8 @@ export default function CourseCategorySelect({
                     <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent className="">
-                    {categories.map((category) => (
-                        <SelectItem
-                            key={category.id}
-                            value={category.id}
-                        >
+                    {categories.map((category: any) => (
+                        <SelectItem key={category.id} value={category.id}>
                             {category.name}
                         </SelectItem>
                     ))}

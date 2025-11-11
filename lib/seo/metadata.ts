@@ -17,14 +17,14 @@ export interface SEOConfig {
     noFollow?: boolean;
     locale?: string;
     alternateLocales?: { locale: string; url: string }[];
-
 }
 
 const defaultConfig = {
     siteName: 'Hope International',
     siteUrl: 'https://hopeinternational.com.np',
     defaultImage: '/opengraph-image.png',
-    defaultImageAlt: 'Hope International - Aged Care Training and Elderly Care Center',
+    defaultImageAlt:
+        'Hope International - Aged Care Training and Elderly Care Center',
     twitterHandle: '@hopeinternational',
     locale: 'en_US',
     author: 'Hope International',
@@ -48,7 +48,6 @@ export function generateMetadata(config: SEOConfig): Metadata {
         noFollow = false,
         locale = defaultConfig.locale,
         alternateLocales = [],
-
     } = config;
 
     const fullTitle = title.includes(defaultConfig.siteName)
@@ -82,10 +81,13 @@ export function generateMetadata(config: SEOConfig): Metadata {
         // Canonical URL
         alternates: {
             canonical: canonicalUrl,
-            languages: alternateLocales.reduce((acc, alt) => {
-                acc[alt.locale] = alt.url;
-                return acc;
-            }, {} as Record<string, string>),
+            languages: alternateLocales.reduce(
+                (acc, alt) => {
+                    acc[alt.locale] = alt.url;
+                    return acc;
+                },
+                {} as Record<string, string>
+            ),
         },
 
         // Open Graph
@@ -146,23 +148,44 @@ export function generateMetadata(config: SEOConfig): Metadata {
 export const seoConfigs = {
     home: {
         title: 'Hope International - Aged Care Training and Elderly Care Center',
-        description: 'Hope International is a leading training center in Kathmandu, Nepal, providing comprehensive caregiver training and elderly care services. ',
-        keywords: ['aged care training', 'elderly care', 'caregiver training', 'Nepal', 'Kathmandu', 'healthcare training'] as string[],
+        description:
+            'Hope International is a leading training center in Kathmandu, Nepal, providing comprehensive caregiver training and elderly care services. ',
+        keywords: [
+            'aged care training',
+            'elderly care',
+            'caregiver training',
+            'Nepal',
+            'Kathmandu',
+            'healthcare training',
+        ] as string[],
         type: 'website' as const,
     },
 
     courses: {
         title: 'Our Courses',
-        description: 'Explore the wide range of courses we offer at Hope International. We provide comprehensive training for caregivers, including specialized courses for various levels of care.',
-        keywords: ['caregiver courses', 'aged care training', 'healthcare courses', 'certification programs'] as string[],
+        description:
+            'Explore the wide range of courses we offer at Hope International. We provide comprehensive training for caregivers, including specialized courses for various levels of care.',
+        keywords: [
+            'caregiver courses',
+            'aged care training',
+            'healthcare courses',
+            'certification programs',
+        ] as string[],
         canonical: '/courses',
         type: 'website' as const,
     },
 
     about: {
         title: 'About Us',
-        description: 'Learn more about Hope International, our mission, vision, and our dedicated team. We are committed to providing the best caregiver training and elderly care services in Nepal.',
-        keywords: ['about hope international', 'mission', 'vision', 'team', 'aged care training'] as string[],
+        description:
+            'Learn more about Hope International, our mission, vision, and our dedicated team. We are committed to providing the best caregiver training and elderly care services in Nepal.',
+        keywords: [
+            'about hope international',
+            'mission',
+            'vision',
+            'team',
+            'aged care training',
+        ] as string[],
         canonical: '/aboutus',
         type: 'website' as const,
         robotsConfig: 'public' as const,
@@ -170,8 +193,16 @@ export const seoConfigs = {
 
     contact: {
         title: 'Contact Us',
-        description: 'Get in touch with Hope International. We are always available for your queries and feedbacks. Find our contact details and location here.',
-        keywords: ['contact', 'location', 'phone', 'email', 'address', 'Kathmandu'] as string[],
+        description:
+            'Get in touch with Hope International. We are always available for your queries and feedbacks. Find our contact details and location here.',
+        keywords: [
+            'contact',
+            'location',
+            'phone',
+            'email',
+            'address',
+            'Kathmandu',
+        ] as string[],
         canonical: '/contactus',
         type: 'website' as const,
     },
@@ -180,7 +211,7 @@ export const seoConfigs = {
 // Helper function for course pages
 export function generateCourseMetadata(course: {
     title: string;
-    course_highlights?: string | null,
+    course_highlights?: string | null;
     course_overview?: string | null;
     slug: string;
     image_url?: string | null;
@@ -196,12 +227,16 @@ export function generateCourseMetadata(course: {
         'aged care course',
         'healthcare training',
         course.level && `Level ${course.level}`,
-        course.duration_type && `${course.duration_value} ${course.duration_type} course`,
+        course.duration_type &&
+            `${course.duration_value} ${course.duration_type} course`,
     ].filter(Boolean) as string[];
 
     return generateMetadata({
         title: course.title,
-        description: course?.course_overview ??  course.course_highlights?? `Learn ${course.title} at Hope International. Professional caregiver training course designed to provide comprehensive skills for elderly care.`,
+        description:
+            course?.course_overview ??
+            course.course_highlights ??
+            `Learn ${course.title} at Hope International. Professional caregiver training course designed to provide comprehensive skills for elderly care.`,
         keywords,
         canonical: `/courses/${course.slug}`,
         image: course.image_url || undefined,

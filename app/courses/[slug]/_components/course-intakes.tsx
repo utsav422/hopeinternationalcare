@@ -5,7 +5,8 @@ import { notFound } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetActiveIntakesByCourseId } from '@/hooks/public/intakes';
+import { useGetActiveIntakesByCourseId } from '@/hooks/public/intakes-optimized';
+import { ActiveIntake } from '@/lib/types/public';
 
 export function CourseIntakesSkeleton() {
     return (
@@ -43,7 +44,8 @@ export function CourseIntakes({ courseId }: { courseId: string }) {
                     Upcoming Intakes
                 </h2>
                 <p className="text-gray-600 ">
-                    No upcoming intakes available at the moment. Please check back later.
+                    No upcoming intakes available at the moment. Please check
+                    back later.
                 </p>
             </div>
         );
@@ -57,29 +59,19 @@ export function CourseIntakes({ courseId }: { courseId: string }) {
                 Upcoming Intakes
             </h2>
             <ul className="space-y-4 text-gray-600 ">
-                {intakes.map(
-                    (intake: {
-                        start_date: string;
-                        end_date: string;
-                        id: string;
-                        created_at: string;
-                        updated_at: string;
-                        course_id: string | null;
-                        capacity: number;
-                        is_open: boolean | null;
-                        total_registered: number;
-                    }) => (
-                        <li className="flex items-center" key={intake?.id}>
-                            <CheckCircleIcon className="mr-3 h-6 w-6 text-teal-500" />
-                            <span>
-                                <strong>
-                                    {new Date(intake?.start_date as string).toLocaleDateString()}
-                                </strong>{' '}
-                                - {new Date(intake?.end_date).toLocaleDateString()}
-                            </span>
-                        </li>
-                    )
-                )}
+                {intakes.map((intake: ActiveIntake) => (
+                    <li className="flex items-center" key={intake?.id}>
+                        <CheckCircleIcon className="mr-3 h-6 w-6 text-teal-500" />
+                        <span>
+                            <strong>
+                                {new Date(
+                                    intake?.start_date as string
+                                ).toLocaleDateString()}
+                            </strong>{' '}
+                            - {new Date(intake?.end_date).toLocaleDateString()}
+                        </span>
+                    </li>
+                ))}
             </ul>
             <Button
                 asChild

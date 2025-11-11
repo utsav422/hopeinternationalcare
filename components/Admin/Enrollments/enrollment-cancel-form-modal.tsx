@@ -30,10 +30,10 @@ import {
     useAdminPaymentDetailsByEnrollmentId,
     useAdminPaymentUpdate,
 } from '@/hooks/admin/payments-optimized';
-import { useAdminRefundUpsert } from '@/hooks/admin/refunds';
+import { useAdminRefundCreate } from '@/hooks/admin/refunds-optimized';
 import { ZodInsertPaymentType } from '@/lib/db/drizzle-zod-schema/payments';
 
-export default function CancelEnrollmentFormModal ({
+export default function CancelEnrollmentFormModal({
     setShowCancelModalAction,
     showCancelModal,
     selectedEnrollmentAndUserId: { enrollmentId, userId },
@@ -51,8 +51,9 @@ export default function CancelEnrollmentFormModal ({
     const { data: queryResult, isPending: isPaymentDetailFetchPending } =
         useAdminPaymentDetailsByEnrollmentId(enrollmentId as string);
     const paymentDetails = queryResult?.data;
-    const { mutateAsync: updateEnrollmentStatus } = useAdminEnrollmentUpdateStatus();
-    const { mutateAsync: upsertRefund } = useAdminRefundUpsert();
+    const { mutateAsync: updateEnrollmentStatus } =
+        useAdminEnrollmentUpdateStatus();
+    const { mutateAsync: createRefund } = useAdminRefundCreate();
     const { mutateAsync: updatePayment } = useAdminPaymentUpdate();
 
     const [cancelledReason, setCancelledReason] = useState('');
@@ -80,35 +81,47 @@ export default function CancelEnrollmentFormModal ({
                         success: async () => {
                             if (refund && paymentDetails) {
                                 toast.promise(
-                                    upsertRefund({
+                                    createRefund({
                                         payment_id: paymentDetails.payment.id,
                                         enrollment_id: enrollmentId,
                                         user_id: userId,
                                         reason: cancelledReason,
                                         amount: refundAmount,
-                                        created_at: new Date().toISOString(),
                                     }),
                                     {
                                         loading: 'Processing refund...',
                                         success: async () => {
-                                            const paymentUpdateData: Partial<ZodInsertPaymentType> & { id: string } = {
+                                            const paymentUpdateData: Partial<ZodInsertPaymentType> & {
+                                                id: string;
+                                            } = {
                                                 id: paymentDetails.payment.id,
                                                 remarks: `payment of ${paymentDetails.payment.amount} is refunded with partial amount ${refundAmount} return to user.`,
                                                 is_refunded: true,
-                                                refunded_at: new Date().toISOString(),
+                                                refunded_at:
+                                                    new Date().toISOString(),
                                                 refunded_amount: refundAmount,
                                             };
                                             toast.promise(
-                                                updatePayment(paymentUpdateData),
+                                                updatePayment(
+                                                    paymentUpdateData
+                                                ),
                                                 {
-                                                    loading: 'Updating payment details...',
-                                                    success: 'Payment details updated',
-                                                    error: (error) => error instanceof Error ? error.message : 'Failed to update payment details',
+                                                    loading:
+                                                        'Updating payment details...',
+                                                    success:
+                                                        'Payment details updated',
+                                                    error: error =>
+                                                        error instanceof Error
+                                                            ? error.message
+                                                            : 'Failed to update payment details',
                                                 }
                                             );
                                             return 'Refund processed successfully';
                                         },
-                                        error: (error) => error instanceof Error ? error.message : 'Failed to process refund',
+                                        error: error =>
+                                            error instanceof Error
+                                                ? error.message
+                                                : 'Failed to process refund',
                                     }
                                 );
                             }
@@ -118,7 +131,10 @@ export default function CancelEnrollmentFormModal ({
                             afterSubmitAction();
                             return 'Enrollment cancelled successfully!';
                         },
-                        error: (error) => error instanceof Error ? error.message : 'Failed to cancel enrollment',
+                        error: error =>
+                            error instanceof Error
+                                ? error.message
+                                : 'Failed to cancel enrollment',
                     }
                 );
             });
@@ -129,15 +145,19 @@ export default function CancelEnrollmentFormModal ({
 
     return (
         <div>
-            <AlertDialog onOpenChange={setShowCancelModalAction} open={showCancelModal}>
+            <AlertDialog
+                onOpenChange={setShowCancelModalAction}
+                open={showCancelModal}
+            >
                 <AlertDialogContent className="">
                     <AlertDialogHeader>
                         <AlertDialogTitle className="">
                             Cancel Enrollment
                         </AlertDialogTitle>
                         <AlertDialogDescription className="">
-                            Please provide a reason for cancelling this enrollment. Choose to
-                            refund the payment or not if payment is existed
+                            Please provide a reason for cancelling this
+                            enrollment. Choose to refund the payment or not if
+                            payment is existed
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <div className="grid gap-4 py-4">
@@ -147,7 +167,9 @@ export default function CancelEnrollmentFormModal ({
                             </Label>
                             <Textarea
                                 id="cancelledReason"
-                                onChange={(e) => setCancelledReason(e.target.value)}
+                                onChange={e =>
+                                    setCancelledReason(e.target.value)
+                                }
                                 placeholder="e.g., Student dropped out, Course cancelled"
                                 value={cancelledReason}
                             />
@@ -179,10 +201,12 @@ export default function CancelEnrollmentFormModal ({
                                         Amount: {paymentDetails?.payment.amount}
                                     </span>
                                     <span className="block">
-                                        Created At: {paymentDetails?.payment.method}
+                                        Created At:{' '}
+                                        {paymentDetails?.payment.method}
                                     </span>
                                     <span className="block">
-                                        Method: {paymentDetails?.payment.created_at}
+                                        Method:{' '}
+                                        {paymentDetails?.payment.created_at}
                                     </span>
                                 </p>
                                 <Card className="space-x-2 p-3 ">
@@ -195,15 +219,31 @@ export default function CancelEnrollmentFormModal ({
                                     </Label>
                                     {refund && (
                                         <div>
-                                            <Label className="" htmlFor="amount">
+                                            <Label
+                                                className=""
+                                                htmlFor="amount"
+                                            >
                                                 Refund Amount
                                             </Label>
                                             <Input
-                                                max={paymentDetails.payment.amount}
+                                                max={
+                                                    paymentDetails.payment
+                                                        .amount
+                                                }
                                                 name="amount"
-                                                onChange={(e) => {
-                                                    if (Number(e.target.value) <= paymentDetails.payment.amount) {
-                                                        setRefundAmount(Number(e.target.value));
+                                                onChange={e => {
+                                                    if (
+                                                        Number(
+                                                            e.target.value
+                                                        ) <=
+                                                        paymentDetails.payment
+                                                            .amount
+                                                    ) {
+                                                        setRefundAmount(
+                                                            Number(
+                                                                e.target.value
+                                                            )
+                                                        );
                                                         return;
                                                     }
                                                     toast.error(
@@ -227,9 +267,7 @@ export default function CancelEnrollmentFormModal ({
                         )}
                     </div>
                     <AlertDialogFooter>
-                        <AlertDialogCancel
-                            disabled={isPending}
-                        >
+                        <AlertDialogCancel disabled={isPending}>
                             Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction

@@ -110,7 +110,7 @@ export function DataTableToolbar<TData>({
     //     useQueryState('duration_type');
 
     // Get available column IDs to prevent calling getColumn with non-existent IDs
-    const availableColumnIds = table.getAllColumns().map((column) => column.id);
+    const availableColumnIds = table.getAllColumns().map(column => column.id);
 
     return (
         <div className="flex items-center justify-between">
@@ -119,83 +119,107 @@ export function DataTableToolbar<TData>({
                     table?.getColumn('full_name') && (
                         <Input
                             className="h-8 w-[150px] lg:w-[250px]"
-                            onChange={(event) => {
+                            onChange={event => {
                                 table
                                     ?.getColumn('full_name')
                                     ?.setFilterValue(event.target.value);
                             }}
                             placeholder="Filter data by users full name..."
                             value={
-                                (table?.getColumn('full_name')?.getFilterValue() as string) ??
-                                ''
+                                (table
+                                    ?.getColumn('full_name')
+                                    ?.getFilterValue() as string) ?? ''
                             }
                         />
                     )}
-                {availableColumnIds.includes('title') && table?.getColumn('title') && (
-                    <Input
-                        className="h-8 w-[150px] lg:w-[250px]"
-                        onChange={(event) => {
-                            table?.getColumn('title')?.setFilterValue(event.target.value);
-                        }}
-                        placeholder="Filter data by title..."
-                        value={
-                            (table?.getColumn('title')?.getFilterValue() as string) ?? ''
-                        }
-                    />
-                )}
-                {availableColumnIds.includes('name') && table?.getColumn('name') && (
-                    <Input
-                        className="h-8 w-[150px] lg:w-[250px]"
-                        onChange={(event) => {
-                            table?.getColumn('name')?.setFilterValue(event.target.value);
-                        }}
-                        placeholder="Filter data by name..."
-                        value={(table?.getColumn('name')?.getFilterValue() as string) ?? ''}
-                    />
-                )}
+                {availableColumnIds.includes('title') &&
+                    table?.getColumn('title') && (
+                        <Input
+                            className="h-8 w-[150px] lg:w-[250px]"
+                            onChange={event => {
+                                table
+                                    ?.getColumn('title')
+                                    ?.setFilterValue(event.target.value);
+                            }}
+                            placeholder="Filter data by title..."
+                            value={
+                                (table
+                                    ?.getColumn('title')
+                                    ?.getFilterValue() as string) ?? ''
+                            }
+                        />
+                    )}
+                {availableColumnIds.includes('name') &&
+                    table?.getColumn('name') && (
+                        <Input
+                            className="h-8 w-[150px] lg:w-[250px]"
+                            onChange={event => {
+                                table
+                                    ?.getColumn('name')
+                                    ?.setFilterValue(event.target.value);
+                            }}
+                            placeholder="Filter data by name..."
+                            value={
+                                (table
+                                    ?.getColumn('name')
+                                    ?.getFilterValue() as string) ?? ''
+                            }
+                        />
+                    )}
                 {availableColumnIds.includes('courseTitle') &&
                     table?.getColumn('courseTitle') && (
                         <Input
                             className="h-8 w-[150px] lg:w-[250px]"
-                            onChange={(event) => {
+                            onChange={event => {
                                 table
                                     ?.getColumn('courseTitle')
                                     ?.setFilterValue(event.target.value);
                             }}
                             placeholder="Filter data by course title..."
                             value={
-                                (table?.getColumn('courseTitle')?.getFilterValue() as string) ??
+                                (table
+                                    ?.getColumn('courseTitle')
+                                    ?.getFilterValue() as string) ?? ''
+                            }
+                        />
+                    )}
+                {availableColumnIds.includes('email') &&
+                    table?.getColumn('email') && (
+                        <Input
+                            className="h-8 w-[150px] lg:w-[250px]"
+                            onChange={event => {
+                                table
+                                    ?.getColumn('email')
+                                    ?.setFilterValue(event.target.value);
+                            }}
+                            placeholder="Filter data by user email..."
+                            value={
+                                (table
+                                    ?.getColumn('email')
+                                    ?.getFilterValue() as string) ??
+                                _queryFilterSearch ??
                                 ''
                             }
                         />
                     )}
-                {availableColumnIds.includes('email') && table?.getColumn('email') && (
-                    <Input
-                        className="h-8 w-[150px] lg:w-[250px]"
-                        onChange={(event) => {
-                            table?.getColumn('email')?.setFilterValue(event.target.value);
-                        }}
-                        placeholder="Filter data by user email..."
-                        value={
-                            (table?.getColumn('email')?.getFilterValue() as string) ??
-                            _queryFilterSearch ??
-                            ''
-                        }
-                    />
-                )}
                 {availableColumnIds.includes('status') &&
                     table?.getColumn('status') && (
                         <MultiSelectFilter
-                            onValueChange={(values) => {
-                                table?.getColumn('status')?.setFilterValue(values);
-                            }} onClearCallback={() => {
+                            onValueChange={values => {
+                                table
+                                    ?.getColumn('status')
+                                    ?.setFilterValue(values);
+                            }}
+                            onClearCallback={() => {
                                 _setQueryFilterSearch(null);
                                 table?.resetColumnFilters();
                             }}
                             options={status}
                             selectedValues={
                                 new Set(
-                                    table?.getColumn('status')?.getFilterValue() as string[]
+                                    table
+                                        ?.getColumn('status')
+                                        ?.getFilterValue() as string[]
                                 )
                             }
                             title="Status"
@@ -204,8 +228,10 @@ export function DataTableToolbar<TData>({
                 {availableColumnIds.includes('method') &&
                     table?.getColumn('method') && (
                         <MultiSelectFilter
-                            onValueChange={(values) => {
-                                table?.getColumn('method')?.setFilterValue(values);
+                            onValueChange={values => {
+                                table
+                                    ?.getColumn('method')
+                                    ?.setFilterValue(values);
                             }}
                             onClearCallback={() => {
                                 _setQueryFilterSearch(null);
@@ -214,7 +240,9 @@ export function DataTableToolbar<TData>({
                             options={methods}
                             selectedValues={
                                 new Set(
-                                    table?.getColumn('method')?.getFilterValue() as string[]
+                                    table
+                                        ?.getColumn('method')
+                                        ?.getFilterValue() as string[]
                                 )
                             }
                             title="Method"
@@ -222,12 +250,15 @@ export function DataTableToolbar<TData>({
                     )}
                 {availableColumnIds.includes('duration_type') &&
                     table?.getColumn('duration_type') && (
-                        <MultiSelectFilter onClearCallback={() => {
-                            _setQueryFilterSearch(null);
-                            table?.resetColumnFilters();
-                        }}
-                            onValueChange={(values) => {
-                                table?.getColumn('duration_type')?.setFilterValue(values);
+                        <MultiSelectFilter
+                            onClearCallback={() => {
+                                _setQueryFilterSearch(null);
+                                table?.resetColumnFilters();
+                            }}
+                            onValueChange={values => {
+                                table
+                                    ?.getColumn('duration_type')
+                                    ?.setFilterValue(values);
                             }}
                             options={duration_types}
                             selectedValues={

@@ -1,8 +1,14 @@
 'use client';
 
-import Image from "next/image";
+import Image from 'next/image';
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Clock, DollarSign, Edit, Eye } from 'lucide-react';
@@ -45,7 +51,9 @@ export function CoursePreviewCard({
 
     if (variant === 'list') {
         return (
-            <Card className={cn('hover:shadow-md transition-shadow', className)}>
+            <Card
+                className={cn('hover:shadow-md transition-shadow', className)}
+            >
                 <CardContent className="p-6">
                     <div className="flex gap-6">
                         {/* Image */}
@@ -70,15 +78,20 @@ export function CoursePreviewCard({
                         {/* Content */}
                         <div className="flex-1 space-y-3">
                             <div>
-                                <h3 className="font-semibold text-lg line-clamp-1">{title}</h3>
+                                <h3 className="font-semibold text-lg line-clamp-1">
+                                    {title}
+                                </h3>
                                 {category && (
-                                    <p className="text-sm text-muted-foreground">{category.name}</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        {category.name}
+                                    </p>
                                 )}
                             </div>
 
-                            <pre>{JSON.stringify(courseHighlights, null, 2)}</pre>
+                            <pre>
+                                {JSON.stringify(courseHighlights, null, 2)}
+                            </pre>
                             <pre>{JSON.stringify(courseOverview, null, 2)}</pre>
-
 
                             <div className="flex items-center gap-3 text-sm text-muted-foreground">
                                 {level && (
@@ -125,7 +138,9 @@ export function CoursePreviewCard({
 
     // Grid variant
     return (
-        <Card className={cn('hover:shadow-lg transition-shadow group', className)}>
+        <Card
+            className={cn('hover:shadow-lg transition-shadow group', className)}
+        >
             {/* Image */}
             <div className="aspect-video relative overflow-hidden bg-muted">
                 {image_url ? (
@@ -144,7 +159,13 @@ export function CoursePreviewCard({
 
                 {/* Price Badge */}
                 <div className="absolute top-3 right-3">
-                    <Badge variant={price === null || price === 0 ? 'secondary' : 'default'}>
+                    <Badge
+                        variant={
+                            price === null || price === 0
+                                ? 'secondary'
+                                : 'default'
+                        }
+                    >
                         {formatPrice(price)}
                     </Badge>
                 </div>
@@ -152,7 +173,9 @@ export function CoursePreviewCard({
 
             <CardHeader className="pb-3">
                 <div className="space-y-2">
-                    <CardTitle className="line-clamp-2 text-lg">{title}</CardTitle>
+                    <CardTitle className="line-clamp-2 text-lg">
+                        {title}
+                    </CardTitle>
                     {category && (
                         <CardDescription>{category.name}</CardDescription>
                     )}
@@ -171,7 +194,10 @@ export function CoursePreviewCard({
                         </Badge>
                     )}
                     {duration_value && duration_type && (
-                        <Badge variant="outline" className="text-xs flex items-center gap-1">
+                        <Badge
+                            variant="outline"
+                            className="text-xs flex items-center gap-1"
+                        >
                             <Clock className="h-3 w-3" />
                             {duration_value} {duration_type}
                         </Badge>
@@ -181,13 +207,23 @@ export function CoursePreviewCard({
                 {/* Actions */}
                 {showActions && (
                     <div className="flex gap-2 pt-2">
-                        <Button asChild variant="outline" size="sm" className="flex-1">
+                        <Button
+                            asChild
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                        >
                             <Link href={`/courses/${slug}`}>
                                 <Eye className="h-4 w-4 mr-2" />
                                 View
                             </Link>
                         </Button>
-                        <Button asChild variant="default" size="sm" className="flex-1">
+                        <Button
+                            asChild
+                            variant="default"
+                            size="sm"
+                            className="flex-1"
+                        >
                             <Link href={`/admin/courses/${id}`}>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit
@@ -230,7 +266,7 @@ export function AdminCourseGrid({
     if (variant === 'list') {
         return (
             <div className={cn('space-y-4', className)}>
-                {courses.map((course) => (
+                {courses.map(course => (
                     <CoursePreviewCard
                         key={course.id}
                         course={course}
@@ -244,7 +280,7 @@ export function AdminCourseGrid({
 
     return (
         <div className={cn('grid gap-6', gridCols[columns], className)}>
-            {courses.map((course) => (
+            {courses.map(course => (
                 <CoursePreviewCard
                     key={course.id}
                     course={course}
@@ -291,35 +327,57 @@ export function AdminFeaturedCourse({
                 <div className="md:w-2/3 p-6">
                     <div className="space-y-4">
                         <div>
-                            <h3 className="text-2xl font-bold">{course.title}</h3>
+                            <h3 className="text-2xl font-bold">
+                                {course.title}
+                            </h3>
                             {course.category && (
-                                <p className="text-muted-foreground">{course.category.name}</p>
+                                <p className="text-muted-foreground">
+                                    {course.category.name}
+                                </p>
                             )}
                         </div>
 
                         <div className="space-y-2">
                             <div>
-                                <h4 className="font-medium">Course Highlights:</h4>
-                                <p className="whitespace-pre-wrap">{course.courseHighlights || 'No highlights provided.'}</p>
+                                <h4 className="font-medium">
+                                    Course Highlights:
+                                </h4>
+                                <p className="whitespace-pre-wrap">
+                                    {course.courseHighlights ||
+                                        'No highlights provided.'}
+                                </p>
                             </div>
                             <div>
-                                <h4 className="font-medium">Course Overview:</h4>
-                                <p className="whitespace-pre-wrap">{course.courseOverview || 'No overview provided.'}</p>
+                                <h4 className="font-medium">
+                                    Course Overview:
+                                </h4>
+                                <p className="whitespace-pre-wrap">
+                                    {course.courseOverview ||
+                                        'No overview provided.'}
+                                </p>
                             </div>
                         </div>
 
                         <div className="flex flex-wrap gap-2">
                             {course.level && (
-                                <Badge variant="outline">Level {course.level}</Badge>
+                                <Badge variant="outline">
+                                    Level {course.level}
+                                </Badge>
                             )}
                             {course.duration_value && course.duration_type && (
-                                <Badge variant="outline" className="flex items-center gap-1">
+                                <Badge
+                                    variant="outline"
+                                    className="flex items-center gap-1"
+                                >
                                     <Clock className="h-3 w-3" />
-                                    {course.duration_value} {course.duration_type}
+                                    {course.duration_value}{' '}
+                                    {course.duration_type}
                                 </Badge>
                             )}
                             <Badge variant="default">
-                                {course.price === null || course.price === 0 ? 'Free' : `$${course.price}`}
+                                {course.price === null || course.price === 0
+                                    ? 'Free'
+                                    : `$${course.price}`}
                             </Badge>
                         </div>
 

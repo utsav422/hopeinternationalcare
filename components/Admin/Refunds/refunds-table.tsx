@@ -1,11 +1,11 @@
 'use client';
 
-import {useAdminRefundList} from '@/hooks/admin/refunds';
-import {useDataTableQueryState} from '@/hooks/admin/use-data-table-query-state';
-import {RefundsTable} from './refunds-table-component';
+import { useAdminRefundList } from '@/hooks/admin/refunds-optimized';
+import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
+import { RefundsTable } from './refunds-table-component';
 
 export default function RefundsTableContainer() {
-    const {page, pageSize, order, sortBy, filters} = useDataTableQueryState();
+    const { page, pageSize, order, sortBy, filters } = useDataTableQueryState();
 
     // Extract search and status from filters
     const search = filters.find(
@@ -15,12 +15,12 @@ export default function RefundsTableContainer() {
         (f: { id: string; value: unknown }) => f.id === 'status'
     )?.value as string | undefined;
 
-    const {data, isLoading, error} = useAdminRefundList({
-        page: page.toString(),
-        pageSize: pageSize.toString(),
+    const { data, isLoading, error } = useAdminRefundList({
+        page: page,
+        pageSize: pageSize,
         sortBy,
         order,
-        filters
+        filters,
     });
 
     if (isLoading) {
@@ -31,5 +31,10 @@ export default function RefundsTableContainer() {
         return <div>Error: {error.message}</div>;
     }
 
-    return <RefundsTable data={data?.data || []} total={data?.total || 0}/>;
+    return (
+        <RefundsTable
+            data={data?.data?.data || []}
+            total={data?.data?.total || 0}
+        />
+    );
 }

@@ -1,12 +1,12 @@
 'use server';
 
-import {headers} from 'next/headers';
-import {logger} from '@/utils/logger';
-import {createServerSupabaseClient} from '@/utils/supabase/server';
-import {createAdminSupabaseClient} from '@/utils/supabase/admin';
-import {redirect, RedirectType} from "next/navigation";
-import {getQueryClient} from "@/utils/get-query-client";
-import {queryKeys} from "@/lib/query-keys";
+import { headers } from 'next/headers';
+import { logger } from '@/utils/logger';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
+import { createAdminSupabaseClient } from '@/utils/supabase/admin';
+import { redirect, RedirectType } from 'next/navigation';
+import { getQueryClient } from '@/utils/get-query-client';
+import { queryKeys } from '@/lib/query-keys';
 
 export const signUpAction = async (formData: FormData) => {
     try {
@@ -20,20 +20,31 @@ export const signUpAction = async (formData: FormData) => {
         const phone = formData.get('phone')?.toString();
 
         if (!(email && password)) {
-            return {success: false, message: 'Email and password are required'};
+            return {
+                success: false,
+                message: 'Email and password are required',
+            };
         }
         const {
             data: exisitingProfileWithEmail,
-            error: ExisitingProfileWithEmailError
-        } = await supabaseAdmin.from('profiles').select().eq('email', email).maybeSingle();
+            error: ExisitingProfileWithEmailError,
+        } = await supabaseAdmin
+            .from('profiles')
+            .select()
+            .eq('email', email)
+            .maybeSingle();
         if (exisitingProfileWithEmail) {
             logger.error('user with email is already exist', {
-                error: ExisitingProfileWithEmailError
+                error: ExisitingProfileWithEmailError,
             });
-            return {success: false, message: 'user with email is already exist, try again with another email'};
+            return {
+                success: false,
+                message:
+                    'user with email is already exist, try again with another email',
+            };
         }
 
-        const {data, error} = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
             email,
             password,
             phone: phone as string,
@@ -48,9 +59,9 @@ export const signUpAction = async (formData: FormData) => {
 
         if (error) {
             logger.error('user signup failed', {
-                ...error
+                ...error,
             });
-            return {success: false, message: error.message};
+            return { success: false, message: error.message };
         }
         const user = data.user;
         if (user === null) {
@@ -61,38 +72,53 @@ export const signUpAction = async (formData: FormData) => {
             };
         }
 
-        const {error: profileError} = await supabaseAdmin.from('profiles').insert([
-            {
-                id: user.id,
-                email,
-                full_name,
-                phone,
-                role: 'authenticated',
-                created_at: new Date().toISOString(),
-            },
-        ]);
+        const { error: profileError } = await supabaseAdmin
+            .from('profiles')
+            .insert([
+                {
+                    id: user.id,
+                    email,
+                    full_name,
+                    phone,
+                    role: 'authenticated',
+                    created_at: new Date().toISOString(),
+                },
+            ]);
 
         if (profileError) {
             logger.error('Profile creation failed: ProfileErorr:70:', {
-                ...profileError
+                ...profileError,
             });
 
             // Check for duplicate email error
-            if (profileError.message.includes('duplicate key value violates unique constraint "profiles_email_unique"')) {
-                return {success: false, message: 'user with email is already exist, try again with another email'};
+            if (
+                profileError.message.includes(
+                    'duplicate key value violates unique constraint "profiles_email_unique"'
+                )
+            ) {
+                return {
+                    success: false,
+                    message:
+                        'user with email is already exist, try again with another email',
+                };
             }
 
-            return {success: false, message: profileError.message}
+            return { success: false, message: profileError.message };
         }
-        logger.info('Profile created successfully', {userId: user.id});
-        await getQueryClient().invalidateQueries({queryKey: queryKeys.users.session});
+        logger.info('Profile created successfully', { userId: user.id });
+        await getQueryClient().invalidateQueries({
+            queryKey: queryKeys.users.session,
+        });
 
-        return {success: true, message: 'Profile created successfully', data: {user}};
-
+        return {
+            success: true,
+            message: 'Profile created successfully',
+            data: { user },
+        };
     } catch (e) {
         const error = e as Error;
-        logger.info('user signup failed, and catched', {...error});
-        return {success: false, message: error.message};
+        logger.info('user signup failed, and catched', { ...error });
+        return { success: false, message: error.message };
     }
 };
 
@@ -103,25 +129,61 @@ export const signInAction = async (formData: FormData) => {
         const supabase = await createServerSupabaseClient();
 
         const {
-            data: {user, weakPassword},
+            data: { user, weakPassword },
             error,
         } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
 
-        if (error || !user) {
+        if (error) {
+            // Handle specific authentication errors
+            if (error.status === 400 && error.code === 'invalid_credentials') {
+                return {
+                    success: false,
+                    message: 'Invalid email or password. Please try again.',
+                };
+            }
+
             return {
                 success: false,
-                message: error?.message ?? 'Something went wrong, user not found!',
+                message:
+                    error?.message || 'Something went wrong during sign in!',
             };
         }
-        await getQueryClient().invalidateQueries({queryKey: queryKeys.users.session});
-        return {success: true, message: 'signing successfully', data: {user, weakPassword}};
+
+        if (!user) {
+            return {
+                success: false,
+                message: 'User not found. Please check your credentials.',
+            };
+        }
+
+        await getQueryClient().invalidateQueries({
+            queryKey: queryKeys.users.session,
+        });
+        return {
+            success: true,
+            message: 'Sign in successful',
+            data: { user, weakPassword },
+        };
     } catch (e) {
         const error = e as Error;
-        console.error('Error signing in:', error);
-        return {success: false, message: error.message};
+        console.log('Error signing in:', error);
+
+        // Check if it's an authentication error with specific code
+        if (error.message.includes('Invalid login credentials')) {
+            return {
+                success: false,
+                message: 'Invalid email or password. Please try again.',
+            };
+        }
+
+        return {
+            success: false,
+            message:
+                error.message || 'An unexpected error occurred during sign in.',
+        };
     }
 };
 
@@ -132,10 +194,10 @@ export const forgotPasswordAction = async (formData: FormData) => {
         const origin = (await headers()).get('origin');
 
         if (!email) {
-            return {success: false, message: 'Email is required'};
+            return { success: false, message: 'Email is required' };
         }
 
-        const {error} = await supabase.auth.resetPasswordForEmail(email, {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo: `${origin}${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback?redirect_to=/reset-password`,
         });
 
@@ -145,11 +207,17 @@ export const forgotPasswordAction = async (formData: FormData) => {
                 message: `Could not reset password due to:  ${error.message}`,
             };
         }
-        await getQueryClient().invalidateQueries({queryKey: queryKeys.users.session});
-        return {success: true, data: null, message: 'Password reset link sent successfully'};
+        await getQueryClient().invalidateQueries({
+            queryKey: queryKeys.users.session,
+        });
+        return {
+            success: true,
+            data: null,
+            message: 'Password reset link sent successfully',
+        };
     } catch (e) {
         const error = e as Error;
-        return {success: false, message: error.message};
+        return { success: false, message: error.message };
     }
 };
 
@@ -168,10 +236,10 @@ export const resetPasswordAction = async (formData: FormData) => {
         }
 
         if (password !== confirmPassword) {
-            return {success: false, message: 'Passwords do not match'};
+            return { success: false, message: 'Passwords do not match' };
         }
 
-        const {error} = await supabase.auth.updateUser({
+        const { error } = await supabase.auth.updateUser({
             password,
         });
 
@@ -182,27 +250,33 @@ export const resetPasswordAction = async (formData: FormData) => {
             };
         }
 
-        return {success: true, data: null, message: 'Password updated successfully'};
+        return {
+            success: true,
+            data: null,
+            message: 'Password updated successfully',
+        };
     } catch (e) {
         const error = e as Error;
-        return {success: false, message: error.message};
+        return { success: false, message: error.message };
     }
 };
 
 export const signOutAction = async () => {
     try {
         const supabase = await createServerSupabaseClient();
-        const {error} = await supabase.auth.signOut();
+        const { error } = await supabase.auth.signOut();
         if (error) {
-            return {success: false, message: error.message};
+            return { success: false, message: error.message };
         }
-        await getQueryClient().invalidateQueries({queryKey: queryKeys.users.session});
-        redirect('/sign-in', RedirectType.replace)
+        await getQueryClient().invalidateQueries({
+            queryKey: queryKeys.users.session,
+        });
+        redirect('/sign-in', RedirectType.replace);
 
         // return {success: true, data: null, message: 'user sign out successfully'};
     } catch (e) {
         const error = e as Error;
-        return {success: false, message: error.message};
+        return { success: false, message: error.message };
     }
 };
 
@@ -214,7 +288,10 @@ export const setupPasswordAction = async (formData: FormData) => {
         if (!(password && refresh_token)) {
             return {
                 success: false,
-                message: ` ${password ? '' : 'Password is required'} ${refresh_token ? '' : 'Refresh token is empty or not provided'
+                message: ` ${password ? '' : 'Password is required'} ${
+                    refresh_token
+                        ? ''
+                        : 'Refresh token is empty or not provided'
                 }`.trim(),
             };
         }
@@ -222,13 +299,12 @@ export const setupPasswordAction = async (formData: FormData) => {
             refresh_token: refresh_token as string,
         });
 
-        const {data: userData, error: userError} = await supabase.auth.updateUser(
-            {
+        const { data: userData, error: userError } =
+            await supabase.auth.updateUser({
                 password,
-            }
-        );
+            });
         if (userError) {
-            return {success: false, message: userError.message};
+            return { success: false, message: userError.message };
         }
         if (!userData) {
             return {

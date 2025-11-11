@@ -40,7 +40,9 @@ export default function UserManagementBreadcrumb() {
                 });
 
                 // Check if we're viewing a specific user's history
-                const historyMatch = pathname.match(/\/admin\/users\/deleted\/([^\/]+)\/history/);
+                const historyMatch = pathname.match(
+                    /\/admin\/users\/deleted\/([^\/]+)\/history/
+                );
                 if (historyMatch) {
                     const userId = historyMatch[1];
                     items.push({
@@ -68,13 +70,13 @@ export default function UserManagementBreadcrumb() {
                     {index > 0 && (
                         <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
                     )}
-                    
+
                     {item.href && !item.isActive ? (
                         <Link
                             href={item.href}
                             className={cn(
-                                "flex items-center space-x-1 hover:text-gray-900 dark:hover:text-gray-100 transition-colors",
-                                "text-gray-600 dark:text-gray-400"
+                                'flex items-center space-x-1 hover:text-gray-900 dark:hover:text-gray-100 transition-colors',
+                                'text-gray-600 dark:text-gray-400'
                             )}
                         >
                             {item.icon}
@@ -83,10 +85,10 @@ export default function UserManagementBreadcrumb() {
                     ) : (
                         <div
                             className={cn(
-                                "flex items-center space-x-1",
-                                item.isActive 
-                                    ? "text-gray-900 dark:text-gray-100 font-medium" 
-                                    : "text-gray-600 dark:text-gray-400"
+                                'flex items-center space-x-1',
+                                item.isActive
+                                    ? 'text-gray-900 dark:text-gray-100 font-medium'
+                                    : 'text-gray-600 dark:text-gray-400'
                             )}
                         >
                             {item.icon}
@@ -100,12 +102,12 @@ export default function UserManagementBreadcrumb() {
 }
 
 // Specific breadcrumb for user deletion history page
-export function UserDeletionHistoryBreadcrumb({ 
-    userId, 
-    userName 
-}: { 
-    userId: string; 
-    userName?: string; 
+export function UserDeletionHistoryBreadcrumb({
+    userId,
+    userName,
+}: {
+    userId: string;
+    userName?: string;
 }) {
     return (
         <nav className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400 mb-6">
@@ -116,9 +118,9 @@ export function UserDeletionHistoryBreadcrumb({
                 <Home className="h-4 w-4" />
                 <span>Admin</span>
             </Link>
-            
+
             <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
-            
+
             <Link
                 href="/admin/users"
                 className="flex items-center space-x-1 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
@@ -126,9 +128,9 @@ export function UserDeletionHistoryBreadcrumb({
                 <Users className="h-4 w-4" />
                 <span>Users</span>
             </Link>
-            
+
             <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
-            
+
             <Link
                 href="/admin/users/deleted"
                 className="flex items-center space-x-1 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
@@ -136,9 +138,9 @@ export function UserDeletionHistoryBreadcrumb({
                 <UserX className="h-4 w-4" />
                 <span>Deleted Users</span>
             </Link>
-            
+
             <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
-            
+
             <div className="flex items-center space-x-1 text-gray-900 dark:text-gray-100 font-medium">
                 <History className="h-4 w-4" />
                 <span>
@@ -170,15 +172,15 @@ export function UserManagementQuickNav() {
 
     return (
         <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mb-6">
-            {navItems.map((item) => (
+            {navItems.map(item => (
                 <Link
                     key={item.href}
                     href={item.href}
                     className={cn(
-                        "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                        'flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
                         item.isActive
-                            ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm"
-                            : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-white/50 dark:hover:bg-gray-700/50"
+                            ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-white/50 dark:hover:bg-gray-700/50'
                     )}
                 >
                     {item.icon}

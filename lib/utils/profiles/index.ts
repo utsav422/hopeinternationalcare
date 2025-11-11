@@ -1,7 +1,13 @@
 import { db } from '@/lib/db/drizzle';
 import { profiles } from '@/lib/db/schema/profiles';
 import { eq, sql } from 'drizzle-orm';
-import { ProfileCreateData, ProfileUpdateData, ProfileConstraintCheck } from '@/lib/types';
+import {
+    ProfileCreateData,
+    ProfileUpdateData,
+    ProfileConstraintCheck,
+} from '@/lib/types';
+import { enrollments, payments } from '@/lib/db/schema';
+import { logger } from '../logger';
 
 /**
  * Profile validation utilities
@@ -121,7 +127,9 @@ export function validateDateOfBirth(dob: string): void {
  * @param data - The profile data to validate
  * @returns ValidationResult
  */
-export function validateProfileData(data: ProfileCreateData | ProfileUpdateData) {
+export function validateProfileData(
+    data: ProfileCreateData | ProfileUpdateData
+) {
     try {
         validateFirstName(data?.full_name?.split(' ')[0] ?? '');
         validateLastName(data?.full_name?.split(' ')[0] ?? '');
@@ -136,13 +144,13 @@ export function validateProfileData(data: ProfileCreateData | ProfileUpdateData)
                 success: false,
                 error: error.message,
                 code: error.code,
-                details: error.details
+                details: error.details,
             };
         }
         return {
             success: false,
             error: 'Validation failed',
-            code: 'VALIDATION_ERROR'
+            code: 'VALIDATION_ERROR',
         };
     }
 }
@@ -152,22 +160,86 @@ export function validateProfileData(data: ProfileCreateData | ProfileUpdateData)
  */
 
 /**
- * Checks if a profile can be deleted
- * @param id - The profile ID to check
- * @returns Object with canDelete flag
+ * Checks if a profile can be deleted based on constraints
+ * A profile can be deleted only if it has no associated enrollments and no associated payments
+ *
+ * @param id - The profile ID to check constraints for
+ * @returns Object with canDelete flag indicating whether the profile can be safely deleted
+ *
+ * @example
+ * ```typescript
+ * const constraints = await checkProfileConstraints('profile-id-123');
+ * if (constraints.canDelete) {
+ *   // Safe to delete the profile
+ *   await deleteProfile('profile-id-123');
+ * }
+ * ```
  */
-export async function checkProfileConstraints(id: string): Promise<ProfileConstraintCheck> {
+export async function checkProfileConstraints(
+    id: string
+): Promise<ProfileConstraintCheck> {
+    const startTime = Date.now();
+
     try {
-        // For now, we allow deletion of any profile
-        // This could be extended with business rules if needed
+        // Log the start of the constraint check
+        logger.info('Starting profile constraint check', {
+            profileId: id,
+            timestamp: startTime,
+        });
+
+        // Single query to check both enrollment and payment counts for the user
+        const result = await db
+            .select({
+                enrollmentCount: sql<number>`COALESCE((SELECT COUNT(*) FROM enrollments WHERE user_id = ${id}), 0)`,
+                paymentCount: sql<number>`COALESCE((SELECT COUNT(*) FROM payments p JOIN enrollments e ON p.enrollment_id = e.id WHERE e.user_id = ${id}), 0)`,
+            })
+            .from(profiles)
+            .where(eq(profiles.id, id))
+            .limit(1);
+
+        const { enrollmentCount, paymentCount } = result[0] || {
+            enrollmentCount: 0,
+            paymentCount: 0,
+        };
+
+        const canDelete = enrollmentCount === 0 && paymentCount === 0;
+
+        const duration = Date.now() - startTime;
+
+        // Log successful completion with metrics
+        logger.info('Profile constraint check completed', {
+            profileId: id,
+            canDelete,
+            enrollmentCount,
+            paymentCount,
+            duration: `${duration}ms`,
+        });
+
         return {
-            canDelete: true
+            canDelete,
         };
     } catch (error) {
-        console.error('Error checking profile constraints:', error);
+        const duration = Date.now() - startTime;
+
+        // Enhanced error logging with context
+        if (error instanceof Error) {
+            logger.error('Error checking profile constraints', {
+                profileId: id,
+                duration: `${duration}ms`,
+                error: error.message,
+                stack: error.stack,
+            });
+        } else {
+            logger.error('Unknown error in profile constraint check', {
+                profileId: id,
+                duration: `${duration}ms`,
+                error,
+            });
+        }
+
         // In case of error, assume it cannot be deleted for safety
         return {
-            canDelete: false
+            canDelete: false,
         };
     }
 }
@@ -199,7 +271,10 @@ export function calculateAge(dob: string): number {
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
 
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
         age--;
     }
 

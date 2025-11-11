@@ -6,9 +6,12 @@ import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
 import { cachedAdminCourseDetails } from '@/lib/server-actions/admin/courses-optimized';
-import { adminCourseCategoryDetailsById, adminCourseCategoryList, adminCourseCategoryListAll } from '@/lib/server-actions/admin/course-categories';
+import {
+    adminCourseCategoryDetails,
+    adminCourseCategoryList,
+} from '@/lib/server-actions/admin/course-categories-optimized';
 import { notFound } from 'next/navigation';
-import { adminIntakesByCourseAndYear } from '@/lib/server-actions/admin/intakes';
+import { adminIntakeList } from '@/lib/server-actions/admin/intakes-optimized';
 
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
@@ -23,11 +26,11 @@ export default async function Courses(props: {
     const id = params.id;
 
     const queryClient = getQueryClient();
-    const response = await cachedAdminCourseDetails(id)
+    const response = await cachedAdminCourseDetails(id);
     if (!response.success) {
-        notFound()
+        notFound();
     }
-    const category_id = response.data?.category_id as string
+    const category_id = response.data?.category?.id as string;
 
     await Promise.all([
         queryClient.prefetchQuery({
@@ -36,19 +39,29 @@ export default async function Courses(props: {
         }),
         queryClient.prefetchQuery({
             queryKey: queryKeys.courseCategories.lists(),
-            queryFn: adminCourseCategoryListAll
+            queryFn: () => adminCourseCategoryList({ page: 1, pageSize: 9999 }),
         }),
         queryClient.prefetchQuery({
             queryKey: queryKeys.intakes.list({
-                filters: [{ course_id: id, year: new Date().getFullYear().toString() }]
+                filters: [
+                    {
+                        course_id: id,
+                        year: new Date().getFullYear().toString(),
+                    },
+                ],
             }),
-            queryFn: () => adminIntakesByCourseAndYear(id, new Date().getFullYear().toString())
+            queryFn: () =>
+                adminIntakeList({
+                    page: 1,
+                    pageSize: 9999,
+                    filters: [{ id: 'course_id', value: id }],
+                }),
         }),
         queryClient.prefetchQuery({
             queryKey: queryKeys.courseCategories.detail(category_id),
-            queryFn: async () => await adminCourseCategoryDetailsById(category_id)
-        })
-    ])
+            queryFn: async () => await adminCourseCategoryDetails(category_id),
+        }),
+    ]);
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
             <QueryErrorWrapper>

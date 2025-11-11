@@ -3,7 +3,7 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { useSuspenseAdminCourseCategoryDetailsById } from '@/hooks/admin/course-categories';
+import { useAdminCourseCategoryDetails } from '@/hooks/admin/course-categories-optimized';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '../ui/skeleton';
 
@@ -20,8 +20,7 @@ const badgeVariants = cva(
                     'rounded-full border border-transparent bg-destructive px-2.5 py-0.5 font-semibold text-destructive-foreground text-xs hover:bg-destructive/80',
                 outline:
                     'rounded-full border px-2.5 py-0.5 font-semibold text-foreground text-xs',
-                ghost:
-                    'rounded-md px-2 py-1 font-semibold text-xs hover:bg-accent hover:text-accent-foreground',
+                ghost: 'rounded-md px-2 py-1 font-semibold text-xs hover:bg-accent hover:text-accent-foreground',
                 link: 'font-semibold text-primary text-xs underline-offset-4 hover:underline',
                 card: 'flex flex-col items-start gap-2 rounded-lg border bg-card p-4 text-card-foreground shadow-sm',
             },
@@ -58,8 +57,10 @@ const CourseCategoryBadge = ({
         data: queryResult,
         error,
         isLoading,
-    } = useSuspenseAdminCourseCategoryDetailsById(categoryId);
-    const category = queryResult?.data;
+    } = useAdminCourseCategoryDetails(categoryId);
+    const category = queryResult?.success
+        ? queryResult?.data?.category
+        : undefined;
     //   useEffect(() => {
     //     if (!categoryId) {
     //       setLoading(false);
@@ -95,9 +96,7 @@ const CourseCategoryBadge = ({
     }
 
     if (!category) {
-        return (
-            <span className="text-gray-500 text-xs ">N/A</span>
-        );
+        return <span className="text-gray-500 text-xs ">N/A</span>;
     }
 
     const content = (
@@ -112,10 +111,7 @@ const CourseCategoryBadge = ({
     );
 
     const commonProps = {
-        className: cn(
-            badgeVariants({ variant }),
-            className,
-        ),
+        className: cn(badgeVariants({ variant }), className),
         ...props,
     };
 

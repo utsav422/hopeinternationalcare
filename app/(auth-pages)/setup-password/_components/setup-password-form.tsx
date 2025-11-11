@@ -37,9 +37,10 @@ export default function SetupPasswordComponent() {
     // Note: Supabase returns auth values in the URL hash (after #),
     // while our app passes full_name and phone via query/search params.
     const searchParams = useSearchParams();
-    const fragmentParams = typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.hash.replace(/^#/, ''))
-        : new URLSearchParams('');
+    const fragmentParams =
+        typeof window !== 'undefined'
+            ? new URLSearchParams(window.location.hash.replace(/^#/, ''))
+            : new URLSearchParams('');
 
     const oauthParams = {
         // From hash fragment
@@ -55,12 +56,14 @@ export default function SetupPasswordComponent() {
     } as const;
     const formSchema = z
         .object({
-            password: z.string().min(6, 'Password must be at least 6 characters.'),
+            password: z
+                .string()
+                .min(6, 'Password must be at least 6 characters.'),
             confirmPassword: z
                 .string()
                 .min(6, 'Password must be at least 6 characters.'),
         })
-        .refine((data) => data.password === data.confirmPassword, {
+        .refine(data => data.password === data.confirmPassword, {
             message: "Passwords don't match.",
             path: ['confirmPassword'],
         });
@@ -84,12 +87,16 @@ export default function SetupPasswordComponent() {
 
         toast.promise(setupPasswordAction(formData), {
             loading: 'Setting up password ...',
-            success: (result: { success: boolean; message: string, data?: { user: User } }) => {
+            success: (result: {
+                success: boolean;
+                message: string;
+                data?: { user: User };
+            }) => {
                 if (result?.success && result?.message && result?.data?.user) {
                     router.replace('/users/profile');
-                    return result?.message
+                    return result?.message;
                 }
-                return result?.message??'Failed to setup password'
+                return result?.message ?? 'Failed to setup password';
             },
             error: (error: Error) => {
                 return error.message || 'Failed to setup password';
@@ -129,12 +136,18 @@ export default function SetupPasswordComponent() {
                                                     className="dark:border-gray-600 dark:bg-gray-700 "
                                                     placeholder="Enter new password"
                                                     required
-                                                    type={isPasswordVisible ? 'text' : 'password'}
+                                                    type={
+                                                        isPasswordVisible
+                                                            ? 'text'
+                                                            : 'password'
+                                                    }
                                                 />
                                                 <Button
                                                     className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700  dark:hover:text-gray-200"
                                                     onClick={() =>
-                                                        setIsPasswordVisible(!isPasswordVisible)
+                                                        setIsPasswordVisible(
+                                                            !isPasswordVisible
+                                                        )
                                                     }
                                                     type="button"
                                                     variant="ghost"

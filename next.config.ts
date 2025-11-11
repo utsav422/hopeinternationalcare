@@ -1,4 +1,4 @@
-import type {NextConfig} from 'next';
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
     // Core Next.js 15 optimizations
@@ -25,26 +25,30 @@ const nextConfig: NextConfig = {
 
     images: {
         remotePatterns: [
-            {protocol: 'https', hostname: 'hopeinternationalcare.org'},
-            {protocol: 'https', hostname: 'placehold.co'},
-            {protocol: 'https', hostname: 'ekyvcdmqqcpguabhqxrw.supabase.co'},
-            {protocol: 'https', hostname: 'supabase.hopeinternationalcare.org'},
-            {protocol: 'https', hostname: 'picsum.photos'},
-            {protocol: 'https', hostname: 'images.unsplash.com'},
-            {protocol: 'https', hostname: 'unsplash.com'},
-            {protocol: 'https', hostname: 'cdn.pixabay.com'},
-            {protocol: 'https', hostname: 'images.pexels.com'},
-            {protocol: 'https', hostname: '*.amazonaws.com'},
-            {protocol: 'https', hostname: '*.cloudfront.net'},
-            {protocol: 'https', hostname: '*.googleapis.com'},
-            {protocol: 'https', hostname: '*.github.com'},
-            {protocol: 'https', hostname: '*.githubusercontent.com'},
+            { protocol: 'https', hostname: 'hopeinternationalcare.org' },
+            { protocol: 'https', hostname: 'placehold.co' },
+            { protocol: 'https', hostname: 'ujecylwtndmjrapyujjj.supabase.co' },
+            {
+                protocol: 'https',
+                hostname: 'supabase.hopeinternationalcare.org',
+            },
+            { protocol: 'https', hostname: 'picsum.photos' },
+            { protocol: 'https', hostname: 'images.unsplash.com' },
+            { protocol: 'https', hostname: 'unsplash.com' },
+            { protocol: 'https', hostname: 'cdn.pixabay.com' },
+            { protocol: 'https', hostname: 'images.pexels.com' },
+            { protocol: 'https', hostname: '*.amazonaws.com' },
+            { protocol: 'https', hostname: '*.cloudfront.net' },
+            { protocol: 'https', hostname: '*.googleapis.com' },
+            { protocol: 'https', hostname: '*.github.com' },
+            { protocol: 'https', hostname: '*.githubusercontent.com' },
         ],
         formats: ['image/webp', 'image/avif'],
         minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
         dangerouslyAllowSVG: true,
         contentDispositionType: 'attachment',
-        contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+        contentSecurityPolicy:
+            "default-src 'self'; script-src 'none'; sandbox;",
         deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
         imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     },
@@ -55,10 +59,13 @@ const nextConfig: NextConfig = {
             {
                 source: '/(.*)',
                 headers: [
-                    {key: 'X-Content-Type-Options', value: 'nosniff'},
-                    {key: 'X-Frame-Options', value: 'DENY'},
-                    {key: 'X-XSS-Protection', value: '1; mode=block'},
-                    {key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin'},
+                    { key: 'X-Content-Type-Options', value: 'nosniff' },
+                    { key: 'X-Frame-Options', value: 'DENY' },
+                    { key: 'X-XSS-Protection', value: '1; mode=block' },
+                    {
+                        key: 'Referrer-Policy',
+                        value: 'strict-origin-when-cross-origin',
+                    },
                     {
                         key: 'Permissions-Policy',
                         value: 'camera=(), microphone=(), geolocation=()',
@@ -68,8 +75,11 @@ const nextConfig: NextConfig = {
             {
                 source: '/sw.js',
                 headers: [
-                    {key: 'Cache-Control', value: 'public, max-age=0, must-revalidate'},
-                    {key: 'Service-Worker-Allowed', value: '/'},
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=0, must-revalidate',
+                    },
+                    { key: 'Service-Worker-Allowed', value: '/' },
                 ],
             },
             {
@@ -105,10 +115,14 @@ const nextConfig: NextConfig = {
     // Redirects for SEO
     async redirects() {
         return [
-            {source: '/home', destination: '/', permanent: true},
-            {source: '/course/:slug', destination: '/courses/:slug', permanent: true},
-            {source: '/about', destination: '/aboutus', permanent: true},
-            {source: '/contact', destination: '/contactus', permanent: true},
+            { source: '/home', destination: '/', permanent: true },
+            {
+                source: '/course/:slug',
+                destination: '/courses/:slug',
+                permanent: true,
+            },
+            { source: '/about', destination: '/aboutus', permanent: true },
+            { source: '/contact', destination: '/contactus', permanent: true },
         ];
     },
 };

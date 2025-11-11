@@ -5,55 +5,62 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { toast } from 'sonner';
 import { DataTable } from '@/components/Custom/data-table';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { useAdminAffiliationDelete, useAdminAffiliations } from '@/hooks/admin/affiliations';
+import {
+    useAdminAffiliationDelete,
+    useAdminAffiliationList,
+} from '@/hooks/admin/affiliations-optimized';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
 import type { ZodSelectAffiliationType } from '@/lib/db/drizzle-zod-schema/affiliations';
 import { AffiliationsTableActions } from './affiliations-table-actions';
+import { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function AffiliationsTable() {
+    const router = useRouter();
     const queryState = useDataTableQueryState();
     const queryClient = useQueryClient();
-    const { data: queryResult, error } = useAdminAffiliations({
+    const { data: queryResult, error } = useAdminAffiliationList({
         ...queryState,
-        filters: queryState?.filters ?? []
+        filters: queryState?.filters ?? [],
     });
 
     const { mutateAsync: deleteAffiliation } = useAdminAffiliationDelete();
 
-    const data = queryResult?.data;
-    const total = queryResult?.total;
+    const data = queryResult?.data?.data;
+    const total = queryResult?.data?.total;
+    const page = queryResult?.data?.page;
+    const pageSize = queryResult?.data?.pageSize;
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this affiliation? This action cannot be undone.')) {
-            return;
-        }
-
-        try {
-            const result = await deleteAffiliation(id);
-            if (result.success) {
-                toast.success('Affiliation deleted successfully');
-                // Invalidate queries to refresh the table
-                await queryClient.invalidateQueries({
-                    queryKey: ['affiliations'],
-                });
-            } else {
-                // Check if the error is due to foreign key constraint
-                if (result.error && result.error.includes('referenced')) {
-                    toast.error('Cannot delete affiliation', {
-                        description: result.error
-                    });
-                } else {
-                    toast.error('Failed to delete affiliation', {
-                        description: result.error || 'An unknown error occurred'
-                    });
-                }
+    const handleDelete = useCallback(
+        (id: string) => {
+            const consent = confirm(
+                'Are you sure you want to delete this affiliation? This action cannot be undone.'
+            );
+            if (!consent) {
+                return;
             }
-        } catch (error) {
-            toast.error('Error deleting affiliation', {
-                description: error instanceof Error ? error.message : 'An unknown error occurred'
-            });
-        }
-    };
+
+            try {
+                const promise = deleteAffiliation(id);
+                toast.promise(promise, {
+                    loading: 'Deleting Affiliation...',
+                    success: 'Affiliation deleted successfully',
+                    error: error =>
+                        error instanceof Error
+                            ? error.message
+                            : 'Failed to delete Affiliation',
+                });
+            } catch (error) {
+                toast.error('Error deleting affiliation', {
+                    description:
+                        error instanceof Error
+                            ? error.message
+                            : 'An unknown error occurred',
+                });
+            }
+        },
+        [deleteAffiliation]
+    );
 
     const columns: ColumnDef<ZodSelectAffiliationType>[] = [
         {

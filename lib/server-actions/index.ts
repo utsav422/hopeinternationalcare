@@ -9,4 +9,3 @@ export * from './admin/email-logs-optimized';
 export * from './admin/payments-optimized';
 export * from './admin/profiles-optimized';
 export * from './admin/refunds-optimized';
-export * from './admin/user-deletion-history-optimized';

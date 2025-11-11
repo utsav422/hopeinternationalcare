@@ -8,7 +8,7 @@ import {
     adminDashboardTotalEnrollments,
     adminDashboardEnrollmentsByStatus,
     adminDashboardTotalIncome,
-    adminDashboardPaymentsByStatus
+    adminDashboardPaymentsByStatus,
 } from '@/lib/server-actions/admin/dashboard';
 
 export const useAdminDashboardSummary = () => {
@@ -17,10 +17,13 @@ export const useAdminDashboardSummary = () => {
         queryFn: async () => {
             const result = await adminDashboardSummaryData();
             if (!result.success) {
-                throw new Error(result.error || 'Failed to fetch dashboard summary');
+                throw new Error(
+                    result.error || 'Failed to fetch dashboard summary'
+                );
             }
             return result.data;
-        }, staleTime: 1000 * 60 * 5,  //5minutes
+        },
+        staleTime: 1000 * 60 * 5, //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -34,7 +37,8 @@ export const useAdminDashboardTotalUsers = () => {
                 throw new Error(result.error || 'Failed to fetch total users');
             }
             return result;
-        }, staleTime: 1000 * 60 * 5,  //5minutes
+        },
+        staleTime: 1000 * 60 * 5, //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -45,10 +49,13 @@ export const useAdminDashboardTotalEnrollments = () => {
         queryFn: async () => {
             const result = await adminDashboardTotalEnrollments();
             if (!result.success) {
-                throw new Error(result.error || 'Failed to fetch total enrollments');
+                throw new Error(
+                    result.error || 'Failed to fetch total enrollments'
+                );
             }
             return result;
-        }, staleTime: 1000 * 60 * 5,  //5minutes
+        },
+        staleTime: 1000 * 60 * 5, //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -64,7 +71,8 @@ export const useAdminDashboardEnrollmentListByStatus = () => {
                 );
             }
             return result;
-        }, staleTime: 1000 * 60 * 5,  //5minutes
+        },
+        staleTime: 1000 * 60 * 5, //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -78,7 +86,8 @@ export const useAdminDashboardTotalIncome = () => {
                 throw new Error(result.error || 'Failed to fetch total income');
             }
             return result;
-        }, staleTime: 1000 * 60 * 5,  //5minutes
+        },
+        staleTime: 1000 * 60 * 5, //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };
@@ -89,10 +98,13 @@ export const useAdminDashboardPaymentListByStatus = () => {
         queryFn: async () => {
             const result = await adminDashboardPaymentsByStatus();
             if (!result.success) {
-                throw new Error(result.error || 'Failed to fetch payments by status');
+                throw new Error(
+                    result.error || 'Failed to fetch payments by status'
+                );
             }
             return result;
-        }, staleTime: 1000 * 60 * 5,  //5minutes
+        },
+        staleTime: 1000 * 60 * 5, //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
 };

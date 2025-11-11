@@ -33,18 +33,15 @@ export default function EnrollmentSelect({
 
     if (error) {
         toast.error(
-            error?.message ?? 'Data couldnt found. please contact to adminstrator'
+            error?.message ??
+                'Data couldnt found. please contact to adminstrator'
         );
     }
 
     const enrollments = queryResult?.data;
 
     if (enrollments && enrollments.length === 0) {
-        return (
-            <span className="">
-                No intake found for course enrollments
-            </span>
-        );
+        return <span className="">No intake found for course enrollments</span>;
     }
     if (isLoading) {
         return (
@@ -57,10 +54,9 @@ export default function EnrollmentSelect({
     return (
         <Select
             disabled={disabled || isLoading}
-            onValueChange={(value) => {
+            onValueChange={value => {
                 const selectedEnrollment = enrollments?.find(
-                    (item: EnrollmentListItem) =>
-                        item.id === value
+                    (item: EnrollmentListItem) => item.id === value
                 );
                 if (selectedEnrollment) {
                     field.onChange(value);
@@ -75,32 +71,27 @@ export default function EnrollmentSelect({
                 <SelectValue placeholder="Select a Enrollments" />
             </SelectTrigger>
             <SelectContent className="">
-                {enrollments?.map(
-                    (item: EnrollmentListItem) => (
-                        <SelectItem
-                            key={item.id}
-                            value={item.id}
-                        >
-                            <div className="flex items-center gap-2">
-                                <span className="font-bold ">
-                                    Enrolled Date: {item.created_at}
-                                </span>
-                                <span className="text-gray-500 text-sm ">
-                                    (user: {item.user?.fullName})
-                                </span>
-                                <span className="text-gray-700 text-sm dark:text-gray-300">
-                                    {new Date(
-                                        item.created_at as string
-                                    ).toLocaleDateString('en-GB', {
-                                        day: '2-digit',
-                                        month: 'short',
-                                        year: 'numeric',
-                                    })}{' '}
-                                </span>
-                            </div>
-                        </SelectItem>
-                    )
-                )}
+                {enrollments?.map((item: EnrollmentListItem) => (
+                    <SelectItem key={item.id} value={item.id}>
+                        <div className="flex items-center gap-2">
+                            <span className="font-bold ">
+                                Enrolled Date: {item.created_at}
+                            </span>
+                            <span className="text-gray-500 text-sm ">
+                                (user: {item.user?.fullName})
+                            </span>
+                            <span className="text-gray-700 text-sm dark:text-gray-300">
+                                {new Date(
+                                    item.created_at as string
+                                ).toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric',
+                                })}{' '}
+                            </span>
+                        </div>
+                    </SelectItem>
+                ))}
             </SelectContent>
         </Select>
     );

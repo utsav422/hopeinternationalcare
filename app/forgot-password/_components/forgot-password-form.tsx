@@ -73,7 +73,9 @@ export default function ForgotPasswordComponent() {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="">Email</FormLabel>
+                                        <FormLabel className="">
+                                            Email
+                                        </FormLabel>
                                         <FormControl>
                                             <Input
                                                 {...field}
@@ -97,7 +99,9 @@ export default function ForgotPasswordComponent() {
                                 {form.formState.isSubmitting && (
                                     <Loader className="mr-2 h-4 w-4 animate-spin" />
                                 )}
-                                {form.formState.isSubmitting ? 'Sending...' : 'Send Reset Link'}
+                                {form.formState.isSubmitting
+                                    ? 'Sending...'
+                                    : 'Send Reset Link'}
                             </Button>
                             <p className="text-center text-gray-600 text-sm ">
                                 Remember your password?{' '}

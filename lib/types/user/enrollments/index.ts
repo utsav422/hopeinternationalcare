@@ -11,42 +11,41 @@ export type ProfileBase = InferSelectModel<typeof profiles>;
 
 // User enrollment list item
 export interface UserEnrollmentListItem {
-  id: string;
-  status: string;
-  created_at: string;
-  intake_id: string;
-  user_id: string;
-  courseTitle: string | null;
-  course_highlights: string | null;
-  course_overview: string | null;
-  courseImage: string | null;
-  start_date: string | null;
-  end_date: string | null;
-  notes: string | null;
+    id: string;
+    status: string;
+    created_at: string;
+    intake_id: string;
+    user_id: string;
+    courseTitle: string | null;
+    course_highlights: string | null;
+    course_overview: string | null;
+    courseImage: string | null;
+    start_date: string | null;
+    end_date: string | null;
+    notes: string | null;
 }
 
 export type { ApiResponse } from '../..';
 
 // Enrollment creation data
 export interface CreateEnrollmentData {
-  courseId: string;
-  intakeId: string;
-  userId: string;
+    courseId: string;
+    intakeId: string;
+    userId: string;
 }
 
 // User enrollment detail
 export interface UserEnrollmentDetail {
-  id: string;
-  status: string;
-  created_at: string;
-  intake_id: string;
-  user_id: string;
-  courseTitle: string | null;
-  course_highlights: string | null;
-  course_overview: string | null;
-  courseImage: string | null;
-  start_date: string | null;
-  end_date: string | null;
-  notes: string | null;
+    id: string;
+    status: string;
+    created_at: string;
+    intake_id: string;
+    user_id: string;
+    courseTitle: string | null;
+    course_highlights: string | null;
+    course_overview: string | null;
+    courseImage: string | null;
+    start_date: string | null;
+    end_date: string | null;
+    notes: string | null;
 }
-

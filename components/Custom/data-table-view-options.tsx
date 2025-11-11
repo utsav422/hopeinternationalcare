@@ -31,25 +31,25 @@ export function DataTableViewOptions<TData>({
                     View
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-                align="end"
-                className="w-[150px]"
-            >
+            <DropdownMenuContent align="end" className="w-[150px]">
                 <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
                 <DropdownMenuSeparator className="" />
                 {table
                     .getAllColumns()
                     .filter(
-                        (column) =>
-                            typeof column.accessorFn !== 'undefined' && column.getCanHide()
+                        column =>
+                            typeof column.accessorFn !== 'undefined' &&
+                            column.getCanHide()
                     )
-                    .map((column) => {
+                    .map(column => {
                         return (
                             <DropdownMenuCheckboxItem
                                 checked={column.getIsVisible()}
                                 className="capitalize"
                                 key={column.id}
-                                onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                                onCheckedChange={value =>
+                                    column.toggleVisibility(!!value)
+                                }
                             >
                                 {column.id}
                             </DropdownMenuCheckboxItem>

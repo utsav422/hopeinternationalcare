@@ -36,14 +36,15 @@ export function OurGoals() {
                         Our Future Goals
                     </h1>
                     <p className="mb-8 animate-fade-up px-3 font-normal text-gray-700 text-lg duration-500 lg:px-0 dark:text-gray-300">
-                        Looking towards the future, our vision extends beyond training and
-                        guidance. We aspire to establish a one-of-a-kind care home on the
-                        outskirts of a prominent city in Nepal, dedicated to providing
-                        compassionate and specialized care for elderly individuals facing
-                        various age-related challenges. This facility will be a sanctuary
-                        where residents receive not only the physical care they need but
-                        also the emotional support and companionship that are essential for
-                        their well-being.
+                        Looking towards the future, our vision extends beyond
+                        training and guidance. We aspire to establish a
+                        one-of-a-kind care home on the outskirts of a prominent
+                        city in Nepal, dedicated to providing compassionate and
+                        specialized care for elderly individuals facing various
+                        age-related challenges. This facility will be a
+                        sanctuary where residents receive not only the physical
+                        care they need but also the emotional support and
+                        companionship that are essential for their well-being.
                     </p>
                 </div>
 

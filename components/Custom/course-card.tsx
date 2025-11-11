@@ -1,6 +1,6 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Image from "next/image";
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -28,7 +28,7 @@ import {
     CustomerContactFormSchema,
     type CustomerContactFormType,
 } from '@/lib/db/drizzle-zod-schema/customer-contact-requests';
-import { createEnrollment } from '@/lib/server-actions/user/enrollments';
+import { createEnrollment } from '@/lib/server-actions/user/enrollments-optimized';
 import { Badge } from '../ui/badge';
 import { usePublicCustomerContactRequestCreate } from '@/hooks/public/customer-contact-requests';
 
@@ -50,7 +50,8 @@ export function CourseCard({
     image_url,
     slug,
     title,
-    highlights, overview,
+    highlights,
+    overview,
     price,
     next_intake_date,
     available_seats,
@@ -61,8 +62,10 @@ export function CourseCard({
     const { user } = useAuthSession();
     const [isEnrollmentDialogOpen, setIsEnrollmentDialogOpen] = useState(false);
     const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
+    const [isEnrolling, setIsEnrolling] = useState(false);
 
-    const createContactRequestMutation = usePublicCustomerContactRequestCreate();
+    const createContactRequestMutation =
+        usePublicCustomerContactRequestCreate();
 
     const contactForm = useForm<CustomerContactFormType>({
         resolver: zodResolver(CustomerContactFormSchema),
@@ -85,16 +88,30 @@ export function CourseCard({
             return;
         }
 
-        const formData = new FormData();
-        formData.append('courseId', courseId);
-        formData.append('intakeId', next_intake_id);
+        // Set loading state
+        setIsEnrolling(true);
 
-        const result = await createEnrollment(formData);
+        const enrollmentData = {
+            courseId: courseId,
+            intakeId: next_intake_id,
+            userId: user.id,
+        };
 
-        if (result?.error) {
-            toast.error(result.error);
-        } else if (result?.success) {
-            toast.success('Enrollment successfully submitted and recorded. ');
+        try {
+            const result = await createEnrollment(enrollmentData);
+
+            if (result?.error) {
+                toast.error(result.error);
+            } else if (result?.success) {
+                toast.success(
+                    'Enrollment successfully submitted and recorded. '
+                );
+            }
+        } catch (error) {
+            toast.error('Failed to create enrollment. Please try again.');
+        } finally {
+            // Reset loading state
+            setIsEnrolling(false);
         }
     };
 
@@ -112,7 +129,13 @@ export function CourseCard({
                 contactForm.reset();
             },
             onError: (error: unknown) => {
-                toast.error(`Failed to send inquiry: ${error instanceof Error ? error.message : "Something went wrong contac to adminstratiion"}`);
+                toast.error(
+                    `Failed to send inquiry: ${
+                        error instanceof Error
+                            ? error.message
+                            : 'Something went wrong contac to adminstratiion'
+                    }`
+                );
             },
         });
     };
@@ -135,10 +158,7 @@ export function CourseCard({
             <div className="flex flex-grow flex-col space-y-3">
                 <div className="flex flex-col items-start">
                     {categoryName && (
-                        <Badge
-                            className="mb-2 w-fit"
-                            variant="secondary"
-                        >
+                        <Badge className="mb-2 w-fit" variant="secondary">
                             {categoryName}
                         </Badge>
                     )}
@@ -158,16 +178,14 @@ export function CourseCard({
                     {highlights}
                 </p>
                 <div className="flex items-center justify-between pt-2">
-                    <span className="font-bold text-lg">
-                        रू{price} NPR
-                    </span>
+                    <span className="font-bold text-lg">रू{price} NPR</span>
                     {next_intake_date && (
                         <div className="text-right">
-                            <p className="text-sm">
-                                Next Intake:
-                            </p>
+                            <p className="text-sm">Next Intake:</p>
                             <p className="font-semibold text-base">
-                                {new Date(next_intake_date).toLocaleDateString()}
+                                {new Date(
+                                    next_intake_date
+                                ).toLocaleDateString()}
                             </p>
                         </div>
                     )}
@@ -187,21 +205,27 @@ export function CourseCard({
                     <Button
                         className="flex-1 rounded-md border px-4 py-2 font-medium text-sm transition-colors"
                         disabled={
-                            available_seats !== null &&
-                            available_seats <= 0 &&
-                            next_intake_id !== null
+                            (available_seats !== null &&
+                                available_seats <= 0 &&
+                                next_intake_id !== null) ||
+                            isEnrolling
                         }
                         onClick={handleEnrollClick}
                     >
-                        {(() => {
-                            if (next_intake_id === null) {
-                                return 'Contact Us';
-                            }
-                            if (available_seats !== null && available_seats <= 0) {
-                                return 'Full';
-                            }
-                            return 'Enroll Now';
-                        })()}
+                        {isEnrolling
+                            ? 'Enrolling...'
+                            : (() => {
+                                  if (next_intake_id === null) {
+                                      return 'Contact Us';
+                                  }
+                                  if (
+                                      available_seats !== null &&
+                                      available_seats <= 0
+                                  ) {
+                                      return 'Full';
+                                  }
+                                  return 'Enroll Now';
+                              })()}
                     </Button>
                 </div>
             </div>
@@ -212,25 +236,20 @@ export function CourseCard({
             >
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>
-                            Enrollment Information
-                        </DialogTitle>
+                        <DialogTitle>Enrollment Information</DialogTitle>
                         <DialogDescription>
-                            To enroll in a course, you need to be registered and logged in.
+                            To enroll in a course, you need to be registered and
+                            logged in.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <p>
-                            Please log in or register to continue with your enrollment
-                            request.
+                            Please log in or register to continue with your
+                            enrollment request.
                         </p>
                         <div className="flex justify-end gap-2">
                             <Link href="/sign-in">
-                                <Button
-                                    variant="outline"
-                                >
-                                    Login
-                                </Button>
+                                <Button variant="outline">Login</Button>
                             </Link>
                             <Link href="/sign-up">
                                 <Button className="bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-700">
@@ -242,21 +261,24 @@ export function CourseCard({
                 </DialogContent>
             </Dialog>
             {/* Contact Form Dialog */}
-            <Dialog onOpenChange={setIsContactDialogOpen} open={isContactDialogOpen}>
+            <Dialog
+                onOpenChange={setIsContactDialogOpen}
+                open={isContactDialogOpen}
+            >
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>
-                            Contact Us About {title}
-                        </DialogTitle>
+                        <DialogTitle>Contact Us About {title}</DialogTitle>
                         <DialogDescription>
-                            Please fill out the form below and we will get back to you
-                            shortly.
+                            Please fill out the form below and we will get back
+                            to you shortly.
                         </DialogDescription>
                     </DialogHeader>
                     <Form {...contactForm}>
                         <form
                             className="space-y-4"
-                            onSubmit={contactForm.handleSubmit(onContactFormSubmit)}
+                            onSubmit={contactForm.handleSubmit(
+                                onContactFormSubmit
+                            )}
                         >
                             <FormField
                                 control={contactForm.control}
@@ -334,7 +356,9 @@ export function CourseCard({
                                 )}
                             />
                             <Button
-                                disabled={createContactRequestMutation.isPending}
+                                disabled={
+                                    createContactRequestMutation.isPending
+                                }
                                 type="submit"
                             >
                                 {createContactRequestMutation.isPending

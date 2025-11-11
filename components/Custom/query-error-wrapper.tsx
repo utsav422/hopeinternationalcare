@@ -1,5 +1,4 @@
-
-'use client'
+'use client';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary, type ErrorBoundaryProps } from 'react-error-boundary';
 import { toast } from 'sonner';

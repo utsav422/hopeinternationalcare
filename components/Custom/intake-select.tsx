@@ -10,23 +10,33 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useAdminIntakeListAllActive } from '@/hooks/admin/intakes';
+import { useAdminIntakesByCourseAndYear } from '@/hooks/admin/intakes-optimized';
 import type { ZodEnrollmentInsertType } from '@/lib/db/drizzle-zod-schema/enrollments';
-import type { IntakeWithCourse } from '@/lib/server-actions/admin/intakes';
+import type { IntakeListItem } from '@/lib/types/intakes';
 import { Skeleton } from '../ui/skeleton';
 
 interface IntakeSelectProps {
     field: ControllerRenderProps<ZodEnrollmentInsertType, 'intake_id'>;
     disabled?: boolean;
-    getItemOnValueChanges?: (item: IntakeWithCourse) => void;
+    courseId?: string;
+    getItemOnValueChanges?: (item: IntakeListItem) => void;
 }
 
 export default function IntakeSelect({
     field,
     disabled,
+    courseId,
     getItemOnValueChanges,
 }: IntakeSelectProps) {
-    const { data: intakes, error, isLoading } = useAdminIntakeListAllActive();
+    // Use the unified hook that handles both course-specific and general intake listing
+    const currentYear = new Date().getFullYear().toString();
+    const queryResult = useAdminIntakesByCourseAndYear(courseId, currentYear);
+
+    // Extract intakes based on the response structure
+    const intakes = queryResult.data?.intakes || [];
+
+    const error = queryResult.error;
+    const isLoading = queryResult.isLoading;
 
     if (isLoading) {
         return (
@@ -45,22 +55,21 @@ export default function IntakeSelect({
         );
     }
     if (intakes?.length === 0) {
-        return (
-            <span className="">
-                No intake found for course enrollments
-            </span>
-        );
+        return <span className="">No intake found for course enrollments</span>;
     }
     return (
         <Select
             disabled={disabled || isLoading}
-            onValueChange={(value) => {
+            onValueChange={value => {
                 const selectedIntakes = intakes?.find(
-                    (item: IntakeWithCourse) => item.id === value
+                    (item: any) => item.id === value
                 );
                 if (selectedIntakes) {
                     field.onChange(value);
-                    getItemOnValueChanges?.(selectedIntakes);
+                    // Pass the intake directly since it's already the correct type
+                    if (getItemOnValueChanges) {
+                        getItemOnValueChanges(selectedIntakes);
+                    }
                 }
             }}
             value={field.value ?? undefined}
@@ -69,34 +78,39 @@ export default function IntakeSelect({
                 <SelectValue placeholder="Select a intake" />
             </SelectTrigger>
             <SelectContent className="">
-                {intakes?.map((intake: IntakeWithCourse) => (
-                    <SelectItem
-                        key={intake.id}
-                        value={intake.id}
-                    >
+                {intakes?.map((intake: any) => (
+                    <SelectItem key={intake.id} value={intake.id}>
                         <div className="flex items-center gap-2">
                             <span className="font-bold ">
-                                {intake.courseTitle}
+                                {intake.course?.title}
                             </span>
                             <span className="text-gray-500 text-sm ">
                                 (Capacity: {intake.capacity})
                             </span>
                             <span className="text-gray-700 text-sm dark:text-gray-300">
-                                {new Date(intake.start_date).toLocaleDateString('en-GB', {
-                                    day: '2-digit',
-                                    month: 'short',
-                                    year: 'numeric',
-                                })}{' '}
+                                {new Date(intake.start_date).toLocaleDateString(
+                                    'en-GB',
+                                    {
+                                        day: '2-digit',
+                                        month: 'short',
+                                        year: 'numeric',
+                                    }
+                                )}{' '}
                                 -{' '}
-                                {new Date(intake.end_date).toLocaleDateString('en-GB', {
-                                    day: '2-digit',
-                                    month: 'short',
-                                    year: 'numeric',
-                                })}
+                                {new Date(intake.end_date).toLocaleDateString(
+                                    'en-GB',
+                                    {
+                                        day: '2-digit',
+                                        month: 'short',
+                                        year: 'numeric',
+                                    }
+                                )}
                             </span>
                             <Badge
                                 className="dark:bg-gray-700 "
-                                variant={intake.is_open ? 'default' : 'destructive'}
+                                variant={
+                                    intake.is_open ? 'default' : 'destructive'
+                                }
                             >
                                 {intake.is_open ? 'Open' : 'Closed'}
                             </Badge>

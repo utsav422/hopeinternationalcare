@@ -7,9 +7,8 @@ import { cachedAdminCourseDetails } from '@/lib/server-actions/admin/courses-opt
 import { requireAdmin } from '@/utils/auth-guard';
 import { getQueryClient } from '@/utils/get-query-client';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
-import { cachedAdminCourseCategoryListAll } from '@/lib/server-actions/admin/course-categories';
-import { getAffiliations } from '@/lib/server-actions/admin/affiliations';
-
+import { adminCourseCategoryList } from '@/lib/server-actions/admin/course-categories-optimized';
+import { adminAffiliationsAll } from '@/lib/server-actions/admin/affiliations-optimized';
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -29,16 +28,16 @@ export default async function EditCourse(props: {
     });
     await queryClient.prefetchQuery({
         queryKey: queryKeys.courseCategories.lists(),
-        queryFn: cachedAdminCourseCategoryListAll,
-        staleTime: 1000 * 60 * 5,  //5minutes
+        queryFn: () => adminCourseCategoryList({ page: 1, pageSize: 9999 }),
+        staleTime: 1000 * 60 * 5, //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
-    })
+    });
     await queryClient.prefetchQuery({
         queryKey: queryKeys.affiliations.lists(),
-        queryFn: getAffiliations,
-        staleTime: 1000 * 60 * 5,  //5minutes
+        queryFn: adminAffiliationsAll,
+        staleTime: 1000 * 60 * 5, //5minutes
         gcTime: 1000 * 60 * 60, // 1 hour
-    })
+    });
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
             <QueryErrorWrapper>

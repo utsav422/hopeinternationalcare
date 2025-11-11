@@ -3,16 +3,16 @@ import 'dotenv/config';
 import postgres from 'postgres';
 
 async function resetDatabase() {
-  const client = postgres(process.env.SUPABASE_DB_URL!);
+    const client = postgres(process.env.SUPABASE_DB_URL!);
 
-  try {
-    console.log('Connected to database');
+    try {
+        console.log('Connected to database');
 
-    // Execute all cleanup operations in a transaction
-    await client.begin(async (tx) => {
-      // Drop all tables in public schema (only your application tables)
-      console.log('Dropping all tables in public schema...');
-      await tx.unsafe(`
+        // Execute all cleanup operations in a transaction
+        await client.begin(async tx => {
+            // Drop all tables in public schema (only your application tables)
+            console.log('Dropping all tables in public schema...');
+            await tx.unsafe(`
         DO $$ 
         DECLARE 
           r RECORD; 
@@ -23,9 +23,9 @@ async function resetDatabase() {
         END $$;
       `);
 
-      // Drop all sequences in public schema
-      console.log('Dropping all sequences in public schema...');
-      await tx.unsafe(`
+            // Drop all sequences in public schema
+            console.log('Dropping all sequences in public schema...');
+            await tx.unsafe(`
         DO $$ 
         DECLARE 
           r RECORD; 
@@ -36,9 +36,9 @@ async function resetDatabase() {
         END $$;
       `);
 
-      // Drop all views in public schema
-      console.log('Dropping all views in public schema...');
-      await tx.unsafe(`
+            // Drop all views in public schema
+            console.log('Dropping all views in public schema...');
+            await tx.unsafe(`
         DO $$ 
         DECLARE 
           r RECORD; 
@@ -49,9 +49,9 @@ async function resetDatabase() {
         END $$;
       `);
 
-      // Drop all functions in public schema only
-      console.log('Dropping all functions in public schema...');
-      await tx.unsafe(`
+            // Drop all functions in public schema only
+            console.log('Dropping all functions in public schema...');
+            await tx.unsafe(`
         DO $$ 
         DECLARE 
           r RECORD; 
@@ -64,9 +64,9 @@ async function resetDatabase() {
         END $$;
       `);
 
-      // Drop all custom types in public schema (including enums)
-      console.log('Dropping all custom types in public schema...');
-      await tx.unsafe(`
+            // Drop all custom types in public schema (including enums)
+            console.log('Dropping all custom types in public schema...');
+            await tx.unsafe(`
         DO $$ 
         DECLARE 
           r RECORD; 
@@ -80,9 +80,9 @@ async function resetDatabase() {
         END $$;
       `);
 
-      // Drop all triggers on tables in public schema only
-      console.log('Dropping all triggers in public schema...');
-      await tx.unsafe(`
+            // Drop all triggers on tables in public schema only
+            console.log('Dropping all triggers in public schema...');
+            await tx.unsafe(`
         DO $$ 
         DECLARE 
           r RECORD; 
@@ -97,32 +97,36 @@ async function resetDatabase() {
         END $$;
       `);
 
-      // Clean drizzle migration tracking table
-      console.log('Cleaning drizzle migration tracking...');
-      await tx.unsafe('DROP TABLE IF EXISTS drizzle.__drizzle_migrations CASCADE;');
-    });
+            // Clean drizzle migration tracking table
+            console.log('Cleaning drizzle migration tracking...');
+            await tx.unsafe(
+                'DROP TABLE IF EXISTS drizzle.__drizzle_migrations CASCADE;'
+            );
+        });
 
-    console.log('✅ Database reset completed successfully!');
-
-  } catch (error) {
-    console.error('❌ Error resetting database:', error);
-    process.exit(1);
-  } finally {
-    await client.end();
-  }
+        console.log('✅ Database reset completed successfully!');
+    } catch (error) {
+        console.error('❌ Error resetting database:', error);
+        process.exit(1);
+    } finally {
+        await client.end();
+    }
 }
 
 // Confirm before running
 const readline = require('readline').createInterface({
-  input: process.stdin,
-  output: process.stdout
+    input: process.stdin,
+    output: process.stdout,
 });
 
-readline.question('⚠️  This will DELETE ALL DATA in your public schema. Are you sure? (type "YES" to confirm): ', async (answer: string) => {
-  if (answer === 'YES') {
-    await resetDatabase();
-  } else {
-    console.log('Database reset cancelled.');
-  }
-  readline.close();
-});
+readline.question(
+    '⚠️  This will DELETE ALL DATA in your public schema. Are you sure? (type "YES" to confirm): ',
+    async (answer: string) => {
+        if (answer === 'YES') {
+            await resetDatabase();
+        } else {
+            console.log('Database reset cancelled.');
+        }
+        readline.close();
+    }
+);

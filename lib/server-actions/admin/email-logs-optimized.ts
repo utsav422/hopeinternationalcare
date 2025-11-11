@@ -13,16 +13,20 @@ import {
     EmailLogUpdateData,
     EmailLogConstraintCheck,
     EmailLogStatusUpdate,
-    TypeEmailStatus
+    TypeEmailStatus,
 } from '@/lib/types/email-logs';
 import { ApiResponse } from '@/lib/types';
 import {
     validateEmailLogData,
     checkEmailLogConstraints,
     EmailLogValidationError,
-    canUpdateEmailLogStatus
+    canUpdateEmailLogStatus,
 } from '@/lib/utils/email-logs';
-import { buildFilterConditions, buildWhereClause, buildOrderByClause } from '@/lib/utils/query-utils';
+import {
+    buildFilterConditions,
+    buildWhereClause,
+    buildOrderByClause,
+} from '@/lib/utils/query-utils';
 
 // Column mappings for email logs
 const emailLogColumnMap: Record<string, any> = {
@@ -39,49 +43,66 @@ const emailLogColumnMap: Record<string, any> = {
 /**
  * Error handling utility
  */
-export function handleEmailLogError(error: unknown, operation: string): ApiResponse<never> {
+export async function handleEmailLogError(
+    error: unknown,
+    operation: string
+): Promise<ApiResponse<never>> {
     if (error instanceof EmailLogValidationError) {
-        return {
+        return Promise.reject({
             success: false,
             error: error.message,
             code: error.code,
-            details: error.details
-        };
+            details: error.details,
+        });
     }
 
     if (error instanceof Error) {
         logger.error(`Email Log ${operation} failed:`, error);
-        return {
+        return Promise.reject({
             success: false,
             error: error.message,
-            code: 'UNKNOWN_ERROR'
-        };
+            code: 'UNKNOWN_ERROR',
+        });
     }
 
-    logger.error(`Unexpected error in email log ${operation}:`, { error: String(error) });
-    return {
+    logger.error(`Unexpected error in email log ${operation}:`, {
+        error: String(error),
+    });
+    return Promise.reject({
         success: false,
         error: 'An unexpected error occurred',
-        code: 'UNKNOWN_ERROR'
-    };
+        code: 'UNKNOWN_ERROR',
+    });
 }
 
 /**
  * Single comprehensive list function with filtering and pagination
  */
-export async function adminEmailLogList(params: EmailLogQueryParams): Promise<ApiResponse<{
-    data: EmailLogListItem[];
-    total: number;
-    page: number;
-    pageSize: number;
-}>> {
+export async function adminEmailLogList(params: EmailLogQueryParams): Promise<
+    ApiResponse<{
+        data: EmailLogListItem[];
+        total: number;
+        page: number;
+        pageSize: number;
+    }>
+> {
     try {
         await requireAdmin();
 
-        const { page = 1, pageSize = 10, sortBy = 'created_at', order = 'desc', filters = [], search } = params;
+        const {
+            page = 1,
+            pageSize = 10,
+            sortBy = 'created_at',
+            order = 'desc',
+            filters = [],
+            search,
+        } = params;
         const offset = (page - 1) * pageSize;
 
-        const filterConditions = buildFilterConditions(filters, emailLogColumnMap);
+        const filterConditions = buildFilterConditions(
+            filters,
+            emailLogColumnMap
+        );
 
         if (search) {
             const searchFilter = `%${search}%`;
@@ -109,21 +130,28 @@ export async function adminEmailLogList(params: EmailLogQueryParams): Promise<Ap
             .offset(offset);
 
         const queryWithWhere = whereClause ? query.where(whereClause) : query;
-        const queryWithOrder = orderBy ? queryWithWhere.orderBy(orderBy) : queryWithWhere;
+        const queryWithOrder = orderBy
+            ? queryWithWhere.orderBy(orderBy)
+            : queryWithWhere;
 
-        const countQuery = db.select({ count: sql<number>`count(*)` }).from(emailLogs);
-        const countQueryWithWhere = whereClause ? countQuery.where(whereClause) : countQuery;
+        const countQuery = db
+            .select({ count: sql<number>`count(*)` })
+            .from(emailLogs);
+        const countQueryWithWhere = whereClause
+            ? countQuery.where(whereClause)
+            : countQuery;
 
         const [results, countResult] = await Promise.all([
             queryWithOrder,
-            countQueryWithWhere
+            countQueryWithWhere,
         ]);
 
         const data: EmailLogListItem[] = results.map(item => ({
-            ...
-            item,
+            ...item,
             status: item.status as TypeEmailStatus,
-            to_emails: Array.isArray(item.to_emails) ? item.to_emails : [String(item.to_emails)],
+            to_emails: Array.isArray(item.to_emails)
+                ? item.to_emails
+                : [String(item.to_emails)],
         }));
 
         return {
@@ -132,8 +160,8 @@ export async function adminEmailLogList(params: EmailLogQueryParams): Promise<Ap
                 data,
                 total: countResult[0]?.count || 0,
                 page,
-                pageSize
-            }
+                pageSize,
+            },
         };
     } catch (error) {
         return handleEmailLogError(error, 'list');
@@ -143,14 +171,22 @@ export async function adminEmailLogList(params: EmailLogQueryParams): Promise<Ap
 /**
  * Single comprehensive details function
  */
-export async function adminEmailLogDetails(id: string): Promise<ApiResponse<EmailLog>> {
+export async function adminEmailLogDetails(
+    id: string
+): Promise<ApiResponse<EmailLog>> {
     try {
         await requireAdmin();
 
-        const log = await db.query.emailLogs.findFirst({ where: eq(emailLogs.id, id) });
+        const log = await db.query.emailLogs.findFirst({
+            where: eq(emailLogs.id, id),
+        });
 
         if (!log) {
-            return { success: false, error: 'Email log not found', code: 'NOT_FOUND' };
+            return {
+                success: false,
+                error: 'Email log not found',
+                code: 'NOT_FOUND',
+            };
         }
 
         return { success: true, data: log };
@@ -162,13 +198,20 @@ export async function adminEmailLogDetails(id: string): Promise<ApiResponse<Emai
 /**
  * Optimized CRUD operations with validation
  */
-export async function adminEmailLogCreate(data: EmailLogCreateData): Promise<ApiResponse<EmailLog>> {
+export async function adminEmailLogCreate(
+    data: EmailLogCreateData
+): Promise<ApiResponse<EmailLog>> {
     try {
         await requireAdmin();
 
         const validation = validateEmailLogData(data);
         if (!validation.success) {
-            return { success: false, error: validation.error || 'Validation failed', code: validation.code || 'VALIDATION_ERROR', details: validation.details };
+            return {
+                success: false,
+                error: validation.error || 'Validation failed',
+                code: validation.code || 'VALIDATION_ERROR',
+                details: validation.details,
+            };
         }
 
         const [created] = await db.insert(emailLogs).values(data).returning();
@@ -180,21 +223,36 @@ export async function adminEmailLogCreate(data: EmailLogCreateData): Promise<Api
     }
 }
 
-export async function adminEmailLogUpdate(data: EmailLogUpdateData): Promise<ApiResponse<EmailLog>> {
+export async function adminEmailLogUpdate(
+    data: EmailLogUpdateData
+): Promise<ApiResponse<EmailLog>> {
     try {
         await requireAdmin();
 
         const validation = validateEmailLogData(data);
         if (!validation.success) {
-            return { success: false, error: validation.error || 'Validation failed', code: validation.code || 'VALIDATION_ERROR', details: validation.details };
+            return {
+                success: false,
+                error: validation.error || 'Validation failed',
+                code: validation.code || 'VALIDATION_ERROR',
+                details: validation.details,
+            };
         }
 
         const { id, ...updateData } = data;
 
-        const [updated] = await db.update(emailLogs).set({ ...updateData, updated_at: sql`now()` }).where(eq(emailLogs.id, id)).returning();
+        const [updated] = await db
+            .update(emailLogs)
+            .set({ ...updateData, updated_at: sql`now()` })
+            .where(eq(emailLogs.id, id))
+            .returning();
 
         if (!updated) {
-            return { success: false, error: 'Email log not found', code: 'NOT_FOUND' };
+            return {
+                success: false,
+                error: 'Email log not found',
+                code: 'NOT_FOUND',
+            };
         }
 
         revalidatePath('/admin/email-logs');
@@ -205,19 +263,32 @@ export async function adminEmailLogUpdate(data: EmailLogUpdateData): Promise<Api
     }
 }
 
-export async function adminEmailLogDelete(id: string): Promise<ApiResponse<void>> {
+export async function adminEmailLogDelete(
+    id: string
+): Promise<ApiResponse<void>> {
     try {
         await requireAdmin();
 
         const constraints = await checkEmailLogConstraints(id);
         if (!constraints.canDelete) {
-            return { success: false, error: 'Cannot delete this email log due to business rules.', code: 'CONSTRAINT_VIOLATION' };
+            return {
+                success: false,
+                error: 'Cannot delete this email log due to business rules.',
+                code: 'CONSTRAINT_VIOLATION',
+            };
         }
 
-        const [deleted] = await db.delete(emailLogs).where(eq(emailLogs.id, id)).returning();
+        const [deleted] = await db
+            .delete(emailLogs)
+            .where(eq(emailLogs.id, id))
+            .returning();
 
         if (!deleted) {
-            return { success: false, error: 'Email log not found', code: 'NOT_FOUND' };
+            return {
+                success: false,
+                error: 'Email log not found',
+                code: 'NOT_FOUND',
+            };
         }
 
         revalidatePath('/admin/email-logs');
@@ -230,7 +301,9 @@ export async function adminEmailLogDelete(id: string): Promise<ApiResponse<void>
 /**
  * Business-specific operations
  */
-export async function adminEmailLogCheckConstraints(id: string): Promise<ApiResponse<EmailLogConstraintCheck>> {
+export async function adminEmailLogCheckConstraints(
+    id: string
+): Promise<ApiResponse<EmailLogConstraintCheck>> {
     try {
         await requireAdmin();
         const result = await checkEmailLogConstraints(id);
@@ -243,24 +316,45 @@ export async function adminEmailLogCheckConstraints(id: string): Promise<ApiResp
 /**
  * Status update operation
  */
-export async function adminEmailLogUpdateStatus(data: EmailLogStatusUpdate): Promise<ApiResponse<EmailLog>> {
+export async function adminEmailLogUpdateStatus(
+    data: EmailLogStatusUpdate
+): Promise<ApiResponse<EmailLog>> {
     try {
         await requireAdmin();
 
-        const currentLog = await db.query.emailLogs.findFirst({ where: eq(emailLogs.id, data.id), columns: { status: true } });
+        const currentLog = await db.query.emailLogs.findFirst({
+            where: eq(emailLogs.id, data.id),
+            columns: { status: true },
+        });
 
         if (!currentLog) {
-            return { success: false, error: 'Email log not found', code: 'NOT_FOUND' };
+            return {
+                success: false,
+                error: 'Email log not found',
+                code: 'NOT_FOUND',
+            };
         }
 
         if (!canUpdateEmailLogStatus(currentLog.status, data.status)) {
-            return { success: false, error: `Cannot transition from ${currentLog.status} to ${data.status}`, code: 'INVALID_STATUS_TRANSITION' };
+            return {
+                success: false,
+                error: `Cannot transition from ${currentLog.status} to ${data.status}`,
+                code: 'INVALID_STATUS_TRANSITION',
+            };
         }
 
-        const [updated] = await db.update(emailLogs).set({ ...data, updated_at: sql`now()` }).where(eq(emailLogs.id, data.id)).returning();
+        const [updated] = await db
+            .update(emailLogs)
+            .set({ ...data, updated_at: sql`now()` })
+            .where(eq(emailLogs.id, data.id))
+            .returning();
 
         if (!updated) {
-            return { success: false, error: 'Email log not found during update', code: 'NOT_FOUND' };
+            return {
+                success: false,
+                error: 'Email log not found during update',
+                code: 'NOT_FOUND',
+            };
         }
 
         revalidatePath('/admin/email-logs');

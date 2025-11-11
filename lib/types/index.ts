@@ -10,7 +10,6 @@ export * from './email-logs';
 export * from './payments';
 export * from './profiles';
 export * from './refunds';
-export * from './user-deletion-history';
 export * from './next';
 export * from './server-actions';
 export * from './shared';

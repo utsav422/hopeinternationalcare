@@ -1,11 +1,14 @@
 'use server';
 
-import {cache} from 'react';
-import type {TypeEnrollmentStatus, TypePaymentStatus,} from '@/lib/db/schema/enums';
-import {createServerSupabaseClient} from '@/utils/supabase/server';
-import {db} from "@/lib/db/drizzle";
-import {enrollments, payments} from "@/lib/db/schema";
-import {eq} from "drizzle-orm";
+import { cache } from 'react';
+import type {
+    TypeEnrollmentStatus,
+    TypePaymentStatus,
+} from '@/lib/db/schema/enums';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
+import { db } from '@/lib/db/drizzle';
+import { enrollments, payments } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 export interface DashboardSummary {
     totalUsers: number;
@@ -24,14 +27,14 @@ export async function adminDashboardTotalUsers() {
     try {
         const client = await createServerSupabaseClient();
 
-        const {count} = await client
+        const { count } = await client
             .from('profiles')
-            .select('*', {count: 'exact', head: true})
+            .select('*', { count: 'exact', head: true })
             .eq('role', 'authenticated');
-        return {success: true, data: count ?? 0};
+        return { success: true, data: count ?? 0 };
     } catch (error) {
         const e = error as Error;
-        return {success: false, error: e.message};
+        return { success: false, error: e.message };
     }
 }
 
@@ -40,13 +43,13 @@ export async function adminDashboardTotalEnrollments() {
     try {
         const client = await createServerSupabaseClient();
 
-        const {count} = await client
+        const { count } = await client
             .from('enrollments')
-            .select('*', {count: 'exact', head: true});
-        return {success: true, data: count ?? 0};
+            .select('*', { count: 'exact', head: true });
+        return { success: true, data: count ?? 0 };
     } catch (error) {
         const e = error as Error;
-        return {success: false, error: e.message};
+        return { success: false, error: e.message };
     }
 }
 
@@ -55,7 +58,9 @@ export async function adminDashboardEnrollmentsByStatus() {
     try {
         const client = await createServerSupabaseClient();
 
-        const data = await db.select({status: enrollments.status}).from(enrollments);
+        const data = await db
+            .select({ status: enrollments.status })
+            .from(enrollments);
 
         const map = (data ?? []).reduce(
             (acc, curr) => {
@@ -69,10 +74,10 @@ export async function adminDashboardEnrollmentsByStatus() {
             status: status as TypeEnrollmentStatus,
             count,
         }));
-        return {success: true, data: result};
+        return { success: true, data: result };
     } catch (error) {
         const e = error as Error;
-        return {success: false, error: e.message};
+        return { success: false, error: e.message };
     }
 }
 
@@ -82,14 +87,14 @@ export async function adminDashboardTotalIncome() {
         const client = await createServerSupabaseClient();
 
         const data = await db
-            .select({amount: payments.amount})
+            .select({ amount: payments.amount })
             .from(payments)
             .where(eq(payments.status, 'completed'));
         const result = data?.reduce((sum, p) => sum + p.amount, 0) ?? 0;
-        return {success: true, data: result};
+        return { success: true, data: result };
     } catch (error) {
         const e = error as Error;
-        return {success: false, error: e.message};
+        return { success: false, error: e.message };
     }
 }
 
@@ -98,18 +103,23 @@ export async function adminDashboardPaymentsByStatus() {
     try {
         const client = await createServerSupabaseClient();
 
-        const data = await db.select({status: payments.status, amount: payments.amount}).from(payments);
+        const data = await db
+            .select({ status: payments.status, amount: payments.amount })
+            .from(payments);
 
         const map = (data ?? []).reduce(
             (acc, curr) => {
                 if (!acc[curr.status]) {
-                    acc[curr.status] = {count: 0, totalAmount: 0};
+                    acc[curr.status] = { count: 0, totalAmount: 0 };
                 }
                 acc[curr.status].count += 1;
                 acc[curr.status].totalAmount += curr.amount;
                 return acc;
             },
-            {} as Record<TypePaymentStatus, { count: number; totalAmount: number }>
+            {} as Record<
+                TypePaymentStatus,
+                { count: number; totalAmount: number }
+            >
         );
 
         const result = Object.entries(map).map(([status, info]) => ({
@@ -117,10 +127,10 @@ export async function adminDashboardPaymentsByStatus() {
             count: info.count,
             totalAmount: info.totalAmount,
         }));
-        return {success: true, data: result};
+        return { success: true, data: result };
     } catch (error) {
         const e = error as Error;
-        return {success: false, error: e.message};
+        return { success: false, error: e.message };
     }
 }
 
@@ -159,10 +169,10 @@ export async function adminDashboardSummaryData() {
             totalIncome: totalIncome?.data ?? Number.NaN,
             paymentsByStatus: paymentsByStatus?.data ?? [],
         };
-        return {success: true, data: result};
+        return { success: true, data: result };
     } catch (error) {
         const e = error as Error;
-        return {success: false, error: e.message};
+        return { success: false, error: e.message };
     }
 }
 

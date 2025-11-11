@@ -19,22 +19,23 @@ export default async function NewEnrollement() {
     await Promise.all([
         queryClient.prefetchQuery({
             queryKey: queryKeys.enrollments.detail(''),
-            queryFn: () => Promise.resolve({ data: null, success: false, error: '' }),
-            staleTime: 1000 * 60 * 5,  //5minutes
+            queryFn: () =>
+                Promise.resolve({ data: null, success: false, error: '' }),
+            staleTime: 1000 * 60 * 5, //5minutes
             gcTime: 1000 * 60 * 60, // 1 hour
         }),
         queryClient.prefetchQuery({
             queryKey: queryKeys.courses.lists(),
             queryFn: adminCourseListAll,
-            staleTime: 1000 * 60 * 5,  //5minutes
+            staleTime: 1000 * 60 * 5, //5minutes
             gcTime: 1000 * 60 * 60, // 1 hour
         }),
         queryClient.prefetchQuery({
             queryKey: queryKeys.users.list({ page: 1, pageSize: 100 }),
             queryFn: () => adminUserList(1, 100),
-            staleTime: 1000 * 60 * 5,  //5minutes
+            staleTime: 1000 * 60 * 5, //5minutes
             gcTime: 1000 * 60 * 60, // 1 hour
-        })
+        }),
     ]);
 
     return (

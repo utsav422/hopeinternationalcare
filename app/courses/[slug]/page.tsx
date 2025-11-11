@@ -1,15 +1,21 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 import { queryKeys } from '@/lib/query-keys';
-import { getCachedPublicCourseBySlug, getCachedRelatedCourses } from '@/lib/server-actions/public/courses-optimized';
+import {
+    getCachedPublicCourseBySlug,
+    getCachedRelatedCourses,
+} from '@/lib/server-actions/public/courses-optimized';
 import { getQueryClient } from '@/utils/get-query-client';
 import CourseDetails from './_components';
 import { Suspense } from 'react';
 import { QueryErrorWrapper } from '@/components/Custom/query-error-wrapper';
-import { getCachedCourseActiveIntakes } from '@/lib/server-actions/public/intakes';
+import { getCachedCourseActiveIntakes } from '@/lib/server-actions/public/intakes-optimized';
 import { notFound } from 'next/navigation';
 import { generateCourseMetadata } from '@/lib/seo/metadata';
-import { CourseStructuredData, BreadcrumbStructuredData } from '@/components/SEO/StructuredData';
+import {
+    CourseStructuredData,
+    BreadcrumbStructuredData,
+} from '@/components/SEO/StructuredData';
 
 interface CourseDetailPageProps {
     params: Promise<{ slug: string }>;
@@ -66,7 +72,10 @@ export default async function CourseDetailPage({
     const breadcrumbs = [
         { name: 'Home', url: 'https://hopeinternational.com.np' },
         { name: 'Courses', url: 'https://hopeinternational.com.np/courses' },
-        { name: courseResponse.data.title, url: `https://hopeinternational.com.np/courses/${slug}` },
+        {
+            name: courseResponse.data.title,
+            url: `https://hopeinternational.com.np/courses/${slug}`,
+        },
     ];
 
     return (

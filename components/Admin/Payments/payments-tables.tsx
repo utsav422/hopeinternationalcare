@@ -14,7 +14,10 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAdminPaymentDelete, useAdminPaymentList } from '@/hooks/admin/payments-optimized';
+import {
+    useAdminPaymentDelete,
+    useAdminPaymentList,
+} from '@/hooks/admin/payments-optimized';
 import { useDataTableQueryState } from '@/hooks/admin/use-data-table-query-state';
 import type { PaymentListItem } from '@/lib/types/payments';
 
@@ -30,7 +33,7 @@ export default function PaymentsTables() {
     }
 
     const data = queryResult?.data;
-    const total = queryResult?.total ?? 0;
+    const total = queryResult?.data?.total ?? 0;
     const status = searchParams.get('status');
     const { mutateAsync: deletePayment } = useAdminPaymentDelete();
 
@@ -38,7 +41,10 @@ export default function PaymentsTables() {
         toast.promise(deletePayment(id), {
             loading: 'Deleting payment...',
             success: 'Payment deleted successfully',
-            error: (error) => error instanceof Error ? error.message : 'Failed to delete payment',
+            error: error =>
+                error instanceof Error
+                    ? error.message
+                    : 'Failed to delete payment',
         });
     };
 
@@ -51,17 +57,15 @@ export default function PaymentsTables() {
             ),
         },
         {
+            accessorKey: 'user.email',
             header: () => <div className="">Email</div>,
             cell: ({ row }) => {
                 const user = row.original.user;
-                return (
-                    <div className="dark:text-gray-300">
-                        {user?.email}
-                    </div>
-                );
+                return <div className="dark:text-gray-300">{user?.email}</div>;
             },
         },
         {
+            accessorKey: 'course.title',
             header: () => <div className="">Course</div>,
             cell: ({ row }) => {
                 const enrollment = row.original.enrollment;
@@ -78,7 +82,9 @@ export default function PaymentsTables() {
             cell: ({ row }) => {
                 const date = new Date(row.original.created_at ?? '');
                 return (
-                    <div className="dark:text-gray-300">{date.toLocaleDateString()}</div>
+                    <div className="dark:text-gray-300">
+                        {date.toLocaleDateString()}
+                    </div>
                 );
             },
         },
@@ -108,14 +114,9 @@ export default function PaymentsTables() {
                             <MoreHorizontal className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                        align="end"
-                        className=""
-                    >
+                    <DropdownMenuContent align="end" className="">
                         <DropdownMenuItem asChild>
-                            <Link
-                                href={`/admin/payments/${row.original.id}`}
-                            >
+                            <Link href={`/admin/payments/${row.original.id}`}>
                                 View
                             </Link>
                         </DropdownMenuItem>
@@ -144,7 +145,7 @@ export default function PaymentsTables() {
                 <CardContent>
                     <DataTable<PaymentListItem, unknown>
                         columns={columns}
-                        data={data ?? []}
+                        data={data?.data ?? []}
                         headerActionUrl="/admin/payment/new"
                         headerActionUrlLabel={'Create Payment '}
                         title={`${status} Payment Management`}

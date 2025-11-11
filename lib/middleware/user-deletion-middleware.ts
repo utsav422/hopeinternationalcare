@@ -1,11 +1,11 @@
-import {NextRequest, NextResponse} from 'next/server';
-import {createServerSupabaseClient} from '@/utils/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 
 /**
  * Middleware to check if a user is deleted and handle routing accordingly
  */
 export async function userDeletionMiddleware(request: NextRequest) {
-    const {pathname} = request.nextUrl;
+    const { pathname } = request.nextUrl;
 
     // Only apply to admin user management routes
     if (!pathname.startsWith('/admin/users')) {
@@ -26,7 +26,8 @@ export async function userDeletionMiddleware(request: NextRequest) {
     const userId = userIdMatch[1];
 
     // Skip if it's not a valid UUID (might be 'new' or other route)
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(userId)) {
         return NextResponse.next();
     }
@@ -35,7 +36,7 @@ export async function userDeletionMiddleware(request: NextRequest) {
         const supabase = await createServerSupabaseClient();
 
         // Check if user is deleted
-        const {data: profile, error} = await supabase
+        const { data: profile, error } = await supabase
             .from('profiles')
             .select('deleted_at, deletion_scheduled_for')
             .eq('id', userId)
@@ -64,7 +65,7 @@ export async function userDeletionMiddleware(request: NextRequest) {
  * Check if a user has permission to access deleted user management
  */
 export async function checkDeletedUserPermissions(request: NextRequest) {
-    const {pathname} = request.nextUrl;
+    const { pathname } = request.nextUrl;
 
     // Only apply to deleted users routes
     if (!pathname.includes('/admin/users/deleted')) {
@@ -75,7 +76,10 @@ export async function checkDeletedUserPermissions(request: NextRequest) {
         const supabase = await createServerSupabaseClient();
 
         // Get current user
-        const {data: {user}, error: authError} = await supabase.auth.getUser();
+        const {
+            data: { user },
+            error: authError,
+        } = await supabase.auth.getUser();
 
         if (authError || !user) {
             const loginUrl = new URL('/admin-auth/sign-in', request.url);
@@ -83,7 +87,7 @@ export async function checkDeletedUserPermissions(request: NextRequest) {
         }
 
         // Get user profile to check role
-        const {data: profile, error: profileError} = await supabase
+        const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', user.id)
@@ -117,12 +121,15 @@ export async function checkDeletedUserPermissions(request: NextRequest) {
 /**
  * Validate user deletion history access
  */
-export async function validateHistoryAccess(request: NextRequest, userId: string) {
+export async function validateHistoryAccess(
+    request: NextRequest,
+    userId: string
+) {
     try {
         const supabase = await createServerSupabaseClient();
 
         // Check if the user exists in deletion history
-        const {data: history, error} = await supabase
+        const { data: history, error } = await supabase
             .from('user_deletion_history')
             .select('user_id')
             .eq('user_id', userId)
@@ -148,17 +155,21 @@ export async function validateHistoryAccess(request: NextRequest, userId: string
  * Rate limiting for user deletion operations
  */
 export async function rateLimitDeletionOperations(request: NextRequest) {
-    const {pathname} = request.nextUrl;
+    const { pathname } = request.nextUrl;
 
     // Only apply to deletion/restoration endpoints
-    if (!pathname.includes('/api/admin/users') ||
-        (!pathname.includes('delete') && !pathname.includes('restore'))) {
+    if (
+        !pathname.includes('/api/admin/users') ||
+        (!pathname.includes('delete') && !pathname.includes('restore'))
+    ) {
         return NextResponse.next();
     }
 
     try {
         const supabase = await createServerSupabaseClient();
-        const {data: {user}} = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
 
         if (!user) {
             return NextResponse.next();
@@ -167,7 +178,7 @@ export async function rateLimitDeletionOperations(request: NextRequest) {
         // Check recent deletion operations by this admin
         const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
-        const {data: recentOperations, error} = await supabase
+        const { data: recentOperations, error } = await supabase
             .from('user_deletion_history')
             .select('id')
             .eq('deleted_by', user.id)
@@ -183,9 +194,10 @@ export async function rateLimitDeletionOperations(request: NextRequest) {
             return NextResponse.json(
                 {
                     success: false,
-                    message: 'Rate limit exceeded. Please wait before performing more deletion operations.'
+                    message:
+                        'Rate limit exceeded. Please wait before performing more deletion operations.',
                 },
-                {status: 429}
+                { status: 429 }
             );
         }
 
@@ -200,7 +212,10 @@ export async function rateLimitDeletionOperations(request: NextRequest) {
  * Audit logging middleware for user deletion routes
  */
 export async function auditDeletionRoutes(request: NextRequest) {
-    const {nextUrl: {pathname}, method} = request;
+    const {
+        nextUrl: { pathname },
+        method,
+    } = request;
     // Only log sensitive operations
     if (!pathname.includes('/admin/users') || method === 'GET') {
         return NextResponse.next();
@@ -208,7 +223,9 @@ export async function auditDeletionRoutes(request: NextRequest) {
 
     try {
         const supabase = await createServerSupabaseClient();
-        const {data: {user}} = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
 
         if (user) {
             // Extract the IP address
@@ -222,7 +239,7 @@ export async function auditDeletionRoutes(request: NextRequest) {
                 method,
                 timestamp: new Date().toISOString(),
                 userAgent: request.headers.get('user-agent'),
-                ip: ip
+                ip: ip,
             });
         }
 

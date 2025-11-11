@@ -1,13 +1,13 @@
 // API Security Middleware for Hope International
-import {NextRequest, NextResponse} from 'next/server';
-import {createServerSupabaseClient} from '@/utils/supabase/server';
-import {rateLimit} from './rate-limiter';
-import {validateApiKey} from './api-key-validator';
-import {sanitizeInput} from './input-sanitizer';
-import {logger} from '@/utils/logger';
-import {profiles} from "@/lib/db/schema";
-import {db} from "@/lib/db/drizzle";
-import {eq} from "drizzle-orm";
+import { NextRequest, NextResponse } from 'next/server';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
+import { rateLimit } from './rate-limiter';
+import { validateApiKey } from './api-key-validator';
+import { sanitizeInput } from './input-sanitizer';
+import { logger } from '@/utils/logger';
+import { profiles } from '@/lib/db/schema';
+import { db } from '@/lib/db/drizzle';
+import { eq } from 'drizzle-orm';
 
 export interface SecurityConfig {
     requireAuth?: boolean;
@@ -58,7 +58,7 @@ export function withApiSecurity(
     handler: (req: AuthenticatedRequest) => Promise<NextResponse>,
     config: SecurityConfig = {}
 ) {
-    const finalConfig = {...DEFAULT_CONFIG, ...config};
+    const finalConfig = { ...DEFAULT_CONFIG, ...config };
 
     return async (request: NextRequest): Promise<NextResponse> => {
         const startTime = Date.now();
@@ -71,7 +71,8 @@ export function withApiSecurity(
                 method: request.method,
                 url: request.url,
                 userAgent: request.headers.get('user-agent'),
-                ip: request.headers.get('x-forwarded-for') ||
+                ip:
+                    request.headers.get('x-forwarded-for') ||
                     request.headers.get('x-real-ip') ||
                     request.headers.get('cf-connecting-ip') ||
                     'unknown',
@@ -84,8 +85,8 @@ export function withApiSecurity(
             // 2. Method Validation
             if (!finalConfig.allowedMethods?.includes(request.method)) {
                 return NextResponse.json(
-                    {error: 'Method not allowed'},
-                    {status: 405}
+                    { error: 'Method not allowed' },
+                    { status: 405 }
                 );
             }
 
@@ -100,15 +101,20 @@ export function withApiSecurity(
                     return NextResponse.json(
                         {
                             error: 'Rate limit exceeded',
-                            retryAfter: rateLimitResult.retryAfter
+                            retryAfter: rateLimitResult.retryAfter,
                         },
                         {
                             status: 429,
                             headers: {
-                                'Retry-After': rateLimitResult.retryAfter?.toString() || '900',
-                                'X-RateLimit-Limit': finalConfig.rateLimit.requests.toString(),
-                                'X-RateLimit-Remaining': rateLimitResult.remaining?.toString() || '0',
-                            }
+                                'Retry-After':
+                                    rateLimitResult.retryAfter?.toString() ||
+                                    '900',
+                                'X-RateLimit-Limit':
+                                    finalConfig.rateLimit.requests.toString(),
+                                'X-RateLimit-Remaining':
+                                    rateLimitResult.remaining?.toString() ||
+                                    '0',
+                            },
                         }
                     );
                 }
@@ -119,8 +125,8 @@ export function withApiSecurity(
                 const apiKeyValid = await validateApiKey(request);
                 if (!apiKeyValid) {
                     return NextResponse.json(
-                        {error: 'Invalid or missing API key'},
-                        {status: 401}
+                        { error: 'Invalid or missing API key' },
+                        { status: 401 }
                     );
                 }
             }
@@ -132,22 +138,28 @@ export function withApiSecurity(
                 const authResult = await authenticateRequest(authRequest);
                 if (!authResult.success) {
                     return NextResponse.json(
-                        {error: authResult.error},
-                        {status: 401}
+                        { error: authResult.error },
+                        { status: 401 }
                     );
                 }
 
                 // Check admin role if required
-                if (finalConfig.requireAdmin && authRequest.userRole !== 'service_role') {
+                if (
+                    finalConfig.requireAdmin &&
+                    authRequest.userRole !== 'service_role'
+                ) {
                     return NextResponse.json(
-                        {error: 'Admin access required'},
-                        {status: 403}
+                        { error: 'Admin access required' },
+                        { status: 403 }
                     );
                 }
             }
 
             // 6. Input Sanitization
-            if (finalConfig.validateInput && ['POST', 'PUT', 'PATCH'].includes(request.method)) {
+            if (
+                finalConfig.validateInput &&
+                ['POST', 'PUT', 'PATCH'].includes(request.method)
+            ) {
                 try {
                     const body = await request.json();
                     const sanitizedBody = sanitizeInput(body);
@@ -155,8 +167,8 @@ export function withApiSecurity(
                     (authRequest as any)._sanitizedBody = sanitizedBody;
                 } catch (error) {
                     return NextResponse.json(
-                        {error: 'Invalid JSON in request body'},
-                        {status: 400}
+                        { error: 'Invalid JSON in request body' },
+                        { status: 400 }
                     );
                 }
             }
@@ -176,7 +188,6 @@ export function withApiSecurity(
             });
 
             return response;
-
         } catch (error) {
             // Log error
             const duration = Date.now() - startTime;
@@ -187,24 +198,32 @@ export function withApiSecurity(
             });
 
             return NextResponse.json(
-                {error: 'Internal server error'},
-                {status: 500}
+                { error: 'Internal server error' },
+                { status: 500 }
             );
         }
     };
 }
 
 // CORS handling
-function handleCors(request: NextRequest, corsConfig: SecurityConfig['cors']): NextResponse | null {
+function handleCors(
+    request: NextRequest,
+    corsConfig: SecurityConfig['cors']
+): NextResponse | null {
     const origin = request.headers.get('origin');
 
     if (request.method === 'OPTIONS') {
         return new NextResponse(null, {
             status: 200,
             headers: {
-                'Access-Control-Allow-Origin': origin && corsConfig?.origins.includes(origin) ? origin : '',
-                'Access-Control-Allow-Methods': corsConfig?.methods.join(', ') || '',
-                'Access-Control-Allow-Headers': corsConfig?.headers.join(', ') || '',
+                'Access-Control-Allow-Origin':
+                    origin && corsConfig?.origins.includes(origin)
+                        ? origin
+                        : '',
+                'Access-Control-Allow-Methods':
+                    corsConfig?.methods.join(', ') || '',
+                'Access-Control-Allow-Headers':
+                    corsConfig?.headers.join(', ') || '',
                 'Access-Control-Max-Age': '86400',
             },
         });
@@ -214,32 +233,37 @@ function handleCors(request: NextRequest, corsConfig: SecurityConfig['cors']): N
 }
 
 // Authentication
-async function authenticateRequest(request: AuthenticatedRequest): Promise<{ success: boolean; error?: string }> {
+async function authenticateRequest(
+    request: AuthenticatedRequest
+): Promise<{ success: boolean; error?: string }> {
     try {
         const supabase = await createServerSupabaseClient();
-        const {data: {user}, error} = await supabase.auth.getUser();
+        const {
+            data: { user },
+            error,
+        } = await supabase.auth.getUser();
 
         if (error || !user) {
-            return {success: false, error: 'Authentication required'};
+            return { success: false, error: 'Authentication required' };
         }
 
         // Get user profile for role information
         const data = await db
-            .select({role: profiles.role})
+            .select({ role: profiles.role })
             .from(profiles)
-            .where(eq(profiles.id, user.id))
+            .where(eq(profiles.id, user.id));
         if (data.length === 0) {
-            return {success: false, error: 'Authentication required'};
+            return { success: false, error: 'Authentication required' };
         }
-        const profile = data[0]
+        const profile = data[0];
 
         request.user = user;
         request.userId = user.id;
         request.userRole = profile?.role || 'authenticated';
 
-        return {success: true};
+        return { success: true };
     } catch (error) {
-        return {success: false, error: 'Authentication failed'};
+        return { success: false, error: 'Authentication failed' };
     }
 }
 
@@ -249,11 +273,17 @@ function addSecurityHeaders(response: NextResponse) {
     response.headers.set('X-Frame-Options', 'DENY');
     response.headers.set('X-XSS-Protection', '1; mode=block');
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-    response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    response.headers.set(
+        'Permissions-Policy',
+        'camera=(), microphone=(), geolocation=()'
+    );
 
     // Only add HSTS in production
     if (process.env.NODE_ENV === 'production') {
-        response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+        response.headers.set(
+            'Strict-Transport-Security',
+            'max-age=31536000; includeSubDomains'
+        );
     }
 }
 

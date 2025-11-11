@@ -1,0 +1,1476 @@
+{
+    "id": "614ed0ee-a15a-43c8-a496-59e95bf27128",
+    "prevId": "c446631f-ec0e-40bf-b9f1-b3dca458626e",
+    "version": "7",
+    "dialect": "postgresql",
+    "tables": {
+        "public.affiliations": {
+            "name": "affiliations",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "name": {
+                    "name": "name",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "type": {
+                    "name": "type",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "description": {
+                    "name": "description",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "affiliations_name_unique": {
+                    "name": "affiliations_name_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["name"]
+                }
+            },
+            "policies": {
+                "anyone can read affiliations": {
+                    "name": "anyone can read affiliations",
+                    "as": "PERMISSIVE",
+                    "for": "SELECT",
+                    "to": ["public"],
+                    "using": "true"
+                },
+                "admin can manage affiliations": {
+                    "name": "admin can manage affiliations",
+                    "as": "PERMISSIVE",
+                    "for": "ALL",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'",
+                    "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
+                }
+            },
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.course_categories": {
+            "name": "course_categories",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "name": {
+                    "name": "name",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "description": {
+                    "name": "description",
+                    "type": "varchar",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "course_categories_name_unique": {
+                    "name": "course_categories_name_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["name"]
+                }
+            },
+            "policies": {
+                "anyone can read courses categories": {
+                    "name": "anyone can read courses categories",
+                    "as": "PERMISSIVE",
+                    "for": "SELECT",
+                    "to": ["public"],
+                    "using": "true"
+                },
+                "admin can manage courses categories": {
+                    "name": "admin can manage courses categories",
+                    "as": "PERMISSIVE",
+                    "for": "ALL",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'",
+                    "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
+                }
+            },
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.courses": {
+            "name": "courses",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "category_id": {
+                    "name": "category_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "affiliation_id": {
+                    "name": "affiliation_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "title": {
+                    "name": "title",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "slug": {
+                    "name": "slug",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "course_highlights": {
+                    "name": "course_highlights",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "course_overview": {
+                    "name": "course_overview",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "image_url": {
+                    "name": "image_url",
+                    "type": "varchar",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "level": {
+                    "name": "level",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 1
+                },
+                "duration_type": {
+                    "name": "duration_type",
+                    "type": "duration_type",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'month'"
+                },
+                "duration_value": {
+                    "name": "duration_value",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 3
+                },
+                "price": {
+                    "name": "price",
+                    "type": "numeric",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "courses_category_id_course_categories_id_fk": {
+                    "name": "courses_category_id_course_categories_id_fk",
+                    "tableFrom": "courses",
+                    "tableTo": "course_categories",
+                    "columnsFrom": ["category_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "courses_affiliation_id_affiliations_id_fk": {
+                    "name": "courses_affiliation_id_affiliations_id_fk",
+                    "tableFrom": "courses",
+                    "tableTo": "affiliations",
+                    "columnsFrom": ["affiliation_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "courses_slug_unique": {
+                    "name": "courses_slug_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["slug"]
+                }
+            },
+            "policies": {
+                "anyone can read courses": {
+                    "name": "anyone can read courses",
+                    "as": "PERMISSIVE",
+                    "for": "SELECT",
+                    "to": ["public"],
+                    "using": "true"
+                },
+                "admin can manage courses": {
+                    "name": "admin can manage courses",
+                    "as": "PERMISSIVE",
+                    "for": "ALL",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'",
+                    "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
+                }
+            },
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.customer_contact_replies": {
+            "name": "customer_contact_replies",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "contact_request_id": {
+                    "name": "contact_request_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "subject": {
+                    "name": "subject",
+                    "type": "varchar(500)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "message": {
+                    "name": "message",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "reply_to_email": {
+                    "name": "reply_to_email",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "reply_to_name": {
+                    "name": "reply_to_name",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "resend_email_id": {
+                    "name": "resend_email_id",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "email_status": {
+                    "name": "email_status",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'sent'"
+                },
+                "resend_response": {
+                    "name": "resend_response",
+                    "type": "jsonb",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "error_message": {
+                    "name": "error_message",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "batch_id": {
+                    "name": "batch_id",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "is_batch_reply": {
+                    "name": "is_batch_reply",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'false'"
+                },
+                "admin_id": {
+                    "name": "admin_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "admin_email": {
+                    "name": "admin_email",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "sent_at": {
+                    "name": "sent_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "delivered_at": {
+                    "name": "delivered_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "opened_at": {
+                    "name": "opened_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "clicked_at": {
+                    "name": "clicked_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "customer_contact_replies_contact_request_id_customer_contact_requests_id_fk": {
+                    "name": "customer_contact_replies_contact_request_id_customer_contact_requests_id_fk",
+                    "tableFrom": "customer_contact_replies",
+                    "tableTo": "customer_contact_requests",
+                    "columnsFrom": ["contact_request_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {
+                "service_role can select customer contact replies": {
+                    "name": "service_role can select customer contact replies",
+                    "as": "PERMISSIVE",
+                    "for": "SELECT",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'"
+                },
+                "service_role can insert customer contact replies": {
+                    "name": "service_role can insert customer contact replies",
+                    "as": "PERMISSIVE",
+                    "for": "INSERT",
+                    "to": ["service_role"],
+                    "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
+                },
+                "service_role can update customer contact replies": {
+                    "name": "service_role can update customer contact replies",
+                    "as": "PERMISSIVE",
+                    "for": "UPDATE",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'",
+                    "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
+                },
+                "service_role can delete customer contact replies": {
+                    "name": "service_role can delete customer contact replies",
+                    "as": "PERMISSIVE",
+                    "for": "DELETE",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'"
+                }
+            },
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.customer_contact_requests": {
+            "name": "customer_contact_requests",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "name": {
+                    "name": "name",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "email": {
+                    "name": "email",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "phone": {
+                    "name": "phone",
+                    "type": "varchar(20)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "message": {
+                    "name": "message",
+                    "type": "varchar(1000)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "status": {
+                    "name": "status",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'pending'"
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {
+                "anyone can insert contact requests": {
+                    "name": "anyone can insert contact requests",
+                    "as": "PERMISSIVE",
+                    "for": "INSERT",
+                    "to": ["public"],
+                    "withCheck": "true"
+                },
+                "admin can view all contact requests": {
+                    "name": "admin can view all contact requests",
+                    "as": "PERMISSIVE",
+                    "for": "SELECT",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'"
+                },
+                "admin can update contact requests": {
+                    "name": "admin can update contact requests",
+                    "as": "PERMISSIVE",
+                    "for": "UPDATE",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'",
+                    "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
+                },
+                "admin can delete contact requests": {
+                    "name": "admin can delete contact requests",
+                    "as": "PERMISSIVE",
+                    "for": "DELETE",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'"
+                }
+            },
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.email_logs": {
+            "name": "email_logs",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "resend_email_id": {
+                    "name": "resend_email_id",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "batch_id": {
+                    "name": "batch_id",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "from_email": {
+                    "name": "from_email",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "to_emails": {
+                    "name": "to_emails",
+                    "type": "jsonb",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "subject": {
+                    "name": "subject",
+                    "type": "varchar(500)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "html_content": {
+                    "name": "html_content",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "text_content": {
+                    "name": "text_content",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "reply_to": {
+                    "name": "reply_to",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "status": {
+                    "name": "status",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'sent'"
+                },
+                "email_type": {
+                    "name": "email_type",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "template_used": {
+                    "name": "template_used",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "resend_response": {
+                    "name": "resend_response",
+                    "type": "jsonb",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "error_message": {
+                    "name": "error_message",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "sent_at": {
+                    "name": "sent_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "delivered_at": {
+                    "name": "delivered_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "opened_at": {
+                    "name": "opened_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "clicked_at": {
+                    "name": "clicked_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "admin_id": {
+                    "name": "admin_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "related_entity_type": {
+                    "name": "related_entity_type",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "related_entity_id": {
+                    "name": "related_entity_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {
+                "admin can view all email logs": {
+                    "name": "admin can view all email logs",
+                    "as": "PERMISSIVE",
+                    "for": "SELECT",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'"
+                },
+                "system can insert email logs": {
+                    "name": "system can insert email logs",
+                    "as": "PERMISSIVE",
+                    "for": "INSERT",
+                    "to": ["service_role"],
+                    "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
+                },
+                "admin can update email logs": {
+                    "name": "admin can update email logs",
+                    "as": "PERMISSIVE",
+                    "for": "UPDATE",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'",
+                    "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
+                },
+                "admin can delete email logs": {
+                    "name": "admin can delete email logs",
+                    "as": "PERMISSIVE",
+                    "for": "DELETE",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'"
+                }
+            },
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.enrollments": {
+            "name": "enrollments",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "intake_id": {
+                    "name": "intake_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "status": {
+                    "name": "status",
+                    "type": "enrollment_status",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'requested'"
+                },
+                "notes": {
+                    "name": "notes",
+                    "type": "varchar",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "enrollment_date": {
+                    "name": "enrollment_date",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "default": "now()"
+                },
+                "cancelled_reason": {
+                    "name": "cancelled_reason",
+                    "type": "varchar",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "enrollments_user_id_profiles_id_fk": {
+                    "name": "enrollments_user_id_profiles_id_fk",
+                    "tableFrom": "enrollments",
+                    "tableTo": "profiles",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "enrollments_intake_id_intakes_id_fk": {
+                    "name": "enrollments_intake_id_intakes_id_fk",
+                    "tableFrom": "enrollments",
+                    "tableTo": "intakes",
+                    "columnsFrom": ["intake_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {
+                "authenticated users can view own enrollments": {
+                    "name": "authenticated users can view own enrollments",
+                    "as": "PERMISSIVE",
+                    "for": "SELECT",
+                    "to": ["public"],
+                    "using": "(auth.jwt() ->> 'role') = 'authenticated' AND \"enrollments\".\"user_id\" = auth.uid()"
+                },
+                "authenticated users can create enrollments": {
+                    "name": "authenticated users can create enrollments",
+                    "as": "PERMISSIVE",
+                    "for": "INSERT",
+                    "to": ["public"],
+                    "withCheck": "(auth.jwt() ->> 'role') = 'authenticated'"
+                },
+                "admin can manage courses": {
+                    "name": "admin can manage courses",
+                    "as": "PERMISSIVE",
+                    "for": "ALL",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'",
+                    "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
+                }
+            },
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.intakes": {
+            "name": "intakes",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "course_id": {
+                    "name": "course_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "start_date": {
+                    "name": "start_date",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "end_date": {
+                    "name": "end_date",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "capacity": {
+                    "name": "capacity",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 20
+                },
+                "is_open": {
+                    "name": "is_open",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "default": true
+                },
+                "total_registered": {
+                    "name": "total_registered",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "intakes_course_id_courses_id_fk": {
+                    "name": "intakes_course_id_courses_id_fk",
+                    "tableFrom": "intakes",
+                    "tableTo": "courses",
+                    "columnsFrom": ["course_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {
+                "anyone can read intakes": {
+                    "name": "anyone can read intakes",
+                    "as": "PERMISSIVE",
+                    "for": "SELECT",
+                    "to": ["public"],
+                    "using": "true"
+                },
+                "admin can manage intakes": {
+                    "name": "admin can manage intakes",
+                    "as": "PERMISSIVE",
+                    "for": "ALL",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'",
+                    "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
+                }
+            },
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.payments": {
+            "name": "payments",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "enrollment_id": {
+                    "name": "enrollment_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "amount": {
+                    "name": "amount",
+                    "type": "numeric",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "status": {
+                    "name": "status",
+                    "type": "payment_status",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'pending'"
+                },
+                "method": {
+                    "name": "method",
+                    "type": "payment_method",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'cash'"
+                },
+                "remarks": {
+                    "name": "remarks",
+                    "type": "varchar",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "is_refunded": {
+                    "name": "is_refunded",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "default": false
+                },
+                "refunded_amount": {
+                    "name": "refunded_amount",
+                    "type": "numeric",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "refunded_at": {
+                    "name": "refunded_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "paid_at": {
+                    "name": "paid_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "payments_enrollment_id_enrollments_id_fk": {
+                    "name": "payments_enrollment_id_enrollments_id_fk",
+                    "tableFrom": "payments",
+                    "tableTo": "enrollments",
+                    "columnsFrom": ["enrollment_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {
+                "users can create their own payments": {
+                    "name": "users can create their own payments",
+                    "as": "PERMISSIVE",
+                    "for": "INSERT",
+                    "to": ["public"],
+                    "withCheck": "(auth.jwt() ->> 'role') = 'authenticated' AND \"payments\".\"enrollment_id\" IN (\n            SELECT id FROM enrollments WHERE user_id = auth.uid()\n          )"
+                },
+                "users can view their own payments": {
+                    "name": "users can view their own payments",
+                    "as": "PERMISSIVE",
+                    "for": "SELECT",
+                    "to": ["public"],
+                    "using": "(auth.jwt() ->> 'role') = 'authenticated' AND \"payments\".\"enrollment_id\" IN (\n            SELECT id FROM enrollments WHERE user_id = auth.uid()\n          )"
+                },
+                "admin can manage payments": {
+                    "name": "admin can manage payments",
+                    "as": "PERMISSIVE",
+                    "for": "ALL",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'",
+                    "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
+                }
+            },
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.profiles": {
+            "name": "profiles",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "full_name": {
+                    "name": "full_name",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "email": {
+                    "name": "email",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "phone": {
+                    "name": "phone",
+                    "type": "varchar(20)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "role": {
+                    "name": "role",
+                    "type": "varchar",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "default": "'authenticated'"
+                },
+                "deleted_at": {
+                    "name": "deleted_at",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "deletion_scheduled_for": {
+                    "name": "deletion_scheduled_for",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "deletion_count": {
+                    "name": "deletion_count",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "profiles_id_users_id_fk": {
+                    "name": "profiles_id_users_id_fk",
+                    "tableFrom": "profiles",
+                    "tableTo": "users",
+                    "schemaTo": "auth",
+                    "columnsFrom": ["id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "profiles_email_unique": {
+                    "name": "profiles_email_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["email"]
+                }
+            },
+            "policies": {
+                "anyone can insert profile": {
+                    "name": "anyone can insert profile",
+                    "as": "PERMISSIVE",
+                    "for": "INSERT",
+                    "to": ["public"],
+                    "withCheck": "true"
+                },
+                "User can view own profile": {
+                    "name": "User can view own profile",
+                    "as": "PERMISSIVE",
+                    "for": "SELECT",
+                    "to": ["public"],
+                    "using": "auth.uid() = \"profiles\".\"id\""
+                },
+                "User can update own profile": {
+                    "name": "User can update own profile",
+                    "as": "PERMISSIVE",
+                    "for": "UPDATE",
+                    "to": ["public"],
+                    "using": "auth.uid() = \"profiles\".\"id\""
+                },
+                "admin can manage profile": {
+                    "name": "admin can manage profile",
+                    "as": "PERMISSIVE",
+                    "for": "ALL",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'",
+                    "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
+                }
+            },
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.refunds": {
+            "name": "refunds",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "payment_id": {
+                    "name": "payment_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "enrollment_id": {
+                    "name": "enrollment_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "reason": {
+                    "name": "reason",
+                    "type": "varchar",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "amount": {
+                    "name": "amount",
+                    "type": "numeric",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "refunds_payment_id_payments_id_fk": {
+                    "name": "refunds_payment_id_payments_id_fk",
+                    "tableFrom": "refunds",
+                    "tableTo": "payments",
+                    "columnsFrom": ["payment_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "refunds_enrollment_id_enrollments_id_fk": {
+                    "name": "refunds_enrollment_id_enrollments_id_fk",
+                    "tableFrom": "refunds",
+                    "tableTo": "enrollments",
+                    "columnsFrom": ["enrollment_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "refunds_user_id_profiles_id_fk": {
+                    "name": "refunds_user_id_profiles_id_fk",
+                    "tableFrom": "refunds",
+                    "tableTo": "profiles",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {
+                "users can create their own refund requests": {
+                    "name": "users can create their own refund requests",
+                    "as": "PERMISSIVE",
+                    "for": "INSERT",
+                    "to": ["public"],
+                    "withCheck": "(auth.jwt() ->> 'role') = 'authenticated' AND \"refunds\".\"user_id\" = auth.uid()"
+                },
+                "users can view their own refund requests": {
+                    "name": "users can view their own refund requests",
+                    "as": "PERMISSIVE",
+                    "for": "SELECT",
+                    "to": ["public"],
+                    "using": "(auth.jwt() ->> 'role') = 'authenticated' AND \"refunds\".\"user_id\" = auth.uid()"
+                },
+                "admin can manage intakes": {
+                    "name": "admin can manage intakes",
+                    "as": "PERMISSIVE",
+                    "for": "ALL",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'",
+                    "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
+                }
+            },
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.user_deletion_history": {
+            "name": "user_deletion_history",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "deleted_at": {
+                    "name": "deleted_at",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "restored_at": {
+                    "name": "restored_at",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "deletion_reason": {
+                    "name": "deletion_reason",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "scheduled_deletion_date": {
+                    "name": "scheduled_deletion_date",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "email_notification_sent": {
+                    "name": "email_notification_sent",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": false
+                },
+                "restoration_count": {
+                    "name": "restoration_count",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "user_deletion_history_user_id_users_id_fk": {
+                    "name": "user_deletion_history_user_id_users_id_fk",
+                    "tableFrom": "user_deletion_history",
+                    "tableTo": "users",
+                    "schemaTo": "auth",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {
+                "admin can manage user deletion history": {
+                    "name": "admin can manage user deletion history",
+                    "as": "PERMISSIVE",
+                    "for": "ALL",
+                    "to": ["service_role"],
+                    "using": "(auth.jwt() ->> 'role') = 'service_role'",
+                    "withCheck": "(auth.jwt() ->> 'role') = 'service_role'"
+                }
+            },
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        }
+    },
+    "enums": {
+        "public.duration_type": {
+            "name": "duration_type",
+            "schema": "public",
+            "values": ["days", "week", "month", "year"]
+        },
+        "public.enrollment_status": {
+            "name": "enrollment_status",
+            "schema": "public",
+            "values": ["requested", "enrolled", "cancelled", "completed"]
+        },
+        "public.payment_method": {
+            "name": "payment_method",
+            "schema": "public",
+            "values": ["cash", "bank_transfer", "mobile_wallets", "fonepay"]
+        },
+        "public.payment_status": {
+            "name": "payment_status",
+            "schema": "public",
+            "values": [
+                "pending",
+                "completed",
+                "cancelled",
+                "failed",
+                "refunded"
+            ]
+        }
+    },
+    "schemas": {},
+    "sequences": {},
+    "roles": {},
+    "policies": {},
+    "views": {},
+    "_meta": {
+        "columns": {},
+        "schemas": {},
+        "tables": {}
+    }
+}

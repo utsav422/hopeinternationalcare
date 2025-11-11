@@ -1,6 +1,6 @@
 'use client';
 
-import Image from "next/image";
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
@@ -13,8 +13,7 @@ export function CarouselFeatures() {
             image: '/image/subina.jpeg',
         },
         {
-            quote:
-                'Fantastic course with great course content. I have learned so much in such a short period.',
+            quote: 'Fantastic course with great course content. I have learned so much in such a short period.',
             name: 'Subina Shrestha',
             title: 'Care Giver Student.',
             image: '/image/rija.jpeg',
@@ -41,15 +40,14 @@ export function CarouselFeatures() {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setActiveIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+            setActiveIndex(prevIndex => (prevIndex + 1) % testimonials.length);
         }, 3000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [testimonials.length]);
 
     return (
         <section className="px-4 pt-10 pb-10 sm:px-6 lg:px-8">
-
             <div className="mb-12 flex flex-col items-center text-center sm:mb-16">
                 <h2 className="mb-2 font-bold text-2xl text-gray-800 dark:text-white sm:text-3xl md:text-4xl">
                     What Students Say
@@ -63,8 +61,9 @@ export function CarouselFeatures() {
                 <div className="relative">
                     {testimonials.map((testimonial, i: number) => (
                         <div
-                            className={`transition-opacity duration-1000 ${activeIndex === i ? 'opacity-100' : 'opacity-0'
-                                } ${activeIndex === i ? 'block' : 'hidden'}`}
+                            className={`transition-opacity duration-1000 ${
+                                activeIndex === i ? 'opacity-100' : 'opacity-0'
+                            } ${activeIndex === i ? 'block' : 'hidden'}`}
                             key={testimonial.name}
                         >
                             <div className="relative flex flex-col-reverse gap-6 px-6 py-8 sm:px-10 sm:py-10 md:grid md:grid-cols-5 md:gap-8 md:py-16 lg:gap-14">
@@ -83,7 +82,8 @@ export function CarouselFeatures() {
                                 </div>
                                 <div className="col-span-2 flex w-full shrink-0 justify-center md:justify-end">
                                     <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-white sm:h-40 sm:w-40 md:h-48 md:w-48">
-                                        <Image unoptimized={true}
+                                        <Image
+                                            unoptimized={true}
                                             alt={`${testimonial.name} testimonial image`}
                                             className="h-full w-full object-cover"
                                             fill
@@ -98,8 +98,11 @@ export function CarouselFeatures() {
                         {testimonials.map((ttmls, i: number) => (
                             <button
                                 aria-label={`Show testimonial ${i + 1}`}
-                                className={`block h-1 w-8 cursor-pointer transition-all sm:w-10 ${activeIndex === i ? 'bg-white' : 'bg-white/50'
-                                    }`}
+                                className={`block h-1 w-8 cursor-pointer transition-all sm:w-10 ${
+                                    activeIndex === i
+                                        ? 'bg-white'
+                                        : 'bg-white/50'
+                                }`}
                                 key={ttmls.name}
                                 onClick={() => setActiveIndex(i)}
                                 type="button"

@@ -47,7 +47,9 @@ export type RefundCreateData = Pick<
     RefundInsert,
     'payment_id' | 'enrollment_id' | 'user_id' | 'reason' | 'amount'
 >;
-export type RefundUpdateData = Partial<Omit<RefundInsert, 'user_id' | 'created_at' | 'updated_at'>>
+export type RefundUpdateData = Partial<
+    Omit<RefundInsert, 'user_id' | 'created_at' | 'updated_at'>
+>;
 // Constraint check result
 export interface RefundConstraintCheck {
     canDelete: boolean;

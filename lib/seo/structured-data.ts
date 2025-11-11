@@ -23,8 +23,8 @@ export interface Organization {
 export interface Course {
     id: string;
     title: string;
-    course_highlights: string|null,
-    course_overview: string|null,
+    course_highlights: string | null;
+    course_overview: string | null;
     slug: string;
     image_url?: string | null;
     price?: number;
@@ -94,7 +94,8 @@ export function generateEducationalOrganizationSchema(org: Organization) {
         hasCredential: {
             '@type': 'EducationalOccupationalCredential',
             name: 'Caregiver Training Certificate',
-            description: 'Professional certification for aged care and elderly care services',
+            description:
+                'Professional certification for aged care and elderly care services',
         },
     };
 }
@@ -110,7 +111,9 @@ export function generateCourseSchema(course: Course, organizationName: string) {
         highlights: course.course_highlights,
         overview: course.course_overview,
         url: `${baseUrl}/courses/${course.slug}`,
-        image: course.image_url ? `${baseUrl}${course.image_url}` : `${baseUrl}/opengraph-image.png`,
+        image: course.image_url
+            ? `${baseUrl}${course.image_url}`
+            : `${baseUrl}/opengraph-image.png`,
         provider: {
             '@type': 'EducationalOrganization',
             name: organizationName,
@@ -118,9 +121,10 @@ export function generateCourseSchema(course: Course, organizationName: string) {
         },
         courseCode: course.id,
         educationalLevel: course.level ? `Level ${course.level}` : 'Beginner',
-        timeRequired: course.duration_value && course.duration_type
-            ? `P${course.duration_value}${course.duration_type.charAt(0).toUpperCase()}`
-            : undefined,
+        timeRequired:
+            course.duration_value && course.duration_type
+                ? `P${course.duration_value}${course.duration_type.charAt(0).toUpperCase()}`
+                : undefined,
         dateCreated: course.created_at,
         dateModified: course.updated_at || course.created_at,
         ...(course.price && {
@@ -183,7 +187,9 @@ export function generateArticleSchema(article: {
         headline: article.title,
         description: article.description,
         url: article.url,
-        image: article.image || 'https://hopeinternational.com.np/opengraph-image.png',
+        image:
+            article.image ||
+            'https://hopeinternational.com.np/opengraph-image.png',
         datePublished: article.datePublished,
         dateModified: article.dateModified || article.datePublished,
         author: {
@@ -202,11 +208,13 @@ export function generateArticleSchema(article: {
 }
 
 // FAQ structured data
-export function generateFAQSchema(faqs: { question: string; answer: string }[]) {
+export function generateFAQSchema(
+    faqs: { question: string; answer: string }[]
+) {
     return {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
-        mainEntity: faqs.map((faq) => ({
+        mainEntity: faqs.map(faq => ({
             '@type': 'Question',
             name: faq.question,
             acceptedAnswer: {
@@ -222,7 +230,8 @@ export const hopeInternationalOrg: Organization = {
     name: 'Hope International',
     url: 'https://hopeinternational.com.np',
     logo: 'https://hopeinternational.com.np/opengraph-image.png',
-    description: 'Hope International is a leading training center in Kathmandu, Nepal, providing comprehensive caregiver training and elderly care services.',
+    description:
+        'Hope International is a leading training center in Kathmandu, Nepal, providing comprehensive caregiver training and elderly care services.',
     address: {
         streetAddress: 'Durga Bhawan, Rudramati Marga, Anamnagar',
         addressLocality: 'Kathmandu',
@@ -242,20 +251,22 @@ export const hopeInternationalOrg: Organization = {
 };
 
 // Review/Testimonial structured data
-export function generateReviewSchema(reviews: {
-    author: string;
-    reviewBody: string;
-    ratingValue: number;
-    datePublished: string;
-    image?: string;
-    title?: string;
-}[]) {
+export function generateReviewSchema(
+    reviews: {
+        author: string;
+        reviewBody: string;
+        ratingValue: number;
+        datePublished: string;
+        image?: string;
+        title?: string;
+    }[]
+) {
     return {
         '@context': 'https://schema.org',
         '@type': 'Organization',
         name: hopeInternationalOrg.name,
         url: hopeInternationalOrg.url,
-        review: reviews.map((review) => ({
+        review: reviews.map(review => ({
             '@type': 'Review',
             author: {
                 '@type': 'Person',
@@ -274,7 +285,9 @@ export function generateReviewSchema(reviews: {
         })),
         aggregateRating: {
             '@type': 'AggregateRating',
-            ratingValue: reviews.reduce((sum, review) => sum + review.ratingValue, 0) / reviews.length,
+            ratingValue:
+                reviews.reduce((sum, review) => sum + review.ratingValue, 0) /
+                reviews.length,
             reviewCount: reviews.length,
             bestRating: 5,
             worstRating: 1,
@@ -311,12 +324,9 @@ export function generateLocalBusinessSchema(org: Organization) {
         geo: {
             '@type': 'GeoCoordinates',
             latitude: 27.7172,
-            longitude: 85.3240,
+            longitude: 85.324,
         },
-        openingHours: [
-            'Mo-Fr 09:00-17:00',
-            'Sa 09:00-15:00',
-        ],
+        openingHours: ['Mo-Fr 09:00-17:00', 'Sa 09:00-15:00'],
         priceRange: '$$',
         currenciesAccepted: 'NPR',
         paymentAccepted: 'Cash, Bank Transfer',
@@ -338,7 +348,8 @@ export function generateLocalBusinessSchema(org: Organization) {
                     itemOffered: {
                         '@type': 'Course',
                         name: 'Advanced Caregiver Training',
-                        description: 'Specialized training for complex care needs',
+                        description:
+                            'Specialized training for complex care needs',
                     },
                 },
             ],
@@ -347,14 +358,16 @@ export function generateLocalBusinessSchema(org: Organization) {
 }
 
 // Service structured data
-export function generateServiceSchema(services: {
-    name: string;
-    description: string;
-    provider: string;
-    serviceType: string;
-    areaServed?: string;
-}[]) {
-    return services.map((service) => ({
+export function generateServiceSchema(
+    services: {
+        name: string;
+        description: string;
+        provider: string;
+        serviceType: string;
+        areaServed?: string;
+    }[]
+) {
+    return services.map(service => ({
         '@context': 'https://schema.org',
         '@type': 'Service',
         name: service.name,
@@ -414,7 +427,8 @@ export function generateContactPageSchema(org: Organization) {
         '@context': 'https://schema.org',
         '@type': 'ContactPage',
         name: 'Contact Hope International',
-        description: 'Get in touch with Hope International for caregiver training and elderly care services',
+        description:
+            'Get in touch with Hope International for caregiver training and elderly care services',
         url: `${org.url}/contactus`,
         mainEntity: {
             '@type': 'Organization',
@@ -428,7 +442,13 @@ export function generateContactPageSchema(org: Organization) {
                     availableLanguage: ['English', 'Nepali'],
                     hoursAvailable: {
                         '@type': 'OpeningHoursSpecification',
-                        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+                        dayOfWeek: [
+                            'Monday',
+                            'Tuesday',
+                            'Wednesday',
+                            'Thursday',
+                            'Friday',
+                        ],
                         opens: '09:00',
                         closes: '17:00',
                     },
@@ -457,7 +477,8 @@ export function generateAboutPageSchema(org: Organization) {
         '@context': 'https://schema.org',
         '@type': 'AboutPage',
         name: 'About Hope International',
-        description: 'Learn about Hope International\'s mission, vision, and commitment to elderly care training',
+        description:
+            "Learn about Hope International's mission, vision, and commitment to elderly care training",
         url: `${org.url}/aboutus`,
         mainEntity: {
             '@type': 'Organization',
@@ -465,7 +486,8 @@ export function generateAboutPageSchema(org: Organization) {
             url: org.url,
             description: org.description,
             foundingDate: '2020',
-            mission: 'To empower caregivers with comprehensive training and support, and to provide compassionate and specialized care to elderly individuals, enhancing their quality of life and promoting their well-being.',
+            mission:
+                'To empower caregivers with comprehensive training and support, and to provide compassionate and specialized care to elderly individuals, enhancing their quality of life and promoting their well-being.',
             vision: 'We aim to establish a one-of-a-kind care home dedicated to providing exceptional care for seniors with various age-related challenges, setting the standard for eldercare in Nepal.',
             values: [
                 'Compassion',

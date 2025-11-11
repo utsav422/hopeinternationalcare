@@ -4,8 +4,20 @@
 export function generateCriticalResourceHints() {
     return [
         // Critical font preloading
-        { rel: 'preload', href: '/fonts/geist-sans.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' as const },
-        { rel: 'preload', href: '/fonts/geist-mono.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' as const },
+        {
+            rel: 'preload',
+            href: '/fonts/geist-sans.woff2',
+            as: 'font',
+            type: 'font/woff2',
+            crossOrigin: 'anonymous' as const,
+        },
+        {
+            rel: 'preload',
+            href: '/fonts/geist-mono.woff2',
+            as: 'font',
+            type: 'font/woff2',
+            crossOrigin: 'anonymous' as const,
+        },
 
         // DNS prefetching for external resources
         { rel: 'dns-prefetch', href: '//fonts.googleapis.com' },
@@ -14,6 +26,10 @@ export function generateCriticalResourceHints() {
 
         // Preconnect to critical origins
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' as const },
+        {
+            rel: 'preconnect',
+            href: 'https://fonts.gstatic.com',
+            crossOrigin: 'anonymous' as const,
+        },
     ];
 }

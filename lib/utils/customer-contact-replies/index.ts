@@ -1,7 +1,11 @@
 import { db } from '@/lib/db/drizzle';
 import { customerContactReplies } from '@/lib/db/schema/customer-contact-replies';
 import { eq, sql } from 'drizzle-orm';
-import { CustomerContactReplyCreateData, CustomerContactReplyUpdateData, CustomerContactReplyConstraintCheck } from '@/lib/types/customer-contact-replies';
+import {
+    CustomerContactReplyCreateData,
+    CustomerContactReplyUpdateData,
+    CustomerContactReplyConstraintCheck,
+} from '@/lib/types/customer-contact-replies';
 
 /**
  * Customer contact reply validation utilities
@@ -69,7 +73,9 @@ export function validateReplyMessage(message: string): void {
  * @param data - The reply data to validate
  * @returns ValidationResult
  */
-export function validateCustomerContactReplyData(data: CustomerContactReplyCreateData | CustomerContactReplyUpdateData) {
+export function validateCustomerContactReplyData(
+    data: CustomerContactReplyCreateData | CustomerContactReplyUpdateData
+) {
     try {
         validateReplySubject(data?.subject ?? '');
         validateReplyMessage(data?.message ?? '');
@@ -80,13 +86,13 @@ export function validateCustomerContactReplyData(data: CustomerContactReplyCreat
                 success: false,
                 error: error.message,
                 code: error.code,
-                details: error.details
+                details: error.details,
             };
         }
         return {
             success: false,
             error: 'Validation failed',
-            code: 'VALIDATION_ERROR'
+            code: 'VALIDATION_ERROR',
         };
     }
 }
@@ -100,18 +106,23 @@ export function validateCustomerContactReplyData(data: CustomerContactReplyCreat
  * @param id - The reply ID to check
  * @returns Object with canDelete flag
  */
-export async function checkCustomerContactReplyConstraints(id: string): Promise<CustomerContactReplyConstraintCheck> {
+export async function checkCustomerContactReplyConstraints(
+    id: string
+): Promise<CustomerContactReplyConstraintCheck> {
     try {
         // For now, we allow deletion of any reply
         // This could be extended with business rules if needed
         return {
-            canDelete: true
+            canDelete: true,
         };
     } catch (error) {
-        console.error('Error checking customer contact reply constraints:', error);
+        console.error(
+            'Error checking customer contact reply constraints:',
+            error
+        );
         // In case of error, assume it cannot be deleted for safety
         return {
-            canDelete: false
+            canDelete: false,
         };
     }
 }
@@ -126,7 +137,10 @@ export async function checkCustomerContactReplyConstraints(id: string): Promise<
  * @param newStatus - New reply status
  * @returns boolean indicating if update is allowed
  */
-export function canUpdateCustomerContactReplyStatus(currentStatus: boolean, newStatus: boolean): boolean {
+export function canUpdateCustomerContactReplyStatus(
+    currentStatus: boolean,
+    newStatus: boolean
+): boolean {
     // For now, allow any status update
     // This could be extended with business rules if needed
     return true;

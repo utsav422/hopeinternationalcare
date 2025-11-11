@@ -1,7 +1,11 @@
 import { db } from '@/lib/db/drizzle';
 import { enrollments } from '@/lib/db/schema/enrollments';
 import { eq, sql } from 'drizzle-orm';
-import { IntakeCreateData, IntakeUpdateData, IntakeConstraintCheck } from '@/lib/types';
+import {
+    IntakeCreateData,
+    IntakeUpdateData,
+    IntakeConstraintCheck,
+} from '@/lib/types';
 
 /**
  * Intake validation utilities
@@ -48,7 +52,11 @@ export function validateIntakeName(name: string): void {
  * @param deadline - The application deadline
  * @throws IntakeValidationError if validation fails
  */
-export function validateIntakeDates(startDate: string, endDate: string, deadline: string): void {
+export function validateIntakeDates(
+    startDate: string,
+    endDate: string,
+    deadline: string
+): void {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const appDeadline = new Date(deadline);
@@ -109,13 +117,13 @@ export function validateIntakeData(data: IntakeCreateData | IntakeUpdateData) {
                 success: false,
                 error: error.message,
                 code: error.code,
-                details: error.details
+                details: error.details,
             };
         }
         return {
             success: false,
             error: 'Validation failed',
-            code: 'VALIDATION_ERROR'
+            code: 'VALIDATION_ERROR',
         };
     }
 }
@@ -129,7 +137,9 @@ export function validateIntakeData(data: IntakeCreateData | IntakeUpdateData) {
  * @param id - The intake ID to check
  * @returns Object with canDelete flag and enrollmentCount
  */
-export async function checkIntakeConstraints(id: string): Promise<IntakeConstraintCheck> {
+export async function checkIntakeConstraints(
+    id: string
+): Promise<IntakeConstraintCheck> {
     try {
         const [{ count }] = await db
             .select({ count: sql<number>`count(*)` })
@@ -138,14 +148,14 @@ export async function checkIntakeConstraints(id: string): Promise<IntakeConstrai
 
         return {
             canDelete: count === 0,
-            enrollmentCount: count
+            enrollmentCount: count,
         };
     } catch (error) {
         console.error('Error checking intake constraints:', error);
         // In case of error, assume it cannot be deleted for safety
         return {
             canDelete: false,
-            enrollmentCount: 0
+            enrollmentCount: 0,
         };
     }
 }
@@ -160,7 +170,10 @@ export async function checkIntakeConstraints(id: string): Promise<IntakeConstrai
  * @param newStatus - New intake status
  * @returns boolean indicating if update is allowed
  */
-export function canUpdateIntakeStatus(currentStatus: boolean, newStatus: boolean): boolean {
+export function canUpdateIntakeStatus(
+    currentStatus: boolean,
+    newStatus: boolean
+): boolean {
     // For now, allow any status update
     // This could be extended with business rules if needed
     return true;
@@ -172,6 +185,9 @@ export function canUpdateIntakeStatus(currentStatus: boolean, newStatus: boolean
  * @param enrollmentCount - The current enrollment count
  * @returns number of available spots
  */
-export function calculateAvailableSpots(capacity: number, enrollmentCount: number): number {
+export function calculateAvailableSpots(
+    capacity: number,
+    enrollmentCount: number
+): number {
     return Math.max(0, capacity - enrollmentCount);
 }

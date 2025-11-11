@@ -16,16 +16,20 @@ import {
     CustomerContactRequestConstraintCheck,
     CustomerContactRequestStatusUpdate,
     CustomerContactRequestBase,
-    TypeContactRequestStatus
+    TypeContactRequestStatus,
 } from '@/lib/types/customer-contact-requests';
 import { ApiResponse } from '@/lib/types';
 import {
     validateCustomerContactRequestData,
     checkCustomerContactRequestConstraints,
     CustomerContactRequestValidationError,
-    canUpdateCustomerContactRequestStatus
+    canUpdateCustomerContactRequestStatus,
 } from '@/lib/utils/customer-contact-requests';
-import { buildFilterConditions, buildWhereClause, buildOrderByClause } from '@/lib/utils/query-utils';
+import {
+    buildFilterConditions,
+    buildWhereClause,
+    buildOrderByClause,
+} from '@/lib/utils/query-utils';
 
 // Column mappings for customer contact requests
 const customerContactRequestColumnMap = {
@@ -42,36 +46,68 @@ const customerContactRequestColumnMap = {
 /**
  * Error handling utility
  */
-export function handleCustomerContactRequestError(error: unknown, operation: string): ApiResponse<never> {
+export async function handleCustomerContactRequestError(
+    error: unknown,
+    operation: string
+): Promise<ApiResponse<never>> {
     if (error instanceof CustomerContactRequestValidationError) {
-        return { success: false, error: error.message, code: error.code, details: error.details };
+        return Promise.reject({
+            success: false,
+            error: error.message,
+            code: error.code,
+            details: error.details,
+        });
     }
 
     if (error instanceof Error) {
         logger.error(`Customer Contact Request ${operation} failed:`, error);
-        return { success: false, error: error.message, code: 'UNKNOWN_ERROR' };
+        return Promise.reject({
+            success: false,
+            error: error.message,
+            code: 'UNKNOWN_ERROR',
+        });
     }
 
-    logger.error(`Unexpected error in customer contact request ${operation}:`, { error: String(error) });
-    return { success: false, error: 'An unexpected error occurred', code: 'UNKNOWN_ERROR' };
+    logger.error(`Unexpected error in customer contact request ${operation}:`, {
+        error: String(error),
+    });
+    return Promise.reject({
+        success: false,
+        error: 'An unexpected error occurred',
+        code: 'UNKNOWN_ERROR',
+    });
 }
 
 /**
  * Single comprehensive list function with filtering and pagination
  */
-export async function adminCustomerContactRequestList(params: CustomerContactRequestQueryParams): Promise<ApiResponse<{
-    data: CustomerContactRequestListItem[];
-    total: number;
-    page: number;
-    pageSize: number;
-}>> {
+export async function adminCustomerContactRequestList(
+    params: CustomerContactRequestQueryParams
+): Promise<
+    ApiResponse<{
+        data: CustomerContactRequestListItem[];
+        total: number;
+        page: number;
+        pageSize: number;
+    }>
+> {
     try {
         await requireAdmin();
 
-        const { page = 1, pageSize = 10, sortBy = 'created_at', order = 'desc', filters = [], search } = params;
+        const {
+            page = 1,
+            pageSize = 10,
+            sortBy = 'created_at',
+            order = 'desc',
+            filters = [],
+            search,
+        } = params;
         const offset = (page - 1) * pageSize;
 
-        const filterConditions = buildFilterConditions(filters, customerContactRequestColumnMap);
+        const filterConditions = buildFilterConditions(
+            filters,
+            customerContactRequestColumnMap
+        );
 
         if (search) {
             const searchFilter = `%${search}%`;
@@ -81,7 +117,11 @@ export async function adminCustomerContactRequestList(params: CustomerContactReq
         }
 
         const whereClause = buildWhereClause(filterConditions);
-        const orderBy = buildOrderByClause(sortBy, order, customerContactRequestColumnMap);
+        const orderBy = buildOrderByClause(
+            sortBy,
+            order,
+            customerContactRequestColumnMap
+        );
 
         const query = db
             .select({
@@ -93,22 +133,36 @@ export async function adminCustomerContactRequestList(params: CustomerContactReq
                 status: customerContactRequests.status,
                 created_at: customerContactRequests.created_at,
                 updated_at: customerContactRequests.updated_at,
-                reply_count: sql<number>`count(${customerContactReplies.id})`.mapWith(Number),
+                reply_count:
+                    sql<number>`count(${customerContactReplies.id})`.mapWith(
+                        Number
+                    ),
             })
             .from(customerContactRequests)
-            .leftJoin(customerContactReplies, eq(customerContactRequests.id, customerContactReplies.contact_request_id))
+            .leftJoin(
+                customerContactReplies,
+                eq(
+                    customerContactRequests.id,
+                    customerContactReplies.contact_request_id
+                )
+            )
             .groupBy(customerContactRequests.id)
             .limit(pageSize)
             .offset(offset);
 
         const queryWithWhere = whereClause ? query.where(whereClause) : query;
-        const queryWithOrder = orderBy ? queryWithWhere.orderBy(orderBy) : queryWithWhere;
+        const queryWithOrder = orderBy
+            ? queryWithWhere.orderBy(orderBy)
+            : queryWithWhere;
 
-        const countQuery = db.select({ count: sql<number>`count(*)` }).from(customerContactRequests).where(whereClause);
+        const countQuery = db
+            .select({ count: sql<number>`count(*)` })
+            .from(customerContactRequests)
+            .where(whereClause);
 
         const [results, countResult] = await Promise.all([
             queryWithOrder,
-            countQuery
+            countQuery,
         ]);
 
         const data: CustomerContactRequestListItem[] = results.map(item => ({
@@ -122,8 +176,8 @@ export async function adminCustomerContactRequestList(params: CustomerContactReq
                 data,
                 total: countResult[0]?.count || 0,
                 page,
-                pageSize
-            }
+                pageSize,
+            },
         };
     } catch (error) {
         return handleCustomerContactRequestError(error, 'list');
@@ -133,19 +187,25 @@ export async function adminCustomerContactRequestList(params: CustomerContactReq
 /**
  * Single comprehensive details function with proper joins
  */
-export async function adminCustomerContactRequestDetails(id: string): Promise<ApiResponse<CustomerContactRequestWithDetails>> {
+export async function adminCustomerContactRequestDetails(
+    id: string
+): Promise<ApiResponse<CustomerContactRequestWithDetails>> {
     try {
         await requireAdmin();
 
         const requestData = await db.query.customerContactRequests.findFirst({
             where: eq(customerContactRequests.id, id),
             with: {
-                replies: true
-            }
+                replies: true,
+            },
         });
 
         if (!requestData) {
-            return { success: false, error: 'Customer contact request not found', code: 'NOT_FOUND' };
+            return {
+                success: false,
+                error: 'Customer contact request not found',
+                code: 'NOT_FOUND',
+            };
         }
 
         const { replies, ...request } = requestData;
@@ -154,8 +214,8 @@ export async function adminCustomerContactRequestDetails(id: string): Promise<Ap
             success: true,
             data: {
                 request,
-                replies: replies || null
-            }
+                replies: replies || null,
+            },
         };
     } catch (error) {
         return handleCustomerContactRequestError(error, 'details');
@@ -165,16 +225,26 @@ export async function adminCustomerContactRequestDetails(id: string): Promise<Ap
 /**
  * Optimized CRUD operations with validation
  */
-export async function adminCustomerContactRequestCreate(data: CustomerContactRequestCreateData): Promise<ApiResponse<CustomerContactRequestBase>> {
+export async function adminCustomerContactRequestCreate(
+    data: CustomerContactRequestCreateData
+): Promise<ApiResponse<CustomerContactRequestBase>> {
     try {
         await requireAdmin();
 
         const validation = validateCustomerContactRequestData(data);
         if (!validation.success) {
-            return { success: false, error: validation.error || 'Validation failed', code: validation.code || 'VALIDATION_ERROR', details: validation.details };
+            return {
+                success: false,
+                error: validation.error || 'Validation failed',
+                code: validation.code || 'VALIDATION_ERROR',
+                details: validation.details,
+            };
         }
 
-        const [created] = await db.insert(customerContactRequests).values({ ...data, status: 'pending' }).returning();
+        const [created] = await db
+            .insert(customerContactRequests)
+            .values({ ...data, status: 'pending' })
+            .returning();
 
         revalidatePath('/admin/customer-contact-requests');
         return { success: true, data: created };
@@ -183,21 +253,36 @@ export async function adminCustomerContactRequestCreate(data: CustomerContactReq
     }
 }
 
-export async function adminCustomerContactRequestUpdate(data: CustomerContactRequestUpdateData): Promise<ApiResponse<CustomerContactRequestBase>> {
+export async function adminCustomerContactRequestUpdate(
+    data: CustomerContactRequestUpdateData
+): Promise<ApiResponse<CustomerContactRequestBase>> {
     try {
         await requireAdmin();
 
         const validation = validateCustomerContactRequestData(data);
         if (!validation.success) {
-            return { success: false, error: validation.error || 'Validation failed', code: validation.code || 'VALIDATION_ERROR', details: validation.details };
+            return {
+                success: false,
+                error: validation.error || 'Validation failed',
+                code: validation.code || 'VALIDATION_ERROR',
+                details: validation.details,
+            };
         }
 
         const { id, ...updateData } = data;
 
-        const [updated] = await db.update(customerContactRequests).set({ ...updateData, updated_at: sql`now()` }).where(eq(customerContactRequests.id, id)).returning();
+        const [updated] = await db
+            .update(customerContactRequests)
+            .set({ ...updateData, updated_at: sql`now()` })
+            .where(eq(customerContactRequests.id, id))
+            .returning();
 
         if (!updated) {
-            return { success: false, error: 'Customer contact request not found', code: 'NOT_FOUND' };
+            return {
+                success: false,
+                error: 'Customer contact request not found',
+                code: 'NOT_FOUND',
+            };
         }
 
         revalidatePath(`/admin/customer-contact-requests/${id}`);
@@ -207,19 +292,32 @@ export async function adminCustomerContactRequestUpdate(data: CustomerContactReq
     }
 }
 
-export async function adminCustomerContactRequestDelete(id: string): Promise<ApiResponse<void>> {
+export async function adminCustomerContactRequestDelete(
+    id: string
+): Promise<ApiResponse<void>> {
     try {
         await requireAdmin();
 
         const constraints = await checkCustomerContactRequestConstraints(id);
         if (!constraints.canDelete) {
-            return { success: false, error: 'Cannot delete this customer contact request due to business rules.', code: 'CONSTRAINT_VIOLATION' };
+            return {
+                success: false,
+                error: 'Cannot delete this customer contact request due to business rules.',
+                code: 'CONSTRAINT_VIOLATION',
+            };
         }
 
-        const [deleted] = await db.delete(customerContactRequests).where(eq(customerContactRequests.id, id)).returning();
+        const [deleted] = await db
+            .delete(customerContactRequests)
+            .where(eq(customerContactRequests.id, id))
+            .returning();
 
         if (!deleted) {
-            return { success: false, error: 'Customer contact request not found', code: 'NOT_FOUND' };
+            return {
+                success: false,
+                error: 'Customer contact request not found',
+                code: 'NOT_FOUND',
+            };
         }
 
         revalidatePath('/admin/customer-contact-requests');
@@ -232,7 +330,9 @@ export async function adminCustomerContactRequestDelete(id: string): Promise<Api
 /**
  * Business-specific operations
  */
-export async function adminCustomerContactRequestCheckConstraints(id: string): Promise<ApiResponse<CustomerContactRequestConstraintCheck>> {
+export async function adminCustomerContactRequestCheckConstraints(
+    id: string
+): Promise<ApiResponse<CustomerContactRequestConstraintCheck>> {
     try {
         await requireAdmin();
         const result = await checkCustomerContactRequestConstraints(id);
@@ -245,27 +345,52 @@ export async function adminCustomerContactRequestCheckConstraints(id: string): P
 /**
  * Status update operation
  */
-export async function adminCustomerContactRequestUpdateStatus(data: CustomerContactRequestStatusUpdate): Promise<ApiResponse<CustomerContactRequestBase>> {
+export async function adminCustomerContactRequestUpdateStatus(
+    data: CustomerContactRequestStatusUpdate
+): Promise<ApiResponse<CustomerContactRequestBase>> {
     try {
         await requireAdmin();
 
-        const currentRequest = await db.query.customerContactRequests.findFirst({
-            where: eq(customerContactRequests.id, data.id),
-            columns: { status: true }
-        });
+        const currentRequest = await db.query.customerContactRequests.findFirst(
+            {
+                where: eq(customerContactRequests.id, data.id),
+                columns: { status: true },
+            }
+        );
 
         if (!currentRequest) {
-            return { success: false, error: 'Customer contact request not found', code: 'NOT_FOUND' };
+            return {
+                success: false,
+                error: 'Customer contact request not found',
+                code: 'NOT_FOUND',
+            };
         }
 
-        if (!canUpdateCustomerContactRequestStatus(currentRequest.status, data.status)) {
-            return { success: false, error: `Cannot transition from ${currentRequest.status} to ${data.status}`, code: 'INVALID_STATUS_TRANSITION' };
+        if (
+            !canUpdateCustomerContactRequestStatus(
+                currentRequest.status,
+                data.status
+            )
+        ) {
+            return {
+                success: false,
+                error: `Cannot transition from ${currentRequest.status} to ${data.status}`,
+                code: 'INVALID_STATUS_TRANSITION',
+            };
         }
 
-        const [updated] = await db.update(customerContactRequests).set({ status: data.status, updated_at: sql`now()` }).where(eq(customerContactRequests.id, data.id)).returning();
+        const [updated] = await db
+            .update(customerContactRequests)
+            .set({ status: data.status, updated_at: sql`now()` })
+            .where(eq(customerContactRequests.id, data.id))
+            .returning();
 
         if (!updated) {
-            return { success: false, error: 'Customer contact request not found during update', code: 'NOT_FOUND' };
+            return {
+                success: false,
+                error: 'Customer contact request not found during update',
+                code: 'NOT_FOUND',
+            };
         }
 
         revalidatePath('/admin/customer-contact-requests');

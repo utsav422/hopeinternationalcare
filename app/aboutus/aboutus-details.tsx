@@ -16,13 +16,15 @@ export function AboutUsDetails() {
                             About Our Company
                         </h2>
                         <p className="text-gray-700 text-lg leading-relaxed dark:text-gray-300">
-                            Welcome to Hope International Aged Care Training and Elderly Care
-                            Center, nestled in the vibrant heart of Kathmandu, Nepal. Our
-                            center stands as a beacon of compassion and excellence in
-                            caregiver training and elderly care services. Located in the
-                            bustling district of Kathmandu, we are committed to empowering
-                            individuals with the skills and knowledge necessary to provide
-                            exceptional care to elderly members of our community.
+                            Welcome to Hope International Aged Care Training and
+                            Elderly Care Center, nestled in the vibrant heart of
+                            Kathmandu, Nepal. Our center stands as a beacon of
+                            compassion and excellence in caregiver training and
+                            elderly care services. Located in the bustling
+                            district of Kathmandu, we are committed to
+                            empowering individuals with the skills and knowledge
+                            necessary to provide exceptional care to elderly
+                            members of our community.
                         </p>
                     </div>
                 </div>
@@ -37,13 +39,15 @@ export function AboutUsDetails() {
                             What We Do
                         </h2>
                         <p className="text-gray-700 text-lg leading-relaxed dark:text-gray-300">
-                            At Hope International, we offer comprehensive caregiver training
-                            packages tailored to levels 1 through 5, ensuring that our
-                            trainees are equipped with the expertise needed to meet the
-                            diverse needs of aging individuals. Our curriculum covers a wide
-                            range of topics, including basic caregiving techniques,
-                            specialized care for individuals with conditions such as
-                            Alzheimer's, Parkinson's, dementia, and more.
+                            At Hope International, we offer comprehensive
+                            caregiver training packages tailored to levels 1
+                            through 5, ensuring that our trainees are equipped
+                            with the expertise needed to meet the diverse needs
+                            of aging individuals. Our curriculum covers a wide
+                            range of topics, including basic caregiving
+                            techniques, specialized care for individuals with
+                            conditions such as Alzheimer&apos;s,
+                            Parkinson&apos;s, dementia, and more.
                         </p>
                     </div>
                 </div>

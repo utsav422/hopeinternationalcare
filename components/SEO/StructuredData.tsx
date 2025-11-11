@@ -19,7 +19,20 @@ import {
 } from '@/lib/seo/structured-data';
 
 interface StructuredDataProps {
-    type: 'organization' | 'educational-organization' | 'course' | 'breadcrumb' | 'website' | 'article' | 'faq' | 'review' | 'local-business' | 'service' | 'person' | 'contact-page' | 'about-page';
+    type:
+        | 'organization'
+        | 'educational-organization'
+        | 'course'
+        | 'breadcrumb'
+        | 'website'
+        | 'article'
+        | 'faq'
+        | 'review'
+        | 'local-business'
+        | 'service'
+        | 'person'
+        | 'contact-page'
+        | 'about-page';
     data?: any;
 }
 
@@ -32,12 +45,16 @@ export function StructuredData({ type, data }: StructuredDataProps) {
             break;
 
         case 'educational-organization':
-            schema = generateEducationalOrganizationSchema(hopeInternationalOrg);
+            schema =
+                generateEducationalOrganizationSchema(hopeInternationalOrg);
             break;
 
         case 'course':
             if (!data) return null;
-            schema = generateCourseSchema(data as Course, hopeInternationalOrg.name);
+            schema = generateCourseSchema(
+                data as Course,
+                hopeInternationalOrg.name
+            );
             break;
 
         case 'breadcrumb':
@@ -46,7 +63,10 @@ export function StructuredData({ type, data }: StructuredDataProps) {
             break;
 
         case 'website':
-            schema = generateWebsiteSchema(hopeInternationalOrg.name, hopeInternationalOrg.url);
+            schema = generateWebsiteSchema(
+                hopeInternationalOrg.name,
+                hopeInternationalOrg.url
+            );
             break;
 
         case 'article':
@@ -120,7 +140,11 @@ export function CourseStructuredData({ course }: { course: Course }) {
     return <StructuredData type="course" data={course} />;
 }
 
-export function BreadcrumbStructuredData({ items }: { items: BreadcrumbItem[] }) {
+export function BreadcrumbStructuredData({
+    items,
+}: {
+    items: BreadcrumbItem[];
+}) {
     return <StructuredData type="breadcrumb" data={items} />;
 }
 
@@ -131,7 +155,7 @@ export function ArticleStructuredData({
     image,
     datePublished,
     dateModified,
-    author
+    author,
 }: {
     title: string;
     description: string;
@@ -157,12 +181,16 @@ export function ArticleStructuredData({
     );
 }
 
-export function FAQStructuredData({ faqs }: { faqs: { question: string; answer: string }[] }) {
+export function FAQStructuredData({
+    faqs,
+}: {
+    faqs: { question: string; answer: string }[];
+}) {
     return <StructuredData type="faq" data={faqs} />;
 }
 
 export function ReviewStructuredData({
-    reviews
+    reviews,
 }: {
     reviews: {
         author: string;
@@ -171,7 +199,7 @@ export function ReviewStructuredData({
         datePublished: string;
         image?: string;
         title?: string;
-    }[]
+    }[];
 }) {
     return <StructuredData type="review" data={reviews} />;
 }
@@ -181,7 +209,7 @@ export function LocalBusinessStructuredData() {
 }
 
 export function ServiceStructuredData({
-    services
+    services,
 }: {
     services: {
         name: string;
@@ -189,13 +217,13 @@ export function ServiceStructuredData({
         provider: string;
         serviceType: string;
         areaServed?: string;
-    }[]
+    }[];
 }) {
     return <StructuredData type="service" data={services} />;
 }
 
 export function PersonStructuredData({
-    person
+    person,
 }: {
     person: {
         name: string;
@@ -204,7 +232,7 @@ export function PersonStructuredData({
         image?: string;
         email?: string;
         worksFor: string;
-    }
+    };
 }) {
     return <StructuredData type="person" data={person} />;
 }

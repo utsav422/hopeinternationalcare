@@ -3,7 +3,10 @@ import { AboutUs } from './aboutus';
 import { AboutUsDetails } from './aboutus-details';
 import OurGoals from './our-goals';
 import OurTeams from './our-team';
-import { generateMetadata as generateSEOMetadata, seoConfigs } from '@/lib/seo/metadata';
+import {
+    generateMetadata as generateSEOMetadata,
+    seoConfigs,
+} from '@/lib/seo/metadata';
 import { AboutPageStructuredData } from '@/components/SEO/StructuredData';
 
 export const metadata: Metadata = generateSEOMetadata({

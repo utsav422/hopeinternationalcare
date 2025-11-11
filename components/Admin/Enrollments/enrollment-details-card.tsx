@@ -6,7 +6,7 @@ import { notFound, useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAdminEnrollmentDetailsById } from '@/hooks/admin/enrollments';
+import { useAdminEnrollmentDetails } from '@/hooks/admin/enrollments';
 
 // import {
 //   Table,
@@ -20,7 +20,11 @@ import { useAdminEnrollmentDetailsById } from '@/hooks/admin/enrollments';
 function EnrollmentDetailsCard() {
     const params = useParams<{ id: string }>();
     const { id } = params;
-    const { data: enrollment, error, isLoading } = useAdminEnrollmentDetailsById(id);
+    const {
+        data: queryResult,
+        error,
+        isLoading,
+    } = useAdminEnrollmentDetails(id);
 
     if (isLoading) {
         return <Loader />;
@@ -28,44 +32,47 @@ function EnrollmentDetailsCard() {
     if (error) {
         toast.error(error.message);
     }
-    if (!enrollment) {
+    if (!queryResult) {
         notFound();
     }
+    const enrollment = queryResult.data?.enrollment;
+    const user = queryResult.data?.user;
+    const course = queryResult.data?.course;
+    const intake = queryResult.data?.intake;
     return (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Enrollment Details Card */}
             <Card className="col-span-full lg:col-span-1">
                 <CardHeader>
-                    <CardTitle >Enrollment Details</CardTitle>
+                    <CardTitle>Enrollment Details</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4">
                     <div>
                         <p className="font-medium text-muted-foreground text-sm ">
                             Status
                         </p>
-                        <Badge
-                            variant="outline"
-                        >
-                            {enrollment.status}
-                        </Badge>
+                        <Badge variant="outline">{enrollment?.status}</Badge>
                     </div>
                     <div>
                         <p className="font-medium text-muted-foreground text-sm ">
                             Enrollment Date
                         </p>
                         <p className="font-semibold text-base dark:text-gray-300">
-                            {enrollment.enrollment_data
-                                ? format(new Date(enrollment.enrollment_data), 'PPP')
+                            {enrollment?.enrollment_date
+                                ? format(
+                                      new Date(enrollment?.enrollment_date),
+                                      'PPP'
+                                  )
                                 : 'N/A'}
                         </p>
                     </div>
-                    {enrollment.cancelled_reason && (
+                    {enrollment?.cancelled_reason && (
                         <div>
                             <p className="font-medium text-muted-foreground text-sm ">
                                 Cancellation Reason
                             </p>
                             <p className="font-semibold text-base dark:text-gray-300">
-                                {enrollment.cancelled_reason}
+                                {enrollment?.cancelled_reason}
                             </p>
                         </div>
                     )}
@@ -74,7 +81,7 @@ function EnrollmentDetailsCard() {
                             Notes
                         </p>
                         <p className="font-semibold text-base dark:text-gray-300">
-                            {enrollment.notes || 'N/A'}
+                            {enrollment?.notes || 'N/A'}
                         </p>
                     </div>
                     <div>
@@ -82,8 +89,11 @@ function EnrollmentDetailsCard() {
                             Created At
                         </p>
                         <p className="font-semibold text-base dark:text-gray-300">
-                            {enrollment.created_at
-                                ? format(new Date(enrollment.created_at), 'PPP p')
+                            {enrollment?.created_at
+                                ? format(
+                                      new Date(enrollment?.created_at),
+                                      'PPP p'
+                                  )
                                 : 'N/A'}
                         </p>
                     </div>
@@ -93,7 +103,7 @@ function EnrollmentDetailsCard() {
             {/* User Details Card */}
             <Card className="col-span-full lg:col-span-1 ">
                 <CardHeader>
-                    <CardTitle >User Details</CardTitle>
+                    <CardTitle>User Details</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4">
                     <div>
@@ -101,7 +111,7 @@ function EnrollmentDetailsCard() {
                             Full Name
                         </p>
                         <p className="font-semibold text-base dark:text-gray-300">
-                            {enrollment?.fullName || 'N/A'}
+                            {user?.full_name || 'N/A'}
                         </p>
                     </div>
                     <div>
@@ -109,7 +119,7 @@ function EnrollmentDetailsCard() {
                             Email
                         </p>
                         <p className="font-semibold text-base dark:text-gray-300">
-                            {enrollment.email || 'N/A'}
+                            {user?.email || 'N/A'}
                         </p>
                     </div>
                 </CardContent>
@@ -126,7 +136,7 @@ function EnrollmentDetailsCard() {
                             Title
                         </p>
                         <p className="font-semibold text-base dark:text-gray-300">
-                            {enrollment.courseTitle || 'N/A'}
+                            {course?.title || 'N/A'}
                         </p>
                     </div>
                     <div>
@@ -134,7 +144,7 @@ function EnrollmentDetailsCard() {
                             Course Highlight
                         </p>
                         <p className="font-semibold text-base dark:text-gray-300">
-                            {enrollment?.course_highlight || 'N/A'}
+                            {course?.courseHighlights || 'N/A'}
                         </p>
                     </div>
                     <div>
@@ -142,7 +152,8 @@ function EnrollmentDetailsCard() {
                             Duration
                         </p>
                         <p className="font-semibold text-base dark:text-gray-300">
-                            {enrollment?.duration_value} {enrollment.duration_type || 'N/A'}
+                            {course?.duration_value}{' '}
+                            {course?.duration_type || 'N/A'}
                         </p>
                     </div>
                 </CardContent>
@@ -159,8 +170,8 @@ function EnrollmentDetailsCard() {
                             Start Date
                         </p>
                         <p className="font-semibold text-base dark:text-gray-300">
-                            {enrollment?.start_date
-                                ? format(new Date(enrollment.start_date), 'PPP')
+                            {intake?.start_date
+                                ? format(new Date(intake.start_date), 'PPP')
                                 : 'N/A'}
                         </p>
                     </div>
@@ -169,8 +180,8 @@ function EnrollmentDetailsCard() {
                             End Date
                         </p>
                         <p className="font-semibold text-base dark:text-gray-300">
-                            {enrollment?.end_date
-                                ? format(new Date(enrollment.end_date), 'PPP')
+                            {intake?.end_date
+                                ? format(new Date(intake.end_date), 'PPP')
                                 : 'N/A'}
                         </p>
                     </div>

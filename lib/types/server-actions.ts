@@ -38,7 +38,9 @@ export interface PaginationResponse<T = any> {
 }
 
 // Utility function to normalize search params to a plain object
-export function normalizeSearchParams(searchParams: SearchParamsInput): Record<string, any> {
+export function normalizeSearchParams(
+    searchParams: SearchParamsInput
+): Record<string, any> {
     if (searchParams instanceof URLSearchParams) {
         return Object.fromEntries(searchParams.entries());
     } else {
@@ -55,7 +57,10 @@ export function normalizeSearchParams(searchParams: SearchParamsInput): Record<s
 }
 
 // Helper function to create success response
-export function createSuccessResponse<T>(message: string, data: T): ServerActionSuccess<T> {
+export function createSuccessResponse<T>(
+    message: string,
+    data: T
+): ServerActionSuccess<T> {
     return {
         success: true,
         message,
@@ -64,7 +69,10 @@ export function createSuccessResponse<T>(message: string, data: T): ServerAction
 }
 
 // Helper function to create error response
-export function createErrorResponse(message: string, errors?: any[]): ServerActionError {
+export function createErrorResponse(
+    message: string,
+    errors?: any[]
+): ServerActionError {
     return {
         success: false,
         message,
@@ -74,12 +82,15 @@ export function createErrorResponse(message: string, errors?: any[]): ServerActi
 
 // Helper function to validate UUID
 export function isValidUUID(uuid: string): boolean {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return uuidRegex.test(uuid);
 }
 
 // Helper function to sanitize string input
-export function sanitizeString(input: string | undefined | null): string | undefined {
+export function sanitizeString(
+    input: string | undefined | null
+): string | undefined {
     if (!input || typeof input !== 'string') return undefined;
     const trimmed = input.trim();
     return trimmed === '' ? undefined : trimmed;
@@ -93,10 +104,14 @@ export function parseDate(dateString: string | undefined): Date | undefined {
 }
 
 // Type guards for server action responses
-export function isServerActionSuccess<T>(response: ServerActionResponse<T>): response is ServerActionSuccess<T> {
+export function isServerActionSuccess<T>(
+    response: ServerActionResponse<T>
+): response is ServerActionSuccess<T> {
     return response.success === true;
 }
 
-export function isServerActionError(response: ServerActionResponse): response is ServerActionError {
+export function isServerActionError(
+    response: ServerActionResponse
+): response is ServerActionError {
     return response.success === false;
 }

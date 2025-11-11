@@ -7,14 +7,14 @@ import { eq, sql } from 'drizzle-orm';
  */
 
 export class PublicCourseCategoryValidationError extends Error {
-  constructor(
-    message: string,
-    public code: string,
-    public details?: Record<string, any>
-  ) {
-    super(message);
-    this.name = 'PublicCourseCategoryValidationError';
-  }
+    constructor(
+        message: string,
+        public code: string,
+        public details?: Record<string, any>
+    ) {
+        super(message);
+        this.name = 'PublicCourseCategoryValidationError';
+    }
 }
 
 /**
@@ -23,13 +23,13 @@ export class PublicCourseCategoryValidationError extends Error {
  * @throws PublicCourseCategoryValidationError if validation fails
  */
 export function validateCategoryId(id: string): void {
-  if (!id || typeof id !== 'string') {
-    throw new PublicCourseCategoryValidationError(
-      'Category ID is required and must be a string',
-      'INVALID_CATEGORY_ID',
-      { id }
-    );
-  }
+    if (!id || typeof id !== 'string') {
+        throw new PublicCourseCategoryValidationError(
+            'Category ID is required and must be a string',
+            'INVALID_CATEGORY_ID',
+            { id }
+        );
+    }
 }
 
 /**
@@ -42,5 +42,5 @@ export function validateCategoryId(id: string): void {
  * @returns Formatted category name
  */
 export function formatCategoryName(name: string): string {
-  return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 }

@@ -6,8 +6,10 @@ import type { Metadata, Viewport } from 'next';
 export const seoConfig = {
     siteName: 'Hope International',
     siteUrl: 'https://hopeinternational.com.np',
-    defaultTitle: 'Hope International - Aged Care Training and Elderly Care Center',
-    defaultDescription: 'Hope International is a leading training center in Kathmandu, Nepal, providing comprehensive caregiver training and elderly care services.',
+    defaultTitle:
+        'Hope International - Aged Care Training and Elderly Care Center',
+    defaultDescription:
+        'Hope International is a leading training center in Kathmandu, Nepal, providing comprehensive caregiver training and elderly care services.',
     defaultImage: '/opengraph-image.png',
     twitterHandle: '@hopeinternational',
     locale: 'en_US',
@@ -18,7 +20,11 @@ export const seoConfig = {
 // JSON-LD Schema generator for Next.js 15
 export function generateJSONLD(schema: object | object[]) {
     return {
-        __html: JSON.stringify(Array.isArray(schema) ? schema : [schema], null, 0),
+        __html: JSON.stringify(
+            Array.isArray(schema) ? schema : [schema],
+            null,
+            0
+        ),
     };
 }
 
@@ -26,8 +32,20 @@ export function generateJSONLD(schema: object | object[]) {
 export function generatePreloadLinks() {
     return [
         // Critical fonts
-        { rel: 'preload', href: '/fonts/geist-sans.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
-        { rel: 'preload', href: '/fonts/geist-mono.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
+        {
+            rel: 'preload',
+            href: '/fonts/geist-sans.woff2',
+            as: 'font',
+            type: 'font/woff2',
+            crossOrigin: 'anonymous',
+        },
+        {
+            rel: 'preload',
+            href: '/fonts/geist-mono.woff2',
+            as: 'font',
+            type: 'font/woff2',
+            crossOrigin: 'anonymous',
+        },
 
         // DNS prefetch
         { rel: 'dns-prefetch', href: '//fonts.googleapis.com' },
@@ -35,9 +53,10 @@ export function generatePreloadLinks() {
 
         // Preconnect
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+        {
+            rel: 'preconnect',
+            href: 'https://fonts.gstatic.com',
+            crossOrigin: 'anonymous',
+        },
     ];
 }
-
-
-

@@ -30,27 +30,27 @@
 ### Key Functionality
 
 1. **Public Website**:
-   - Homepage with hero section, services, courses overview
-   - Course catalog with detailed pages
-   - Contact forms and request handling
-   - SEO optimization with structured data
+    - Homepage with hero section, services, courses overview
+    - Course catalog with detailed pages
+    - Contact forms and request handling
+    - SEO optimization with structured data
 
 2. **Authentication System**:
-   - Separate authentication flows for users and administrators
-   - Role-based access control (authenticated users vs service_role admins)
-   - Password reset and setup functionality
+    - Separate authentication flows for users and administrators
+    - Role-based access control (authenticated users vs service_role admins)
+    - Password reset and setup functionality
 
 3. **Admin Panel**:
-   - Course management (categories, courses, affiliations, intakes)
-   - Enrollment and payment tracking
-   - Customer contact request management
-   - User profile management
-   - Affiliation management system
+    - Course management (categories, courses, affiliations, intakes)
+    - Enrollment and payment tracking
+    - Customer contact request management
+    - User profile management
+    - Affiliation management system
 
 4. **User Portal**:
-   - Profile management
-   - Enrollment tracking
-   - Payment history
+    - Profile management
+    - Enrollment tracking
+    - Payment history
 
 ## Demo
 
@@ -62,24 +62,24 @@ You can view a fully working demo at [hopeinternational.com.np](https://hopeinte
 
 2. Clone the repository:
 
-   ```bash
-   git clone <repository-url>
-   cd hope-international
-   ```
+    ```bash
+    git clone <repository-url>
+    cd hope-international
+    ```
 
 3. Run the initialization script:
 
-   ```bash
-   ./init
-   ```
+    ```bash
+    ./init
+    ```
 
-   This script will:
-   - Install all dependencies
-   - Set up environment variables
-   - Generate Supabase types
-   - Run database migrations
-   - Seed the database
-   - Run type checking and linting
+    This script will:
+    - Install all dependencies
+    - Set up environment variables
+    - Generate Supabase types
+    - Run database migrations
+    - Seed the database
+    - Run type checking and linting
 
 4. Update `.env.local` with your configuration values
 
@@ -121,6 +121,7 @@ npx tsc --noEmit
 ### Recent Improvements
 
 #### Enrollment System Enhancement
+
 The enrollment management system has been completely refactored to improve performance, maintainability, and developer experience. Key improvements include:
 
 - Centralized type definitions for better type safety

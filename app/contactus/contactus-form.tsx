@@ -14,10 +14,16 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { createCustomerContactRequest } from '@/lib/server-actions/user/customer-contact-requests';
-import { CustomerContactFormSchema, type CustomerContactFormType } from '@/lib/db/drizzle-zod-schema/customer-contact-requests';
+import {
+    CustomerContactFormSchema,
+    type CustomerContactFormType,
+} from '@/lib/db/drizzle-zod-schema/customer-contact-requests';
+import { usePublicCustomerContactRequestCreate } from '@/hooks/public/customer-contact-requests';
 
 export function ContactUsForm() {
+    const { mutate: createContactRequest, isPending } =
+        usePublicCustomerContactRequestCreate();
+
     const form = useForm<CustomerContactFormType>({
         resolver: zodResolver(CustomerContactFormSchema),
         defaultValues: {
@@ -36,17 +42,19 @@ export function ContactUsForm() {
             formData.set('email', data.email);
             formData.set('phone', data.phone ?? '');
 
-            const result = await createCustomerContactRequest(formData);
-
-            if (result.success) {
-                toast.success('Your message has been sent successfully!');
-                form.reset();
-            } else {
-                const errorMessage = typeof result.error === 'string'
-                    ? result.error
-                    : 'Failed to send your message. Please try again later.';
-                toast.error(errorMessage);
-            }
+            createContactRequest(formData, {
+                onSuccess: () => {
+                    toast.success('Your message has been sent successfully!');
+                    form.reset();
+                },
+                onError: error => {
+                    const errorMessage =
+                        error instanceof Error
+                            ? error.message
+                            : 'Failed to send your message. Please try again later.';
+                    toast.error(errorMessage);
+                },
+            });
         } catch (error: unknown) {
             toast.error(
                 error instanceof Error
@@ -64,14 +72,17 @@ export function ContactUsForm() {
                         Have Queries with us?
                     </h2>
                     <p className="mx-auto mt-4 max-w-2xl text-gray-600 text-xl ">
-                        Send us a quick email so that we can get back to you as soon as
-                        possible.
+                        Send us a quick email so that we can get back to you as
+                        soon as possible.
                     </p>
                 </div>
 
                 <div className="mx-auto max-w-2xl rounded-lg bg-white p-8 shadow-lg md:p-10 dark:bg-gray-900">
                     <Form {...form}>
-                        <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+                        <form
+                            className="space-y-6"
+                            onSubmit={form.handleSubmit(onSubmit)}
+                        >
                             <FormField
                                 control={form.control}
                                 name="name"
@@ -156,11 +167,11 @@ export function ContactUsForm() {
                             />
 
                             <Button
-                                className="w-full rounded-md bg-teal-500 px-8 py-3 font-semibold text-lg text-white shadow-md transition-colors duration-300 hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-300 dark:bg-teal-600 dark:focus:ring-teal-800 dark:hover:bg-teal-700"
-                                disabled={form.formState.isSubmitting}
+                                className="w-full rounded-md bg-teal-500 px-8 py-3 font-semibold text-lg text-white shadow-md transition-colors duration-300 hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-300 dark:bg-teal-600 dark:focus:ring-teal-80 dark:hover:bg-teal-700"
+                                disabled={isPending}
                                 type="submit"
                             >
-                                {form.formState.isSubmitting ? 'Sending...' : 'Send Message'}
+                                {isPending ? 'Sending...' : 'Send Message'}
                             </Button>
                         </form>
                     </Form>

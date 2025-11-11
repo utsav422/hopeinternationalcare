@@ -21,8 +21,14 @@ export const profiles = pgTable(
         phone: varchar('phone', { length: 20 }),
         role: varchar('role').default('authenticated'),
         // Soft delete columns
-        deleted_at: timestamp('deleted_at', { mode: 'string', withTimezone: true }),
-        deletion_scheduled_for: timestamp('deletion_scheduled_for', { mode: 'string', withTimezone: true }),
+        deleted_at: timestamp('deleted_at', {
+            mode: 'string',
+            withTimezone: true,
+        }),
+        deletion_scheduled_for: timestamp('deletion_scheduled_for', {
+            mode: 'string',
+            withTimezone: true,
+        }),
         deletion_count: integer('deletion_count').notNull().default(0),
         created_at: timestamp('created_at', { mode: 'string' })
             .notNull()
@@ -31,7 +37,7 @@ export const profiles = pgTable(
             .notNull()
             .default(sql`now()`),
     },
-    (table) => [
+    table => [
         pgPolicy('anyone can insert profile', {
             as: 'permissive',
             for: 'insert',

@@ -18,13 +18,16 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useAdminAffiliationById, useAdminAffiliationUpsert } from '@/hooks/admin/affiliations';
+import {
+    useAdminAffiliationDetails,
+    useAdminAffiliationUpsert,
+} from '@/hooks/admin/affiliations-optimized';
 import {
     ZodAffiliationInsertSchema,
     type ZodInsertAffiliationType,
     type ZodSelectAffiliationType,
 } from '@/lib/db/drizzle-zod-schema/affiliations';
-import type { AffiliationFormData } from '@/lib/server-actions/admin/affiliations';
+import { AffiliationCreateData, AffiliationUpdateData } from '@/lib/types';
 
 interface Props {
     id?: string;
@@ -33,11 +36,14 @@ interface Props {
 
 export default function AffiliationForm({ id, formTitle }: Props) {
     const router = useRouter();
-    const { data: initialDataResult, error } = useAdminAffiliationById(id || '');
+    const { data: initialDataResult, error } = useAdminAffiliationDetails(
+        id || ''
+    );
 
-    const initialData = id && id.length > 0 && initialDataResult?.success
-        ? initialDataResult.data
-        : undefined;
+    const initialData =
+        id && id.length > 0 && initialDataResult?.success
+            ? initialDataResult.data
+            : undefined;
 
     if (error) {
         toast.error('Something went wrong while fetching affiliation', {
@@ -53,15 +59,17 @@ export default function AffiliationForm({ id, formTitle }: Props) {
 
     const form = useForm<ZodInsertAffiliationType>({
         resolver: zodResolver(ZodAffiliationInsertSchema),
-        defaultValues: initialData ? {
-            name: initialData.name,
-            type: initialData.type,
-            description: initialData.description || ''
-        } : {
-            name: '',
-            type: '',
-            description: '',
-        },
+        defaultValues: initialData
+            ? {
+                  name: initialData.affiliation.name,
+                  type: initialData.affiliation.type,
+                  description: initialData.affiliation.description || '',
+              }
+            : {
+                  name: '',
+                  type: '',
+                  description: '',
+              },
     });
 
     const { isSubmitting, isLoading } = form.formState;
@@ -71,7 +79,7 @@ export default function AffiliationForm({ id, formTitle }: Props) {
         if (initialData) {
             form.reset({
                 ...initialData,
-                description: initialData.description || ''
+                description: initialData.affiliation.description || '',
             });
         }
     }, [initialData, form]);
@@ -79,33 +87,40 @@ export default function AffiliationForm({ id, formTitle }: Props) {
     const onSubmit = async (values: ZodInsertAffiliationType) => {
         try {
             // Remove null values to match AffiliationFormData type
-            const formData: AffiliationFormData = {
-                id: values.id,
+            const formData: AffiliationCreateData | AffiliationUpdateData = {
+                id: id,
                 name: values.name,
                 type: values.type,
-                description: values.description || undefined
+                description: values.description || undefined,
             };
-            
+
             const result = await upsertAffiliation(formData);
-            
+
             if (result.success) {
-                toast.success(`Affiliation ${id ? 'updated' : 'created'} successfully.`);
+                toast.success(
+                    `Affiliation ${id ? 'updated' : 'created'} successfully.`
+                );
                 router.push('/admin/affiliations');
             } else {
                 // Handle duplicate name error
                 if (result.error && result.error.includes('already exists')) {
                     form.setError('name', {
                         type: 'manual',
-                        message: result.error
+                        message: result.error,
                     });
                     toast.error(result.error);
                 } else {
-                    throw new Error(result.error || 'An unknown error occurred');
+                    throw new Error(
+                        result.error || 'An unknown error occurred'
+                    );
                 }
             }
         } catch (error) {
             toast.error(`Failed to save affiliation.`, {
-                description: error instanceof Error ? error.message : 'Please try again.'
+                description:
+                    error instanceof Error
+                        ? error.message
+                        : 'Please try again.',
             });
         }
     };
@@ -124,9 +139,7 @@ export default function AffiliationForm({ id, formTitle }: Props) {
         <Card>
             <CardHeader>
                 <div className="mb-6 space-y-1">
-                    <h3 className="font-medium text-lg">
-                        {formTitle}
-                    </h3>
+                    <h3 className="font-medium text-lg">{formTitle}</h3>
                     <p className="text-muted-foreground text-sm">
                         Fill in the information about the affiliation.
                     </p>
@@ -155,7 +168,9 @@ export default function AffiliationForm({ id, formTitle }: Props) {
                                     <div className="md:col-span-3">
                                         <FormControl>
                                             <Input
-                                                disabled={isSubmitting || isLoading}
+                                                disabled={
+                                                    isSubmitting || isLoading
+                                                }
                                                 placeholder="Enter affiliation name"
                                                 {...field}
                                             />
@@ -183,7 +198,9 @@ export default function AffiliationForm({ id, formTitle }: Props) {
                                     <div className="md:col-span-3">
                                         <FormControl>
                                             <Input
-                                                disabled={isSubmitting || isLoading}
+                                                disabled={
+                                                    isSubmitting || isLoading
+                                                }
                                                 placeholder="Enter affiliation type"
                                                 {...field}
                                             />
@@ -205,13 +222,16 @@ export default function AffiliationForm({ id, formTitle }: Props) {
                                             Description
                                         </FormLabel>
                                         <FormDescription className="text-muted-foreground text-xs">
-                                            A brief description of the affiliation.
+                                            A brief description of the
+                                            affiliation.
                                         </FormDescription>
                                     </div>
                                     <div className="md:col-span-3">
                                         <FormControl>
                                             <Textarea
-                                                disabled={isSubmitting || isLoading}
+                                                disabled={
+                                                    isSubmitting || isLoading
+                                                }
                                                 placeholder="Enter affiliation description"
                                                 value={field.value || ''}
                                                 onChange={field.onChange}

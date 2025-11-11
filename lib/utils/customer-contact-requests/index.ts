@@ -1,7 +1,11 @@
 import { db } from '@/lib/db/drizzle';
 import { customerContactRequests } from '@/lib/db/schema/customer-contact-requests';
 import { eq, sql } from 'drizzle-orm';
-import { CustomerContactRequestCreateData, CustomerContactRequestUpdateData, CustomerContactRequestConstraintCheck } from '@/lib/types/customer-contact-requests';
+import {
+    CustomerContactRequestCreateData,
+    CustomerContactRequestUpdateData,
+    CustomerContactRequestConstraintCheck,
+} from '@/lib/types/customer-contact-requests';
 
 /**
  * Customer contact request validation utilities
@@ -116,7 +120,9 @@ export function validateRequestMessage(message: string): void {
  * @param data - The request data to validate
  * @returns ValidationResult
  */
-export function validateCustomerContactRequestData(data: CustomerContactRequestCreateData | CustomerContactRequestUpdateData) {
+export function validateCustomerContactRequestData(
+    data: CustomerContactRequestCreateData | CustomerContactRequestUpdateData
+) {
     try {
         validateRequestName(data.name);
         validateRequestEmail(data.email);
@@ -128,13 +134,13 @@ export function validateCustomerContactRequestData(data: CustomerContactRequestC
                 success: false,
                 error: error.message,
                 code: error.code,
-                details: error.details
+                details: error.details,
             };
         }
         return {
             success: false,
             error: 'Validation failed',
-            code: 'VALIDATION_ERROR'
+            code: 'VALIDATION_ERROR',
         };
     }
 }
@@ -148,18 +154,23 @@ export function validateCustomerContactRequestData(data: CustomerContactRequestC
  * @param id - The request ID to check
  * @returns Object with canDelete flag
  */
-export async function checkCustomerContactRequestConstraints(id: string): Promise<CustomerContactRequestConstraintCheck> {
+export async function checkCustomerContactRequestConstraints(
+    id: string
+): Promise<CustomerContactRequestConstraintCheck> {
     try {
         // For now, we allow deletion of any request
         // This could be extended with business rules if needed
         return {
-            canDelete: true
+            canDelete: true,
         };
     } catch (error) {
-        console.error('Error checking customer contact request constraints:', error);
+        console.error(
+            'Error checking customer contact request constraints:',
+            error
+        );
         // In case of error, assume it cannot be deleted for safety
         return {
-            canDelete: false
+            canDelete: false,
         };
     }
 }
@@ -174,13 +185,16 @@ export async function checkCustomerContactRequestConstraints(id: string): Promis
  * @param newStatus - New request status
  * @returns boolean indicating if update is allowed
  */
-export function canUpdateCustomerContactRequestStatus(currentStatus: string, newStatus: string): boolean {
+export function canUpdateCustomerContactRequestStatus(
+    currentStatus: string,
+    newStatus: string
+): boolean {
     // Valid status transitions
     const validTransitions: Record<string, string[]> = {
-        'new': ['in-progress', 'resolved', 'closed'],
+        new: ['in-progress', 'resolved', 'closed'],
         'in-progress': ['resolved', 'closed'],
-        'resolved': ['closed'],
-        'closed': []
+        resolved: ['closed'],
+        closed: [],
     };
 
     // If current status is not in validTransitions, allow any update
@@ -199,10 +213,10 @@ export function canUpdateCustomerContactRequestStatus(currentStatus: string, new
  */
 export function getValidStatusTransitions(currentStatus: string): string[] {
     const validTransitions: Record<string, string[]> = {
-        'new': ['in-progress', 'resolved', 'closed'],
+        new: ['in-progress', 'resolved', 'closed'],
         'in-progress': ['resolved', 'closed'],
-        'resolved': ['closed'],
-        'closed': []
+        resolved: ['closed'],
+        closed: [],
     };
 
     return validTransitions[currentStatus] || [];

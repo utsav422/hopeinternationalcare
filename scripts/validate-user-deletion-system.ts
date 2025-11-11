@@ -24,18 +24,23 @@ class UserDeletionSystemValidator {
         this.projectRoot = process.cwd();
     }
 
-    private addResult(component: string, status: 'PASS' | 'FAIL' | 'WARNING', message: string, details?: string[]) {
+    private addResult(
+        component: string,
+        status: 'PASS' | 'FAIL' | 'WARNING',
+        message: string,
+        details?: string[]
+    ) {
         this.results.push({ component, status, message, details });
     }
 
     private fileExists(path: string): boolean {
-        return true
+        return true;
         // return existsSync(join(this.projectRoot, path));
     }
 
     private readFile(path: string): string {
         try {
-            return ''
+            return '';
             // return readFileSync(join(this.projectRoot, path), 'utf-8');
         } catch {
             return '';
@@ -44,7 +49,10 @@ class UserDeletionSystemValidator {
 
     private runCommand(command: string): { success: boolean; output: string } {
         try {
-            const output = execSync(command, { encoding: 'utf-8', cwd: this.projectRoot });
+            const output = execSync(command, {
+                encoding: 'utf-8',
+                cwd: this.projectRoot,
+            });
             return { success: true, output };
         } catch (error: any) {
             return { success: false, output: error.message };
@@ -59,7 +67,7 @@ class UserDeletionSystemValidator {
         const schemaFiles = [
             'lib/db/schema/profiles.ts',
             'lib/db/schema/user-deletion-history.ts',
-            'lib/db/drizzle-zod-schema/profiles.ts'
+            'lib/db/drizzle-zod-schema/profiles.ts',
         ];
 
         let allSchemaFilesExist = true;
@@ -75,26 +83,57 @@ class UserDeletionSystemValidator {
         if (allSchemaFilesExist) {
             this.addResult('Database Schema', 'PASS', 'All schema files exist');
         } else {
-            this.addResult('Database Schema', 'FAIL', 'Missing schema files', missingFiles);
+            this.addResult(
+                'Database Schema',
+                'FAIL',
+                'Missing schema files',
+                missingFiles
+            );
         }
 
         // Check for required columns in profiles schema
         const profilesSchema = this.readFile('lib/db/schema/profiles.ts');
-        const requiredColumns = ['deleted_at', 'deletion_scheduled_for', 'deletion_count'];
-        const missingColumns = requiredColumns.filter(col => !profilesSchema.includes(col));
+        const requiredColumns = [
+            'deleted_at',
+            'deletion_scheduled_for',
+            'deletion_count',
+        ];
+        const missingColumns = requiredColumns.filter(
+            col => !profilesSchema.includes(col)
+        );
 
         if (missingColumns.length === 0) {
-            this.addResult('Profiles Schema', 'PASS', 'All required columns present');
+            this.addResult(
+                'Profiles Schema',
+                'PASS',
+                'All required columns present'
+            );
         } else {
-            this.addResult('Profiles Schema', 'FAIL', 'Missing required columns', missingColumns);
+            this.addResult(
+                'Profiles Schema',
+                'FAIL',
+                'Missing required columns',
+                missingColumns
+            );
         }
 
         // Check migration files
         const migrationResult = this.runCommand('ls drizzle/*.sql | wc -l');
-        if (migrationResult.success && parseInt(migrationResult.output.trim()) > 0) {
-            this.addResult('Database Migrations', 'PASS', 'Migration files exist');
+        if (
+            migrationResult.success &&
+            parseInt(migrationResult.output.trim()) > 0
+        ) {
+            this.addResult(
+                'Database Migrations',
+                'PASS',
+                'Migration files exist'
+            );
         } else {
-            this.addResult('Database Migrations', 'WARNING', 'No migration files found');
+            this.addResult(
+                'Database Migrations',
+                'WARNING',
+                'No migration files found'
+            );
         }
     }
 
@@ -105,7 +144,11 @@ class UserDeletionSystemValidator {
         const serverActionFile = 'lib/server-actions/admin/user-deletion.ts';
 
         if (!this.fileExists(serverActionFile)) {
-            this.addResult('Server Actions', 'FAIL', 'Server action file missing');
+            this.addResult(
+                'Server Actions',
+                'FAIL',
+                'Server action file missing'
+            );
             return;
         }
 
@@ -115,22 +158,44 @@ class UserDeletionSystemValidator {
             'restoreUserAction',
             'getDeletedUsersAction',
             'getUserDeletionHistoryAction',
-            'cancelScheduledDeletionAction'
+            'cancelScheduledDeletionAction',
         ];
 
-        const missingActions = requiredActions.filter(action => !serverActionContent.includes(action));
+        const missingActions = requiredActions.filter(
+            action => !serverActionContent.includes(action)
+        );
 
         if (missingActions.length === 0) {
-            this.addResult('Server Actions', 'PASS', 'All required server actions implemented');
+            this.addResult(
+                'Server Actions',
+                'PASS',
+                'All required server actions implemented'
+            );
         } else {
-            this.addResult('Server Actions', 'FAIL', 'Missing server actions', missingActions);
+            this.addResult(
+                'Server Actions',
+                'FAIL',
+                'Missing server actions',
+                missingActions
+            );
         }
 
         // Check for proper error handling
-        if (serverActionContent.includes('try') && serverActionContent.includes('catch')) {
-            this.addResult('Error Handling', 'PASS', 'Server actions have error handling');
+        if (
+            serverActionContent.includes('try') &&
+            serverActionContent.includes('catch')
+        ) {
+            this.addResult(
+                'Error Handling',
+                'PASS',
+                'Server actions have error handling'
+            );
         } else {
-            this.addResult('Error Handling', 'WARNING', 'Server actions may lack proper error handling');
+            this.addResult(
+                'Error Handling',
+                'WARNING',
+                'Server actions may lack proper error handling'
+            );
         }
     }
 
@@ -142,7 +207,7 @@ class UserDeletionSystemValidator {
             'hooks/admin/user-deletion.ts',
             'hooks/admin/use-user-deletion-forms.ts',
             'hooks/admin/use-user-deletion-notifications.ts',
-            'hooks/admin/use-user-management-integration.ts'
+            'hooks/admin/use-user-management-integration.ts',
         ];
 
         let allHooksExist = true;
@@ -158,7 +223,12 @@ class UserDeletionSystemValidator {
         if (allHooksExist) {
             this.addResult('Custom Hooks', 'PASS', 'All hook files exist');
         } else {
-            this.addResult('Custom Hooks', 'FAIL', 'Missing hook files', missingHooks);
+            this.addResult(
+                'Custom Hooks',
+                'FAIL',
+                'Missing hook files',
+                missingHooks
+            );
         }
 
         // Check main hook file for required hooks
@@ -168,15 +238,26 @@ class UserDeletionSystemValidator {
             'useRestoreUser',
             'useDeletedUsers',
             'useUserDeletionHistory',
-            'useCancelScheduledDeletion'
+            'useCancelScheduledDeletion',
         ];
 
-        const missingMainHooks = requiredHooks.filter(hook => !mainHookFile.includes(hook));
+        const missingMainHooks = requiredHooks.filter(
+            hook => !mainHookFile.includes(hook)
+        );
 
         if (missingMainHooks.length === 0) {
-            this.addResult('Main Hooks', 'PASS', 'All required hooks implemented');
+            this.addResult(
+                'Main Hooks',
+                'PASS',
+                'All required hooks implemented'
+            );
         } else {
-            this.addResult('Main Hooks', 'FAIL', 'Missing required hooks', missingMainHooks);
+            this.addResult(
+                'Main Hooks',
+                'FAIL',
+                'Missing required hooks',
+                missingMainHooks
+            );
         }
     }
 
@@ -189,7 +270,7 @@ class UserDeletionSystemValidator {
             'components/Admin/Users/restore-user-modal.tsx',
             'components/Admin/Users/deleted-users-page.tsx',
             'components/Admin/Users/user-deletion-history.tsx',
-            'components/Admin/Users/user-management-breadcrumb.tsx'
+            'components/Admin/Users/user-management-breadcrumb.tsx',
         ];
 
         let allComponentsExist = true;
@@ -203,17 +284,39 @@ class UserDeletionSystemValidator {
         });
 
         if (allComponentsExist) {
-            this.addResult('UI Components', 'PASS', 'All component files exist');
+            this.addResult(
+                'UI Components',
+                'PASS',
+                'All component files exist'
+            );
         } else {
-            this.addResult('UI Components', 'FAIL', 'Missing component files', missingComponents);
+            this.addResult(
+                'UI Components',
+                'FAIL',
+                'Missing component files',
+                missingComponents
+            );
         }
 
         // Check for proper TypeScript usage
-        const deleteModalContent = this.readFile('components/Admin/Users/delete-user-modal.tsx');
-        if (deleteModalContent.includes('interface') && deleteModalContent.includes('export default')) {
-            this.addResult('TypeScript Usage', 'PASS', 'Components use proper TypeScript');
+        const deleteModalContent = this.readFile(
+            'components/Admin/Users/delete-user-modal.tsx'
+        );
+        if (
+            deleteModalContent.includes('interface') &&
+            deleteModalContent.includes('export default')
+        ) {
+            this.addResult(
+                'TypeScript Usage',
+                'PASS',
+                'Components use proper TypeScript'
+            );
         } else {
-            this.addResult('TypeScript Usage', 'WARNING', 'Components may lack proper TypeScript definitions');
+            this.addResult(
+                'TypeScript Usage',
+                'WARNING',
+                'Components may lack proper TypeScript definitions'
+            );
         }
     }
 
@@ -225,7 +328,7 @@ class UserDeletionSystemValidator {
             'app/(protected)/admin/users/deleted/page.tsx',
             'app/(protected)/admin/users/deleted/[id]/history/page.tsx',
             'app/(protected)/admin/users/deleted/loading.tsx',
-            'app/(protected)/admin/users/deleted/[id]/not-found.tsx'
+            'app/(protected)/admin/users/deleted/[id]/not-found.tsx',
         ];
 
         let allRoutesExist = true;
@@ -241,15 +344,29 @@ class UserDeletionSystemValidator {
         if (allRoutesExist) {
             this.addResult('Route Files', 'PASS', 'All route files exist');
         } else {
-            this.addResult('Route Files', 'FAIL', 'Missing route files', missingRoutes);
+            this.addResult(
+                'Route Files',
+                'FAIL',
+                'Missing route files',
+                missingRoutes
+            );
         }
 
         // Check sidebar navigation
-        const sidebarContent = this.readFile('components/Admin/Sidebar/app-sidebar.tsx');
-        if (sidebarContent.includes('Deleted Users') && sidebarContent.includes('sub_items')) {
+        const sidebarContent = this.readFile(
+            'components/Admin/Sidebar/app-sidebar.tsx'
+        );
+        if (
+            sidebarContent.includes('Deleted Users') &&
+            sidebarContent.includes('sub_items')
+        ) {
             this.addResult('Navigation', 'PASS', 'Sidebar navigation updated');
         } else {
-            this.addResult('Navigation', 'WARNING', 'Sidebar navigation may not be properly updated');
+            this.addResult(
+                'Navigation',
+                'WARNING',
+                'Sidebar navigation may not be properly updated'
+            );
         }
     }
 
@@ -263,7 +380,7 @@ class UserDeletionSystemValidator {
             '__tests__/hooks/user-deletion-forms.test.tsx',
             '__tests__/components/delete-user-modal.test.tsx',
             '__tests__/integration/user-deletion-workflow.test.ts',
-            '__tests__/e2e/user-deletion.spec.ts'
+            '__tests__/e2e/user-deletion.spec.ts',
         ];
 
         let allTestsExist = true;
@@ -279,15 +396,27 @@ class UserDeletionSystemValidator {
         if (allTestsExist) {
             this.addResult('Test Files', 'PASS', 'All test files exist');
         } else {
-            this.addResult('Test Files', 'FAIL', 'Missing test files', missingTests);
+            this.addResult(
+                'Test Files',
+                'FAIL',
+                'Missing test files',
+                missingTests
+            );
         }
 
         // Try to run tests
-        const testResult = this.runCommand('npm run test -- --run --reporter=json');
+        const testResult = this.runCommand(
+            'npm run test -- --run --reporter=json'
+        );
         if (testResult.success) {
             this.addResult('Test Execution', 'PASS', 'Tests can be executed');
         } else {
-            this.addResult('Test Execution', 'WARNING', 'Tests may have issues', [testResult.output]);
+            this.addResult(
+                'Test Execution',
+                'WARNING',
+                'Tests may have issues',
+                [testResult.output]
+            );
         }
     }
 
@@ -299,7 +428,12 @@ class UserDeletionSystemValidator {
         if (tscResult.success) {
             this.addResult('TypeScript', 'PASS', 'No TypeScript errors');
         } else {
-            this.addResult('TypeScript', 'FAIL', 'TypeScript compilation errors', [tscResult.output]);
+            this.addResult(
+                'TypeScript',
+                'FAIL',
+                'TypeScript compilation errors',
+                [tscResult.output]
+            );
         }
     }
 
@@ -309,15 +443,23 @@ class UserDeletionSystemValidator {
 
         const buildResult = this.runCommand('npm run build');
         if (buildResult.success) {
-            this.addResult('Build Process', 'PASS', 'Application builds successfully');
+            this.addResult(
+                'Build Process',
+                'PASS',
+                'Application builds successfully'
+            );
         } else {
-            this.addResult('Build Process', 'FAIL', 'Build process failed', [buildResult.output]);
+            this.addResult('Build Process', 'FAIL', 'Build process failed', [
+                buildResult.output,
+            ]);
         }
     }
 
     // Run all validations
     async validate() {
-        console.log('🚀 Starting comprehensive validation of user deletion system...\n');
+        console.log(
+            '🚀 Starting comprehensive validation of user deletion system...\n'
+        );
 
         this.validateDatabaseSchema();
         this.validateServerActions();
@@ -338,10 +480,17 @@ class UserDeletionSystemValidator {
 
         const passed = this.results.filter(r => r.status === 'PASS').length;
         const failed = this.results.filter(r => r.status === 'FAIL').length;
-        const warnings = this.results.filter(r => r.status === 'WARNING').length;
+        const warnings = this.results.filter(
+            r => r.status === 'WARNING'
+        ).length;
 
         this.results.forEach(result => {
-            const icon = result.status === 'PASS' ? '✅' : result.status === 'FAIL' ? '❌' : '⚠️';
+            const icon =
+                result.status === 'PASS'
+                    ? '✅'
+                    : result.status === 'FAIL'
+                      ? '❌'
+                      : '⚠️';
             console.log(`${icon} ${result.component}: ${result.message}`);
 
             if (result.details && result.details.length > 0) {
@@ -358,9 +507,13 @@ class UserDeletionSystemValidator {
         console.log(`📊 Total: ${this.results.length}`);
 
         if (failed === 0) {
-            console.log('\n🎉 All critical validations passed! The user deletion system is ready for production.');
+            console.log(
+                '\n🎉 All critical validations passed! The user deletion system is ready for production.'
+            );
         } else {
-            console.log('\n🚨 Some validations failed. Please address the issues before deploying.');
+            console.log(
+                '\n🚨 Some validations failed. Please address the issues before deploying.'
+            );
             process.exit(1);
         }
     }

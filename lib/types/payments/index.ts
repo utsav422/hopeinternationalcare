@@ -1,7 +1,10 @@
 import type { InferSelectModel } from 'drizzle-orm';
 import type { payments } from '@/lib/db/schema/payments';
 import type { EnrollmentBase, ProfileBase, CourseBase } from '@/lib/types';
-import type { TypePaymentMethod, TypePaymentStatus } from '@/lib/db/schema/enums';
+import type {
+    TypePaymentMethod,
+    TypePaymentStatus,
+} from '@/lib/db/schema/enums';
 import type { ColumnFiltersState } from '@tanstack/react-table';
 
 // Base payment types
@@ -52,7 +55,18 @@ export type PaymentCreateData = Pick<
     'enrollment_id' | 'amount' | 'status' | 'method' | 'remarks' | 'paid_at'
 >;
 
-export type PaymentUpdateData = Partial<Pick<PaymentInsert, 'status' | 'method' | 'remarks' | 'paid_at' | 'is_refunded' | 'refunded_at' | 'refunded_amount'>> & {
+export type PaymentUpdateData = Partial<
+    Pick<
+        PaymentInsert,
+        | 'status'
+        | 'method'
+        | 'remarks'
+        | 'paid_at'
+        | 'is_refunded'
+        | 'refunded_at'
+        | 'refunded_amount'
+    >
+> & {
     id: string;
 };
 

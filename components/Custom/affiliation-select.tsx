@@ -10,11 +10,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useAdminAffiliationsAll } from '@/hooks/admin/affiliations';
+import { useAdminAffiliationsAll } from '@/hooks/admin/affiliations-optimized';
 import type { ZodInsertAffiliationType } from '@/lib/db/drizzle-zod-schema/affiliations';
 import type { ZodInsertCourseType } from '@/lib/db/drizzle-zod-schema/courses';
 import { Skeleton } from '../ui/skeleton';
 import { QueryErrorWrapper } from './query-error-wrapper';
+import { AffiliationBase } from '@/lib/types';
 
 interface AffiliationSelectProps {
     field: ControllerRenderProps<ZodInsertCourseType, 'affiliation_id'>;
@@ -38,7 +39,10 @@ export default function AffiliationSelect({
         });
     }
 
-    const affiliations = queryResult?.data ?? [];
+    const affiliations =
+        queryResult?.data?.filter(
+            (aff): aff is AffiliationBase => aff.id !== undefined
+        ) || [];
 
     if (isLoading) {
         return (
@@ -50,27 +54,37 @@ export default function AffiliationSelect({
             </div>
         );
     }
-
+    if (affiliations.length === 0) {
+        return (
+            <div>
+                No affiliations found. Please create an affiliation first.
+            </div>
+        );
+    }
     return (
-        <Select
-            disabled={disabled}
-            onValueChange={field.onChange}
-            value={field.value ?? undefined}
-        >
-            <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select an affiliation (optional)" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="">None</SelectItem>
-                {affiliations.map((affiliation) => (
-                    <SelectItem
-                        key={affiliation.id}
-                        value={affiliation.id}
-                    >
-                        {affiliation.name}
-                    </SelectItem>
-                ))}
-            </SelectContent>
-        </Select>
+        <>
+            <Select
+                disabled={disabled}
+                onValueChange={field.onChange}
+                value={field.value ?? undefined}
+            >
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select an affiliation (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="None">None</SelectItem>
+                    {affiliations
+                        ?.filter(aff => aff.id) // optional safety
+                        .map(affiliation => (
+                            <SelectItem
+                                key={affiliation.id}
+                                value={affiliation.id}
+                            >
+                                {affiliation.name}
+                            </SelectItem>
+                        ))}
+                </SelectContent>
+            </Select>
+        </>
     );
 }

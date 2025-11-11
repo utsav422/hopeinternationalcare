@@ -9,7 +9,6 @@ export * from './email-logs';
 export * from './payments';
 export * from './profiles';
 export * from './refunds';
-export * from './user-deletion-history';
 export * from './error-handler';
 export * from './logger';
 export * from './query-utils';

@@ -4,10 +4,13 @@ import { Suspense } from 'react';
 import { queryKeys } from '@/lib/query-keys';
 import { getCachedPublicCourses } from '@/lib/server-actions/public/courses-optimized';
 import { getCachedPublicAllCategories } from '@/lib/server-actions/public/course-categories';
-import { getCachedAllIntakes } from '@/lib/server-actions/public/intakes';
+import { getCachedAllIntakes } from '@/lib/server-actions/public/intakes-optimized';
 import { getQueryClient } from '@/utils/get-query-client';
 import { AllCourses } from './_components/courses';
-import { generateMetadata as generateSEOMetadata, seoConfigs } from '@/lib/seo/metadata';
+import {
+    generateMetadata as generateSEOMetadata,
+    seoConfigs,
+} from '@/lib/seo/metadata';
 import { FAQStructuredData } from '@/components/SEO/StructuredData';
 
 export const metadata: Metadata = generateSEOMetadata({
@@ -52,7 +55,7 @@ export default async function Courses() {
             pageSize: 9,
             filters: {},
             sortBy: 'created_at',
-            sortOrder: 'desc'
+            sortOrder: 'desc',
         }),
         queryFn: async ({ pageParam = 1 }) => {
             const result = await getCachedPublicCourses({
@@ -60,7 +63,7 @@ export default async function Courses() {
                 pageSize: 9,
                 filters: {},
                 sortBy: 'created_at',
-                sortOrder: 'desc'
+                sortOrder: 'desc',
             });
 
             if (!result.success) {
@@ -71,13 +74,38 @@ export default async function Courses() {
         },
         initialPageParam: 1,
         getNextPageParam: (lastPage: any, allPages: any[]) => {
-            if (lastPage.data && lastPage.data.length < 9) {
-                return undefined;
+            // Check if the last page has fewer items than the page size
+            // This indicates we've reached the end of available data
+            if (
+                lastPage &&
+                lastPage.success &&
+                lastPage.data &&
+                lastPage.data.data &&
+                lastPage.data.data.length < 9
+            ) {
+                return undefined; // No more pages to fetch
             }
-            if (lastPage.data && lastPage.data.length > 0) {
-                return allPages.length + 1;
+
+            // Check if there are actually more items available than what we've fetched
+            if (
+                lastPage &&
+                lastPage.success &&
+                lastPage.data &&
+                lastPage.data.total !== undefined
+            ) {
+                const totalFetched = allPages.reduce(
+                    (total, page) => total + (page.data?.data?.length || 0),
+                    0
+                );
+
+                // If we've fetched all available items, return undefined
+                if (totalFetched >= lastPage.data.total) {
+                    return undefined;
+                }
             }
-            return undefined;
+
+            // Otherwise, return the next page number
+            return allPages.length + 1;
         },
     });
 

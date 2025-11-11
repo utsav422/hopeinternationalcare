@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
-import Link from "next/link";
-import { Logo } from "./logo";
-import { ThemeSwitcher } from "../theme-switcher";
+import Link from 'next/link';
+import { Logo } from './logo';
+import { ThemeSwitcher } from '../theme-switcher';
 
 const LINKS = [
     {
@@ -12,8 +12,8 @@ const LINKS = [
             { label: 'Our Courses', href: '/courses' },
             { label: 'Contact Us', href: '/contactus' },
         ],
-    }
-]
+    },
+];
 const CURRENT_YEAR = new Date().getFullYear();
 export function Footer() {
     return (
@@ -25,16 +25,19 @@ export function Footer() {
                             <Logo className="h-10 w-auto" />
                         </div>
                         <h6 className="mb-4 font-bold text-gray-800 text-lg dark:text-gray-100">
-                            Hope International Aged Care Training and Elderly Care Center
+                            Hope International Aged Care Training and Elderly
+                            Care Center
                         </h6>
                         <p className="mb-4 text-base text-gray-800 dark:text-gray-300">
-                            At Hope International, we are driven by a passion for enhancing
-                            the quality of life for elderly individuals and empowering
-                            caregivers to make a meaningful difference in their lives. Join us
-                            in our journey towards creating a future where every senior
-                            receives the respect, dignity, and care they deserve. Trust us with
-                            your passion, and let us work together to achieve the best
-                            possible outcomes for you and your goal.
+                            At Hope International, we are driven by a passion
+                            for enhancing the quality of life for elderly
+                            individuals and empowering caregivers to make a
+                            meaningful difference in their lives. Join us in our
+                            journey towards creating a future where every senior
+                            receives the respect, dignity, and care they
+                            deserve. Trust us with your passion, and let us work
+                            together to achieve the best possible outcomes for
+                            you and your goal.
                         </p>
                     </div>
 
@@ -75,12 +78,14 @@ export function Footer() {
                     </div>
                 </div>
 
-                <div className="mt-12 flex flex-col items-center justify-between gap-4 md:flex-row md:gap-0">
+                <div className="mt-12 flex items-center justify-between gap-4 md:flex-row md:gap-0">
                     <p className="text-gray-700 dark:text-gray-300">
-                        &copy; {CURRENT_YEAR} Hope International Aged Care Training And
-                        Elderly Care Center.
+                        &copy; {CURRENT_YEAR} Hope International Aged Care
+                        Training And Elderly Care Center.
                     </p>
-                    <ThemeSwitcher />
+                    <div>
+                        <ThemeSwitcher />
+                    </div>
                 </div>
             </div>
         </footer>

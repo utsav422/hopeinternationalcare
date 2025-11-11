@@ -5,7 +5,11 @@ import { useAdminDashboardTotalEnrollments } from '@/hooks/admin/dashboard';
 import { DashboardCardSkeleton } from '.';
 
 function TotalEnrollmentsCard() {
-    const { data: queryResult, error, isLoading } = useAdminDashboardTotalEnrollments();
+    const {
+        data: queryResult,
+        error,
+        isLoading,
+    } = useAdminDashboardTotalEnrollments();
     const totalEnrollments = queryResult.data;
 
     if (error) {
@@ -23,9 +27,7 @@ function TotalEnrollmentsCard() {
                 <BookOpen className="h-4 w-4 text-muted-foreground " />
             </CardHeader>
             <CardContent>
-                <div className="font-bold text-2xl ">
-                    +{totalEnrollments}
-                </div>
+                <div className="font-bold text-2xl ">+{totalEnrollments}</div>
                 <p className="text-muted-foreground text-xs ">
                     All time enrollments
                 </p>

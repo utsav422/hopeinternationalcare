@@ -6,12 +6,18 @@ import type { TypeEnrollmentStatus } from '@/lib/db/schema';
 import { DashboardCardSkeleton } from '.';
 
 function TotalCompletedEnrollmentsCard() {
-    const { data: queryResult, isLoading, error } = useAdminDashboardEnrollmentListByStatus();
+    const {
+        data: queryResult,
+        isLoading,
+        error,
+    } = useAdminDashboardEnrollmentListByStatus();
     const success = queryResult?.success;
     const queryDataError = queryResult?.error;
     const enrollmentsByStatus = queryResult?.data;
     if (error || !queryResult || !success || queryDataError) {
-        toast.error(error?.message ?? queryDataError ?? 'Unexpected error occurs');
+        toast.error(
+            error?.message ?? queryDataError ?? 'Unexpected error occurs'
+        );
     }
     if (error) {
         toast.error(error.message);
@@ -35,7 +41,7 @@ function TotalCompletedEnrollmentsCard() {
                     )?.count || 0}
                 </div>
                 <p className="text-muted-foreground text-xs ">
-                    Enrollments with 'completed' status
+                    Enrollments with &apos;completed&apos; status
                 </p>
             </CardContent>
         </Card>

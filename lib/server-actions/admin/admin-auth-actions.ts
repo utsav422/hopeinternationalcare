@@ -93,31 +93,42 @@ export const AdminSignInAction = async (formData: FormData) => {
         if (error && !user) {
             return {
                 success: false,
-                error: error?.message ?? 'Something went wrong, user not found!',
+                error:
+                    error?.message ?? 'Something went wrong, user not found!',
             };
         }
-        return { error: undefined, success: true, data: user, message: 'signin successfully' };
-
+        return {
+            error: undefined,
+            success: true,
+            data: user,
+            message: 'signin successfully',
+        };
     } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : 'Something went wrong, user not found!' };
+        return {
+            success: false,
+            error:
+                error instanceof Error
+                    ? error.message
+                    : 'Something went wrong, user not found!',
+        };
     }
-
 };
 export const signOutAction = async () => {
     try {
-
         const supabase = await createServerSupabaseClient();
         const { error } = await supabase.auth.signOut();
         if (error) {
             return { success: false, error: error.message };
         }
-        return { success: true, error: undefined, message: 'user signout successfully' };
-
+        return {
+            success: true,
+            error: undefined,
+            message: 'user signout successfully',
+        };
     } catch (e) {
         const error = e as Error;
         return { success: false, error: error.message };
     }
-
 };
 
 export const inviteUserAction = async (formData: FormData) => {
@@ -143,7 +154,10 @@ export const inviteUserAction = async (formData: FormData) => {
         };
     }
     const { data, error } = await adminAuthClient.inviteUserByEmail(email, {
-        redirectTo: buildSetupPasswordUrl(full_name as string | undefined, phone as string | undefined),
+        redirectTo: buildSetupPasswordUrl(
+            full_name as string | undefined,
+            phone as string | undefined
+        ),
         data: options,
     });
 
@@ -153,16 +167,18 @@ export const inviteUserAction = async (formData: FormData) => {
             message: error.message,
         };
     }
-    const { error: profileError } = await supabaseAdmin.from('profiles').insert([
-        {
-            id: data.user.id,
-            email: email as string,
-            full_name: full_name as string,
-            phone: phone as string,
-            role: 'authenticated',
-            created_at: new Date().toISOString(),
-        },
-    ]);
+    const { error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .insert([
+            {
+                id: data.user.id,
+                email: email as string,
+                full_name: full_name as string,
+                phone: phone as string,
+                role: 'authenticated',
+                created_at: new Date().toISOString(),
+            },
+        ]);
     if (profileError) {
         return {
             success: false,
