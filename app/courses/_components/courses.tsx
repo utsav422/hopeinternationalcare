@@ -244,8 +244,6 @@ export function AllCourses() {
                         <CourseCard
                             available_seats={course?.available_seats ?? null}
                             categoryName={course?.categoryName ?? null}
-                            overview={course?.course_overview || ''}
-                            highlights={course?.course_highlights || ''}
                             image_url={course?.image_url || ''}
                             id={course?.id ?? ''}
                             key={course?.id}
@@ -292,29 +290,31 @@ export function AllCourses() {
                     </p>
                 </header>
                 <div className="flex flex-col gap-8 lg:flex-row">
-                    <aside className="w-full rounded-lg bg-white p-6 shadow-lg lg:sticky lg:top-24 lg:w-1/4 dark:bg-gray-800">
+                    <aside className="w-full rounded-lg bg-white p-6 shadow-lg lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:overflow-y-auto lg:w-1/4 lg:mt-0 lg:transition-all lg:duration-300 dark:bg-gray-800">
                         <div className="space-y-8">
                             <div>
-                                <div className="mb-4 flex items-center">
-                                    <Search className="mr-2 h-5 w-5 text-gray-500" />
-                                    <h2 className="font-semibold text-xl text-gray-800">
-                                        Search
-                                    </h2>
-                                </div>
-                                <div className="relative">
-                                    <Input
-                                        className="rounded-lg border-gray-30 bg-gray-50 text-base dark:border-gray-600 dark:bg-gray-700 pl-10"
-                                        name="title"
-                                        onChange={e =>
-                                            setSearchTerm(e.target.value)
-                                        }
-                                        placeholder="Search courses..."
-                                        value={searchTerm}
-                                    />
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                <div className="border-b border-gray-200 pb-6 dark:border-gray-700">
+                                    <div className="mb-4 flex items-center">
+                                        <Search className="mr-2 h-5 w-5 text-gray-500" />
+                                        <h2 className="font-semibold text-xl text-gray-800">
+                                            Search
+                                        </h2>
+                                    </div>
+                                    <div className="relative">
+                                        <Input
+                                            className="rounded-lg border-gray-30 bg-gray-50 text-base dark:border-gray-600 dark:bg-gray-700 pl-10"
+                                            name="title"
+                                            onChange={e =>
+                                                setSearchTerm(e.target.value)
+                                            }
+                                            placeholder="Search courses..."
+                                            value={searchTerm}
+                                        />
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                    </div>
                                 </div>
                             </div>
-                            <div>
+                            <div className="border-b border-gray-200 pb-6 dark:border-gray-700">
                                 <div className="mb-4 flex items-center">
                                     <Filter className="mr-2 h-5 w-5 text-gray-500" />
                                     <h2 className="font-semibold text-xl text-gray-800">
