@@ -17,7 +17,7 @@ echo "Git pull completed successfully."
 
 # Install/update dependencies
 echo "Installing/updating dependencies..."
-npm install
+npm install --legacy-peer-deps
 
 if [ $? -ne 0 ]; then
     echo "Error: npm install failed!"
